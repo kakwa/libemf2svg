@@ -20,6 +20,9 @@ extern "C" {
 #include <stddef.h> /* for offsetof() macro */
 #include <string.h>
 #include "uemf.h"
+#ifdef DARWIN
+#include <memstream.h>
+#endif
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"

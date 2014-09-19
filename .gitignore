@@ -33,3 +33,6 @@ emf2svg
 
 # out directory
 out
+
+# external build directory
+external-build
