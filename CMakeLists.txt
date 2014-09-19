@@ -6,8 +6,10 @@ project (emf2svg)
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    SET(MEMSTREAMLIB "memstream")
-   SET(ARGPHEADERDIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/argp-standalone/)
+   SET(ARGPHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/argp-standalone/")
    SET(ARGPBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/argp/")
+   SET(ARGPLINKDIR  "${ARGPBUILDDIR}/src/argp-standalone-build/")
+   SET(ARGPLIB  "argp")
    add_definitions(-DDARWIN)
 
    include(ExternalProject)
@@ -27,12 +29,15 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 LINK_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/
     /usr/local/lib
+    /sw/lib/
     /usr/lib/
+    ${ARGPLINKDIR}
 )
 
 include_directories(
     ./inc/
     /usr/include/ 
+    /sw/include/
     ${ARGPHEADERDIR}
 )
 
@@ -51,7 +56,7 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 add_executable(emf2svg src/conv/emf2svg.cpp)
 
-target_link_libraries(emf2svg EMFSVG PMFSVG upmf uemf uemf_utf uemf_endian ${MEMSTREAMLIB})
+target_link_libraries(emf2svg EMFSVG PMFSVG upmf uemf uemf_utf uemf_endian ${MEMSTREAMLIB} ${ARGPLIB})
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
