@@ -2,19 +2,35 @@ cmake_minimum_required (VERSION 2.6)
 
 project (emf2svg)
 
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES external-build)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    SET(MEMSTREAMLIB "memstream")
-   SET(ARGPHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/argp-standalone/")
-   SET(ARGPBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/argp/")
-   SET(ARGPLINKDIR  "${ARGPBUILDDIR}/src/argp-standalone-build/")
-   SET(ARGPLIB  "argp")
    add_definitions(-DDARWIN)
 
    include(ExternalProject)
 
-   ExternalProject_Add(argp-standalone
+   SET(LIBICONVBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/libiconv/")
+   SET(LIBICONVHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv/")
+   SET(LIBICONVLINKDIR  "${LIBICONVBUILDDIR}/src/libiconv/")
+   SET(LIBICONVLIB  "iconv")
+
+   ExternalProject_Add( iconv-standalone
+        PREFIX ${LIBICONVBUILDDIR}
+        DOWNLOAD_DIR ${LIBICONVBUILDDIR}/sources/
+        DOWNLOAD_COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv/ ./
+        SOURCE_DIR ${LIBICONVBUILDDIR}/sources/
+        CONFIGURE_COMMAND ${LIBICONVBUILDDIR}/sources/configure
+        BUILD_COMMAND ${MAKE}
+   )
+
+   SET(ARGPHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/argp-standalone/")
+   SET(ARGPBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/argp/")
+   SET(ARGPLINKDIR  "${ARGPBUILDDIR}/src/argp-standalone-build/")
+   SET(ARGPLIB  "argp")
+
+   ExternalProject_Add( argp-standalone
         PREFIX ${ARGPBUILDDIR}
         DOWNLOAD_DIR ${ARGPBUILDDIR}/sources/
         DOWNLOAD_COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/deps/argp-standalone/ ${ARGPBUILDDIR}/sources/
@@ -32,6 +48,7 @@ LINK_DIRECTORIES(
     /sw/lib/
     /usr/lib/
     ${ARGPLINKDIR}
+    ${LIBICONVLINKDIR}
 )
 
 include_directories(
@@ -39,6 +56,7 @@ include_directories(
     /usr/include/ 
     /sw/include/
     ${ARGPHEADERDIR}
+    ${LIBICONVHEADERDIR}
 )
 
 add_library(EMFSVG src/lib/EMFSVG.cpp)
@@ -56,7 +74,7 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 add_executable(emf2svg src/conv/emf2svg.cpp)
 
-target_link_libraries(emf2svg EMFSVG PMFSVG upmf uemf uemf_utf uemf_endian ${MEMSTREAMLIB} ${ARGPLIB})
+target_link_libraries(emf2svg EMFSVG PMFSVG upmf uemf uemf_utf uemf_endian ${MEMSTREAMLIB} ${ARGPLIB} ${LIBICONVLIB}) 
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
