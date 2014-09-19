@@ -13,7 +13,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
    SET(LIBICONVBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/libiconv/")
    SET(LIBICONVHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv/")
-   SET(LIBICONVLINKDIR  "${LIBICONVBUILDDIR}/src/libiconv/")
+   SET(LIBICONVLINKDIR  "${LIBICONVBUILDDIR}/src/iconv-standalone-build/lib/")
    SET(LIBICONVLIB  "iconv")
 
    ExternalProject_Add( iconv-standalone
