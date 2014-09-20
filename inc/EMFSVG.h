@@ -37,7 +37,7 @@ extern "C" {
 #define FLAG_SUPPORTED verbose_printf("   Status: %sSUPPORTED%s\n", KGRN, KNRM);
 #define FLAG_IGNORED   verbose_printf("   Status: %sIGNORED%s\n", KRED, KNRM);
 #define FLAG_PARTIAL   verbose_printf("   Status: %sPARTIAL SUPPORT%s\n", KYEL, KNRM);
-#define FLAG_USELESS   verbose_printf("   Status  %sUSELESS%s\n", KCYN, KNRM);
+#define FLAG_UNUSED    verbose_printf("   Status  %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
 // EMF Device Context structure
@@ -81,6 +81,9 @@ typedef struct {
     // Verbose mode, output fields and fields values if True
     bool verbose; 
 
+    // Handle emf+ records or not
+    bool emfplus; 
+
     // draw svg document delimiter or not
     bool svgDelimiter;
 
@@ -89,11 +92,16 @@ typedef struct {
 // structure recording drawing states
 typedef struct {
 
-    // SVG namespace (the '<something>:' before each fields)
+    // SVG namespace (the '<something>' before each fields)
     char *nameSpace; 
+    // Same as previously, but with ':'
+    char *nameSpaceString; 
 
     // Verbose mode, output fields and fields values if True
     bool verbose; 
+
+    // Handle emf+ records or not
+    bool emfplus; 
 
     // draw svg document delimiter or not
     bool svgDelimiter;

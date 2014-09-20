@@ -44,8 +44,9 @@ static char doc[] = "emf2svg -- Enhanced Metafile to SVG converter";
 
      static struct argp_option options[] = {
        {"verbose",  'v', 0,      0, "Produce verbose output"},
-       {"input",    'i', "FILE", 0, "Input Visio .vss file"},
-       {"output",   'o', "FILE", 0, "Output file"},
+       {"emfplus",  'p', 0, 0, "Output file"},
+       {"input",    'i', "FILE", 0, "Input EMF file"},
+       {"output",   'o', "FILE", 0, "Output SVG file"},
        { 0 }
      };
 
@@ -55,7 +56,7 @@ static char args_doc[] = "ARG1 ARG2";
 struct arguments
 {
   char *args[2];                /* arg1 & arg2 */
-  int  svg, verbose, yed;
+  bool  verbose, emfplus;
   char *output;
   char *input;
 };
@@ -70,6 +71,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
     {
     case 'v':
       arguments->verbose = 1;
+      break;
+    case 'p':
+      arguments->emfplus = 1;
       break;
     case 'o':
       arguments->output = arg;
@@ -107,9 +111,8 @@ int main(int argc, char *argv[])
 {
 
   struct arguments arguments;
-  arguments.svg = 1;
-  arguments.yed = 0;
   arguments.verbose = 0;
+  arguments.emfplus = 0;
   argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
 
@@ -118,9 +121,10 @@ int main(int argc, char *argv[])
               std::istreambuf_iterator<char>());
   std::ofstream out(arguments.output);
   char *svg_out = NULL;
-  generatorOptions * options = (generatorOptions *)malloc(sizeof(generatorOptions));
+  generatorOptions * options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
   options->verbose = arguments.verbose; 
-  options->nameSpace = (char *)"svg:"; 
+  options->emfplus = arguments.emfplus; 
+  //options->nameSpace = (char *)"svg"; 
   options->svgDelimiter = 1; 
   emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
   out << std::string(svg_out);

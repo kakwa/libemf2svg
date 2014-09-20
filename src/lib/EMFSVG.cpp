@@ -1048,13 +1048,22 @@ void U_EMRHEADER_print(const char *contents, FILE *out, drawingStates *states){
          verbose_printf("   szlMicrometers: {%d,%d} \n", pEmr->szlMicrometers.cx,pEmr->szlMicrometers.cy);
      }
    }
-  if (states->svgDelimiter)
-    fprintf(out, "<%ssvg version=\"1.1\" xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"%d\" height=\"%d\">\n",
-       states->nameSpace, 
+  if (states->svgDelimiter){
+    fprintf(out, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"); 
+    fprintf(out, "<%ssvg version=\"1.1\" ", 
+       states->nameSpaceString);
+
+    if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)){
+        fprintf(out, "xmlns=\"http://www.w3.org/2000/svg\" ");
+        fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ", states->nameSpace);
+    }
+
+    fprintf(out, "width=\"%d\" height=\"%d\">\n",
        pEmr->rclFrame.right  - pEmr->rclFrame.left, 
        pEmr->rclFrame.bottom - pEmr->rclFrame.top);
+    }
 
-   fprintf(out, "<%sg>\n", states->nameSpace);
+   fprintf(out, "<%sg>\n", states->nameSpaceString);
 }
 
 // U_EMRPOLYBEZIER                       2
@@ -1193,9 +1202,9 @@ void U_EMREOF_print(const char *contents, FILE *out, drawingStates *states){
      logpalette_print(states, (PU_LOGPALETTE)(contents + pEmr->offPalEntries));
      verbose_printf("\n");
    }
-   fprintf(out, "</%sg>\n", states->nameSpace);
+   fprintf(out, "</%sg>\n", states->nameSpaceString);
    if(states->svgDelimiter)
-    fprintf(out, "</%ssvg>\n", states->nameSpace);
+    fprintf(out, "</%ssvg>\n", states->nameSpaceString);
 } 
 
 
@@ -1715,7 +1724,7 @@ void U_EMRSETMITERLIMIT_print(const char *contents, FILE *out, drawingStates *st
 */
 void U_EMRBEGINPATH_print(const char *contents, FILE *out, drawingStates *states){
    FLAG_SUPPORTED
-   fprintf(out, "<%spath d=\"", states->nameSpace);
+   fprintf(out, "<%spath d=\"", states->nameSpaceString);
    UNUSED(contents);
 }
 
@@ -1868,16 +1877,18 @@ void U_EMRCOMMENT_print(const char *contents, FILE *out, drawingStates *states, 
          verbose_printf("   cIdent:  EMF+\n");
          PU_EMRCOMMENT_EMFPLUS pEmrpl = (PU_EMRCOMMENT_EMFPLUS) pEmr;
          src = (char *)&(pEmrpl->Data);
-         loff = 16;  /* Header size of the header part of an EMF+ comment record */
-         verbose_printf("=========================== START EMF+ RECORD ANALYSING ==================:\n");
-         while(loff < cbData + 12){  // EMF+ records may not fill the entire comment, cbData value includes cIdent, but not U_EMR or cbData
-            recsize =  U_pmf_onerec_print(src, blimit, recnum, loff + off, out, states);
-            if(recsize<=0)break;
-            loff += recsize;
-            src  += recsize;
-            recnum++;
+         if (states->emfplus){
+             loff = 16;  /* Header size of the header part of an EMF+ comment record */
+             verbose_printf("\n   =====================%s START EMF+ RECORD ANALYSING %s=====================\n\n", KCYN, KNRM);
+             while(loff < cbData + 12){  // EMF+ records may not fill the entire comment, cbData value includes cIdent, but not U_EMR or cbData
+                recsize =  U_pmf_onerec_print(src, blimit, recnum, loff + off, out, states);
+                if(recsize<=0)break;
+                loff += recsize;
+                src  += recsize;
+                recnum++;
+             }
+             verbose_printf("\n   ======================%s END EMF+ RECORD ANALYSING %s======================\n", KBLU , KNRM);
          }
-         verbose_printf("=========================== END EMF+ RECORD ANALYSING ==================:\n");
          //return;
       }
       else {
@@ -2350,7 +2361,7 @@ void U_EMREXTCREATEPEN_print(const char *contents, FILE *out, drawingStates *sta
     \param contents   pointer to a buffer holding all EMR records
 */
 void U_EMRSETICMMODE_print(const char *contents, FILE *out, drawingStates *states){
-   FLAG_IGNORED
+   FLAG_UNUSED
    core3_print("U_EMRSETICMMODE", "iMode:", contents, out, states);
 }
 
@@ -2714,9 +2725,18 @@ int emf2svg(char *contents, size_t length, char **out, generatorOptions *options
     FILE *stream;
     size_t len;
 
-    drawingStates * states = (drawingStates *)malloc(sizeof(drawingStates));
+    drawingStates * states = (drawingStates *)calloc(1,sizeof(drawingStates));
     states->verbose = options->verbose;
-    states->nameSpace = options->nameSpace;
+    states->emfplus = options->emfplus;
+    if ((options->nameSpace != NULL) && (strlen(options->nameSpace) != 0)){
+        states->nameSpace = options->nameSpace;
+        states->nameSpaceString = (char *)malloc(strlen(options->nameSpace)+2);
+        sprintf(states->nameSpaceString, "%s%s", states->nameSpace, ":");
+    }
+    else{
+        states->nameSpaceString = (char *)"";
+    }
+
     states->svgDelimiter = options->svgDelimiter;
     states->currentDeviceContext.font_name = NULL;
 
