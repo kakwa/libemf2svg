@@ -26,6 +26,49 @@ extern "C" {
 //! \cond
 #define UNUSED(x) (void)(x)
 
+/** 
+    \brief save the current device context on the stack.
+    \param states drawingStates object    
+*/
+
+void saveDeviceContext(drawingStates * states){
+ // create the new device context in the stack
+ EMF_DEVICE_CONTEXT_STACK * new_entry = (EMF_DEVICE_CONTEXT_STACK *)malloc(sizeof(EMF_DEVICE_CONTEXT_STACK));
+
+ copyDeviceContext(&(new_entry->DeviceContext), &(states->currentDeviceContext));
+
+ // put the new entry on the stack
+ new_entry->previous = states->DeviceContextStack;
+ states->DeviceContextStack = new_entry;
+}
+
+void copyDeviceContext(EMF_DEVICE_CONTEXT *dest, EMF_DEVICE_CONTEXT *src){
+    // copy simple data (int, double...)
+    *dest = *src;
+    // copy more complex data (pointers...)
+    dest->font_name = (char *)malloc(strlen(src->font_name) + 1);
+    strcpy(dest->font_name, src->font_name);    
+}
+
+void freeDeviceContext(EMF_DEVICE_CONTEXT *dc){
+    free(dc->font_name);
+}
+
+void restoreDeviceContext(drawingStates * states, int32_t index ){
+    EMF_DEVICE_CONTEXT device_context_to_restore;
+    EMF_DEVICE_CONTEXT_STACK * stack_entry = states->DeviceContextStack;
+    // we recover the |index| element of the stack
+    for(int i=-1;i>index;i--){
+        if (stack_entry){
+            stack_entry = stack_entry->previous;
+        }
+    }
+
+    // we copy it as the current device context
+    freeDeviceContext(&(states->currentDeviceContext));
+    copyDeviceContext(&(states->currentDeviceContext), &(stack_entry->DeviceContext));
+}
+
 /* one needed prototype */
 void U_swap4(void *ul, unsigned int count);
 //! \endcond
@@ -45,7 +88,6 @@ void hexbytes_print(drawingStates *states, uint8_t *buf,unsigned int num){
    These functions print standard objects used in the EMR records.
    The low level ones do not append EOL.
 *********************************************************************************************** */
-
 
 
 /** 
