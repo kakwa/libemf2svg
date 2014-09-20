@@ -2646,7 +2646,7 @@ int U_emf_onerec_print(const char *contents, const char *blimit, int recnum, siz
     return(size);
 }
 
-int emf2svg(char *contents, size_t length, char **out, drawingStates *states)
+int emf2svg(char *contents, size_t length, char **out, generatorOptions *options)
 {   
     size_t   off=0;
     size_t   result;
@@ -2657,6 +2657,11 @@ int emf2svg(char *contents, size_t length, char **out, drawingStates *states)
     FILE *stream;
     size_t len;
     stream = open_memstream(out, &len);
+
+
+    drawingStates * states = (drawingStates *)malloc(sizeof(drawingStates));
+    states->verbose = options->verbose;
+    states->nameSpace = options->nameSpace;
 
     if (stream == NULL){
         verbose_printf("Failed to allocate output stream\n");
@@ -2691,6 +2696,7 @@ int emf2svg(char *contents, size_t length, char **out, drawingStates *states)
        }
     }  //end of while
     FLAG_RESET
+    free(states);
     fflush(stream);
     fclose(stream);
     

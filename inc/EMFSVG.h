@@ -72,6 +72,18 @@ typedef struct dc_stack {
     struct dc_stack * previous;
 } EMF_DEVICE_CONTEXT_STACK;
 
+// structure containing generator arguments
+typedef struct {
+
+    // SVG namespace (the '<something>:' before each fields)
+    char *nameSpace; 
+
+    // Verbose mode, output fields and fields values if True
+    bool verbose; 
+
+} generatorOptions;
+
+// structure recording drawing states
 typedef struct {
 
     // SVG namespace (the '<something>:' before each fields)
@@ -240,7 +252,7 @@ void U_EMRTRANSPARENTBLT_print(const char *contents, FILE *out, drawingStates *s
 void U_EMRGRADIENTFILL_print(const char *contents, FILE *out, drawingStates *states);
 void U_EMRCREATECOLORSPACEW_print(const char *contents, FILE *out, drawingStates *states);
 int U_emf_onerec_print(const char *contents, const char *blimit, int recnum, size_t off, FILE *out, drawingStates *states);
-int emf2svg(char *contents, size_t length, char **out, drawingStates *states);
+int emf2svg(char *contents, size_t length, char **out, generatorOptions *options);
 //! \endcond
 
 

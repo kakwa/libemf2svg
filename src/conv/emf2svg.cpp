@@ -118,15 +118,16 @@ int main(int argc, char *argv[])
               std::istreambuf_iterator<char>());
   std::ofstream out(arguments.output);
   char *svg_out = NULL;
-  drawingStates * states = (drawingStates *)malloc(sizeof(drawingStates));
-  states->verbose = arguments.verbose; 
-  states->nameSpace = (char *)"svg:"; 
-  emf2svg((char *)contents.c_str(), contents.size(), &svg_out, states);
+  //drawingStates * states = (drawingStates *)malloc(sizeof(drawingStates));
+  generatorOptions * options = (generatorOptions *)malloc(sizeof(generatorOptions));
+  options->verbose = arguments.verbose; 
+  options->nameSpace = (char *)"svg:"; 
+  emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
   out << "<svg:svg version=\"1.1\" xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" >\n";
   out << std::string(svg_out);
   out << "</svg:svg>\n";
   free(svg_out);
-  free(states);
+  free(options);
   
   in.close();
   out.close();
