@@ -3228,7 +3228,7 @@ int pmf2svg(char *contents, size_t length, FILE *out, drawingStates *states)
 
     while(OK){
        if(off>=length){ //normally should exit from while after EMREOF sets OK to false, this is most likely a corrupt EMF
-          verbose_printf("%d:%d\n",off, length);
+          verbose_printf("%zu:%zu\n",off, length);
           verbose_printf("WARNING: record claims to extend beyond the end of the EMF+ file\n");
           return(0);
        }
