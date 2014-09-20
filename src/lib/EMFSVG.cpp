@@ -43,11 +43,15 @@ void saveDeviceContext(drawingStates * states){
 }
 
 void copyDeviceContext(EMF_DEVICE_CONTEXT *dest, EMF_DEVICE_CONTEXT *src){
+
     // copy simple data (int, double...)
     *dest = *src;
+
     // copy more complex data (pointers...)
-    dest->font_name = (char *)malloc(strlen(src->font_name) + 1);
-    strcpy(dest->font_name, src->font_name);    
+    if (src->font_name != NULL){
+        dest->font_name = (char *)malloc(strlen(src->font_name) + 1);
+        strcpy(dest->font_name, src->font_name);    
+    }
 }
 
 void freeDeviceContext(EMF_DEVICE_CONTEXT *dc){
@@ -59,7 +63,7 @@ void restoreDeviceContext(drawingStates * states, int32_t index ){
     EMF_DEVICE_CONTEXT_STACK * stack_entry = states->DeviceContextStack;
     // we recover the |index| element of the stack
     for(int i=-1;i>index;i--){
-        if (stack_entry){
+        if (stack_entry != NULL){
             stack_entry = stack_entry->previous;
         }
     }
@@ -1391,7 +1395,8 @@ void U_EMRSCALEWINDOWEXTEX_print(const char *contents, FILE *out, drawingStates 
     \param contents   pointer to a buffer holding all EMR records
 */
 void U_EMRSAVEDC_print(const char *contents, FILE *out, drawingStates *states){
-   FLAG_IGNORED
+   FLAG_SUPPORTED
+   saveDeviceContext(states);
    UNUSED(contents);
 }
 
@@ -1401,7 +1406,9 @@ void U_EMRSAVEDC_print(const char *contents, FILE *out, drawingStates *states){
     \param contents   pointer to a buffer holding all EMR records
 */
 void U_EMRRESTOREDC_print(const char *contents, FILE *out, drawingStates *states){
-   FLAG_IGNORED
+   FLAG_SUPPORTED
+   PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
+   restoreDeviceContext(states, pEmr->iMode);
    core3_print("U_EMRRESTOREDC", "iRelative:", contents, out, states);
 }
 
@@ -2706,13 +2713,14 @@ int emf2svg(char *contents, size_t length, char **out, generatorOptions *options
     char     *blimit;
     FILE *stream;
     size_t len;
-    stream = open_memstream(out, &len);
 
     drawingStates * states = (drawingStates *)malloc(sizeof(drawingStates));
     states->verbose = options->verbose;
     states->nameSpace = options->nameSpace;
     states->svgDelimiter = options->svgDelimiter;
+    states->currentDeviceContext.font_name = NULL;
 
+    stream = open_memstream(out, &len);
     if (stream == NULL){
         verbose_printf("Failed to allocate output stream\n");
         return(0);

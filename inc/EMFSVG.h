@@ -122,7 +122,7 @@ void saveDeviceContext(drawingStates * states);
 // copy device context from src in dest
 void copyDeviceContext(EMF_DEVICE_CONTEXT * dest, EMF_DEVICE_CONTEXT * src);
 // restore device context at <index> in the stack as current device context
-void restoreDeviceContext(drawingStates * states, int32_t index ){
+void restoreDeviceContext(drawingStates * states, int32_t index );
 
 /* prototypes for objects used in EMR records */
 void hexbytes_print(drawingStates *states, uint8_t *buf,unsigned int num);
