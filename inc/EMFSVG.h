@@ -81,6 +81,9 @@ typedef struct {
     // Verbose mode, output fields and fields values if True
     bool verbose; 
 
+    // draw svg document delimiter or not
+    bool svgDelimiter;
+
 } generatorOptions;
 
 // structure recording drawing states
@@ -91,6 +94,9 @@ typedef struct {
 
     // Verbose mode, output fields and fields values if True
     bool verbose; 
+
+    // draw svg document delimiter or not
+    bool svgDelimiter;
 
     /* The current EMF Device Context
      * (Device Context == pen, brush, palette... see [MS-EMF].pdf) */

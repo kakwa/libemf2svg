@@ -1002,7 +1002,13 @@ void U_EMRHEADER_print(const char *contents, FILE *out, drawingStates *states){
          verbose_printf("   szlMicrometers: {%d,%d} \n", pEmr->szlMicrometers.cx,pEmr->szlMicrometers.cy);
      }
    }
-   fprintf(out, "<%sg width=\"%d\" height=\"%d\">\n", states->nameSpace, pEmr->szlDevice.cx, pEmr->szlDevice.cy);
+  if (states->svgDelimiter)
+    fprintf(out, "<%ssvg version=\"1.1\" xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"%d\" height=\"%d\">\n",
+       states->nameSpace, 
+       pEmr->rclFrame.right  - pEmr->rclFrame.left, 
+       pEmr->rclFrame.bottom - pEmr->rclFrame.top);
+
+   fprintf(out, "<%sg>\n", states->nameSpace);
 }
 
 // U_EMRPOLYBEZIER                       2
@@ -1132,7 +1138,7 @@ void U_EMRSETBRUSHORGEX_print(const char *contents, FILE *out, drawingStates *st
     \param contents   pointer to a buffer holding all EMR records
 */
 void U_EMREOF_print(const char *contents, FILE *out, drawingStates *states){
-   FLAG_IGNORED
+   FLAG_PARTIAL
    PU_EMREOF pEmr = (PU_EMREOF)(contents);
    verbose_printf("   cbPalEntries:   %u\n",      pEmr->cbPalEntries );
    verbose_printf("   offPalEntries:  %u\n",      pEmr->offPalEntries);
@@ -1142,6 +1148,8 @@ void U_EMREOF_print(const char *contents, FILE *out, drawingStates *states){
      verbose_printf("\n");
    }
    fprintf(out, "</%sg>\n", states->nameSpace);
+   if(states->svgDelimiter)
+    fprintf(out, "</%ssvg>\n", states->nameSpace);
 } 
 
 
@@ -2658,10 +2666,10 @@ int emf2svg(char *contents, size_t length, char **out, generatorOptions *options
     size_t len;
     stream = open_memstream(out, &len);
 
-
     drawingStates * states = (drawingStates *)malloc(sizeof(drawingStates));
     states->verbose = options->verbose;
     states->nameSpace = options->nameSpace;
+    states->svgDelimiter = options->svgDelimiter;
 
     if (stream == NULL){
         verbose_printf("Failed to allocate output stream\n");
