@@ -4,6 +4,13 @@ project (emf2svg)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES external-build)
 
+option(USE_CLANG "build application with clang" OFF)
+
+if(USE_CLANG)
+    SET(CMAKE_CXX_COMPILER "clang++")
+    SET(CMAKE_CC_COMPILER    "clang")
+endif(USE_CLANG)
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    SET(MEMSTREAMLIB "memstream")
