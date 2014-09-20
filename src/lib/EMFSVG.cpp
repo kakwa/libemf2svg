@@ -61,7 +61,7 @@ void freeDeviceContext(EMF_DEVICE_CONTEXT *dc){
 void restoreDeviceContext(drawingStates * states, int32_t index ){
     EMF_DEVICE_CONTEXT device_context_to_restore;
     EMF_DEVICE_CONTEXT_STACK * stack_entry = states->DeviceContextStack;
-    // we recover the |index| element of the stack
+    // we recover the 'abs(index)' element of the stack
     for(int i=-1;i>index;i--){
         if (stack_entry != NULL){
             stack_entry = stack_entry->previous;
@@ -71,6 +71,16 @@ void restoreDeviceContext(drawingStates * states, int32_t index ){
     // we copy it as the current device context
     freeDeviceContext(&(states->currentDeviceContext));
     copyDeviceContext(&(states->currentDeviceContext), &(stack_entry->DeviceContext));
+}
+
+void freeDeviceContextStack(drawingStates * states){
+    EMF_DEVICE_CONTEXT_STACK * stack_entry = states->DeviceContextStack;
+    while (stack_entry != NULL){
+        EMF_DEVICE_CONTEXT_STACK * next_entry = stack_entry->previous;
+        freeDeviceContext(&(stack_entry->DeviceContext));
+        free(stack_entry);
+        stack_entry = next_entry;
+    }
 }
 
 /* one needed prototype */
@@ -1048,6 +1058,11 @@ void U_EMRHEADER_print(const char *contents, FILE *out, drawingStates *states){
          verbose_printf("   szlMicrometers: {%d,%d} \n", pEmr->szlMicrometers.cx,pEmr->szlMicrometers.cy);
      }
    }
+
+  // object table allocation
+  states->objectTable = calloc(pEmr->nHandles, sizeof(void *));
+  states->objectTableSize = pEmr->nHandles;
+
   if (states->svgDelimiter){
     fprintf(out, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"); 
     fprintf(out, "<%ssvg version=\"1.1\" ", 
@@ -2774,7 +2789,11 @@ int emf2svg(char *contents, size_t length, char **out, generatorOptions *options
        }
     }  //end of while
     FLAG_RESET
+    free(states->objectTable);
     free(states);
+    freeDeviceContext(&(states->currentDeviceContext));
+    freeDeviceContextStack(states);
+
     fflush(stream);
     fclose(stream);
     

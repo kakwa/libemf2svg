@@ -118,6 +118,11 @@ typedef struct {
 
     // flag to know if we are in an SVG path or not
     bool inPath;
+
+    // object table
+    void * objectTable;
+    uint16_t objectTableSize; 
+
 } drawingStates;
 
 #define BUFFERSIZE 1024
@@ -131,6 +136,8 @@ void saveDeviceContext(drawingStates * states);
 void copyDeviceContext(EMF_DEVICE_CONTEXT * dest, EMF_DEVICE_CONTEXT * src);
 // restore device context at <index> in the stack as current device context
 void restoreDeviceContext(drawingStates * states, int32_t index );
+// free the device context stack
+void freeDeviceContextStack(drawingStates * states);
 
 /* prototypes for objects used in EMR records */
 void hexbytes_print(drawingStates *states, uint8_t *buf,unsigned int num);
