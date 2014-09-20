@@ -123,9 +123,7 @@ int main(int argc, char *argv[])
   options->nameSpace = (char *)"svg:"; 
   options->svgDelimiter = 1; 
   emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
-  //out << "<svg:svg version=\"1.1\" xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" >\n";
   out << std::string(svg_out);
-  //out << "</svg:svg>\n";
   free(svg_out);
   free(options);
   
