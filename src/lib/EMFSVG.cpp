@@ -1096,7 +1096,8 @@ void U_EMRHEADER_print(const char *contents, FILE *out, drawingStates *states){
   states->objectTableSize = pEmr->nHandles;
 
   // set scaling for original resolution
-  states->scaling = pEmr->szlDevice.cx / (pEmr->rclBounds.right  - pEmr->rclBounds.left);
+  if (states->scaling == 0)
+    states->scaling = pEmr->szlDevice.cx / (pEmr->rclBounds.right  - pEmr->rclBounds.left);
 
   if (states->svgDelimiter){
     fprintf(out, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"); 
