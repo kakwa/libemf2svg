@@ -17,8 +17,6 @@ Copyright: 2013 David Mathog and California Institute of Technology (Caltech)
 extern "C" {
 #endif
 
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h> /* for offsetof() macro */

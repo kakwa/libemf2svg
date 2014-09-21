@@ -66,8 +66,8 @@ include_directories(
     ${LIBICONVHEADERDIR}
 )
 
-add_library(EMFSVG src/lib/EMFSVG.cpp)
-add_library(PMFSVG src/lib/PMFSVG.cpp)
+add_library(EMFSVG src/lib/EMFSVG.c)
+add_library(PMFSVG src/lib/PMFSVG.c)
 add_library(uemf_utf src/lib/uemf_utf.c)
 add_library(uemf_endian src/lib/uemf_endian.c)
 add_library(uemf src/lib/uemf.c)
@@ -84,4 +84,5 @@ add_executable(emf2svg src/conv/emf2svg.cpp)
 target_link_libraries(emf2svg EMFSVG PMFSVG upmf uemf uemf_utf uemf_endian ${MEMSTREAMLIB} ${ARGPLIB} ${LIBICONVLIB}) 
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 

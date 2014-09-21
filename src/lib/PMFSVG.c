@@ -31,7 +31,6 @@ extern "C" {
 #include "EMFSVG.h"
 #include "PMFSVG.h"
 
-
     //! \cond
 
 #define UNUSED(x) (void)(x)  //! Please ignore - Doxygen simply insisted on including this

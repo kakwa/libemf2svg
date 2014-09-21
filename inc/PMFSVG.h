@@ -21,9 +21,8 @@ Copyright: 2013 David Mathog and California Institute of Technology (Caltech)
 extern "C" {
 #endif
 
-
-
 #include "upmf.h" /* includes uemf.h */
+
 
     /* prototypes for simple types and enums used in PMR records */
     int U_PMF_CMN_HDR_print(U_PMF_CMN_HDR Header, int precnum, int off, FILE *out, drawingStates *states);
