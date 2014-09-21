@@ -44,19 +44,19 @@ static char doc[] = "emf2svg -- Enhanced Metafile to SVG converter";
 
      static struct argp_option options[] = {
        {"verbose",  'v', 0,      0, "Produce verbose output"},
-       {"emfplus",  'p', 0, 0, "Output file"},
+       {"emfplus",  'p', 0,      0, "Handle EMF+ records"},
        {"input",    'i', "FILE", 0, "Input EMF file"},
        {"output",   'o', "FILE", 0, "Output SVG file"},
        { 0 }
      };
 
 /* A description of the arguments we accept. */
-static char args_doc[] = "ARG1 ARG2";
+static char args_doc[] = "-i FILE -o FILE";
 
 struct arguments
 {
   char *args[2];                /* arg1 & arg2 */
-  bool  verbose, emfplus;
+  bool verbose, emfplus;
   char *output;
   char *input;
 };
@@ -81,23 +81,6 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
     case 'i':
       arguments->input = arg;
       break;
-
-
-    case ARGP_KEY_ARG:
-      if (state->arg_num >= 6)
-        /* Too many arguments. */
-        argp_usage (state);
-
-      arguments->args[state->arg_num] = arg;
-
-      break;
-
-    case ARGP_KEY_END:
-      if (state->arg_num < 0)
-        /* Not enough arguments. */
-        argp_usage (state);
-      break;
-
     default:
       return ARGP_ERR_UNKNOWN;
     }
@@ -112,14 +95,35 @@ int main(int argc, char *argv[])
 
   struct arguments arguments;
   arguments.verbose = 0;
+  arguments.input = NULL;
+  arguments.output = NULL;
   arguments.emfplus = 0;
   argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
+  if (arguments.input == NULL){
+    std::cerr << "[ERROR] " <<"Missing --input=FILE argument\n";
+    return 1;
+  }
+
+  if (arguments.output == NULL){
+    std::cerr << "[ERROR] " << "Missing --output=FILE argument\n";
+    return 1;
+  }
 
   std::ifstream in(arguments.input);
+  if (! in.is_open()){
+    std::cerr << "[ERROR] " << "Impossible to open input file '"<< arguments.input << "'\n";
+    return 1;
+  }
   std::string contents((std::istreambuf_iterator<char>(in)), 
               std::istreambuf_iterator<char>());
+
   std::ofstream out(arguments.output);
+  if (! out.is_open()){
+    std::cerr << "[ERROR] " << "Impossible to open output file '"<< arguments.output << "'\n";
+    return 1;
+  }
+
   char *svg_out = NULL;
   generatorOptions * options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
   options->verbose = arguments.verbose; 
