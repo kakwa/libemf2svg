@@ -1092,7 +1092,8 @@ void U_EMRHEADER_print(const char *contents, FILE *out, drawingStates *states){
    }
 
   // object table allocation
-  states->objectTable = calloc(pEmr->nHandles, sizeof(void *));
+  // allocate one more to directly use object indexes (starts at 1 and not 0)
+  states->objectTable = calloc(pEmr->nHandles + 1, sizeof(void *));
   states->objectTableSize = pEmr->nHandles;
 
   // set scaling for original resolution
@@ -2941,5 +2942,5 @@ int emf2svg(char *contents, size_t length, char **out, generatorOptions *options
     return 1;
 }
 
-
 }
+/* vim:set shiftwidth=2 softtabstop=2 expandtab: */
