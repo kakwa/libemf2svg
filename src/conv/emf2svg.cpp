@@ -42,49 +42,49 @@ const char *argp_program_bug_address = "<carpentier.pf@gmail.com>";
 
 static char doc[] = "emf2svg -- Enhanced Metafile to SVG converter";
 
-     static struct argp_option options[] = {
-       {"verbose",  'v', 0,      0, "Produce verbose output"},
-       {"emfplus",  'p', 0,      0, "Handle EMF+ records"},
-       {"input",    'i', "FILE", 0, "Input EMF file"},
-       {"output",   'o', "FILE", 0, "Output SVG file"},
-       { 0 }
-     };
+static struct argp_option options[] = {
+    {"verbose",  'v', 0,      0, "Produce verbose output"},
+    {"emfplus",  'p', 0,      0, "Handle EMF+ records"},
+    {"input",    'i', "FILE", 0, "Input EMF file"},
+    {"output",   'o', "FILE", 0, "Output SVG file"},
+    { 0 }
+};
 
 /* A description of the arguments we accept. */
 static char args_doc[] = "-i FILE -o FILE";
 
 struct arguments
 {
-  char *args[2];                /* arg1 & arg2 */
-  bool verbose, emfplus;
-  char *output;
-  char *input;
+    char *args[2];                /* arg1 & arg2 */
+    bool verbose, emfplus;
+    char *output;
+    char *input;
 };
 
 static error_t parse_opt (int key, char *arg, struct argp_state *state)
 {
-  /* Get the input argument from argp_parse, which we
-     know is a pointer to our arguments structure. */
-  struct arguments *arguments = (struct arguments *)state->input;
+    /* Get the input argument from argp_parse, which we
+       know is a pointer to our arguments structure. */
+    struct arguments *arguments = (struct arguments *)state->input;
 
-  switch (key)
+    switch (key)
     {
-    case 'v':
-      arguments->verbose = 1;
-      break;
-    case 'p':
-      arguments->emfplus = 1;
-      break;
-    case 'o':
-      arguments->output = arg;
-      break;
-    case 'i':
-      arguments->input = arg;
-      break;
-    default:
-      return ARGP_ERR_UNKNOWN;
+        case 'v':
+            arguments->verbose = 1;
+            break;
+        case 'p':
+            arguments->emfplus = 1;
+            break;
+        case 'o':
+            arguments->output = arg;
+            break;
+        case 'i':
+            arguments->input = arg;
+            break;
+        default:
+            return ARGP_ERR_UNKNOWN;
     }
-  return 0;
+    return 0;
 }
 
 /* Our argp parser. */
@@ -93,50 +93,50 @@ static struct argp argp = { options, parse_opt, args_doc, doc };
 int main(int argc, char *argv[])
 {
 
-  struct arguments arguments;
-  arguments.verbose = 0;
-  arguments.input = NULL;
-  arguments.output = NULL;
-  arguments.emfplus = 0;
-  argp_parse (&argp, argc, argv, 0, 0, &arguments);
+    struct arguments arguments;
+    arguments.verbose = 0;
+    arguments.input = NULL;
+    arguments.output = NULL;
+    arguments.emfplus = 0;
+    argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
-  if (arguments.input == NULL){
-    std::cerr << "[ERROR] " <<"Missing --input=FILE argument\n";
-    return 1;
-  }
+    if (arguments.input == NULL){
+        std::cerr << "[ERROR] " <<"Missing --input=FILE argument\n";
+        return 1;
+    }
 
-  if (arguments.output == NULL){
-    std::cerr << "[ERROR] " << "Missing --output=FILE argument\n";
-    return 1;
-  }
+    if (arguments.output == NULL){
+        std::cerr << "[ERROR] " << "Missing --output=FILE argument\n";
+        return 1;
+    }
 
-  std::ifstream in(arguments.input);
-  if (! in.is_open()){
-    std::cerr << "[ERROR] " << "Impossible to open input file '"<< arguments.input << "'\n";
-    return 1;
-  }
-  std::string contents((std::istreambuf_iterator<char>(in)), 
-              std::istreambuf_iterator<char>());
+    std::ifstream in(arguments.input);
+    if (! in.is_open()){
+        std::cerr << "[ERROR] " << "Impossible to open input file '"<< arguments.input << "'\n";
+        return 1;
+    }
+    std::string contents((std::istreambuf_iterator<char>(in)), 
+            std::istreambuf_iterator<char>());
 
-  std::ofstream out(arguments.output);
-  if (! out.is_open()){
-    std::cerr << "[ERROR] " << "Impossible to open output file '"<< arguments.output << "'\n";
-    return 1;
-  }
+    std::ofstream out(arguments.output);
+    if (! out.is_open()){
+        std::cerr << "[ERROR] " << "Impossible to open output file '"<< arguments.output << "'\n";
+        return 1;
+    }
 
-  char *svg_out = NULL;
-  generatorOptions * options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
-  options->verbose = arguments.verbose; 
-  options->emfplus = arguments.emfplus; 
-  //options->nameSpace = (char *)"svg"; 
-  options->svgDelimiter = 1; 
-  emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
-  out << std::string(svg_out);
-  free(svg_out);
-  free(options);
-  
-  in.close();
-  out.close();
-  return 0;
+    char *svg_out = NULL;
+    generatorOptions * options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
+    options->verbose = arguments.verbose; 
+    options->emfplus = arguments.emfplus; 
+    //options->nameSpace = (char *)"svg"; 
+    options->svgDelimiter = 1; 
+    emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
+    out << std::string(svg_out);
+    free(svg_out);
+    free(options);
+
+    in.close();
+    out.close();
+    return 0;
 }
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */
