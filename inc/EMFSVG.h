@@ -123,7 +123,12 @@ typedef struct {
     void * objectTable;
     uint16_t objectTableSize; 
 
+    // scaling ratio
+    double scaling;
+
 } drawingStates;
+
+#define U_MWT_SET      4                   //!< Transform is basic SET
 
 #define BUFFERSIZE 1024
 //! \cond

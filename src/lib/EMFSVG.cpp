@@ -42,6 +42,15 @@ void saveDeviceContext(drawingStates * states){
  states->DeviceContextStack = new_entry;
 }
 
+void setTransformIdentity(drawingStates * states){
+           states->currentDeviceContext.worldTransform.eM11 = 1.0;
+           states->currentDeviceContext.worldTransform.eM12 = 0.0;
+           states->currentDeviceContext.worldTransform.eM21 = 0.0;
+           states->currentDeviceContext.worldTransform.eM22 = 1.0;
+           states->currentDeviceContext.worldTransform.eDx  = 0.0;
+           states->currentDeviceContext.worldTransform.eDy  = 0.0;
+}
+
 void copyDeviceContext(EMF_DEVICE_CONTEXT *dest, EMF_DEVICE_CONTEXT *src){
 
     // copy simple data (int, double...)
@@ -186,7 +195,28 @@ void point16_draw(
        FILE * out
     ){
     verbose_printf("{%d,%d} ",pt.x ,pt.y);
-    fprintf(out, "%d %d ", pt.x ,pt.y);
+    double x = (pt.x * states->currentDeviceContext.worldTransform.eM11 + \
+               pt.y * states->currentDeviceContext.worldTransform.eM21 + \
+               states->currentDeviceContext.worldTransform.eDx) * states->scaling;
+    double y = (pt.x * states->currentDeviceContext.worldTransform.eM12 + \
+               pt.y * states->currentDeviceContext.worldTransform.eM22 + \
+               states->currentDeviceContext.worldTransform.eDy) * states->scaling;
+    fprintf(out, "%f %f ", x ,y);
+} 
+
+void point_draw(
+       drawingStates *states,
+       U_POINT pt,
+       FILE * out
+    ){
+    verbose_printf("{%d,%d} ",pt.x ,pt.y);
+    double x = (pt.x * states->currentDeviceContext.worldTransform.eM11 + \
+               pt.y * states->currentDeviceContext.worldTransform.eM21 + \
+               states->currentDeviceContext.worldTransform.eDx) * states->scaling;
+    double y = (pt.x * states->currentDeviceContext.worldTransform.eM12 + \
+               pt.y * states->currentDeviceContext.worldTransform.eM22 + \
+               states->currentDeviceContext.worldTransform.eDy) * states->scaling;
+    fprintf(out, "%f %f ", x ,y);
 } 
 
 
@@ -842,7 +872,8 @@ void polyline_draw(const char *name, const char *contents, FILE *out, drawingSta
 void moveto_draw(const char *name, const char *field1, const char *field2, const char *contents, FILE *out, drawingStates *states){
    UNUSED(name);
    PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
-   fprintf(out, "%d %d ", pEmr->pair.x, pEmr->pair.y);
+   //fprintf(out, "%d %d ", pEmr->pair.x, pEmr->pair.y);
+   point_draw(states,pEmr->pair,out);
    if(*field2){
       verbose_printf("   %-15s %d\n",field1,pEmr->pair.x);
       verbose_printf("   %-15s %d\n",field2,pEmr->pair.y);
@@ -857,7 +888,8 @@ void moveto_draw(const char *name, const char *field1, const char *field2, const
 void lineto_draw(const char *name, const char *field1, const char *field2, const char *contents, FILE *out, drawingStates *states){
    UNUSED(name);
    PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
-   fprintf(out, "L %d %d ", pEmr->pair.x, pEmr->pair.y);
+   fprintf(out, "L ");
+   point_draw(states,pEmr->pair,out);
    if(*field2){
       verbose_printf("   %-15s %d\n",field1,pEmr->pair.x);
       verbose_printf("   %-15s %d\n",field2,pEmr->pair.y);
@@ -1063,6 +1095,9 @@ void U_EMRHEADER_print(const char *contents, FILE *out, drawingStates *states){
   states->objectTable = calloc(pEmr->nHandles, sizeof(void *));
   states->objectTableSize = pEmr->nHandles;
 
+  // set scaling for original resolution
+  states->scaling = pEmr->szlDevice.cx / (pEmr->rclBounds.right  - pEmr->rclBounds.left);
+
   if (states->svgDelimiter){
     fprintf(out, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"); 
     fprintf(out, "<%ssvg version=\"1.1\" ", 
@@ -1073,9 +1108,9 @@ void U_EMRHEADER_print(const char *contents, FILE *out, drawingStates *states){
         fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ", states->nameSpace);
     }
 
-    fprintf(out, "width=\"%d\" height=\"%d\">\n",
-       pEmr->rclFrame.right  - pEmr->rclFrame.left, 
-       pEmr->rclFrame.bottom - pEmr->rclFrame.top);
+    fprintf(out, "width=\"%f\" height=\"%f\">\n",
+       (pEmr->rclBounds.right  - pEmr->rclBounds.left) * states->scaling, 
+       (pEmr->rclBounds.bottom - pEmr->rclBounds.top)  * states->scaling);
     }
 
    fprintf(out, "<%sg>\n", states->nameSpaceString);
@@ -1442,11 +1477,12 @@ void U_EMRRESTOREDC_print(const char *contents, FILE *out, drawingStates *states
     \param contents   pointer to a buffer holding all EMR records
 */
 void U_EMRSETWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
-   FLAG_IGNORED
+   FLAG_SUPPORTED
    PU_EMRSETWORLDTRANSFORM pEmr = (PU_EMRSETWORLDTRANSFORM)(contents);
    verbose_printf("   xform:");
    xform_print(states, pEmr->xform);
    verbose_printf("\n");
+   states->currentDeviceContext.worldTransform = pEmr->xform;
 } 
 
 // U_EMRMODIFYWORLDTRANSFORM 36
@@ -1455,12 +1491,115 @@ void U_EMRSETWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates
     \param contents   pointer to a buffer holding all EMR records
 */
 void U_EMRMODIFYWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
-   FLAG_IGNORED
+   FLAG_SUPPORTED
    PU_EMRMODIFYWORLDTRANSFORM pEmr = (PU_EMRMODIFYWORLDTRANSFORM)(contents);
    verbose_printf("   xform:");
    xform_print(states, pEmr->xform);
    verbose_printf("\n");
-   verbose_printf("   iMode:          %u\n",      pEmr->iMode );
+
+   switch (pEmr->iMode)
+   {
+       case U_MWT_IDENTITY:
+       {
+
+           verbose_printf("   iMode:          U_MWT_IDENTITY\n");
+           setTransformIdentity(states);
+           break;
+       }
+       case U_MWT_LEFTMULTIPLY:
+       {
+
+           verbose_printf("   iMode:          U_MWT_LEFTMULTIPLY\n");
+           float a11 = pEmr->xform.eM11;
+           float a12 = pEmr->xform.eM12;
+           float a13 = 0.0;
+           float a21 = pEmr->xform.eM21;
+           float a22 = pEmr->xform.eM22;
+           float a23 = 0.0;
+           float a31 = pEmr->xform.eDx;
+           float a32 = pEmr->xform.eDy;
+           float a33 = 1.0;
+
+           float b11 = states->currentDeviceContext.worldTransform.eM11;
+           float b12 = states->currentDeviceContext.worldTransform.eM12;
+           //float b13 = 0.0;
+           float b21 = states->currentDeviceContext.worldTransform.eM21;
+           float b22 = states->currentDeviceContext.worldTransform.eM22;
+           //float b23 = 0.0;
+           float b31 = states->currentDeviceContext.worldTransform.eDx;
+           float b32 = states->currentDeviceContext.worldTransform.eDy;
+           //float b33 = 1.0;
+
+           float c11 = a11*b11 + a12*b21 + a13*b31;;
+           float c12 = a11*b12 + a12*b22 + a13*b32;;
+           //float c13 = a11*b13 + a12*b23 + a13*b33;;
+           float c21 = a21*b11 + a22*b21 + a23*b31;;
+           float c22 = a21*b12 + a22*b22 + a23*b32;;
+           //float c23 = a21*b13 + a22*b23 + a23*b33;;
+           float c31 = a31*b11 + a32*b21 + a33*b31;;
+           float c32 = a31*b12 + a32*b22 + a33*b32;;
+           //float c33 = a31*b13 + a32*b23 + a33*b33;;
+
+           states->currentDeviceContext.worldTransform.eM11 = c11;;
+           states->currentDeviceContext.worldTransform.eM12 = c12;;
+           states->currentDeviceContext.worldTransform.eM21 = c21;;
+           states->currentDeviceContext.worldTransform.eM22 = c22;;
+           states->currentDeviceContext.worldTransform.eDx = c31;
+           states->currentDeviceContext.worldTransform.eDy = c32;
+
+           break;
+       }
+       case U_MWT_RIGHTMULTIPLY:
+       {
+           verbose_printf("   iMode:          U_MWT_RIGHTMULTIPLY\n");
+           float a11 = states->currentDeviceContext.worldTransform.eM11;
+           float a12 = states->currentDeviceContext.worldTransform.eM12;
+           float a13 = 0.0;
+           float a21 = states->currentDeviceContext.worldTransform.eM21;
+           float a22 = states->currentDeviceContext.worldTransform.eM22;
+           float a23 = 0.0;
+           float a31 = states->currentDeviceContext.worldTransform.eDx;
+           float a32 = states->currentDeviceContext.worldTransform.eDy;
+           float a33 = 1.0;
+
+           float b11 = pEmr->xform.eM11;
+           float b12 = pEmr->xform.eM12;
+           //float b13 = 0.0;
+           float b21 = pEmr->xform.eM21;
+           float b22 = pEmr->xform.eM22;
+           //float b23 = 0.0;
+           float b31 = pEmr->xform.eDx;
+           float b32 = pEmr->xform.eDy;
+           //float b33 = 1.0;
+
+           float c11 = a11*b11 + a12*b21 + a13*b31;;
+           float c12 = a11*b12 + a12*b22 + a13*b32;;
+           //float c13 = a11*b13 + a12*b23 + a13*b33;;
+           float c21 = a21*b11 + a22*b21 + a23*b31;;
+           float c22 = a21*b12 + a22*b22 + a23*b32;;
+           //float c23 = a21*b13 + a22*b23 + a23*b33;;
+           float c31 = a31*b11 + a32*b21 + a33*b31;;
+           float c32 = a31*b12 + a32*b22 + a33*b32;;
+           //float c33 = a31*b13 + a32*b23 + a33*b33;;
+
+           states->currentDeviceContext.worldTransform.eM11 = c11;;
+           states->currentDeviceContext.worldTransform.eM12 = c12;;
+           states->currentDeviceContext.worldTransform.eM21 = c21;;
+           states->currentDeviceContext.worldTransform.eM22 = c22;;
+           states->currentDeviceContext.worldTransform.eDx = c31;
+           states->currentDeviceContext.worldTransform.eDy = c32;
+
+           break;
+       }
+       case U_MWT_SET:
+       {
+           verbose_printf("   iMode:          U_MWT_SET\n");
+           states->currentDeviceContext.worldTransform = pEmr->xform;
+           break;
+       }
+       default:
+            break;
+   }
 } 
 
 // U_EMRSELECTOBJECT         37
@@ -1750,7 +1889,7 @@ void U_EMRBEGINPATH_print(const char *contents, FILE *out, drawingStates *states
 */
 void U_EMRENDPATH_print(const char *contents, FILE *out, drawingStates *states){
    FLAG_PARTIAL
-   fprintf(out, "\"  stroke=\"blue\" stroke-width=\"3\" />\n");
+   fprintf(out, "\"  stroke=\"blue\" stroke-width=\"1\" />\n");
    UNUSED(contents);
 }
 
@@ -2754,6 +2893,7 @@ int emf2svg(char *contents, size_t length, char **out, generatorOptions *options
 
     states->svgDelimiter = options->svgDelimiter;
     states->currentDeviceContext.font_name = NULL;
+    setTransformIdentity(states);
 
     stream = open_memstream(out, &len);
     if (stream == NULL){
