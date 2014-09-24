@@ -1613,13 +1613,58 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRSELECTOBJECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            PU_EMRSELECTOBJECT pEmr = (PU_EMRSELECTOBJECT)(contents);
-        if(pEmr->ihObject & U_STOCK_OBJECT){
+        FLAG_PARTIAL
+        PU_EMRSELECTOBJECT pEmr = (PU_EMRSELECTOBJECT)(contents);
+        uint32_t index = pEmr->ihObject;
+        if(index & U_STOCK_OBJECT){
             verbose_printf("   StockObject:    0x%8.8X\n",  pEmr->ihObject );
+            switch(index){
+                case(U_WHITE_BRUSH):
+                    break;
+                case(U_LTGRAY_BRUSH):
+                    break;
+                case(U_GRAY_BRUSH):
+                    break;
+                case(U_DKGRAY_BRUSH):
+                    break;
+                case(U_BLACK_BRUSH):
+                    break;
+                case(U_NULL_BRUSH):
+                    break;
+                case(U_WHITE_PEN):
+                    break;
+                case(U_BLACK_PEN):
+                    break;
+                case(U_NULL_PEN):
+                    break;
+                case(U_OEM_FIXED_FONT):
+                    break;
+                case(U_ANSI_FIXED_FONT):
+                    break;
+                case(U_ANSI_VAR_FONT):
+                    break;
+                case(U_SYSTEM_FONT):
+                    break;
+                case(U_DEVICE_DEFAULT_FONT):
+                    break;
+                case(U_DEFAULT_PALETTE):
+                    break;
+                case(U_SYSTEM_FIXED_FONT):
+                    break;
+                case(U_DEFAULT_GUI_FONT):
+                    break;
+            }
         }
         else {
             verbose_printf("   ihObject:       %u\n",     pEmr->ihObject );
+            if(states->objectTable[index].fill_set){
+                states->currentDeviceContext.fill_red  = states->objectTable[index].fill_red;
+                states->currentDeviceContext.fill_blue = states->objectTable[index].fill_blue;
+                states->currentDeviceContext.fill_green = states->objectTable[index].fill_green;
+            }
+            else if(states->objectTable[index].stroke_set){
+                return;
+            }
         }
     } 
 
@@ -1669,9 +1714,11 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRDELETEOBJECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
+        FLAG_SUPPORTED
             PU_EMRDELETEOBJECT pEmr = (PU_EMRDELETEOBJECT)(contents);
         verbose_printf("   ihObject:       %u\n",      pEmr->ihObject );
+        uint16_t index = pEmr->ihObject;
+        states->objectTable[index] = (const emfGraphObject){ 0 };
     } 
 
     // U_EMRANGLEARC             41
@@ -1911,7 +1958,11 @@ extern "C" {
       */
     void U_EMRENDPATH_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL
-        fprintf(out, "\"  stroke=\"blue\" stroke-width=\"1\" />\n");
+        fprintf(out, "\" fill=\"#%X%X%X\" stroke=\"blue\" stroke-width=\"1\" />\n", 
+                states->currentDeviceContext.fill_red,
+                states->currentDeviceContext.fill_green,
+                states->currentDeviceContext.fill_blue
+        );
         states->inPath = 0;
         UNUSED(contents);
     }
@@ -2952,7 +3003,8 @@ extern "C" {
             }
         }  //end of while
         FLAG_RESET
-            free(states->objectTable);
+
+        free(states->objectTable);
         free(states);
         freeDeviceContext(&(states->currentDeviceContext));
         freeDeviceContextStack(states);
