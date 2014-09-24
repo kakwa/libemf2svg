@@ -70,7 +70,6 @@ extern "C" {
         U_COLORREF      textColor;
         uint32_t        textAlign;
         U_XFORM         worldTransform;
-        U_POINTL        cur;
     } emfGraphObject;
 
     // EMF Device Context structure
@@ -164,6 +163,11 @@ extern "C" {
 
         // scaling ratio
         double scaling;
+
+        // current cursor position
+        double          cur_x;
+        double          cur_y;
+
 
     } drawingStates;
 

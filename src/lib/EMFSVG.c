@@ -45,6 +45,23 @@ extern "C" {
         states->DeviceContextStack = new_entry;
     }
 
+    void startPathDraw(drawingStates *states,
+            FILE * out
+            ){
+        if (!(states->inPath)){
+            fprintf(out, "<%spath d=\"M %f %f ", states->nameSpaceString, states->cur_x, states->cur_y);
+        }
+    }
+
+    void endPathDraw(drawingStates *states,
+            FILE * out
+            ){
+        // missing style application    
+        if (!(states->inPath)){
+            fprintf(out,"\" stroke=\"blue\" stroke-width=\"1000\" />\n");
+        }
+    }
+
     void setTransformIdentity(drawingStates * states){
         states->currentDeviceContext.worldTransform.eM11 = 1.0;
         states->currentDeviceContext.worldTransform.eM12 = 0.0;
@@ -204,6 +221,8 @@ extern "C" {
         double y = (pt.x * states->currentDeviceContext.worldTransform.eM12 + \
                 pt.y * states->currentDeviceContext.worldTransform.eM22 + \
                 states->currentDeviceContext.worldTransform.eDy) * states->scaling;
+        states->cur_x = x;
+        states->cur_y = y;
         fprintf(out, "%f %f ", x ,y);
     } 
 
@@ -219,6 +238,8 @@ extern "C" {
         double y = (pt.x * states->currentDeviceContext.worldTransform.eM12 + \
                 pt.y * states->currentDeviceContext.worldTransform.eM22 + \
                 states->currentDeviceContext.worldTransform.eDy) * states->scaling;
+        states->cur_x = x;
+        states->cur_y = y;
         fprintf(out, "%f %f ", x ,y);
     } 
 
@@ -836,6 +857,7 @@ extern "C" {
         verbose_printf("   rclBounds:      ");    rectl_print(states, pEmr->rclBounds);    verbose_printf("\n");
         verbose_printf("   cpts:           %d\n",pEmr->cpts        );
         verbose_printf("   Points:         ");
+        startPathDraw(states, out);
         PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
         for(i=0; i<pEmr->cpts; i++){
             switch ( i % 3 ) {
@@ -851,6 +873,7 @@ extern "C" {
                     break;
             }
         }
+        endPathDraw(states, out);
         verbose_printf("\n");
     } 
 
@@ -865,10 +888,12 @@ extern "C" {
         verbose_printf("   cpts:           %d\n",pEmr->cpts        );
         verbose_printf("   Points:         ");
         PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
+        startPathDraw(states, out);
         for(i=0; i<pEmr->cpts; i++){
             fprintf(out, "L ");
             verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
         }
+        endPathDraw(states, out);
         verbose_printf("\n");
     } 
 
@@ -891,6 +916,7 @@ extern "C" {
     void lineto_draw(const char *name, const char *field1, const char *field2, const char *contents, FILE *out, drawingStates *states){
         UNUSED(name);
         PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
+        startPathDraw(states, out);
         fprintf(out, "L ");
         point_draw(states,pEmr->pair,out);
         if(*field2){
@@ -900,6 +926,7 @@ extern "C" {
         else {
             verbose_printf("   %-15s {%d,%d}\n",field1,pEmr->pair.x,pEmr->pair.y);
         } 
+        endPathDraw(states, out);
     }
 
     // Records with the same form starting with U_EMRSETWINDOWEXTEX_print
@@ -1398,8 +1425,21 @@ extern "C" {
       */
     void U_EMRMOVETOEX_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED
+
+        if (states->inPath){
             fprintf(out, "M ");
-        moveto_draw("U_EMRMOVETOEX", "ptl:","",contents, out, states);
+            moveto_draw("U_EMRMOVETOEX", "ptl:","",contents, out, states);
+        }
+        else{
+            PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
+            states->cur_x = (pEmr->pair.x * states->currentDeviceContext.worldTransform.eM11 + \
+                pEmr->pair.y * states->currentDeviceContext.worldTransform.eM21 + \
+                states->currentDeviceContext.worldTransform.eDx) * states->scaling;
+            states->cur_y = (pEmr->pair.x * states->currentDeviceContext.worldTransform.eM12 + \
+                pEmr->pair.y * states->currentDeviceContext.worldTransform.eM22 + \
+                states->currentDeviceContext.worldTransform.eDy) * states->scaling;
+
+        }
     } 
 
     // U_EMRSETMETARGN           28
@@ -1868,7 +1908,8 @@ extern "C" {
       */
     void U_EMREXTFLOODFILL_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED
-            PU_EMREXTFLOODFILL pEmr = (PU_EMREXTFLOODFILL)(contents);
+
+        PU_EMREXTFLOODFILL pEmr = (PU_EMREXTFLOODFILL)(contents);
         verbose_printf("   ptlStart:       ");   pointl_print(states, pEmr->ptlStart);    verbose_printf("\n");
         verbose_printf("   crColor:        ");   colorref_print(states, pEmr->crColor);   verbose_printf("\n");
         verbose_printf("   iMode:          %u\n",pEmr->iMode);
@@ -1881,7 +1922,8 @@ extern "C" {
       */
     void U_EMRLINETO_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED
-            lineto_draw("U_EMRLINETO", "ptl:","",contents, out, states);
+
+        lineto_draw("U_EMRLINETO", "ptl:","",contents, out, states);
     } 
 
     // U_EMRARCTO                55
@@ -2477,7 +2519,8 @@ extern "C" {
       */
     void U_EMRPOLYBEZIERTO16_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED
-            cubic_bezier_draw("U_EMRPOLYBEZIERTO16", contents, out, states);
+        
+        cubic_bezier_draw("U_EMRPOLYBEZIERTO16", contents, out, states);
     }
 
     // U_EMRPOLYLINETO16         89
@@ -2487,7 +2530,8 @@ extern "C" {
       */
     void U_EMRPOLYLINETO16_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED
-            polyline_draw("U_EMRPOLYLINETO16", contents, out, states);
+
+        polyline_draw("U_EMRPOLYLINETO16", contents, out, states);
     }
 
     // U_EMRPOLYPOLYLINE16       90
