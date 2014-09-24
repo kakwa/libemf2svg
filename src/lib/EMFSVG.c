@@ -1133,12 +1133,11 @@ extern "C" {
             states->scaling = pEmr->szlDevice.cx / (pEmr->rclBounds.right  - pEmr->rclBounds.left);
 
         if (states->svgDelimiter){
-            fprintf(out, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"); 
+            fprintf(out, "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n"); 
             fprintf(out, "<%ssvg version=\"1.1\" ", 
                     states->nameSpaceString);
-
+            fprintf(out, "xmlns=\"http://www.w3.org/2000/svg\" ");
             if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)){
-                fprintf(out, "xmlns=\"http://www.w3.org/2000/svg\" ");
                 fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ", states->nameSpace);
             }
 
