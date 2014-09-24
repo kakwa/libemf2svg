@@ -17,7 +17,9 @@ Copyright: 2013 David Mathog and California Institute of Technology (Caltech)
 extern "C" {
 #endif
 
+#ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h> /* for offsetof() macro */
