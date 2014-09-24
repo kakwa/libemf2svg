@@ -1658,50 +1658,91 @@ extern "C" {
         PU_EMRSELECTOBJECT pEmr = (PU_EMRSELECTOBJECT)(contents);
         uint32_t index = pEmr->ihObject;
         if(index & U_STOCK_OBJECT){
-            verbose_printf("   StockObject:    0x%8.8X\n",  pEmr->ihObject );
             switch(index){
                 case(U_WHITE_BRUSH):
+                    states->currentDeviceContext.fill_red   = 0xFF;
+                    states->currentDeviceContext.fill_blue  = 0xFF;
+                    states->currentDeviceContext.fill_green = 0xFF;
+                    states->currentDeviceContext.fill_mode  = U_BS_SOLID;
+                    verbose_printf("   StockObject:    WHITE_BRUSH",  pEmr->ihObject );
                     break;
                 case(U_LTGRAY_BRUSH):
+                    states->currentDeviceContext.fill_red   = 0xC0;
+                    states->currentDeviceContext.fill_blue  = 0xC0;
+                    states->currentDeviceContext.fill_green = 0xC0;
+                    states->currentDeviceContext.fill_mode  = U_BS_SOLID;
+                    verbose_printf("   StockObject:    LTGRAY_BRUSH",  pEmr->ihObject );
                     break;
                 case(U_GRAY_BRUSH):
+                    states->currentDeviceContext.fill_red   = 0x80;
+                    states->currentDeviceContext.fill_blue  = 0x80;
+                    states->currentDeviceContext.fill_green = 0x80;
+                    states->currentDeviceContext.fill_mode  = U_BS_SOLID;
+                    verbose_printf("   StockObject:    GRAY_BRUSH",  pEmr->ihObject );
                     break;
                 case(U_DKGRAY_BRUSH):
+                    states->currentDeviceContext.fill_red   = 0x40;
+                    states->currentDeviceContext.fill_blue  = 0x40;
+                    states->currentDeviceContext.fill_green = 0x40;
+                    states->currentDeviceContext.fill_mode  = U_BS_SOLID;
+                    verbose_printf("   StockObject:    DKGRAY_BRUSH",  pEmr->ihObject );
                     break;
                 case(U_BLACK_BRUSH):
+                    states->currentDeviceContext.fill_red   = 0x00;
+                    states->currentDeviceContext.fill_blue  = 0x00;
+                    states->currentDeviceContext.fill_green = 0x00;
+                    states->currentDeviceContext.fill_mode  = U_BS_SOLID;
+                    verbose_printf("   StockObject:    BLACK_BRUSH",  pEmr->ihObject );
                     break;
                 case(U_NULL_BRUSH):
+                    states->currentDeviceContext.fill_mode = U_BS_NULL;
+                    verbose_printf("   StockObject:    NULL_BRUSH",  pEmr->ihObject );
                     break;
                 case(U_WHITE_PEN):
+                    verbose_printf("   StockObject:    WHITE_PEN",  pEmr->ihObject );
                     break;
                 case(U_BLACK_PEN):
+                    verbose_printf("   StockObject:    BLACK_PEN",  pEmr->ihObject );
                     break;
                 case(U_NULL_PEN):
+                    verbose_printf("   StockObject:    NULL_PEN",  pEmr->ihObject );
                     break;
                 case(U_OEM_FIXED_FONT):
+                    verbose_printf("   StockObject:    OEM_FIXED_FONT",  pEmr->ihObject );
                     break;
                 case(U_ANSI_FIXED_FONT):
+                    verbose_printf("   StockObject:    ANSI_FIXED_FONT",  pEmr->ihObject );
                     break;
                 case(U_ANSI_VAR_FONT):
+                    verbose_printf("   StockObject:    ANSI_VAR_FONT",  pEmr->ihObject );
                     break;
                 case(U_SYSTEM_FONT):
+                    verbose_printf("   StockObject:    SYSTEM_FONT",  pEmr->ihObject );
                     break;
                 case(U_DEVICE_DEFAULT_FONT):
+                    verbose_printf("   StockObject:    DEFAULT_FONT",  pEmr->ihObject );
                     break;
                 case(U_DEFAULT_PALETTE):
+                    verbose_printf("   StockObject:    DEFAULT_PALETTE",  pEmr->ihObject );
                     break;
                 case(U_SYSTEM_FIXED_FONT):
+                    verbose_printf("   StockObject:    DEFAULT_FIXED_FONT",  pEmr->ihObject );
                     break;
                 case(U_DEFAULT_GUI_FONT):
+                    verbose_printf("   StockObject:    DEFAULT_GUI_FONT",  pEmr->ihObject );
+                    break;
+                default:
+                    verbose_printf("   StockObject:    0x%8.8X\n",  pEmr->ihObject );
                     break;
             }
         }
         else {
             verbose_printf("   ihObject:       %u\n",     pEmr->ihObject );
             if(states->objectTable[index].fill_set){
-                states->currentDeviceContext.fill_red  = states->objectTable[index].fill_red;
-                states->currentDeviceContext.fill_blue = states->objectTable[index].fill_blue;
+                states->currentDeviceContext.fill_red   = states->objectTable[index].fill_red;
+                states->currentDeviceContext.fill_blue  = states->objectTable[index].fill_blue;
                 states->currentDeviceContext.fill_green = states->objectTable[index].fill_green;
+                states->currentDeviceContext.fill_mode  = states->objectTable[index].fill_mode;
             }
             else if(states->objectTable[index].stroke_set){
                 return;
