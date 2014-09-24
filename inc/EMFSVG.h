@@ -42,6 +42,37 @@ extern "C" {
 #define FLAG_UNUSED    verbose_printf("   Status  %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
+    typedef struct emf_graph_object {
+        char            *font_name;
+        bool            stroke_set;
+        int             stroke_mode;  // enumeration from drawmode, not used if fill_set is not True
+        int             stroke_idx;   // used with DRAW_PATTERN and DRAW_IMAGE to return the appropriate fill
+        int             stroke_recidx;// record used to regenerate hatch when it needs to be redone due to bkmode, textmode, etc. change
+        bool            fill_set;
+        int             fill_mode;    // enumeration from drawmode, not used if fill_set is not True
+        int             fill_idx;     // used with DRAW_PATTERN and DRAW_IMAGE to return the appropriate fill
+        int             fill_recidx;  // record used to regenerate hatch when it needs to be redone due to bkmode, textmode, etc. change
+        // filling colors
+        uint8_t         fill_red;    
+        uint8_t         fill_blue;
+        uint8_t         fill_green;
+        uint16_t        fill_hatch_style;
+
+        int             dirty;        // holds the dirty bits for text, stroke, fill
+        U_SIZEL         sizeWnd;
+        U_SIZEL         sizeView;
+        U_POINTL        winorg;
+        U_POINTL        vieworg;
+        double          ScaleInX, ScaleInY;
+        double          ScaleOutX, ScaleOutY;
+        uint16_t        bkMode;
+        U_COLORREF      bkColor;
+        U_COLORREF      textColor;
+        uint32_t        textAlign;
+        U_XFORM         worldTransform;
+        U_POINTL        cur;
+    } emfGraphObject;
+
     // EMF Device Context structure
     typedef struct emf_device_context {
         char           *font_name;
@@ -122,7 +153,7 @@ extern "C" {
         bool inPath;
 
         // object table
-        void * objectTable;
+        emfGraphObject * objectTable;
         uint16_t objectTableSize; 
 
         // scaling ratio

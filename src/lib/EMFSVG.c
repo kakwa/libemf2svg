@@ -1096,7 +1096,7 @@ extern "C" {
 
         // object table allocation
         // allocate one more to directly use object indexes (starts at 1 and not 0)
-        states->objectTable = calloc(pEmr->nHandles + 1, sizeof(void *));
+        states->objectTable = calloc(pEmr->nHandles + 1, sizeof(emfGraphObject));
         states->objectTableSize = pEmr->nHandles;
 
         // set scaling for original resolution
@@ -1641,10 +1641,26 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRCREATEBRUSHINDIRECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            PU_EMRCREATEBRUSHINDIRECT pEmr = (PU_EMRCREATEBRUSHINDIRECT)(contents);
+        FLAG_PARTIAL
+        PU_EMRCREATEBRUSHINDIRECT pEmr = (PU_EMRCREATEBRUSHINDIRECT)(contents);
         verbose_printf("   ihBrush:        %u\n",      pEmr->ihBrush );
         verbose_printf("   lb:             ");         logbrush_print(states, pEmr->lb);  verbose_printf("\n");
+
+        uint16_t index = pEmr->ihBrush;
+        if(pEmr->lb.lbStyle == U_BS_SOLID){
+            states->objectTable[index].fill_red = pEmr->lb.lbColor.Red;
+            states->objectTable[index].fill_green = pEmr->lb.lbColor.Green;
+            states->objectTable[index].fill_blue = pEmr->lb.lbColor.Blue;
+            states->objectTable[index].fill_mode    = U_BS_SOLID;
+            states->objectTable[index].fill_set     = true;
+        }
+        else if(pEmr->lb.lbStyle == U_BS_HATCHED){
+            //states->currentDeviceContext.fill_idx     = add_hatch(d, pEmr->lb.lbHatch, pEmr->lb.lbColor);
+            states->objectTable[index].fill_recidx  = pEmr->ihBrush; // used if the hatch needs to be redone due to bkMode, textmode, etc. changes
+            states->objectTable[index].fill_mode    = U_BS_HATCHED;
+            states->objectTable[index].fill_set     = true;
+        }
+
     } 
 
     // U_EMRDELETEOBJECT         40
@@ -1883,7 +1899,8 @@ extern "C" {
       */
     void U_EMRBEGINPATH_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED
-            fprintf(out, "<%spath d=\"", states->nameSpaceString);
+        fprintf(out, "<%spath d=\"", states->nameSpaceString);
+        states->inPath = 1;
         UNUSED(contents);
     }
 
@@ -1894,7 +1911,8 @@ extern "C" {
       */
     void U_EMRENDPATH_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL
-            fprintf(out, "\"  stroke=\"blue\" stroke-width=\"1\" />\n");
+        fprintf(out, "\"  stroke=\"blue\" stroke-width=\"1\" />\n");
+        states->inPath = 0;
         UNUSED(contents);
     }
 
