@@ -1699,12 +1699,21 @@ extern "C" {
                     verbose_printf("   StockObject:    NULL_BRUSH",  pEmr->ihObject );
                     break;
                 case(U_WHITE_PEN):
+                    states->currentDeviceContext.stroke_red   = 0xFF;
+                    states->currentDeviceContext.stroke_blue  = 0xFF;
+                    states->currentDeviceContext.stroke_green = 0xFF;
+                    states->currentDeviceContext.stroke_mode  = U_PS_SOLID;
                     verbose_printf("   StockObject:    WHITE_PEN",  pEmr->ihObject );
                     break;
                 case(U_BLACK_PEN):
+                    states->currentDeviceContext.stroke_red   = 0x00;
+                    states->currentDeviceContext.stroke_blue  = 0x00;
+                    states->currentDeviceContext.stroke_green = 0x00;
+                    states->currentDeviceContext.stroke_mode  = U_PS_SOLID;
                     verbose_printf("   StockObject:    BLACK_PEN",  pEmr->ihObject );
                     break;
                 case(U_NULL_PEN):
+                    states->currentDeviceContext.stroke_mode  = U_PS_NULL;
                     verbose_printf("   StockObject:    NULL_PEN",  pEmr->ihObject );
                     break;
                 case(U_OEM_FIXED_FONT):
@@ -1745,7 +1754,10 @@ extern "C" {
                 states->currentDeviceContext.fill_mode  = states->objectTable[index].fill_mode;
             }
             else if(states->objectTable[index].stroke_set){
-                return;
+                states->currentDeviceContext.stroke_red   = states->objectTable[index].fill_red;
+                states->currentDeviceContext.stroke_blue  = states->objectTable[index].fill_blue;
+                states->currentDeviceContext.stroke_green = states->objectTable[index].fill_green;
+                states->currentDeviceContext.stroke_mode  = states->objectTable[index].fill_mode;
             }
         }
     } 
@@ -1756,8 +1768,9 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRCREATEPEN_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            PU_EMRCREATEPEN pEmr = (PU_EMRCREATEPEN)(contents);
+        FLAG_IGNORED;
+
+        PU_EMRCREATEPEN pEmr = (PU_EMRCREATEPEN)(contents);
         verbose_printf("   ihPen:          %u\n",      pEmr->ihPen );
         verbose_printf("   lopn:           ");    logpen_print(states, pEmr->lopn);  verbose_printf("\n");
     } 
@@ -1775,9 +1788,9 @@ extern "C" {
 
         uint16_t index = pEmr->ihBrush;
         if(pEmr->lb.lbStyle == U_BS_SOLID){
-            states->objectTable[index].fill_red = pEmr->lb.lbColor.Red;
-            states->objectTable[index].fill_green = pEmr->lb.lbColor.Green;
-            states->objectTable[index].fill_blue = pEmr->lb.lbColor.Blue;
+            states->objectTable[index].fill_red     = pEmr->lb.lbColor.Red;
+            states->objectTable[index].fill_green   = pEmr->lb.lbColor.Green;
+            states->objectTable[index].fill_blue    = pEmr->lb.lbColor.Blue;
             states->objectTable[index].fill_mode    = U_BS_SOLID;
             states->objectTable[index].fill_set     = true;
         }

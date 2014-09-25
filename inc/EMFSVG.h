@@ -42,12 +42,21 @@ extern "C" {
 #define FLAG_UNUSED    verbose_printf("   Status  %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
+// emf define style outside and after drawing records, which is a little complex with svg
+// where style is define inside the records.
+// the solution here is to look ahead <LOOKAHEAD> records to find style.
+#define LOOKAHEAD      10
     typedef struct emf_graph_object {
         char            *font_name;
         bool            stroke_set;
         int             stroke_mode;  // enumeration from drawmode, not used if fill_set is not True
         int             stroke_idx;   // used with DRAW_PATTERN and DRAW_IMAGE to return the appropriate fill
         int             stroke_recidx;// record used to regenerate hatch when it needs to be redone due to bkmode, textmode, etc. change
+        //stroke color
+        uint8_t         stroke_red;    
+        uint8_t         stroke_blue;
+        uint8_t         stroke_green;
+
         bool            fill_set;
         int             fill_mode;    // enumeration from drawmode, not used if fill_set is not True
         int             fill_idx;     // used with DRAW_PATTERN and DRAW_IMAGE to return the appropriate fill
@@ -79,6 +88,12 @@ extern "C" {
         int             stroke_mode;  // enumeration from drawmode, not used if fill_set is not True
         int             stroke_idx;   // used with DRAW_PATTERN and DRAW_IMAGE to return the appropriate fill
         int             stroke_recidx;// record used to regenerate hatch when it needs to be redone due to bkmode, textmode, etc. change
+        //stroke color
+        uint8_t         stroke_red;    
+        uint8_t         stroke_blue;
+        uint8_t         stroke_green;
+
+
         bool            fill_set;
         int             fill_mode;    // enumeration from drawmode, not used if fill_set is not True
         int             fill_idx;     // used with DRAW_PATTERN and DRAW_IMAGE to return the appropriate fill
