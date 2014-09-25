@@ -388,8 +388,8 @@ extern "C" {
       EMF+ manual 2.1.1.25, Microsoft name: PixelFormat Enumeration (U_PF_*)
       */
     int U_PMF_PX_FMT_ENUM_print(int pfe, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint8_t idx;
+        FLAG_IGNORED;
+        uint8_t idx;
         verbose_printf("   +  PxFmtEnum: ");
         verbose_printf(" 32Bit:%c",     (pfe & 1<< 9 ? 'Y' : 'N'));
         verbose_printf(" 16Bit:%c",     (pfe & 1<<10 ? 'Y' : 'N'));
@@ -449,8 +449,8 @@ extern "C" {
       EMF+ manual 2.2.1.1, Microsoft name: EmfPlusBrush Object
       */
     int U_PMF_BRUSH_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t Version, Type;
+        FLAG_IGNORED;
+        uint32_t Version, Type;
         const char *Data;
         int status = U_PMF_BRUSH_get(contents, &Version, &Type, &Data);
         if(status){
@@ -495,8 +495,8 @@ extern "C" {
       EMF+ manual 2.2.1.2, Microsoft name: EmfPlusCustomLineCap Object
       */
     int U_PMF_CUSTOMLINECAP_print(const char *contents, const char *Which, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t Version, Type;
+        FLAG_IGNORED;
+        uint32_t Version, Type;
         const char *Data;
         int status = U_PMF_CUSTOMLINECAP_get(contents, &Version, &Type, &Data);
 
@@ -525,8 +525,8 @@ extern "C" {
       EMF+ manual 2.2.1.3, Microsoft name: EmfPlusFont Object
       */
     int U_PMF_FONT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t Version, SizeUnit, Length;
+        FLAG_IGNORED;
+        uint32_t Version, SizeUnit, Length;
         U_FLOAT EmSize;
         int32_t FSFlags;
         const char *Data;
@@ -559,8 +559,8 @@ extern "C" {
       EMF+ manual 2.2.1.4, Microsoft name: EmfPlusImage Object
       */
     int U_PMF_IMAGE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t Version, Type;
+        FLAG_IGNORED;
+        uint32_t Version, Type;
         const char *Data;
         int status = U_PMF_IMAGE_get(contents, &Version, &Type, &Data);
         if(status){      
@@ -592,8 +592,8 @@ extern "C" {
       EMF+ manual 2.2.1.5, Microsoft name: EmfPlusImageAttributes Object
       */
     int U_PMF_IMAGEATTRIBUTES_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t Version, WrapMode, ClampColor, ObjectClamp;
+        FLAG_IGNORED;
+        uint32_t Version, WrapMode, ClampColor, ObjectClamp;
         int status = U_PMF_IMAGEATTRIBUTES_get(contents, &Version, &WrapMode, &ClampColor, &ObjectClamp);
 
         if(status){      
@@ -615,8 +615,8 @@ extern "C" {
       EMF+ manual 2.2.1.6, Microsoft name: EmfPlusPath Object
       */
     int U_PMF_PATH_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            unsigned int i, pos;
+        FLAG_IGNORED;
+        unsigned int i, pos;
         uint32_t     Version, Count;
         uint16_t     Flags;
         const char  *Points;
@@ -658,8 +658,8 @@ extern "C" {
       EMF+ manual 2.2.1.7, Microsoft name: EmfPlusPen Object
       */
     int U_PMF_PEN_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t     Version, Type;
+        FLAG_IGNORED;
+        uint32_t     Version, Type;
         const char  *PenData;
         const char  *Brush;
         int status = U_PMF_PEN_get(contents, &Version, &Type, &PenData, &Brush);
@@ -678,8 +678,8 @@ extern "C" {
       EMF+ manual 2.2.1.8, Microsoft name: EmfPlusRegion Object
       */
     int U_PMF_REGION_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t      Version, Count;
+        FLAG_IGNORED;
+        uint32_t      Version, Count;
         const char   *Nodes;
         int status = U_PMF_REGION_get(contents, &Version, &Count, &Nodes);
         if(status){
@@ -698,8 +698,8 @@ extern "C" {
       EMF+ manual 2.2.1.9, Microsoft name: EmfPlusStringFormat Object
       */
     int U_PMF_STRINGFORMAT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_STRINGFORMAT Sfs;
+        FLAG_IGNORED;
+        U_PMF_STRINGFORMAT Sfs;
         const char *Data;
         int status = U_PMF_STRINGFORMAT_get(contents, &Sfs, &Data);
         if(status){
@@ -747,8 +747,8 @@ extern "C" {
       EMF+ manual 2.2.2.2, Microsoft name: EmfPlusBitmap Object
       */
     int U_PMF_BITMAP_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_BITMAP  Bs;
+        FLAG_IGNORED;
+        U_PMF_BITMAP  Bs;
         const char *Data;
         int status = U_PMF_BITMAP_get(contents, &Bs, &Data);
         if(status){
@@ -794,8 +794,8 @@ extern "C" {
       EMF+ manual 2.2.2.4, Microsoft name: EmfPlusBlendColors Object
       */
     int U_PMF_BLENDCOLORS_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            unsigned int i;
+        FLAG_IGNORED;
+        unsigned int i;
         uint32_t     Elements;
         U_FLOAT     *Positions;
         const char  *Colors;
@@ -822,8 +822,8 @@ extern "C" {
       EMF+ manual 2.2.2.5, Microsoft name: EmfPlusBlendFactors Object
       */
     int U_PMF_BLENDFACTORS_print(const char *contents, const char *type, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            unsigned int i;
+        FLAG_IGNORED;
+        unsigned int i;
         uint32_t     Elements;
         U_FLOAT     *Positions;
         U_FLOAT     *Factors;
@@ -847,8 +847,8 @@ extern "C" {
       EMF+ manual 2.2.2.6, Microsoft name: EmfPlusBoundaryPathData Object
       */
     int U_PMF_BOUNDARYPATHDATA_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int32_t       Size;
+        FLAG_IGNORED;
+        int32_t       Size;
         const char *Data;
         int status = U_PMF_BOUNDARYPATHDATA_get(contents, &Size, &Data);
         if(status){
@@ -899,8 +899,8 @@ extern "C" {
       EMF+ manual 2.2.2.9, Microsoft name: EmfPlusCompoundLineData Object
       */
     int U_PMF_COMPOUNDLINEDATA_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int32_t       Elements;
+        FLAG_IGNORED;
+        int32_t       Elements;
         U_FLOAT      *Widths;
         U_FLOAT      *hold;
         int status = U_PMF_COMPOUNDLINEDATA_get(contents, &Elements, &Widths);
@@ -939,8 +939,8 @@ extern "C" {
       EMF+ manual 2.2.2.11, Microsoft name: EmfPlusCustomEndCapData Object
       */
     int U_PMF_CUSTOMENDCAPDATA_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int32_t       Size;
+        FLAG_IGNORED;
+        int32_t       Size;
         const char *Data;
         int status =  U_PMF_CUSTOMENDCAPDATA_get(contents, &Size, &Data);
         if(status){
@@ -984,8 +984,8 @@ extern "C" {
       EMF+ manual 2.2.2.13, Microsoft name: EmfPlusCustomLineCapData Object
       */
     int U_PMF_CUSTOMLINECAPDATA_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_CUSTOMLINECAPDATA  Clcd;
+        FLAG_IGNORED;
+        U_PMF_CUSTOMLINECAPDATA  Clcd;
         const char *Data;
         int status =  U_PMF_CUSTOMLINECAPDATA_get(contents, &Clcd, &Data);
         if(status){
@@ -1016,8 +1016,8 @@ extern "C" {
       EMF+ manual 2.2.2.14, Microsoft name: EmfPlusCustomLineCapOptionalData Object
       */
     int U_PMF_CUSTOMLINECAPOPTIONALDATA_print(const char *contents, uint32_t Flags, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            const char *FillData;
+        FLAG_IGNORED;
+        const char *FillData;
         const char *LineData;
         int status = U_PMF_CUSTOMLINECAPOPTIONALDATA_get(contents, Flags, &FillData, &LineData);
         if(status){ /* True even if there is nothing in it! */
@@ -1041,8 +1041,8 @@ extern "C" {
       EMF+ manual 2.2.2.15, Microsoft name: EmfPlusCustomStartCapData Object
       */
     int U_PMF_CUSTOMSTARTCAPDATA_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int32_t  Size;
+        FLAG_IGNORED;
+        int32_t  Size;
         const char *Data;
         int status =  U_PMF_CUSTOMSTARTCAPDATA_get(contents, &Size, &Data);
         if(status){
@@ -1130,8 +1130,8 @@ extern "C" {
       EMF+ manual 2.2.2.20, Microsoft name: EmfPlusHatchBrushData Object
       */
     int U_PMF_HATCHBRUSHDATA_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t Style;
+        FLAG_IGNORED;
+        uint32_t Style;
         U_PMF_ARGB Foreground, Background;
         int status = U_PMF_HATCHBRUSHDATA_get(contents, &Style, &Foreground, &Background);
         if(status){
@@ -1153,8 +1153,8 @@ extern "C" {
       EMF+ manual 2.2.2.23, Microsoft name: EmfPlusLanguageIdentifier Object
       */
     int U_PMF_LANGUAGEIDENTIFIER_print(U_PMF_LANGUAGEIDENTIFIER LId, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int SubLId, PriLId;
+        FLAG_IGNORED;
+        int SubLId, PriLId;
         int status =   U_PMF_LANGUAGEIDENTIFIER_get(LId, &SubLId,  &PriLId);
         if(status){ /* do it the hard way just to verify that the preceding call works, OK to just print LId directly */
             verbose_printf("{%4.4X}",U_PMF_LANGUAGEIDENTIFIEROBJ_set(SubLId, PriLId));
@@ -1202,8 +1202,8 @@ extern "C" {
       EMF+ manual 2.2.2.25, Microsoft name: EmfPlusLinearGradientBrushOptionalData Object
       */
     int U_PMF_LINEARGRADIENTBRUSHOPTIONALDATA_print(const char *contents, int BDFlag, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_TRANSFORMMATRIX Tm;
+        FLAG_IGNORED;
+        U_PMF_TRANSFORMMATRIX Tm;
         const char *Bc;
         const char *BfH;
         const char *BfV;
@@ -1302,8 +1302,8 @@ extern "C" {
       EMF+ manual 2.2.2.29, Microsoft name: EmfPlusPathGradientBrushData Object
       */
     int U_PMF_PATHGRADIENTBRUSHDATA_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_PATHGRADIENTBRUSHDATA Pgbd;
+        FLAG_IGNORED;
+        U_PMF_PATHGRADIENTBRUSHDATA Pgbd;
         const char *Gradient;
         const char *Boundary;
         const char *Data=NULL;
@@ -1341,10 +1341,10 @@ extern "C" {
       EMF+ manual 2.2.2.30, Microsoft name: EmfPlusPathGradientBrushOptionalData Object
       */
     int U_PMF_PATHGRADIENTBRUSHOPTIONALDATA_print(const char *contents, int BDFlag, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            if(BDFlag & (U_BD_Transform | U_BD_PresetColors | U_BD_BlendFactorsH | U_BD_FocusScales)){
-                verbose_printf("   +  PathGradientBrushOptionalData: ");
-            }
+        FLAG_IGNORED;
+        if(BDFlag & (U_BD_Transform | U_BD_PresetColors | U_BD_BlendFactorsH | U_BD_FocusScales)){
+            verbose_printf("   +  PathGradientBrushOptionalData: ");
+        }
         if(BDFlag & U_BD_Transform){
             U_PMF_TRANSFORMMATRIX_print(contents, out, states);
             contents += sizeof(U_PMF_TRANSFORMMATRIX);
@@ -1404,8 +1404,8 @@ extern "C" {
       EMF+ manual 2.2.2.33, Microsoft name: EmfPlusPenData Object
       */
     int U_PMF_PENDATA_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t  Flags, Unit;
+        FLAG_IGNORED;
+        uint32_t  Flags, Unit;
         U_FLOAT   Width;
         const char *Data;
         int status =  U_PMF_PENDATA_get(contents, &Flags, &Unit, &Width, &Data);
@@ -1498,8 +1498,8 @@ extern "C" {
       EMF+ manual 2.2.2.35, Microsoft name: EmfPlusPoint Object
       */
     int U_PMF_POINT_S_print(U_PMF_POINT *Point, FILE *out, drawingStates *states){
-        FLAG_IGNORED\
-            if(!Point){ return(0); }
+        FLAG_IGNORED\;
+        if(!Point){ return(0); }
         verbose_printf("{%d,%d}", Point->X, Point->Y);
         return(1);
     }
@@ -1615,8 +1615,8 @@ extern "C" {
       EMF+ manual 2.2.2.40, Microsoft name: EmfPlusRegionNode Object
       */
     int U_PMF_REGIONNODE_print(const char *contents, int Level, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int len=4;  /* Type will always be present */
+        FLAG_IGNORED;
+        int len=4;  /* Type will always be present */
         uint32_t  Type;
         const char *Data;
         int status = U_PMF_REGIONNODE_get(contents, &Type, &Data);
@@ -1737,8 +1737,8 @@ extern "C" {
       EMF+ manual 2.2.2.45, Microsoft name: EmfPlusTextureBrushData Object
       */
     int U_PMF_TEXTUREBRUSHDATA_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t Flags;
+        FLAG_IGNORED;
+        uint32_t Flags;
         int32_t  WrapMode;
         const char *Data;
         int status = U_PMF_TEXTUREBRUSHDATA_get(contents, &Flags, &WrapMode, &Data);
@@ -1757,8 +1757,8 @@ extern "C" {
       EMF+ manual 2.2.2.46, Microsoft name: EmfPlusTextureBrushOptionalData Object
       */
     int U_PMF_TEXTUREBRUSHOPTIONALDATA_print(const char *contents, int HasImage, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_TRANSFORMMATRIX   Matrix;
+        FLAG_IGNORED;
+        U_PMF_TRANSFORMMATRIX   Matrix;
         const char *Image;
         int status = U_PMF_TEXTUREBRUSHOPTIONALDATA_get(contents, HasImage, &Matrix, &Image);
         if(status){
@@ -2003,8 +2003,8 @@ extern "C" {
       EMF+ manual 2.3.1.1, Microsoft name: EmfPlusOffsetClip Record,  Index 0x35
       */
     int U_PMR_OFFSETCLIP_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_CMN_HDR Header;
+        FLAG_IGNORED;
+        U_PMF_CMN_HDR Header;
         U_FLOAT       dX,dY;
         int status = U_PMR_OFFSETCLIP_get(contents, &Header, &dX, &dY);
         if(status){
@@ -2020,8 +2020,8 @@ extern "C" {
       EMF+ manual 2.3.1.2, Microsoft name: EmfPlusResetClip Record, Index 0x31
       */
     int U_PMR_RESETCLIP_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            return(U_PMR_NODATAREC_print(contents, out, states));
+        FLAG_IGNORED;
+        return(U_PMR_NODATAREC_print(contents, out, states));
     }
 
     /**
@@ -2031,8 +2031,8 @@ extern "C" {
       EMF+ manual 2.3.1.3, Microsoft name: EmfPlusSetClipPath Record, Index 0x33
       */
     int U_PMR_SETCLIPPATH_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int CMenum;
+        FLAG_IGNORED;
+        int CMenum;
         uint32_t PathID;
         int status =  U_PMR_SETCLIPPATH_get(contents, NULL, &PathID, &CMenum);
         if(status){
@@ -2048,8 +2048,8 @@ extern "C" {
       EMF+ manual 2.3.1.4, Microsoft name: EmfPlusSetClipRect Record, Index 0x32
       */
     int U_PMR_SETCLIPRECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int CMenum;
+        FLAG_IGNORED;
+        int CMenum;
         U_PMF_RECTF Rect;
         int status = U_PMR_SETCLIPRECT_get(contents, NULL, &CMenum, &Rect);
         if(status){
@@ -2069,8 +2069,8 @@ extern "C" {
       EMF+ manual 2.3.1.5, Microsoft name: EmfPlusSetClipRegion Record, Index 0x34
       */
     int U_PMR_SETCLIPREGION_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int CMenum;
+        FLAG_IGNORED;
+        int CMenum;
         uint32_t PathID;
         int status = U_PMR_SETCLIPREGION_get(contents, NULL, &PathID, &CMenum);
         if(status){
@@ -2089,8 +2089,8 @@ extern "C" {
       EMF+ manual 2.3.2.1, Microsoft name: EmfPlusComment Record, Index 0x03
       */
     int U_PMR_COMMENT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_CMN_HDR Header;
+        FLAG_IGNORED;
+        U_PMF_CMN_HDR Header;
         const char *Data;
         unsigned int i=0;
         int status = U_PMR_COMMENT_get(contents, &Header, &Data);
@@ -2114,8 +2114,8 @@ extern "C" {
       EMF+ manual 2.3.3.1, Microsoft name: EmfPlusEndOfFile Record, Index 0x02
       */
     int U_PMR_ENDOFFILE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            return(U_PMR_NODATAREC_print(contents, out, states));
+        FLAG_IGNORED;
+        return(U_PMR_NODATAREC_print(contents, out, states));
     }
 
     /**
@@ -2125,8 +2125,8 @@ extern "C" {
       EMF+ manual 2.3.3.2, Microsoft name: EmfPlusGetDC Record, Index 0x04
       */
     int U_PMR_GETDC_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            return(U_PMR_NODATAREC_print(contents, out, states));
+        FLAG_IGNORED;
+        return(U_PMR_NODATAREC_print(contents, out, states));
     }
 
     /**
@@ -2136,8 +2136,8 @@ extern "C" {
       EMF+ manual 2.3.3.3, Microsoft name: EmfPlusHeader Record, Index 0x01
       */
     int U_PMR_HEADER_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_GRAPHICSVERSION Version;
+        FLAG_IGNORED;
+        U_PMF_GRAPHICSVERSION Version;
         int                   IsDual, IsVideo;
         uint32_t LogicalDpiX, LogicalDpiY;
         int status = U_PMR_HEADER_get(contents, NULL,  &Version, &IsDual, &IsVideo, &LogicalDpiX, &LogicalDpiY);
@@ -2174,8 +2174,8 @@ extern "C" {
       EMF+ manual 2.3.4.2, Microsoft name: EmfPlusDrawArc Record, Index 0x12
       */
     int U_PMR_DRAWARC_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t PenID;
+        FLAG_IGNORED;
+        uint32_t PenID;
         int ctype;
         U_FLOAT Start, Sweep;
         U_PMF_RECTF Rect;
@@ -2195,8 +2195,8 @@ extern "C" {
       EMF+ manual 2.3.4.3, Microsoft name: EmfPlusDrawBeziers Record, Index 0x19
       */
     int U_PMR_DRAWBEZIERS_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t PenID;
+        FLAG_IGNORED;
+        uint32_t PenID;
         int ctype, RelAbs;
         uint32_t Elements;
         U_PMF_POINTF *Points;
@@ -2222,8 +2222,8 @@ http://msdn.microsoft.com/en-us/library/4cf6we5y(v=vs.110).aspx
 EMF+ manual 2.3.4.4, Microsoft name: EmfPlusDrawClosedCurve Record, Index 0x17
 */
     int U_PMR_DRAWCLOSEDCURVE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t PenID; 
+        FLAG_IGNORED;
+        uint32_t PenID; 
         int ctype, RelAbs;
         U_FLOAT Tension;
         uint32_t Elements;
@@ -2250,8 +2250,8 @@ http://msdn.microsoft.com/en-us/library/4cf6we5y(v=vs.110).aspx
 EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
 */
     int U_PMR_DRAWCURVE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t PenID;
+        FLAG_IGNORED;
+        uint32_t PenID;
         int ctype;
         U_FLOAT Tension;
         uint32_t Offset, NSegs, Elements;
@@ -2272,8 +2272,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.6, Microsoft name: EmfPlusDrawDriverString Record, Index 0x36
       */
     int U_PMR_DRAWDRIVERSTRING_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            unsigned int           i;
+        FLAG_IGNORED;
+        unsigned int           i;
         uint32_t               FontID;
         int                    btype;
         U_FLOAT                Tension;
@@ -2323,8 +2323,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.7, Microsoft name: EmfPlusDrawEllipse Record, Index 0x0F
       */
     int U_PMR_DRAWELLIPSE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t PenID;
+        FLAG_IGNORED;
+        uint32_t PenID;
         int ctype;
         U_PMF_RECTF Rect;
         int status = U_PMR_DRAWELLIPSE_get(contents, NULL, &PenID, &ctype, &Rect);
@@ -2343,8 +2343,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.8, Microsoft name: EmfPlusDrawImage Record, Index 0x1A
       */
     int U_PMR_DRAWIMAGE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t ImgID, ImgAttrID;
+        FLAG_IGNORED;
+        uint32_t ImgID, ImgAttrID;
         int ctype;
         int32_t SrcUnit;
         U_PMF_RECTF SrcRect;
@@ -2367,8 +2367,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.9, Microsoft name: EmfPlusDrawImagePoints Record, Index 0x1B
       */
     int U_PMR_DRAWIMAGEPOINTS_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t      ImgID, ImgAttrID;
+        FLAG_IGNORED;
+        uint32_t      ImgID, ImgAttrID;
         int           ctype, etype, RelAbs;
         int32_t       SrcUnit;
         U_PMF_RECTF   SrcRect;
@@ -2395,8 +2395,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.10, Microsoft name: EmfPlusDrawLines Record, Index 0x0D
       */
     int U_PMR_DRAWLINES_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t PenIdx;
+        FLAG_IGNORED;
+        uint32_t PenIdx;
         int ctype, dtype, RelAbs;
         uint32_t Elements;
         U_PMF_POINTF *Points;
@@ -2416,8 +2416,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.11, Microsoft name: EmfPlusDrawPath Record, Index 0x15
       */
     int U_PMR_DRAWPATH_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t PathIdx, PenIdx;
+        FLAG_IGNORED;
+        uint32_t PathIdx, PenIdx;
         int status = U_PMR_DRAWPATH_get(contents, NULL, &PathIdx, &PenIdx);
         if(status){
             verbose_printf("   +  PathIdx:%d PenIdx:%d\n", PathIdx, PenIdx);
@@ -2432,8 +2432,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.12, Microsoft name: EmfPlusDrawPie Record, Index 0x0D
       */
     int U_PMR_DRAWPIE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t PenID;
+        FLAG_IGNORED;
+        uint32_t PenID;
         int ctype;
         U_FLOAT Start, Sweep;
         U_PMF_RECTF Rect;
@@ -2454,8 +2454,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.13, Microsoft name: EmfPlusDrawRects Record, Index 0x0B
       */
     int U_PMR_DRAWRECTS_print(const char *contents, const char *blimit, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t PenID;
+        FLAG_IGNORED;
+        uint32_t PenID;
         int      ctype;
         uint32_t Elements;
         U_PMF_RECTF *Rects=NULL;
@@ -2478,8 +2478,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.14, Microsoft name: EmfPlusDrawString Record, Index 0x1C
       */
     int U_PMR_DRAWSTRING_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            char *String8=NULL;
+        FLAG_IGNORED;
+        char *String8=NULL;
         uint32_t FontID, BrushID, FormatID, Length;
         int btype;
         U_PMF_RECTF Rect;
@@ -2512,8 +2512,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.15, Microsoft name: EmfPlusFillClosedCurve Record, Index 0x16
       */
     int U_PMR_FILLCLOSEDCURVE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t BrushID;
+        FLAG_IGNORED;
+        uint32_t BrushID;
         int btype,  ctype, ftype, RelAbs;
         U_FLOAT Tension;
         uint32_t Elements;
@@ -2539,8 +2539,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.16, Microsoft name: EmfPlusFillEllipse Record, Index 0x0E
       */
     int U_PMR_FILLELLIPSE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int btype, ctype;
+        FLAG_IGNORED;
+        int btype, ctype;
         uint32_t BrushID;
         U_PMF_RECTF Rect;
         int status = U_PMR_FILLELLIPSE_get(contents, NULL, &btype, &ctype, &BrushID, &Rect);
@@ -2560,8 +2560,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.17, Microsoft name: EmfPlusFillPath Record, Index 0x14
       */
     int U_PMR_FILLPATH_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int btype;
+        FLAG_IGNORED;
+        int btype;
         uint32_t PathID, BrushID;
         int status = U_PMR_FILLPATH_get(contents, NULL, &PathID, &btype, &BrushID);
         if(status){
@@ -2579,8 +2579,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.18, Microsoft name: EmfPlusFillPie Record, Index 0x10
       */
     int U_PMR_FILLPIE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int btype, ctype;
+        FLAG_IGNORED;
+        int btype, ctype;
         U_FLOAT Start, Sweep;
         uint32_t BrushID;
         U_PMF_RECTF Rect;
@@ -2601,8 +2601,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.19, Microsoft name: EmfPlusFillPolygon Record, Index 0x0C
       */
     int U_PMR_FILLPOLYGON_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int btype, ctype, RelAbs;
+        FLAG_IGNORED;
+        int btype, ctype, RelAbs;
         uint32_t BrushID, Elements;
         U_PMF_POINTF *Points;
         int status = U_PMR_FILLPOLYGON_get(contents, NULL, &btype, &ctype, &RelAbs, &BrushID, &Elements, &Points);
@@ -2624,8 +2624,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.20, Microsoft name: EmfPlusFillRects Record, Index 0x0A
       */
     int U_PMR_FILLRECTS_print(const char *contents, const char *blimit, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int btype, ctype;
+        FLAG_IGNORED;
+        int btype, ctype;
         uint32_t BrushID, Elements;
         U_PMF_RECTF *Rects;
         U_PMF_CMN_HDR hdr;
@@ -2648,8 +2648,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.4.21, Microsoft name: EmfPlusFillRegion Record, Index 0x13
       */
     int U_PMR_FILLREGION_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t RgnID, BrushID;
+        FLAG_IGNORED;
+        uint32_t RgnID, BrushID;
         int btype, ctype;
         int status = U_PMR_FILLREGION_get(contents, NULL, &RgnID, &btype, &ctype, &BrushID);
         if(status){
@@ -2750,8 +2750,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.5.2, Microsoft name: EmfPlusSerializableObject Record, Index 0x38
       */
     int U_PMR_SERIALIZABLEOBJECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint8_t GUID[16];
+        FLAG_IGNORED;
+        uint8_t GUID[16];
         uint32_t Size;
         const char *Data;
         char *string=NULL;
@@ -2793,8 +2793,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.6.1, Microsoft name: EmfPlusSetAntiAliasMode Record, Index 0x1E
       */
     int U_PMR_SETANTIALIASMODE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int SMenum, aatype;
+        FLAG_IGNORED;
+        int SMenum, aatype;
         int status = U_PMR_SETANTIALIASMODE_get(contents, NULL, &SMenum, &aatype);
         if(status){
             verbose_printf("   +  SMenum:%d AntiAlias:%c\n",SMenum,(aatype ? 'Y' : 'N'));
@@ -2809,8 +2809,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.6.2, Microsoft name: EmfPlusSetCompositingMode Record, Index 0x23
       */
     int U_PMR_SETCOMPOSITINGMODE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int CMenum;
+        FLAG_IGNORED;
+        int CMenum;
         int status = U_PMR_SETCOMPOSITINGMODE_get(contents, NULL, &CMenum);
         if(status){
             verbose_printf("   +  CMenum:%d\n",CMenum);
@@ -2825,8 +2825,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.6.3, Microsoft name: EmfPlusSetCompositingQuality Record, Index 0x24
       */
     int U_PMR_SETCOMPOSITINGQUALITY_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int CQenum;
+        FLAG_IGNORED;
+        int CQenum;
         int status = U_PMR_SETCOMPOSITINGQUALITY_get(contents, NULL, &CQenum);
         if(status){
             verbose_printf("   +  CQenum:%d\n",CQenum);
@@ -2841,8 +2841,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.6.4, Microsoft name: EmfPlusSetInterpolationMode Record, Index 0x21
       */
     int U_PMR_SETINTERPOLATIONMODE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int IMenum;
+        FLAG_IGNORED;
+        int IMenum;
         int status = U_PMR_SETINTERPOLATIONMODE_get(contents, NULL, &IMenum);
         if(status){
             verbose_printf("   +  IMenum:%d\n",IMenum);
@@ -2857,8 +2857,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.6.5, Microsoft name: EmfPlusSetPixelOffsetMode Record, Index 0x22
       */
     int U_PMR_SETPIXELOFFSETMODE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int POMenum;
+        FLAG_IGNORED;
+        int POMenum;
         int status = U_PMR_SETPIXELOFFSETMODE_get(contents, NULL, &POMenum);
         if(status){
             verbose_printf("   +  POMenum:%d\n",POMenum);
@@ -2873,8 +2873,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.6.6, Microsoft name: EmfPlusSetRenderingOrigin Record, Index 0x1D
       */
     int U_PMR_SETRENDERINGORIGIN_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int32_t X, Y;
+        FLAG_IGNORED;
+        int32_t X, Y;
         int status = U_PMR_SETRENDERINGORIGIN_get(contents, NULL, &X, &Y);
         if(status){
             verbose_printf("   +  X:%d Y:%d\n", X, Y);
@@ -2889,8 +2889,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.6.7, Microsoft name: EmfPlusSetTextContrast Record, Index 0x20
       */
     int U_PMR_SETTEXTCONTRAST_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int GC;
+        FLAG_IGNORED;
+        int GC;
         int status = U_PMR_SETTEXTCONTRAST_get(contents, NULL, &GC);
         if(status){
             verbose_printf("   +  GC:%d\n", GC);
@@ -2905,8 +2905,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.6.8, Microsoft name: EmfPlusSetTextRenderingHint Record, Index 0x1F
       */
     int U_PMR_SETTEXTRENDERINGHINT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int TRHenum;
+        FLAG_IGNORED;
+        int TRHenum;
         int status = U_PMR_SETTEXTRENDERINGHINT_get(contents, NULL, &TRHenum);
         if(status){
             verbose_printf("   +  TRHenum:%d\n",TRHenum);
@@ -2921,8 +2921,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.7.1, Microsoft name: EmfPlusBeginContainer Record, Index 0x27
       */
     int U_PMR_BEGINCONTAINER_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int UTenum;
+        FLAG_IGNORED;
+        int UTenum;
         U_PMF_RECTF DstRect, SrcRect;
         uint32_t StackID;
         int status = U_PMR_BEGINCONTAINER_get(contents, NULL, &UTenum, &DstRect, &SrcRect, &StackID);
@@ -2942,8 +2942,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.7.2, Microsoft name: EmfPlusBeginContainerNoParams Record, Index 0x28
       */
     int U_PMR_BEGINCONTAINERNOPARAMS_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t StackID;
+        FLAG_IGNORED;
+        uint32_t StackID;
         int status = U_PMR_BEGINCONTAINERNOPARAMS_get(contents, NULL, &StackID);
         if(status){
             verbose_printf("   +  StackID:%u\n", StackID);
@@ -2958,8 +2958,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.7.3, Microsoft name: EmfPlusEndContainer Record, Index 0x29
       */
     int U_PMR_ENDCONTAINER_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t StackID;
+        FLAG_IGNORED;
+        uint32_t StackID;
         int status = U_PMR_ENDCONTAINER_get(contents, NULL, &StackID);
         if(status){
             verbose_printf("   +  StackID:%u\n", StackID);
@@ -2974,8 +2974,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.7.4, Microsoft name: EmfPlusRestore Record, Index 0x26
       */
     int U_PMR_RESTORE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t StackID;
+        FLAG_IGNORED;
+        uint32_t StackID;
         int status = U_PMR_RESTORE_get(contents, NULL, &StackID);
         if(status){
             verbose_printf("   +  StackID:%u\n", StackID);
@@ -2990,8 +2990,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.7.5, Microsoft name: EmfPlusSave Record, Index 0x25
       */
     int U_PMR_SAVE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            uint32_t StackID;
+        FLAG_IGNORED;
+        uint32_t StackID;
         int status = U_PMR_SAVE_get(contents, NULL, &StackID);
         if(status){
             verbose_printf("   +  StackID:%u\n", StackID);
@@ -3006,8 +3006,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.8.1, Microsoft name: EmfPlusSetTSClip Record, Index 0x3A
       */
     int U_PMR_SETTSCLIP_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int ctype;
+        FLAG_IGNORED;
+        int ctype;
         uint32_t Elements;
         U_PMF_RECTF *Rects;
         int status = U_PMR_SETTSCLIP_get(contents, NULL, &ctype, &Elements, &Rects);
@@ -3027,8 +3027,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.8.2, Microsoft name: EmfPlusSetTSGraphics Record, Index 0x39
       */
     int U_PMR_SETTSGRAPHICS_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int      vgatype, pptype;
+        FLAG_IGNORED;
+        int      vgatype, pptype;
         uint8_t  AntiAliasMode, TextRenderHint, CompositingMode, CompositingQuality, FilterType, PixelOffset;  
         int16_t  RenderOriginX, RenderOriginY;
         uint16_t TextContrast;    
@@ -3061,8 +3061,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.9.1, Microsoft name: EmfPlusMultiplyWorldTransform Record, Index 0x2C
       */
     int U_PMR_MULTIPLYWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int xmtype;
+        FLAG_IGNORED;
+        int xmtype;
         U_PMF_TRANSFORMMATRIX Matrix;
         int status = U_PMR_MULTIPLYWORLDTRANSFORM_get(contents, NULL, &xmtype, &Matrix);
         if(status){
@@ -3080,8 +3080,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.9.2, Microsoft name: EmfPlusResetWorldTransform Record, Index 0x2B
       */
     int U_PMR_RESETWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            return(U_PMR_NODATAREC_print(contents, out, states));
+        FLAG_IGNORED;
+        return(U_PMR_NODATAREC_print(contents, out, states));
     }
 
     /**
@@ -3091,8 +3091,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.9.3, Microsoft name: EmfPlusRotateWorldTransform Record, Index 0x2F
       */
     int U_PMR_ROTATEWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int xmtype;
+        FLAG_IGNORED;
+        int xmtype;
         U_FLOAT Angle;
         int status = U_PMR_ROTATEWORLDTRANSFORM_get(contents, NULL, &xmtype, &Angle);
         if(status){
@@ -3108,8 +3108,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.9.4, Microsoft name: EmfPlusScaleWorldTransform Record, Index 0x2E
       */
     int U_PMR_SCALEWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int xmtype;
+        FLAG_IGNORED;
+        int xmtype;
         U_FLOAT Sx, Sy;
         int status = U_PMR_SCALEWORLDTRANSFORM_get(contents, NULL, &xmtype, &Sx, &Sy);
         if(status){
@@ -3125,8 +3125,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.9.5, Microsoft name: EmfPlusSetPageTransform Record, Index 0x30
       */
     int U_PMR_SETPAGETRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int UTenum;
+        FLAG_IGNORED;
+        int UTenum;
         U_FLOAT Scale;
         int status = U_PMR_SETPAGETRANSFORM_get(contents, NULL, &UTenum, &Scale);
         if(status){
@@ -3142,8 +3142,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.9.6, Microsoft name: EmfPlusSetWorldTransform Record, Index 0x2A
       */
     int U_PMR_SETWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            U_PMF_TRANSFORMMATRIX Matrix;
+        FLAG_IGNORED;
+        U_PMF_TRANSFORMMATRIX Matrix;
         int status = U_PMR_SETWORLDTRANSFORM_get(contents, NULL, &Matrix);
         if(status){
             verbose_printf("   + ");
@@ -3160,8 +3160,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.9.7, Microsoft name: EmfPlusTranslateWorldTransform Record, Index 0x2D
       */
     int U_PMR_TRANSLATEWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            int xmtype;
+        FLAG_IGNORED;
+        int xmtype;
         U_FLOAT Dx, Dy;
         int status = U_PMR_TRANSLATEWORLDTRANSFORM_get(contents, NULL, &xmtype, &Dx, &Dy);
         if(status){
@@ -3177,8 +3177,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       \param  contents    Record from which to print data
       */
     int U_PMR_STROKEFILLPATH_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            return(U_PMR_NODATAREC_print(contents, out, states));
+        FLAG_IGNORED;
+        return(U_PMR_NODATAREC_print(contents, out, states));
     }
 
     /**
@@ -3188,8 +3188,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatStart Record, Index 0x05 
       */
     int U_PMR_MULTIFORMATSTART_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            return(U_PMR_NODATAREC_print(contents, out, states));
+        FLAG_IGNORED;
+        return(U_PMR_NODATAREC_print(contents, out, states));
     }
 
     /**
@@ -3199,8 +3199,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatSection Record, Index 0x06 
       */
     int U_PMR_MULTIFORMATSECTION_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            return(U_PMR_NODATAREC_print(contents, out, states));
+        FLAG_IGNORED;
+        return(U_PMR_NODATAREC_print(contents, out, states));
     }
 
     /**
@@ -3210,8 +3210,8 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatEnd Record, Index 0x06
       */
     int U_PMR_MULTIFORMATEND_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED
-            return(U_PMR_NODATAREC_print(contents, out, states));
+        FLAG_IGNORED;
+        return(U_PMR_NODATAREC_print(contents, out, states));
     }
 
     int pmf2svg(char *contents, size_t length, FILE *out, drawingStates *states)
