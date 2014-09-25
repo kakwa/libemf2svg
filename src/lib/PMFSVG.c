@@ -1498,7 +1498,7 @@ extern "C" {
       EMF+ manual 2.2.2.35, Microsoft name: EmfPlusPoint Object
       */
     int U_PMF_POINT_S_print(U_PMF_POINT *Point, FILE *out, drawingStates *states){
-        FLAG_IGNORED\;
+        FLAG_IGNORED;
         if(!Point){ return(0); }
         verbose_printf("{%d,%d}", Point->X, Point->Y);
         return(1);

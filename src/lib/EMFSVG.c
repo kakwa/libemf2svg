@@ -785,7 +785,7 @@ extern "C" {
         PU_EMRPOLYLINETO pEmr = (PU_EMRPOLYLINETO) (contents);
         verbose_printf("   rclBounds:      ");    rectl_print(states, pEmr->rclBounds);    verbose_printf("\n");
         verbose_printf("   cptl:           %d\n",pEmr->cptl        );
-        verbose_printf("   Points:         ");
+        verbose_printf("   Points:        ");
         for(i=0;i<pEmr->cptl; i++){
             verbose_printf("[%d]:",i); pointl_print(states, pEmr->aptl[i]);
         }
@@ -806,7 +806,7 @@ extern "C" {
         }
         verbose_printf("\n");
         PU_POINTL paptl = (PU_POINTL)((char *)pEmr->aPolyCounts + sizeof(uint32_t)* pEmr->nPolys);
-        verbose_printf("   Points:         ");
+        verbose_printf("   Points:        ");
         for(i=0;i<pEmr->cptl; i++){
             verbose_printf(" [%d]:",i); pointl_print(states, paptl[i]);
         }
@@ -843,7 +843,7 @@ extern "C" {
         PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16) (contents);
         verbose_printf("   rclBounds:      ");    rectl_print(states, pEmr->rclBounds);    verbose_printf("\n");
         verbose_printf("   cpts:           %d\n",pEmr->cpts        );
-        verbose_printf("   Points:         ");
+        verbose_printf("   Points:        ");
         PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
         for(i=0; i<pEmr->cpts; i++){
             verbose_printf(" [%d]:",i);  point16_print(states, papts[i], out);
@@ -858,7 +858,7 @@ extern "C" {
         PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16) (contents);
         verbose_printf("   rclBounds:      ");    rectl_print(states, pEmr->rclBounds);    verbose_printf("\n");
         verbose_printf("   cpts:           %d\n",pEmr->cpts        );
-        verbose_printf("   Points:         ");
+        verbose_printf("   Points:        ");
         startPathDraw(states, out);
         PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
         for(i=0; i<pEmr->cpts; i++){
@@ -1539,7 +1539,7 @@ extern "C" {
     void U_EMRMODIFYWORLDTRANSFORM_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
         PU_EMRMODIFYWORLDTRANSFORM pEmr = (PU_EMRMODIFYWORLDTRANSFORM)(contents);
-        verbose_printf("   xform:");
+        verbose_printf("   xform:          ");
         xform_print(states, pEmr->xform);
         verbose_printf("\n");
 
@@ -1664,81 +1664,81 @@ extern "C" {
                     states->currentDeviceContext.fill_blue  = 0xFF;
                     states->currentDeviceContext.fill_green = 0xFF;
                     states->currentDeviceContext.fill_mode  = U_BS_SOLID;
-                    verbose_printf("   StockObject:    WHITE_BRUSH",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    WHITE_BRUSH\n",  pEmr->ihObject );
                     break;
                 case(U_LTGRAY_BRUSH):
                     states->currentDeviceContext.fill_red   = 0xC0;
                     states->currentDeviceContext.fill_blue  = 0xC0;
                     states->currentDeviceContext.fill_green = 0xC0;
                     states->currentDeviceContext.fill_mode  = U_BS_SOLID;
-                    verbose_printf("   StockObject:    LTGRAY_BRUSH",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    LTGRAY_BRUSH\n",  pEmr->ihObject );
                     break;
                 case(U_GRAY_BRUSH):
                     states->currentDeviceContext.fill_red   = 0x80;
                     states->currentDeviceContext.fill_blue  = 0x80;
                     states->currentDeviceContext.fill_green = 0x80;
                     states->currentDeviceContext.fill_mode  = U_BS_SOLID;
-                    verbose_printf("   StockObject:    GRAY_BRUSH",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    GRAY_BRUSH\n",  pEmr->ihObject );
                     break;
                 case(U_DKGRAY_BRUSH):
                     states->currentDeviceContext.fill_red   = 0x40;
                     states->currentDeviceContext.fill_blue  = 0x40;
                     states->currentDeviceContext.fill_green = 0x40;
                     states->currentDeviceContext.fill_mode  = U_BS_SOLID;
-                    verbose_printf("   StockObject:    DKGRAY_BRUSH",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DKGRAY_BRUSH\n",  pEmr->ihObject );
                     break;
                 case(U_BLACK_BRUSH):
                     states->currentDeviceContext.fill_red   = 0x00;
                     states->currentDeviceContext.fill_blue  = 0x00;
                     states->currentDeviceContext.fill_green = 0x00;
                     states->currentDeviceContext.fill_mode  = U_BS_SOLID;
-                    verbose_printf("   StockObject:    BLACK_BRUSH",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    BLACK_BRUSH\n",  pEmr->ihObject );
                     break;
                 case(U_NULL_BRUSH):
                     states->currentDeviceContext.fill_mode = U_BS_NULL;
-                    verbose_printf("   StockObject:    NULL_BRUSH",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    NULL_BRUSH\n",  pEmr->ihObject );
                     break;
                 case(U_WHITE_PEN):
                     states->currentDeviceContext.stroke_red   = 0xFF;
                     states->currentDeviceContext.stroke_blue  = 0xFF;
                     states->currentDeviceContext.stroke_green = 0xFF;
                     states->currentDeviceContext.stroke_mode  = U_PS_SOLID;
-                    verbose_printf("   StockObject:    WHITE_PEN",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    WHITE_PEN\n",  pEmr->ihObject );
                     break;
                 case(U_BLACK_PEN):
                     states->currentDeviceContext.stroke_red   = 0x00;
                     states->currentDeviceContext.stroke_blue  = 0x00;
                     states->currentDeviceContext.stroke_green = 0x00;
                     states->currentDeviceContext.stroke_mode  = U_PS_SOLID;
-                    verbose_printf("   StockObject:    BLACK_PEN",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    BLACK_PEN\n",  pEmr->ihObject );
                     break;
                 case(U_NULL_PEN):
                     states->currentDeviceContext.stroke_mode  = U_PS_NULL;
-                    verbose_printf("   StockObject:    NULL_PEN",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    NULL_PEN\n",  pEmr->ihObject );
                     break;
                 case(U_OEM_FIXED_FONT):
-                    verbose_printf("   StockObject:    OEM_FIXED_FONT",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    OEM_FIXED_FONT\n",  pEmr->ihObject );
                     break;
                 case(U_ANSI_FIXED_FONT):
-                    verbose_printf("   StockObject:    ANSI_FIXED_FONT",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    ANSI_FIXED_FONT\n",  pEmr->ihObject );
                     break;
                 case(U_ANSI_VAR_FONT):
-                    verbose_printf("   StockObject:    ANSI_VAR_FONT",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    ANSI_VAR_FONT\n",  pEmr->ihObject );
                     break;
                 case(U_SYSTEM_FONT):
-                    verbose_printf("   StockObject:    SYSTEM_FONT",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    SYSTEM_FONT\n",  pEmr->ihObject );
                     break;
                 case(U_DEVICE_DEFAULT_FONT):
-                    verbose_printf("   StockObject:    DEFAULT_FONT",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DEFAULT_FONT\n",  pEmr->ihObject );
                     break;
                 case(U_DEFAULT_PALETTE):
-                    verbose_printf("   StockObject:    DEFAULT_PALETTE",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DEFAULT_PALETTE\n",  pEmr->ihObject );
                     break;
                 case(U_SYSTEM_FIXED_FONT):
-                    verbose_printf("   StockObject:    DEFAULT_FIXED_FONT",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DEFAULT_FIXED_FONT\n",  pEmr->ihObject );
                     break;
                 case(U_DEFAULT_GUI_FONT):
-                    verbose_printf("   StockObject:    DEFAULT_GUI_FONT",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DEFAULT_GUI_FONT\n",  pEmr->ihObject );
                     break;
                 default:
                     verbose_printf("   StockObject:    0x%8.8X\n",  pEmr->ihObject );
@@ -2181,7 +2181,7 @@ extern "C" {
             cIdent = *(uint32_t *)(src);
             if(U_BYTE_SWAP){ U_swap4(&(cIdent),1); }
             if(     cIdent == U_EMR_COMMENT_PUBLIC       ){
-                verbose_printf("   cIdent:  Public\n");
+                verbose_printf("   cIdent:         Public\n");
                 PU_EMRCOMMENT_PUBLIC pEmrp = (PU_EMRCOMMENT_PUBLIC) pEmr;
                 cIdent2 = pEmrp->pcIdent;
                 if(U_BYTE_SWAP){ U_swap4(&(cIdent2),1); }
@@ -2190,7 +2190,7 @@ extern "C" {
                 cbData -= 8;
             }
             else if(cIdent == U_EMR_COMMENT_SPOOL        ){
-                verbose_printf("   cIdent:  Spool\n");
+                verbose_printf("   cIdent:         Spool\n");
                 PU_EMRCOMMENT_SPOOL pEmrs = (PU_EMRCOMMENT_SPOOL) pEmr;
                 cIdent2 = pEmrs->esrIdent;
                 if(U_BYTE_SWAP){ U_swap4(&(cIdent2),1); }
@@ -2199,7 +2199,7 @@ extern "C" {
                 cbData -= 8;
             }
             else if(cIdent == U_EMR_COMMENT_EMFPLUSRECORD){
-                verbose_printf("   cIdent:  EMF+\n");
+                verbose_printf("   cIdent:         EMF+\n");
                 PU_EMRCOMMENT_EMFPLUS pEmrpl = (PU_EMRCOMMENT_EMFPLUS) pEmr;
                 src = (char *)&(pEmrpl->Data);
                 if (states->emfplus){
