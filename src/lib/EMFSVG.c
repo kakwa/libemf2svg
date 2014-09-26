@@ -1064,15 +1064,9 @@ extern "C" {
     void moveto_draw(const char *name, const char *field1, const char *field2, const char *contents, FILE *out, drawingStates *states){
         UNUSED(name);
         PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
-        //fprintf(out, "%d %d ", pEmr->pair.x, pEmr->pair.y);
+        verbose_printf("   %-15s ",field1);
         point_draw(states,pEmr->pair,out);
-        if(*field2){
-            verbose_printf("   %-15s %d\n",field1,pEmr->pair.x);
-            verbose_printf("   %-15s %d\n",field2,pEmr->pair.y);
-        }
-        else {
-            verbose_printf("   %-15s {%d,%d}\n",field1,pEmr->pair.x,pEmr->pair.y);
-        } 
+        verbose_printf("\n",field1);
     }
 
 
@@ -1154,6 +1148,49 @@ extern "C" {
         verbose_printf("\n");
 
     } 
+
+    void polypolygon_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
+        UNUSED(name);
+        unsigned int i;
+        PU_EMRPOLYPOLYLINE16 pEmr = (PU_EMRPOLYPOLYLINE16) (contents);
+        verbose_printf("   rclBounds:      ");    rectl_print(states, pEmr->rclBounds);    verbose_printf("\n");
+        verbose_printf("   nPolys:         %d\n",pEmr->nPolys        );
+        verbose_printf("   cpts:           %d\n",pEmr->cpts          );
+        verbose_printf("   Counts:         ");
+        for(i=0;i<pEmr->nPolys; i++){
+            verbose_printf(" [%d]:%d ",i,pEmr->aPolyCounts[i] );
+        }
+        verbose_printf("\n");
+        verbose_printf("   Points:         ");
+        PU_POINT16 papts = (PU_POINT16)((char *)pEmr->aPolyCounts + sizeof(uint32_t)* pEmr->nPolys);
+        for(i=0; i<pEmr->cpts; i++){
+            verbose_printf(" [%d]:",i);  point16_print(states, papts[i], out);
+        }
+
+        int counter = 0;
+        int polygon_index = 0;
+        for(i=0; i<pEmr->cpts; i++){
+            if(counter == 0){
+                fprintf(out, "M ");
+                point16_draw(states, papts[i], out);
+            }
+            else{
+                fprintf(out, "L ");
+                point16_draw(states, papts[i], out);
+            }
+            counter++;
+            if (pEmr->aPolyCounts[polygon_index] == counter){
+                if (polygon)
+                    fprintf(out, "Z ");
+                counter = 0;
+                polygon_index++;
+            }
+        }
+        verbose_printf("\n");
+
+    } 
+
+
 
     // Functions with the same form starting with  U_EMRINVERTRGN_print and U_EMRPAINTRGN_print,
     void core11_print(const char *name, const char *contents, FILE *out, drawingStates *states){
@@ -1504,7 +1541,9 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRSETPOLYFILLMODE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
+        PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
+        states->currentDeviceContext.fill_polymode = pEmr->iMode; 
         core3_print("U_EMRSETPOLYFILLMODE", "iMode:", contents, out, states);
     }
 
@@ -2797,8 +2836,30 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRPOLYPOLYLINE16_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
-        core10_print("U_EMRPOLYPOLYLINE16", contents, out, states);
+        FLAG_PARTIAL;
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath d=\"", states->nameSpaceString);
+        }
+        bool ispolygon = false;
+        polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, ispolygon);
+
+        if (localPath){
+            states->inPath = false;
+            fprintf(out, "\" ");
+            bool filled = false;
+            bool stroked = false;
+            stroke_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+        
+            fprintf(out, "/>");
+        }
+
     }
 
     // U_EMRPOLYPOLYGON16        91
@@ -2807,8 +2868,30 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRPOLYPOLYGON16_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
-        core10_print("U_EMRPOLYPOLYGON16", contents, out, states);
+        FLAG_PARTIAL;
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath d=\"", states->nameSpaceString);
+        }
+        bool ispolygon = true;
+        polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, ispolygon);
+
+        if (localPath){
+            states->inPath = false;
+            fprintf(out, "\" ");
+            bool filled = false;
+            bool stroked = false;
+            fill_draw(states, out, &filled, &stroked);
+            stroke_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+        
+            fprintf(out, "/>");
+        }
     }
 
 

@@ -99,6 +99,7 @@ extern "C" {
         int             fill_mode;    // enumeration from drawmode, not used if fill_set is not True
         int             fill_idx;     // used with DRAW_PATTERN and DRAW_IMAGE to return the appropriate fill
         int             fill_recidx;  // record used to regenerate hatch when it needs to be redone due to bkmode, textmode, etc. change
+        int             fill_polymode;
         // filling colors
         uint8_t         fill_red;    
         uint8_t         fill_blue;
