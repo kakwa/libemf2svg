@@ -74,7 +74,11 @@ extern "C" {
             ){
         // missing style application    
         if (!(states->inPath)){
-            fprintf(out,"\" stroke=\"blue\" stroke-width=\"1000\" />\n");
+            fprintf(out,"\" ");
+            bool filled;
+            bool stroked;
+            stroke_draw(states, out, &filled, &stroked);
+            fprintf(out," fill=\"none\" />\n");
         }
     }
 
@@ -1005,7 +1009,7 @@ extern "C" {
     } 
 
     // Functions with the same form starting with U_EMRPOLYBEZIER16_print
-    void cubic_bezier_draw(const char *name, const char *contents, FILE *out, drawingStates *states){
+    void cubic_bezier_draw(const char *name, const char *contents, FILE *out, drawingStates *states, int startingPoint){
         UNUSED(name);
         unsigned int i;
         PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16) (contents);
@@ -1014,18 +1018,23 @@ extern "C" {
         verbose_printf("   Points:        ");
         startPathDraw(states, out);
         PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
-        for(i=0; i<pEmr->cpts; i++){
-            switch ( i % 3 ) {
-                case 0:
-                    fprintf(out, "C ");
-                    verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
-                    break;
-                case 1:
-                    verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
-                    break;
-                case 2:
-                    verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
-                    break;
+        if (startingPoint == 1){
+            fprintf(out, "M ");
+            verbose_printf(" [%d]:",0);  point16_draw(states, papts[0], out);
+        }
+        const int ctrl1 = (0 + startingPoint) % 3;
+        const int ctrl2 = (1 + startingPoint) % 3;
+        const int to = (2 + startingPoint) % 3;
+        for(i = startingPoint; i<pEmr->cpts; i++){
+            if (( i % 3 ) == ctrl1) {
+               fprintf(out, "C ");
+               verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
+            }
+            else if (( i % 3 ) == ctrl2) {
+                verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
+            }
+            else if (( i % 3 ) == to) {
+                verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
             }
         }
         endPathDraw(states, out);
@@ -2271,7 +2280,8 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRFILLPATH_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
+        // real work done in U_EMRENDPATH
         core4_print("U_EMRFILLPATH", contents, out, states);
     }
 
@@ -2281,7 +2291,8 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRSTROKEANDFILLPATH_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
+        // real work done in U_EMRENDPATH
         core4_print("U_EMRSTROKEANDFILLPATH", contents, out, states);
     }
 
@@ -2291,7 +2302,8 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRSTROKEPATH_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
+        // real work done in U_EMRENDPATH
         core4_print("U_EMRSTROKEPATH", contents, out, states);
     }
 
@@ -2733,8 +2745,8 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRPOLYBEZIER16_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
-        core6_print("U_EMRPOLYBEZIER16", contents, out, states);
+        FLAG_SUPPORTED;
+        cubic_bezier_draw("U_EMRPOLYBEZIER16", contents, out, states, 1);
     }
 
     // U_EMRPOLYGON16            86
@@ -2765,7 +2777,7 @@ extern "C" {
     void U_EMRPOLYBEZIERTO16_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
 
-        cubic_bezier_draw("U_EMRPOLYBEZIERTO16", contents, out, states);
+        cubic_bezier_draw("U_EMRPOLYBEZIERTO16", contents, out, states, 0);
     }
 
     // U_EMRPOLYLINETO16         89

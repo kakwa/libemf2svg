@@ -201,6 +201,8 @@ extern "C" {
     void restoreDeviceContext(drawingStates * states, int32_t index );
     // free the device context stack
     void freeDeviceContextStack(drawingStates * states);
+    // stroke shape
+    void stroke_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked);
 
     /* prototypes for objects used in EMR records */
     void hexbytes_print(drawingStates *states, uint8_t *buf,unsigned int num);
