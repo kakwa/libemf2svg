@@ -86,7 +86,7 @@ extern "C" {
         switch(states->currentDeviceContext.fill_mode){
             case U_BS_SOLID:
                 verbose_printf("   Fill Mode:      BS_SOLID          Status: %sSUPPORTED%s\n", KGRN, KNRM);
-                verbose_printf("   File Color:    \"#%02X%02X%02X\"\n",
+                verbose_printf("   Fill Color:     #%02X%02X%02X\n",
                        states->currentDeviceContext.fill_red,
                        states->currentDeviceContext.fill_green,
                        states->currentDeviceContext.fill_blue
@@ -140,8 +140,8 @@ extern "C" {
     void stroke_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
         switch(states->currentDeviceContext.stroke_mode){
             case U_PS_SOLID:
-                 verbose_printf("   Stroke Mode:    PS_SOLID         Status: %sSUPPORTED%s\n", KGRN, KNRM);
-                 verbose_printf("   Stroke Color:   \"#%02X%02X%02X\"\n",
+                 verbose_printf("   Stroke Mode:    PS_SOLID          Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                 verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
                        states->currentDeviceContext.stroke_red,
                        states->currentDeviceContext.stroke_green,
                        states->currentDeviceContext.stroke_blue
@@ -158,47 +158,47 @@ extern "C" {
                  *stroked = true;
                  break;
             case U_PS_DASH:
-                 verbose_printf("   Stroke Mode:    PS_DASH          Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_DASH           Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_DOT:
-                 verbose_printf("   Stroke Mode:    PS_DOT           Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_DOT            Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_DASHDOT:
-                 verbose_printf("   Stroke Mode:    PS_DASHDOT       Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_DASHDOT        Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_DASHDOTDOT:
-                 verbose_printf("   Stroke Mode:    PS_DASHDOTDOT    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_DASHDOTDOT     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_NULL:
-                 verbose_printf("   Stroke Mode:    PS_NULL          Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_NULL           Status: %sSUPPORTED%s\n", KGRN, KNRM);
                  fprintf(out, "stroke=\"none\" " );
                  fprintf(out, "stroke-width=\"0.0\" " );
                  *stroked = true;
                  break;
             case U_PS_INSIDEFRAME:
-                 verbose_printf("   Stroke Mode:    PS_INSIDEFRAME   Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_INSIDEFRAME    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_USERSTYLE:
-                 verbose_printf("   Stroke Mode:    PS_USERSTYLE     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_USERSTYLE      Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_ALTERNATE:
-                 verbose_printf("   Stroke Mode:    PS_ALTERNATE     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_ALTERNATE      Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_ENDCAP_SQUARE:
-                 verbose_printf("   Stroke Mode:    PS_ENDCAP_SQUARE Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_ENDCAP_SQUARE  Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_ENDCAP_FLAT:
-                 verbose_printf("   Stroke Mode:    PS_ENDCAP_FLAT   Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_ENDCAP_FLAT    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_JOIN_BEVEL:
-                 verbose_printf("   Stroke Mode:    PS_JOIN_BEVEL    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_JOIN_BEVEL     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_JOIN_MITER:
-                 verbose_printf("   Stroke Mode:    PS_JOIN_MITER    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 verbose_printf("   Stroke Mode:    PS_JOIN_MITER     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                  break;
             case U_PS_GEOMETRIC:
-                 verbose_printf("   Stroke Mode:    PS_GEOMETRIC     Status: %sSUPPORTED%s\n", KGRN, KNRM);
-                 verbose_printf("   Stroke Color:   \"#%02X%02X%02X\"\n",
+                 verbose_printf("   Stroke Mode:    PS_GEOMETRIC      Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                 verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
                        states->currentDeviceContext.stroke_red,
                        states->currentDeviceContext.stroke_green,
                        states->currentDeviceContext.stroke_blue
