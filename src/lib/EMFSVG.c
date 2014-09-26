@@ -78,23 +78,28 @@ extern "C" {
         }
     }
 
-    void fill_draw(drawingStates *states, FILE * out){
+    void fill_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
         switch(states->currentDeviceContext.fill_mode){
             case U_BS_SOLID:
                 verbose_printf("   Fill Mode:      BS_SOLID          Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                verbose_printf("   File Color:    \"#%02X%02X%02X\"\n",
+                       states->currentDeviceContext.fill_red,
+                       states->currentDeviceContext.fill_green,
+                       states->currentDeviceContext.fill_blue
+                      );
+
+                 *filled = true;
+
                 fprintf(out, "fill=\"#%02X%02X%02X\" ", 
                     states->currentDeviceContext.fill_red,
                     states->currentDeviceContext.fill_green,
-                    states->currentDeviceContext.fill_blue,
-                    states->currentDeviceContext.stroke_red,
-                    states->currentDeviceContext.stroke_green,
-                    states->currentDeviceContext.stroke_blue,
-                    states->currentDeviceContext.stroke_width
+                    states->currentDeviceContext.fill_blue
                 );
                 break;
             case U_BS_NULL:
                 verbose_printf("   Fill Mode:      BS_NULL           Status: %sSUPPORTED%s\n", KGRN, KNRM);
-                fprintf(out, "fill-opacity=\"0.0\" " );
+                fprintf(out, "fill=\"none\" " );
+                 *filled = true;
                 break;
             case U_BS_HATCHED:
                 verbose_printf("   Fill Mode:      BS_HATCHED        Status: %sUNSUPPORTED%s\n", KRED, KNRM);
@@ -128,16 +133,25 @@ extern "C" {
         }
     }
 
-    void stroke_draw(drawingStates *states, FILE * out){
+    void stroke_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
         switch(states->currentDeviceContext.stroke_mode){
             case U_PS_SOLID:
                  verbose_printf("   Stroke Mode:    PS_SOLID         Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                 verbose_printf("   Stroke Color:   \"#%02X%02X%02X\"\n",
+                       states->currentDeviceContext.stroke_red,
+                       states->currentDeviceContext.stroke_green,
+                       states->currentDeviceContext.stroke_blue
+                      );
+                 verbose_printf("   Stroke Width:   \"%f\"\n", states->currentDeviceContext.stroke_width); 
+
+
                  fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
                        states->currentDeviceContext.stroke_red,
                        states->currentDeviceContext.stroke_green,
                        states->currentDeviceContext.stroke_blue,
                        states->currentDeviceContext.stroke_width
                       );
+                 *stroked = true;
                  break;
             case U_PS_DASH:
                  verbose_printf("   Stroke Mode:    PS_DASH          Status: %sUNSUPPORTED%s\n", KRED, KNRM);
@@ -153,8 +167,9 @@ extern "C" {
                  break;
             case U_PS_NULL:
                  verbose_printf("   Stroke Mode:    PS_NULL          Status: %sSUPPORTED%s\n", KGRN, KNRM);
-                 fprintf(out, "stroke-opacity=\"0.0\" " );
+                 fprintf(out, "stroke=\"none\" " );
                  fprintf(out, "stroke-width=\"0.0\" " );
+                 *stroked = true;
                  break;
             case U_PS_INSIDEFRAME:
                  verbose_printf("   Stroke Mode:    PS_INSIDEFRAME   Status: %sUNSUPPORTED%s\n", KRED, KNRM);
@@ -179,10 +194,17 @@ extern "C" {
                  break;
             case U_PS_GEOMETRIC:
                  verbose_printf("   Stroke Mode:    PS_GEOMETRIC     Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                 verbose_printf("   Stroke Color:   \"#%02X%02X%02X\"\n",
+                       states->currentDeviceContext.stroke_red,
+                       states->currentDeviceContext.stroke_green,
+                       states->currentDeviceContext.stroke_blue
+                      );
+                 verbose_printf("   Stroke Width:   \"%f\"\n", states->currentDeviceContext.stroke_width); 
+                 *stroked = true;
                  fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
-                       states->currentDeviceContext.fill_red,
-                       states->currentDeviceContext.fill_green,
-                       states->currentDeviceContext.fill_blue,
+                       states->currentDeviceContext.stroke_red,
+                       states->currentDeviceContext.stroke_green,
+                       states->currentDeviceContext.stroke_blue,
                        states->currentDeviceContext.stroke_width
                       );
                  break;
@@ -2199,18 +2221,20 @@ extern "C" {
         fprintf(out, "\" ");
         states->inPath = 0;
         uint32_t * aheadrec = listAheadeRecords(states, contents);
+        bool filled = false;
+        bool stroked = false;
         for(int i = 0; i < LOOKAHEADCOUNT; i++){
             switch(aheadrec[i])
             {
                 case U_EMR_STROKEANDFILLPATH:
-                    fill_draw(states, out);
-                    stroke_draw(states, out);
+                    fill_draw(states, out, &filled, &stroked);
+                    stroke_draw(states, out, &filled, &stroked);
                     break;
                 case U_EMR_FILLPATH :
-                    fill_draw(states, out);
+                    fill_draw(states, out, &filled, &stroked);
                     break;
                 case U_EMR_STROKEPATH:
-                    stroke_draw(states, out);
+                    stroke_draw(states, out, &filled, &stroked);
                     break;
                 case U_EMR_BEGINPATH:
                     // starting a new path, so ignore the rest
@@ -2220,6 +2244,11 @@ extern "C" {
                     break;
             }
         }
+        if (!filled)
+            fprintf(out, "fill=\"none\" ");
+        if (!stroked)
+            fprintf(out, "stroke=\"none\" ");
+
         fprintf(out, "/>\n");
         free(aheadrec);
         UNUSED(contents);
