@@ -56,6 +56,7 @@ extern "C" {
         uint8_t         stroke_red;    
         uint8_t         stroke_blue;
         uint8_t         stroke_green;
+        double          stroke_width;
 
         bool            fill_set;
         int             fill_mode;    // enumeration from drawmode, not used if fill_set is not True
@@ -92,7 +93,7 @@ extern "C" {
         uint8_t         stroke_red;    
         uint8_t         stroke_blue;
         uint8_t         stroke_green;
-
+        double          stroke_width;
 
         bool            fill_set;
         int             fill_mode;    // enumeration from drawmode, not used if fill_set is not True
@@ -103,7 +104,6 @@ extern "C" {
         uint8_t         fill_blue;
         uint8_t         fill_green;
         uint16_t        fill_hatch_style;
-
         int             dirty;        // holds the dirty bits for text, stroke, fill
         U_SIZEL         sizeWnd;
         U_SIZEL         sizeView;

@@ -1754,10 +1754,11 @@ extern "C" {
                 states->currentDeviceContext.fill_mode  = states->objectTable[index].fill_mode;
             }
             else if(states->objectTable[index].stroke_set){
-                states->currentDeviceContext.stroke_red   = states->objectTable[index].fill_red;
-                states->currentDeviceContext.stroke_blue  = states->objectTable[index].fill_blue;
-                states->currentDeviceContext.stroke_green = states->objectTable[index].fill_green;
-                states->currentDeviceContext.stroke_mode  = states->objectTable[index].fill_mode;
+                states->currentDeviceContext.stroke_red     = states->objectTable[index].stroke_red;
+                states->currentDeviceContext.stroke_blue    = states->objectTable[index].stroke_blue;
+                states->currentDeviceContext.stroke_green   = states->objectTable[index].stroke_green;
+                states->currentDeviceContext.stroke_mode    = states->objectTable[index].stroke_mode;
+                states->currentDeviceContext.stroke_width   = states->objectTable[index].stroke_width;
             }
         }
     } 
@@ -1768,11 +1769,19 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRCREATEPEN_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;;
+        FLAG_PARTIAL;
 
         PU_EMRCREATEPEN pEmr = (PU_EMRCREATEPEN)(contents);
         verbose_printf("   ihPen:          %u\n",      pEmr->ihPen );
         verbose_printf("   lopn:           ");    logpen_print(states, pEmr->lopn);  verbose_printf("\n");
+
+        uint32_t index = pEmr->ihPen;
+        states->objectTable[index].stroke_set     = true;
+        states->objectTable[index].stroke_red     = pEmr->lopn.lopnColor.Red;
+        states->objectTable[index].stroke_blue    = pEmr->lopn.lopnColor.Blue;
+        states->objectTable[index].stroke_green   = pEmr->lopn.lopnColor.Green;
+        states->objectTable[index].stroke_mode    = pEmr->lopn.lopnStyle;
+        states->objectTable[index].stroke_width   = pEmr->lopn.lopnWidth.x;// * states->scaling;
     } 
 
     // U_EMRCREATEBRUSHINDIRECT  39
@@ -1781,7 +1790,7 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRCREATEBRUSHINDIRECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_PARTIAL;
+        FLAG_SUPPORTED;
         PU_EMRCREATEBRUSHINDIRECT pEmr = (PU_EMRCREATEBRUSHINDIRECT)(contents);
         verbose_printf("   ihBrush:        %u\n",      pEmr->ihBrush );
         verbose_printf("   lb:             ");         logbrush_print(states, pEmr->lb);  verbose_printf("\n");
@@ -1795,12 +1804,13 @@ extern "C" {
             states->objectTable[index].fill_set     = true;
         }
         else if(pEmr->lb.lbStyle == U_BS_HATCHED){
-            //states->currentDeviceContext.fill_idx     = add_hatch(d, pEmr->lb.lbHatch, pEmr->lb.lbColor);
             states->objectTable[index].fill_recidx  = pEmr->ihBrush; // used if the hatch needs to be redone due to bkMode, textmode, etc. changes
+            states->objectTable[index].fill_red     = pEmr->lb.lbColor.Red;
+            states->objectTable[index].fill_green   = pEmr->lb.lbColor.Green;
+            states->objectTable[index].fill_blue    = pEmr->lb.lbColor.Blue;
             states->objectTable[index].fill_mode    = U_BS_HATCHED;
             states->objectTable[index].fill_set     = true;
         }
-
     } 
 
     // U_EMRDELETEOBJECT         40
@@ -2055,10 +2065,14 @@ extern "C" {
       */
     void U_EMRENDPATH_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
-        fprintf(out, "\" fill=\"#%X%X%X\" stroke=\"blue\" stroke-width=\"1\" />\n", 
+        fprintf(out, "\" fill=\"#%02X%02X%02X\" stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" />\n", 
                 states->currentDeviceContext.fill_red,
                 states->currentDeviceContext.fill_green,
-                states->currentDeviceContext.fill_blue
+                states->currentDeviceContext.fill_blue,
+                states->currentDeviceContext.stroke_red,
+                states->currentDeviceContext.stroke_green,
+                states->currentDeviceContext.stroke_blue,
+                states->currentDeviceContext.stroke_width
                );
         states->inPath = 0;
         UNUSED(contents);
@@ -2662,7 +2676,7 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMREXTCREATEPEN_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         PU_EMREXTCREATEPEN pEmr = (PU_EMREXTCREATEPEN)(contents);
         verbose_printf("   ihPen:          %u\n", pEmr->ihPen );
         verbose_printf("   offBmi:         %u\n", pEmr->offBmi   );
@@ -2675,6 +2689,16 @@ extern "C" {
         verbose_printf("   offBits:        %u\n", pEmr->offBits   );
         verbose_printf("   cbBits:         %u\n", pEmr->cbBits    );
         verbose_printf("   elp:            ");     extlogpen_print(states, (PU_EXTLOGPEN) &(pEmr->elp));  verbose_printf("\n");
+
+        uint32_t index = pEmr->ihPen;
+        PU_EXTLOGPEN pen = (PU_EXTLOGPEN) &(pEmr->elp);
+        states->objectTable[index].stroke_set     = true;
+        states->objectTable[index].stroke_red     = pen->elpColor.Red;
+        states->objectTable[index].stroke_blue    = pen->elpColor.Blue;
+        states->objectTable[index].stroke_green   = pen->elpColor.Green;
+        states->objectTable[index].stroke_mode    = pen->elpPenStyle;
+        states->objectTable[index].stroke_width   = pen->elpWidth;// * states->scaling;
+
     } 
 
     // U_EMRPOLYTEXTOUTA         96 NOT IMPLEMENTED, denigrated after Windows NT
