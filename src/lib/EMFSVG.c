@@ -83,6 +83,18 @@ extern "C" {
     }
 
     void fill_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
+        char * fill_rule = calloc(40, sizeof(char));
+        switch(states->currentDeviceContext.fill_mode){
+            case(U_ALTERNATE):
+                sprintf(fill_rule, "fill-rule:\"evenodd\" ");
+                break;
+            case(U_WINDING):
+                sprintf(fill_rule, "fill-rule:\"nonzero\" ");
+                break;
+            default:
+                sprintf(fill_rule, " ");
+                break;
+        }
         switch(states->currentDeviceContext.fill_mode){
             case U_BS_SOLID:
                 verbose_printf("   Fill Mode:      BS_SOLID          Status: %sSUPPORTED%s\n", KGRN, KNRM);
@@ -94,6 +106,7 @@ extern "C" {
 
                  *filled = true;
 
+                fprintf(out, "%s", fill_rule);
                 fprintf(out, "fill=\"#%02X%02X%02X\" ", 
                     states->currentDeviceContext.fill_red,
                     states->currentDeviceContext.fill_green,
@@ -133,6 +146,7 @@ extern "C" {
                 verbose_printf("   Fill Mode:      %d     %sUNKNOWN%s\n", 
                          states->currentDeviceContext.stroke_mode ,KRED, KNRM);
                 break;
+        free(fill_rule);
         return;
         }
     }
@@ -1076,14 +1090,9 @@ extern "C" {
         PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
         startPathDraw(states, out);
         fprintf(out, "L ");
+        verbose_printf("   %-15s ",field1);
         point_draw(states,pEmr->pair,out);
-        if(*field2){
-            verbose_printf("   %-15s %d\n",field1,pEmr->pair.x);
-            verbose_printf("   %-15s %d\n",field2,pEmr->pair.y);
-        }
-        else {
-            verbose_printf("   %-15s {%d,%d}\n",field1,pEmr->pair.x,pEmr->pair.y);
-        } 
+        verbose_printf("\n",field1);
         endPathDraw(states, out);
     }
 
@@ -1541,7 +1550,7 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRSETPOLYFILLMODE_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_PARTIAL;
+        FLAG_SUPPORTED;
         PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
         states->currentDeviceContext.fill_polymode = pEmr->iMode; 
         core3_print("U_EMRSETPOLYFILLMODE", "iMode:", contents, out, states);
