@@ -45,7 +45,7 @@ extern "C" {
 // emf define style outside and after drawing records, which is a little complex with svg
 // where style is define inside the records.
 // the solution here is to look ahead <LOOKAHEAD> records to find style.
-#define LOOKAHEAD      10
+#define LOOKAHEADCOUNT      10
     typedef struct emf_graph_object {
         char            *font_name;
         bool            stroke_set;

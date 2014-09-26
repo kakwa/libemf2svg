@@ -47,6 +47,20 @@ extern "C" {
         states->DeviceContextStack = new_entry;
     }
 
+    uint32_t * listAheadeRecords(drawingStates *states, const char *contents){
+        // skip the first one (it's the current record)
+        uint32_t * ret = calloc(LOOKAHEADCOUNT, sizeof(uint32_t));
+        PU_ENHMETARECORD  lpEMFR  = (PU_ENHMETARECORD)(contents);
+        int off = lpEMFR->nSize;
+        for(int i = 0; i < LOOKAHEADCOUNT;i++){
+            lpEMFR  = (PU_ENHMETARECORD)(contents + off);
+            unsigned int size;
+            ret[i] = lpEMFR->iType;
+            off = off + lpEMFR->nSize;
+        } 
+        return ret;
+    }
+
     void startPathDraw(drawingStates *states,
             FILE * out
             ){
@@ -63,6 +77,123 @@ extern "C" {
             fprintf(out,"\" stroke=\"blue\" stroke-width=\"1000\" />\n");
         }
     }
+
+    void fill_draw(drawingStates *states, FILE * out){
+        switch(states->currentDeviceContext.fill_mode){
+            case U_BS_SOLID:
+                verbose_printf("   Fill Mode:      BS_SOLID          Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                fprintf(out, "fill=\"#%02X%02X%02X\" ", 
+                    states->currentDeviceContext.fill_red,
+                    states->currentDeviceContext.fill_green,
+                    states->currentDeviceContext.fill_blue,
+                    states->currentDeviceContext.stroke_red,
+                    states->currentDeviceContext.stroke_green,
+                    states->currentDeviceContext.stroke_blue,
+                    states->currentDeviceContext.stroke_width
+                );
+                break;
+            case U_BS_NULL:
+                verbose_printf("   Fill Mode:      BS_NULL           Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                fprintf(out, "fill-opacity=\"0.0\" " );
+                break;
+            case U_BS_HATCHED:
+                verbose_printf("   Fill Mode:      BS_HATCHED        Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
+            case U_BS_PATTERN:
+                verbose_printf("   Fill Mode:      BS_PATTERN        Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
+            case U_BS_INDEXED:
+                verbose_printf("   Fill Mode:      BS_INDEXED        Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
+            case U_BS_DIBPATTERN:
+                verbose_printf("   Fill Mode:      BS_DIBPATTERN     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
+            case U_BS_DIBPATTERNPT:
+                verbose_printf("   Fill Mode:      BS_DIBPATTERNPT   Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
+            case U_BS_PATTERN8X8:
+                verbose_printf("   Fill Mode:      BS_PATTERN8X8     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
+            case U_BS_DIBPATTERN8X8:
+                verbose_printf("   Fill Mode:      BS_DIBPATTERN8X8  Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
+            case U_BS_MONOPATTERN:
+                verbose_printf("   Fill Mode:      BS_MONOPATTERN    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
+            default:
+                verbose_printf("   Fill Mode:      %d     %sUNKNOWN%s\n", 
+                         states->currentDeviceContext.stroke_mode ,KRED, KNRM);
+                break;
+        return;
+        }
+    }
+
+    void stroke_draw(drawingStates *states, FILE * out){
+        switch(states->currentDeviceContext.stroke_mode){
+            case U_PS_SOLID:
+                 verbose_printf("   Stroke Mode:    PS_SOLID         Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                 fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
+                       states->currentDeviceContext.stroke_red,
+                       states->currentDeviceContext.stroke_green,
+                       states->currentDeviceContext.stroke_blue,
+                       states->currentDeviceContext.stroke_width
+                      );
+                 break;
+            case U_PS_DASH:
+                 verbose_printf("   Stroke Mode:    PS_DASH          Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_DOT:
+                 verbose_printf("   Stroke Mode:    PS_DOT           Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_DASHDOT:
+                 verbose_printf("   Stroke Mode:    PS_DASHDOT       Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_DASHDOTDOT:
+                 verbose_printf("   Stroke Mode:    PS_DASHDOTDOT    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_NULL:
+                 verbose_printf("   Stroke Mode:    PS_NULL          Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                 fprintf(out, "stroke-opacity=\"0.0\" " );
+                 fprintf(out, "stroke-width=\"0.0\" " );
+                 break;
+            case U_PS_INSIDEFRAME:
+                 verbose_printf("   Stroke Mode:    PS_INSIDEFRAME   Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_USERSTYLE:
+                 verbose_printf("   Stroke Mode:    PS_USERSTYLE     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_ALTERNATE:
+                 verbose_printf("   Stroke Mode:    PS_ALTERNATE     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_ENDCAP_SQUARE:
+                 verbose_printf("   Stroke Mode:    PS_ENDCAP_SQUARE Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_ENDCAP_FLAT:
+                 verbose_printf("   Stroke Mode:    PS_ENDCAP_FLAT   Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_JOIN_BEVEL:
+                 verbose_printf("   Stroke Mode:    PS_JOIN_BEVEL    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_JOIN_MITER:
+                 verbose_printf("   Stroke Mode:    PS_JOIN_MITER    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                 break;
+            case U_PS_GEOMETRIC:
+                 verbose_printf("   Stroke Mode:    PS_GEOMETRIC     Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                 fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
+                       states->currentDeviceContext.fill_red,
+                       states->currentDeviceContext.fill_green,
+                       states->currentDeviceContext.fill_blue,
+                       states->currentDeviceContext.stroke_width
+                      );
+                 break;
+            default:
+                 verbose_printf("   Stroke Mode:    %d     %sUNKNOWN%s\n", 
+                         states->currentDeviceContext.stroke_mode ,KRED, KNRM);
+                 break;
+        }
+    }
+
+
 
     void setTransformIdentity(drawingStates * states){
         states->currentDeviceContext.worldTransform.eM11 = 1.0;
@@ -2065,16 +2196,32 @@ extern "C" {
       */
     void U_EMRENDPATH_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
-        fprintf(out, "\" fill=\"#%02X%02X%02X\" stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" />\n", 
-                states->currentDeviceContext.fill_red,
-                states->currentDeviceContext.fill_green,
-                states->currentDeviceContext.fill_blue,
-                states->currentDeviceContext.stroke_red,
-                states->currentDeviceContext.stroke_green,
-                states->currentDeviceContext.stroke_blue,
-                states->currentDeviceContext.stroke_width
-               );
+        fprintf(out, "\" ");
         states->inPath = 0;
+        uint32_t * aheadrec = listAheadeRecords(states, contents);
+        for(int i = 0; i < LOOKAHEADCOUNT; i++){
+            switch(aheadrec[i])
+            {
+                case U_EMR_STROKEANDFILLPATH:
+                    fill_draw(states, out);
+                    stroke_draw(states, out);
+                    break;
+                case U_EMR_FILLPATH :
+                    fill_draw(states, out);
+                    break;
+                case U_EMR_STROKEPATH:
+                    stroke_draw(states, out);
+                    break;
+                case U_EMR_BEGINPATH:
+                    // starting a new path, so ignore the rest
+                    i = LOOKAHEADCOUNT;
+                    break;
+                default:
+                    break;
+            }
+        }
+        fprintf(out, "/>\n");
+        free(aheadrec);
         UNUSED(contents);
     }
 
