@@ -143,6 +143,11 @@ extern "C" {
 
     } generatorOptions;
 
+    typedef struct {
+        void * pathStack;
+    }
+    emfStruct;
+
     // structure recording drawing states
     typedef struct {
 
@@ -183,6 +188,11 @@ extern "C" {
         // current cursor position
         double          cur_x;
         double          cur_y;
+
+        // general emf structure
+        // used to associate records together
+        // for example, associate path and pathfill/pathstroke/clipping
+        emfStruct emfStructure;
 
 
     } drawingStates;

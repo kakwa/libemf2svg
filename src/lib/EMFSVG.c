@@ -160,7 +160,7 @@ extern "C" {
                        states->currentDeviceContext.stroke_green,
                        states->currentDeviceContext.stroke_blue
                       );
-                 verbose_printf("   Stroke Width:   \"%f\"\n", states->currentDeviceContext.stroke_width); 
+                 verbose_printf("   Stroke Width:   %f\n", states->currentDeviceContext.stroke_width); 
 
 
                  fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
@@ -217,7 +217,7 @@ extern "C" {
                        states->currentDeviceContext.stroke_green,
                        states->currentDeviceContext.stroke_blue
                       );
-                 verbose_printf("   Stroke Width:   \"%f\"\n", states->currentDeviceContext.stroke_width); 
+                 verbose_printf("   Stroke Width:   %f\n", states->currentDeviceContext.stroke_width); 
                  *stroked = true;
                  fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
                        states->currentDeviceContext.stroke_red,
@@ -388,12 +388,13 @@ extern "C" {
             FILE * out
             ){
         verbose_printf("{%d,%d} ",pt.x ,pt.y);
-        double x = (pt.x * states->currentDeviceContext.worldTransform.eM11 + \
-                pt.y * states->currentDeviceContext.worldTransform.eM21 + \
-                states->currentDeviceContext.worldTransform.eDx) * states->scaling;
-        double y = (pt.x * states->currentDeviceContext.worldTransform.eM12 + \
-                pt.y * states->currentDeviceContext.worldTransform.eM22 + \
-                states->currentDeviceContext.worldTransform.eDy) * states->scaling;
+        double x = ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM11 + \
+                (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM21 + \
+                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scaling;
+        double y = ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM12 + \
+                (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM22 + \
+                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scaling;
+
         states->cur_x = x;
         states->cur_y = y;
         fprintf(out, "%f %f ", x ,y);
@@ -405,12 +406,12 @@ extern "C" {
             FILE * out
             ){
         verbose_printf("{%d,%d} ",pt.x ,pt.y);
-        double x = (pt.x * states->currentDeviceContext.worldTransform.eM11 + \
-                pt.y * states->currentDeviceContext.worldTransform.eM21 + \
-                states->currentDeviceContext.worldTransform.eDx) * states->scaling;
-        double y = (pt.x * states->currentDeviceContext.worldTransform.eM12 + \
-                pt.y * states->currentDeviceContext.worldTransform.eM22 + \
-                states->currentDeviceContext.worldTransform.eDy) * states->scaling;
+        double x = ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM11 + \
+                (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM21 + \
+                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scaling;
+        double y = ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM12 + \
+                (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM22 + \
+                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scaling;
         states->cur_x = x;
         states->cur_y = y;
         fprintf(out, "%f %f ", x ,y);
@@ -956,7 +957,7 @@ extern "C" {
         PU_EMRPOLYLINETO pEmr = (PU_EMRPOLYLINETO) (contents);
         verbose_printf("   rclBounds:      ");    rectl_print(states, pEmr->rclBounds);    verbose_printf("\n");
         verbose_printf("   cptl:           %d\n",pEmr->cptl        );
-        verbose_printf("   Points:        ");
+        verbose_printf("   Points:       ");
         for(i=0;i<pEmr->cptl; i++){
             verbose_printf("[%d]:",i); pointl_print(states, pEmr->aptl[i]);
         }
@@ -1058,17 +1059,22 @@ extern "C" {
 
 
     // Functions drawing a polyline
-    void polyline_draw(const char *name, const char *contents, FILE *out, drawingStates *states){
+    void polyline_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
         UNUSED(name);
         unsigned int i;
         PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16) (contents);
         verbose_printf("   rclBounds:      ");    rectl_print(states, pEmr->rclBounds);    verbose_printf("\n");
         verbose_printf("   cpts:           %d\n",pEmr->cpts        );
-        verbose_printf("   Points:         ");
+        verbose_printf("   Points:        ");
         PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
         startPathDraw(states, out);
         for(i=0; i<pEmr->cpts; i++){
-            fprintf(out, "L ");
+            if (polygon && i == 0){
+                fprintf(out, "M ");
+            }
+            else{
+                fprintf(out, "L ");
+            }
             verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
         }
         endPathDraw(states, out);
@@ -2803,8 +2809,33 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRPOLYGON16_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
-        core6_print("U_EMRPOLYGON16", contents, out, states);
+        //FLAG_IGNORED;
+        //polyline_draw("U_EMRPOLYLINETO16", contents, out, states);
+        FLAG_PARTIAL;
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath d=\"", states->nameSpaceString);
+        }
+        bool ispolygon = true;
+        polyline_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
+
+        if (localPath){
+            states->inPath = false;
+            fprintf(out, "Z\" ");
+            bool filled = false;
+            bool stroked = false;
+            stroke_draw(states, out, &filled, &stroked);
+            fill_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+        
+            fprintf(out, "/><!-- shit -->\n");
+        }
+        //core6_print("U_EMRPOLYGON16", contents, out, states);
     }
 
     // U_EMRPOLYLINE16           87
@@ -2835,8 +2866,8 @@ extern "C" {
       */
     void U_EMRPOLYLINETO16_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
-
-        polyline_draw("U_EMRPOLYLINETO16", contents, out, states);
+        polyline_draw("U_EMRPOLYLINETO16", contents, out, states, false);
+        
     }
 
     // U_EMRPOLYPOLYLINE16       90
@@ -2866,7 +2897,7 @@ extern "C" {
             if (!stroked)
                 fprintf(out, "stroke=\"none\" ");
         
-            fprintf(out, "/>");
+            fprintf(out, "/>\n");
         }
 
     }
@@ -2899,7 +2930,7 @@ extern "C" {
             if (!stroked)
                 fprintf(out, "stroke=\"none\" ");
         
-            fprintf(out, "/>");
+            fprintf(out, "/>\n");
         }
     }
 
@@ -3345,6 +3376,158 @@ extern "C" {
         return(size);
     }
 
+    /**
+      \brief Print any record in an emf
+      \returns record length for a normal record, 0 for EMREOF, -1 for a bad record
+      \param contents   pointer to a buffer holding all EMR records
+      \param blimit     pointer to the byte after the last byte in the buffer holding all EMR records
+      \param recnum     number of this record in contents
+      \param off        offset to this record in contents
+      */
+    int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum, size_t off, emfStruct * emfstr){
+        PU_ENHMETARECORD  lpEMFR  = (PU_ENHMETARECORD)(contents + off);
+        unsigned int size;
+
+        size      = lpEMFR->nSize;
+        contents += off;
+
+        /* Check that the record size is OK, abort if not.
+           Pointer math might wrap, so check both sides of the range */
+        if(size < sizeof(U_EMR)           ||
+                contents + size - 1 >= blimit  || 
+                contents + size - 1 < contents)return(-1);
+
+        switch (lpEMFR->iType)
+        {
+            case U_EMR_HEADER:                  break;
+            case U_EMR_POLYBEZIER:              break;
+            case U_EMR_POLYGON:                 break;
+            case U_EMR_POLYLINE:                break;
+            case U_EMR_POLYBEZIERTO:            break;
+            case U_EMR_POLYLINETO:              break;
+            case U_EMR_POLYPOLYLINE:            break;
+            case U_EMR_POLYPOLYGON:             break;
+            case U_EMR_SETWINDOWEXTEX:          break;
+            case U_EMR_SETWINDOWORGEX:          break;
+            case U_EMR_SETVIEWPORTEXTEX:        break;
+            case U_EMR_SETVIEWPORTORGEX:        break;
+            case U_EMR_SETBRUSHORGEX:           break;
+            case U_EMR_EOF:                     size=0; break;
+            case U_EMR_SETPIXELV:               break;
+            case U_EMR_SETMAPPERFLAGS:          break;
+            case U_EMR_SETMAPMODE:              break;
+            case U_EMR_SETBKMODE:               break;
+            case U_EMR_SETPOLYFILLMODE:         break;
+            case U_EMR_SETROP2:                 break;
+            case U_EMR_SETSTRETCHBLTMODE:       break;
+            case U_EMR_SETTEXTALIGN:            break;
+            case U_EMR_SETCOLORADJUSTMENT:      break;
+            case U_EMR_SETTEXTCOLOR:            break;
+            case U_EMR_SETBKCOLOR:              break;
+            case U_EMR_OFFSETCLIPRGN:           break;
+            case U_EMR_MOVETOEX:                break;
+            case U_EMR_SETMETARGN:              break;
+            case U_EMR_EXCLUDECLIPRECT:         break;
+            case U_EMR_INTERSECTCLIPRECT:       break;
+            case U_EMR_SCALEVIEWPORTEXTEX:      break;
+            case U_EMR_SCALEWINDOWEXTEX:        break;
+            case U_EMR_SAVEDC:                  break;
+            case U_EMR_RESTOREDC:               break;
+            case U_EMR_SETWORLDTRANSFORM:       break;
+            case U_EMR_MODIFYWORLDTRANSFORM:    break;
+            case U_EMR_SELECTOBJECT:            break;
+            case U_EMR_CREATEPEN:               break;
+            case U_EMR_CREATEBRUSHINDIRECT:     break;
+            case U_EMR_DELETEOBJECT:            break;
+            case U_EMR_ANGLEARC:                break;
+            case U_EMR_ELLIPSE:                 break;
+            case U_EMR_RECTANGLE:               break;
+            case U_EMR_ROUNDRECT:               break;
+            case U_EMR_ARC:                     break;
+            case U_EMR_CHORD:                   break;
+            case U_EMR_PIE:                     break;
+            case U_EMR_SELECTPALETTE:           break;
+            case U_EMR_CREATEPALETTE:           break;
+            case U_EMR_SETPALETTEENTRIES:       break;
+            case U_EMR_RESIZEPALETTE:           break;
+            case U_EMR_REALIZEPALETTE:          break;
+            case U_EMR_EXTFLOODFILL:            break;
+            case U_EMR_LINETO:                  break;
+            case U_EMR_ARCTO:                   break;
+            case U_EMR_POLYDRAW:                break;
+            case U_EMR_SETARCDIRECTION:         break;
+            case U_EMR_SETMITERLIMIT:           break;
+            case U_EMR_BEGINPATH:               break;
+            case U_EMR_ENDPATH:                 break;
+            case U_EMR_CLOSEFIGURE:             break;
+            case U_EMR_FILLPATH:                break;
+            case U_EMR_STROKEANDFILLPATH:       break;
+            case U_EMR_STROKEPATH:              break;
+            case U_EMR_FLATTENPATH:             break;
+            case U_EMR_WIDENPATH:               break;
+            case U_EMR_SELECTCLIPPATH:          break;
+            case U_EMR_ABORTPATH:               break;
+            //case U_EMR_UNDEF69:                 break;
+            case U_EMR_COMMENT:                 break;
+            case U_EMR_FILLRGN:                 break;
+            case U_EMR_FRAMERGN:                break;
+            case U_EMR_INVERTRGN:               break;
+            case U_EMR_PAINTRGN:                break;
+            case U_EMR_EXTSELECTCLIPRGN:        break;
+            case U_EMR_BITBLT:                  break;
+            case U_EMR_STRETCHBLT:              break;
+            case U_EMR_MASKBLT:                 break;
+            case U_EMR_PLGBLT:                  break;
+            case U_EMR_SETDIBITSTODEVICE:       break;
+            case U_EMR_STRETCHDIBITS:           break;
+            case U_EMR_EXTCREATEFONTINDIRECTW:  break;
+            case U_EMR_EXTTEXTOUTA:             break;
+            case U_EMR_EXTTEXTOUTW:             break;
+            case U_EMR_POLYBEZIER16:            break;
+            case U_EMR_POLYGON16:               break;
+            case U_EMR_POLYLINE16:              break;
+            case U_EMR_POLYBEZIERTO16:          break;
+            case U_EMR_POLYLINETO16:            break;
+            case U_EMR_POLYPOLYLINE16:          break;
+            case U_EMR_POLYPOLYGON16:           break;
+            case U_EMR_POLYDRAW16:              break;
+            case U_EMR_CREATEMONOBRUSH:         break;
+            case U_EMR_CREATEDIBPATTERNBRUSHPT: break;
+            case U_EMR_EXTCREATEPEN:            break;
+            //case U_EMR_POLYTEXTOUTA:            break;
+            //case U_EMR_POLYTEXTOUTW:            break;
+            case U_EMR_SETICMMODE:              break;
+            case U_EMR_CREATECOLORSPACE:        break;
+            case U_EMR_SETCOLORSPACE:           break;
+            case U_EMR_DELETECOLORSPACE:        break;
+            //case U_EMR_GLSRECORD:               break;
+            //case U_EMR_GLSBOUNDEDRECORD:        break;
+            case U_EMR_PIXELFORMAT:             break;
+            //case U_EMR_DRAWESCAPE:              break;
+            //case U_EMR_EXTESCAPE:               break;
+            //case U_EMR_UNDEF107:                break;
+            case U_EMR_SMALLTEXTOUT:            break;
+            //case U_EMR_FORCEUFIMAPPING:         break;
+            //case U_EMR_NAMEDESCAPE:             break;
+            //case U_EMR_COLORCORRECTPALETTE:     break;
+            //case U_EMR_SETICMPROFILEA:          break;
+            //case U_EMR_SETICMPROFILEW:          break;
+            case U_EMR_ALPHABLEND:              break;
+            case U_EMR_SETLAYOUT:               break;
+            case U_EMR_TRANSPARENTBLT:          break;
+            //case U_EMR_UNDEF117:                break;
+            case U_EMR_GRADIENTFILL:            break;
+            //case U_EMR_SETLINKEDUFIS:           break;
+            //case U_EMR_SETTEXTJUSTIFICATION:    break;
+            //case U_EMR_COLORMATCHTOTARGETW:     break;
+            case U_EMR_CREATECOLORSPACEW:       break;
+            default:                            break;
+        }  //end of switch
+        return(size);
+    }
+
+
+
     int emf2svg(char *contents, size_t length, char **out, generatorOptions *options)
     {   
         size_t   off=0;
@@ -3380,6 +3563,7 @@ extern "C" {
 
         blimit = contents + length;
 
+        // analyze emf structure
         while(OK){
             if(off>=length){ //normally should exit from while after EMREOF sets OK to false, this is most likely a corrupt EMF
                 verbose_printf("WARNING: record claims to extend beyond the end of the EMF file\n");
@@ -3391,6 +3575,32 @@ extern "C" {
             if(!recnum && (pEmr->iType != U_EMR_HEADER)){
                 verbose_printf("WARNING: EMF file does not begin with an EMR_HEADER record\n");
             }
+
+            result = U_emf_onerec_analyse(contents, blimit, recnum, off, &states->emfStructure);
+            if(result == (size_t) -1){
+                verbose_printf("ABORTING on invalid record - corrupt file?\n");
+                OK=0;
+            }
+            else if(!result){
+                OK=0;
+            }
+            else { 
+                off += result;
+                recnum++;
+            }
+        }  //end of while
+        FLAG_RESET;
+
+        OK=1;
+        off=0;
+        recnum=0;
+        while(OK){
+            if(off>=length){ //normally should exit from while after EMREOF sets OK to false, this is most likely a corrupt EMF
+                verbose_printf("WARNING: record claims to extend beyond the end of the EMF file\n");
+                return(0);
+            }
+
+            pEmr = (PU_ENHMETARECORD)(contents + off);
 
             result = U_emf_onerec_print(contents, blimit, recnum, off, stream, states);
             if(result == (size_t) -1){
