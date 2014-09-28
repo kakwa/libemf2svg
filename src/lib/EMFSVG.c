@@ -51,7 +51,7 @@ extern "C" {
             FILE * out
             ){
         if (!(states->inPath)){
-            fprintf(out, "<%spath d=\"M %f %f ", states->nameSpaceString, states->cur_x, states->cur_y);
+            fprintf(out, "<%spath d=\"M %.2f %.2f ", states->nameSpaceString, states->cur_x, states->cur_y);
         }
     }
 
@@ -66,6 +66,11 @@ extern "C" {
             stroke_draw(states, out, &filled, &stroked);
             fprintf(out," fill=\"none\" />\n");
         }
+    }
+
+    int get_id(drawingStates * states){
+        states->uniqId++;
+        return states->uniqId;
     }
 
     void fill_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
@@ -393,7 +398,7 @@ extern "C" {
 
         states->cur_x = x;
         states->cur_y = y;
-        fprintf(out, "%f %f ", x ,y);
+        fprintf(out, "%.2f %.2f ", x ,y);
     } 
 
     void point_draw(
@@ -410,7 +415,7 @@ extern "C" {
                 (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scaling;
         states->cur_x = x;
         states->cur_y = y;
-        fprintf(out, "%f %f ", x ,y);
+        fprintf(out, "%.2f %.2f ", x ,y);
     } 
 
 
@@ -2265,6 +2270,13 @@ extern "C" {
       */
     void U_EMRBEGINPATH_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
+        pathStack * stack = states->emfStructure.pathStack;
+        uint32_t clipOffset       = stack->pathStruct.clipOffset;
+        if (clipOffset != 0){
+            int id = get_id(states);
+            fprintf(out, "<%sclipPath id=\"clip-%d\">\n", states->nameSpaceString, id);
+            states->clipId = id;
+        }
         fprintf(out, "<%spath d=\"", states->nameSpaceString);
         states->inPath = 1;
         UNUSED(contents);
@@ -2285,6 +2297,7 @@ extern "C" {
         uint32_t fillOffset       = stack->pathStruct.fillOffset;
         uint32_t strokeOffset     = stack->pathStruct.strokeOffset;
         uint32_t strokeFillOffset = stack->pathStruct.strokeFillOffset;
+        uint32_t clipOffset       = stack->pathStruct.clipOffset;
         if (fillOffset != 0)
             fill_draw(states, out, &filled, &stroked);
         if (strokeOffset != 0)
@@ -2299,6 +2312,11 @@ extern "C" {
             fprintf(out, "stroke=\"none\" ");
 
         fprintf(out, "/>\n");
+        if (clipOffset != 0){
+            fprintf(out, "</%sclipPath>\n", states->nameSpaceString);
+            states->clipSet = true;
+        }
+
         states->emfStructure.pathStack = stack->next;
         free(stack);
         UNUSED(contents);
@@ -2803,7 +2821,10 @@ extern "C" {
         if (!states->inPath){
             localPath = true;
             states->inPath = true;
-            fprintf(out, "<%spath d=\"", states->nameSpaceString);
+            fprintf(out, "<%spath ", states->nameSpaceString);
+            if (states->clipSet)
+                fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+            fprintf(out, "d=\"");
         }
         bool ispolygon = true;
         polyline_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
@@ -2868,7 +2889,11 @@ extern "C" {
         if (!states->inPath){
             localPath = true;
             states->inPath = true;
-            fprintf(out, "<%spath d=\"", states->nameSpaceString);
+            fprintf(out, "<%spath ", states->nameSpaceString);
+            if (states->clipSet)
+                fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+            fprintf(out, "d=\"");
+
         }
         bool ispolygon = false;
         polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, ispolygon);

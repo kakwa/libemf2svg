@@ -158,7 +158,8 @@ extern "C" {
 
     // structure recording drawing states
     typedef struct {
-
+        // unique ID (simple increment)
+        int uniqId;
         // SVG namespace (the '<something>' before each fields)
         char *nameSpace; 
         // Same as previously, but with ':'
@@ -191,6 +192,8 @@ extern "C" {
         // used to associate records together
         // for example, associate path and pathfill/pathstroke/clipping
         emfStruct emfStructure;
+        bool            clipSet;
+        int             clipId;
     } drawingStates;
 
 #define U_MWT_SET      4                   //!< Transform is basic SET
