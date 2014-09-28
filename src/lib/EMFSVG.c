@@ -233,7 +233,9 @@ extern "C" {
         }
     }
 
-
+    void newPathStruct(drawingStates *states){
+        return;
+    }
 
     void setTransformIdentity(drawingStates * states){
         states->currentDeviceContext.worldTransform.eM11 = 1.0;
@@ -3384,7 +3386,7 @@ extern "C" {
       \param recnum     number of this record in contents
       \param off        offset to this record in contents
       */
-    int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum, size_t off, emfStruct * emfstr){
+    int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum, size_t off, drawingStates *states){
         PU_ENHMETARECORD  lpEMFR  = (PU_ENHMETARECORD)(contents + off);
         unsigned int size;
 
@@ -3576,7 +3578,7 @@ extern "C" {
                 verbose_printf("WARNING: EMF file does not begin with an EMR_HEADER record\n");
             }
 
-            result = U_emf_onerec_analyse(contents, blimit, recnum, off, &states->emfStructure);
+            result = U_emf_onerec_analyse(contents, blimit, recnum, off, states);
             if(result == (size_t) -1){
                 verbose_printf("ABORTING on invalid record - corrupt file?\n");
                 OK=0;

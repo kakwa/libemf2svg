@@ -128,23 +128,30 @@ extern "C" {
 
     // structure containing generator arguments
     typedef struct {
-
         // SVG namespace (the '<something>:' before each fields)
         char *nameSpace; 
-
         // Verbose mode, output fields and fields values if True
         bool verbose; 
-
         // Handle emf+ records or not
         bool emfplus; 
-
         // draw svg document delimiter or not
         bool svgDelimiter;
 
     } generatorOptions;
 
     typedef struct {
-        void * pathStack;
+        uint32_t fillOffset;
+        uint32_t strokeOffset;
+        uint32_t clipOffset;
+    } pathStruct;
+
+    typedef struct ps {
+        pathStruct pathStruct;
+        struct ps * next;
+    } pathStack;
+
+    typedef struct {
+        pathStack * pathStack;
     }
     emfStruct;
 
@@ -155,46 +162,34 @@ extern "C" {
         char *nameSpace; 
         // Same as previously, but with ':'
         char *nameSpaceString; 
-
         // Verbose mode, output fields and fields values if True
         bool verbose; 
-
         // Handle emf+ records or not
         bool emfplus; 
-
         // draw svg document delimiter or not
         bool svgDelimiter;
-
         /* The current EMF Device Context
          * (Device Context == pen, brush, palette... see [MS-EMF].pdf) */
         EMF_DEVICE_CONTEXT currentDeviceContext; 
-
         /* Device Contexts can be saved (EMR_SAVEDC),
          * Previous Device Contexts can be restored (EMR_RESTOREDC)
          * So we store then in this stack 
          */
         EMF_DEVICE_CONTEXT_STACK * DeviceContextStack; 
-
         // flag to know if we are in an SVG path or not
         bool inPath;
-
         // object table
         emfGraphObject * objectTable;
         uint16_t objectTableSize; 
-
         // scaling ratio
         double scaling;
-
         // current cursor position
         double          cur_x;
         double          cur_y;
-
         // general emf structure
         // used to associate records together
         // for example, associate path and pathfill/pathstroke/clipping
         emfStruct emfStructure;
-
-
     } drawingStates;
 
 #define U_MWT_SET      4                   //!< Transform is basic SET
