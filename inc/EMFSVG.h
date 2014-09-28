@@ -42,10 +42,6 @@ extern "C" {
 #define FLAG_UNUSED    verbose_printf("   Status:         %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
-// emf define style outside and after drawing records, which is a little complex with svg
-// where style is define inside the records.
-// the solution here is to look ahead <LOOKAHEAD> records to find style.
-#define LOOKAHEADCOUNT      10
     typedef struct emf_graph_object {
         char            *font_name;
         bool            stroke_set;
@@ -141,17 +137,22 @@ extern "C" {
 
     typedef struct {
         uint32_t fillOffset;
+        uint32_t strokeFillOffset;
         uint32_t strokeOffset;
+        uint32_t flattenOffset;
+        uint32_t widdenOffset;
         uint32_t clipOffset;
+        uint32_t abortOffset;
     } pathStruct;
 
-    typedef struct ps {
+    typedef struct pathstack {
         pathStruct pathStruct;
-        struct ps * next;
+        struct pathstack * next;
     } pathStack;
 
     typedef struct {
         pathStack * pathStack;
+        struct pathstack * pathStackLast;
     }
     emfStruct;
 

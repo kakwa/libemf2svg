@@ -47,20 +47,6 @@ extern "C" {
         states->DeviceContextStack = new_entry;
     }
 
-    uint32_t * listAheadeRecords(drawingStates *states, const char *contents){
-        // skip the first one (it's the current record)
-        uint32_t * ret = calloc(LOOKAHEADCOUNT, sizeof(uint32_t));
-        PU_ENHMETARECORD  lpEMFR  = (PU_ENHMETARECORD)(contents);
-        int off = lpEMFR->nSize;
-        for(int i = 0; i < LOOKAHEADCOUNT;i++){
-            lpEMFR  = (PU_ENHMETARECORD)(contents + off);
-            unsigned int size;
-            ret[i] = lpEMFR->iType;
-            off = off + lpEMFR->nSize;
-        } 
-        return ret;
-    }
-
     void startPathDraw(drawingStates *states,
             FILE * out
             ){
@@ -234,7 +220,15 @@ extern "C" {
     }
 
     void newPathStruct(drawingStates *states){
-        return;
+        pathStack * new_entry = calloc(1, sizeof(pathStack));
+        if (states->emfStructure.pathStack == NULL){
+            states->emfStructure.pathStack = new_entry;
+            states->emfStructure.pathStackLast = new_entry;
+        }
+        else{
+            states->emfStructure.pathStackLast->next = new_entry;
+            states->emfStructure.pathStackLast = new_entry;
+        }
     }
 
     void setTransformIdentity(drawingStates * states){
@@ -2285,29 +2279,19 @@ extern "C" {
         FLAG_PARTIAL;
         fprintf(out, "\" ");
         states->inPath = 0;
-        uint32_t * aheadrec = listAheadeRecords(states, contents);
         bool filled = false;
         bool stroked = false;
-        for(int i = 0; i < LOOKAHEADCOUNT; i++){
-            switch(aheadrec[i])
-            {
-                case U_EMR_STROKEANDFILLPATH:
-                    fill_draw(states, out, &filled, &stroked);
-                    stroke_draw(states, out, &filled, &stroked);
-                    break;
-                case U_EMR_FILLPATH :
-                    fill_draw(states, out, &filled, &stroked);
-                    break;
-                case U_EMR_STROKEPATH:
-                    stroke_draw(states, out, &filled, &stroked);
-                    break;
-                case U_EMR_BEGINPATH:
-                    // starting a new path, so ignore the rest
-                    i = LOOKAHEADCOUNT;
-                    break;
-                default:
-                    break;
-            }
+        pathStack * stack = states->emfStructure.pathStack;
+        uint32_t fillOffset       = stack->pathStruct.fillOffset;
+        uint32_t strokeOffset     = stack->pathStruct.strokeOffset;
+        uint32_t strokeFillOffset = stack->pathStruct.strokeFillOffset;
+        if (fillOffset != 0)
+            fill_draw(states, out, &filled, &stroked);
+        if (strokeOffset != 0)
+            stroke_draw(states, out, &filled, &stroked);
+        if (strokeFillOffset !=0){
+            fill_draw(states, out, &filled, &stroked);
+            stroke_draw(states, out, &filled, &stroked);
         }
         if (!filled)
             fprintf(out, "fill=\"none\" ");
@@ -2315,7 +2299,8 @@ extern "C" {
             fprintf(out, "stroke=\"none\" ");
 
         fprintf(out, "/>\n");
-        free(aheadrec);
+        states->emfStructure.pathStack = stack->next;
+        free(stack);
         UNUSED(contents);
     }
 
@@ -3459,16 +3444,16 @@ extern "C" {
             case U_EMR_POLYDRAW:                break;
             case U_EMR_SETARCDIRECTION:         break;
             case U_EMR_SETMITERLIMIT:           break;
-            case U_EMR_BEGINPATH:               break;
+            case U_EMR_BEGINPATH:               newPathStruct(states); break;
             case U_EMR_ENDPATH:                 break;
             case U_EMR_CLOSEFIGURE:             break;
-            case U_EMR_FILLPATH:                break;
-            case U_EMR_STROKEANDFILLPATH:       break;
-            case U_EMR_STROKEPATH:              break;
-            case U_EMR_FLATTENPATH:             break;
-            case U_EMR_WIDENPATH:               break;
-            case U_EMR_SELECTCLIPPATH:          break;
-            case U_EMR_ABORTPATH:               break;
+            case U_EMR_FILLPATH:                states->emfStructure.pathStackLast->pathStruct.fillOffset       = off; break;
+            case U_EMR_STROKEANDFILLPATH:       states->emfStructure.pathStackLast->pathStruct.strokeFillOffset = off; break;
+            case U_EMR_STROKEPATH:              states->emfStructure.pathStackLast->pathStruct.strokeOffset     = off; break;
+            case U_EMR_FLATTENPATH:             states->emfStructure.pathStackLast->pathStruct.flattenOffset    = off; break;
+            case U_EMR_WIDENPATH:               states->emfStructure.pathStackLast->pathStruct.widdenOffset     = off; break;
+            case U_EMR_SELECTCLIPPATH:          states->emfStructure.pathStackLast->pathStruct.clipOffset       = off; break;
+            case U_EMR_ABORTPATH:               states->emfStructure.pathStackLast->pathStruct.abortOffset      = off; break;
             //case U_EMR_UNDEF69:                 break;
             case U_EMR_COMMENT:                 break;
             case U_EMR_FILLRGN:                 break;
