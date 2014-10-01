@@ -42,6 +42,10 @@ extern "C" {
 #define FLAG_UNUSED    verbose_printf("   Status:         %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
+#define CLIP 0
+#define MASK 1
+
+
     typedef struct emf_graph_object {
         char            *font_name;
         bool            stroke_set;
@@ -77,6 +81,15 @@ extern "C" {
         uint32_t        textAlign;
         U_XFORM         worldTransform;
     } emfGraphObject;
+
+    typedef struct formstack{
+        FILE        *formStream;
+        size_t      len;
+        char        *form;
+        struct      formstack *prev;
+        bool        drawn;
+        uint32_t    id;
+    } formStack;
 
     // EMF Device Context structure
     typedef struct emf_device_context {
@@ -114,6 +127,10 @@ extern "C" {
         uint32_t        textAlign;
         U_XFORM         worldTransform;
         U_POINTL        cur;
+
+        // clipping structures
+        formStack      *clipStack;
+        formStack      *maskStack;
     } EMF_DEVICE_CONTEXT, *PEMF_DEVICE_CONTEXT;
 
     // Stack of EMF Device Contexts

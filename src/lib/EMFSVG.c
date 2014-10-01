@@ -55,6 +55,66 @@ extern "C" {
         }
     }
 
+    void addFormToStack(drawingStates *states, uint8_t type){
+        formStack * newForm = calloc(1, sizeof(formStack));
+        FILE * NewFormStream = open_memstream(&newForm->form, &newForm->len);
+        if (NewFormStream == NULL){
+            verbose_printf("Failed to allocate output stream\n");
+            return;
+        }
+        newForm->formStream = NewFormStream;
+        switch(type){
+            case CLIP:
+                newForm->prev = states->currentDeviceContext.clipStack;
+                states->currentDeviceContext.clipStack = newForm;
+                break;
+            case MASK:
+                newForm->prev = states->currentDeviceContext.maskStack;
+                states->currentDeviceContext.maskStack = newForm;
+                break;
+        }
+    }
+
+    void freeFormStack(formStack * stack){
+        while (stack != NULL){
+            free(stack->form);
+            formStack * tmp = stack;
+            stack = stack->prev;
+            free(tmp);
+        }
+        return;
+    }
+
+    formStack * cpFormStack(formStack * stack){
+        if (stack == NULL)
+            return NULL;
+
+        formStack * ret = calloc(1, sizeof(formStack));
+        FILE * NewFormStream = open_memstream(&ret->form, &ret->len);
+        ret->formStream = NewFormStream;
+        ret->drawn = stack->drawn; 
+        ret->id = stack->id;
+        fprintf(ret->formStream, "%s", stack->form);
+
+        formStack * cur = ret;
+        stack = stack->prev;
+
+        while (stack != NULL){
+            formStack * new = calloc(1, sizeof(formStack));
+            FILE * NewFormStream = open_memstream(&new->form, &new->len);
+            new->formStream = NewFormStream;
+            new->drawn = stack->drawn; 
+            new->id = stack->id;
+            fprintf(new->formStream, "%s", stack->form);
+            stack = stack->prev;
+            cur->prev = new;
+            formStack * cur = new;
+        }
+        return ret;
+    }
+
+
+
     void endPathDraw(drawingStates *states,
             FILE * out
             ){
@@ -255,10 +315,14 @@ extern "C" {
             dest->font_name = (char *)malloc(strlen(src->font_name) + 1);
             strcpy(dest->font_name, src->font_name);    
         }
+        dest->clipStack = cpFormStack(src->clipStack);
+        dest->maskStack = cpFormStack(src->maskStack);
     }
 
     void freeDeviceContext(EMF_DEVICE_CONTEXT *dc){
         free(dc->font_name);
+        freeFormStack(dc->clipStack);
+        freeFormStack(dc->maskStack);
     }
 
     void restoreDeviceContext(drawingStates * states, int32_t index ){
@@ -1203,7 +1267,6 @@ extern "C" {
             }
         }
         verbose_printf("\n");
-
     } 
 
 
