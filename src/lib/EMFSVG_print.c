@@ -121,7 +121,7 @@ extern "C" {
                 verbose_printf("   Stroke Mode:    PS_NULL           Status: %sSUPPORTED%s\n", KGRN, KNRM);
                 break;
             case U_PS_INSIDEFRAME:
-                verbose_printf("   Stroke Mode:    PS_INSIDEFRAME    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                verbose_printf("   Stroke Mode:    PS_INSIDEFRAME    Status: %sPARTIAL%s\n", KYEL, KNRM);
                 break;
             case U_PS_USERSTYLE:
                 verbose_printf("   Stroke Mode:    PS_USERSTYLE      Status: %sUNSUPPORTED%s\n", KRED, KNRM);

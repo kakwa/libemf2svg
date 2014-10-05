@@ -42,6 +42,8 @@ extern "C" {
 #define FLAG_UNUSED    verbose_printf("   Status:         %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
+#define mmPerInch   25.4
+
 
     typedef struct emf_graph_object {
         char            *font_name;
@@ -198,6 +200,12 @@ extern "C" {
         uint16_t objectTableSize; 
         // scaling ratio
         double scaling;
+        double scalingX;
+        double scalingY;
+        double offsetX;
+        double offsetY;
+        double pxPerMm;
+        uint16_t MapMode;
         // Image dimensions
         double imgHeight;
         double imgWidth;

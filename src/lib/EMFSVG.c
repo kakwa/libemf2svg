@@ -35,7 +35,11 @@ extern "C" {
             FILE * out
             ){
         if (!(states->inPath)){
-            fprintf(out, "<%spath d=\"M %.2f %.2f ", states->nameSpaceString, states->cur_x, states->cur_y);
+            fprintf(out, "<%spath d=\"M ", states->nameSpaceString);
+            U_POINT pt;
+            pt.x = states->cur_x;
+            pt.y = states->cur_y;
+            point_draw(states,pt,out);
         }
     }
 
@@ -165,7 +169,8 @@ extern "C" {
                         states->currentDeviceContext.stroke_red,
                         states->currentDeviceContext.stroke_green,
                         states->currentDeviceContext.stroke_blue,
-                        states->currentDeviceContext.stroke_width
+                        1.0
+                        //states->currentDeviceContext.stroke_width
                        );
                 *stroked = true;
                 break;
@@ -183,6 +188,15 @@ extern "C" {
                 *stroked = true;
                 break;
             case U_PS_INSIDEFRAME:
+                //partial
+                fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
+                        states->currentDeviceContext.stroke_red,
+                        states->currentDeviceContext.stroke_green,
+                        states->currentDeviceContext.stroke_blue,
+                        1.0
+                        //states->currentDeviceContext.stroke_width
+                       );
+                *stroked = true;
                 break;
             case U_PS_USERSTYLE:
                 break;
@@ -202,7 +216,8 @@ extern "C" {
                         states->currentDeviceContext.stroke_red,
                         states->currentDeviceContext.stroke_green,
                         states->currentDeviceContext.stroke_blue,
-                        states->currentDeviceContext.stroke_width
+                        1.0
+                        //states->currentDeviceContext.stroke_width
                        );
                 break;
             default:
@@ -316,15 +331,14 @@ extern "C" {
             U_POINT16 pt,
             FILE * out
             ){
-        double x = ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM11 + \
+        double x = states->offsetX + ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM11 + \
                 (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM21 + \
-                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scaling;
-        double y = ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM12 + \
+                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scalingX;
+        double y = states->offsetY + ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM12 + \
                 (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM22 + \
-                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scaling;
-
-        states->cur_x = x;
-        states->cur_y = y;
+                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scalingY;
+        states->cur_x = pt.x;
+        states->cur_y = pt.y;
         fprintf(out, "%.2f %.2f ", x ,y);
     } 
 
@@ -333,14 +347,14 @@ extern "C" {
             U_POINT pt,
             FILE * out
             ){
-        double x = ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM11 + \
+        double x = states->offsetX + ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM11 + \
                 (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM21 + \
-                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scaling;
-        double y = ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM12 + \
+                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scalingX;
+        double y = states->offsetY + ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM12 + \
                 (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM22 + \
-                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scaling;
-        states->cur_x = x;
-        states->cur_y = y;
+                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scalingY;
+        states->cur_x = pt.x;
+        states->cur_y = pt.y;
         fprintf(out, "%.2f %.2f ", x ,y);
     } 
 
@@ -353,6 +367,7 @@ extern "C" {
         PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
         if (startingPoint == 1){
             fprintf(out, "M ");
+            point16_draw(states, papts[0], out);
         }
         const int ctrl1 = (0 + startingPoint) % 3;
         const int ctrl2 = (1 + startingPoint) % 3;
@@ -459,8 +474,14 @@ extern "C" {
         states->objectTableSize = pEmr->nHandles;
 
         // set scaling for original resolution
-        if (states->scaling == 0)
-            states->scaling = pEmr->szlDevice.cx / (pEmr->rclBounds.right  - pEmr->rclBounds.left);
+        states->scaling = (double)pEmr->szlDevice.cx / (double)(pEmr->rclBounds.right  - pEmr->rclBounds.left);
+
+        states->scalingX = states->scaling;
+        states->scalingY = states->scaling;
+
+        states->pxPerMm = (double)pEmr->szlDevice.cx / (double)pEmr->szlMillimeters.cx;
+        states->imgHeight = (double)(pEmr->rclBounds.bottom - pEmr->rclBounds.top) * states->scaling;
+        states->imgWidth  = (double)(pEmr->rclBounds.right - pEmr->rclBounds.left) * states->scaling;
 
         if (states->svgDelimiter){
             fprintf(out, "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n"); 
@@ -470,12 +491,9 @@ extern "C" {
             if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)){
                 fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ", states->nameSpace);
             }
-            states->imgHeight = (pEmr->rclBounds.bottom - pEmr->rclBounds.top)  * states->scaling;
-            states->imgWidth = (pEmr->rclBounds.right  - pEmr->rclBounds.left) * states->scaling;
-
-            fprintf(out, "width=\"%f\" height=\"%f\">\n",
-                    states->imgWidth, 
-                    states->imgHeight);
+                   fprintf(out, "width=\"%d\" height=\"%d\">\n",
+                    (int)states->imgWidth, 
+                    (int)states->imgHeight);
         }
 
         fprintf(out, "<%sg>\n", states->nameSpaceString);
@@ -519,6 +537,10 @@ extern "C" {
     void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         U_EMRSETWINDOWEXTEX_print(contents, states);
+
+        PU_EMRSETWINDOWEXTEX pEmr = (PU_EMRSETVIEWPORTEXTEX)(contents);
+        states->scalingX = (double)states->imgWidth  / (double)pEmr->szlExtent.cx;
+        states->scalingY = (double)states->imgHeight / (double)pEmr->szlExtent.cy * -1;
     } 
 
     void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out, drawingStates *states){
@@ -527,8 +549,12 @@ extern "C" {
     } 
 
     void U_EMRSETVIEWPORTEXTEX_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMRSETVIEWPORTEXTEX_print(contents, states);
+        PU_EMRSETVIEWPORTEXTEX pEmr = (PU_EMRSETVIEWPORTEXTEX)(contents);
+
+        states->imgWidth  =  pEmr->szlExtent.cx * states->scaling;
+        states->imgHeight =  pEmr->szlExtent.cy * states->scaling;
     } 
 
     void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out, drawingStates *states){
@@ -563,7 +589,57 @@ extern "C" {
     } 
 
     void U_EMRSETMAPMODE_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
+        PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
+        switch(pEmr->iMode){
+            case U_MM_TEXT:
+                states->scalingX = states->scaling * 1;
+                states->scalingY = states->scaling * 1;
+                states->offsetX = 0;
+                states->offsetY = 0;
+                break;
+            case U_MM_LOMETRIC:
+                // convert to 0.1 mm to pixel and invert Y
+                states->scalingX = states->scaling * states->pxPerMm * 0.1 * 1;
+                states->scalingY = states->scaling * states->pxPerMm * 0.1 * -1;
+                states->offsetX = 0;
+                states->offsetY = states->imgHeight;
+                break;
+            case U_MM_HIMETRIC:
+                // convert to 0.01 mm to pixel and invert Y
+                states->scalingX = states->scaling * states->pxPerMm * 0.01 * 1;
+                states->scalingY = states->scaling * states->pxPerMm * 0.01 * -1;
+                states->offsetX = 0;
+                states->offsetY = states->imgHeight;
+                break;
+            case U_MM_LOENGLISH:
+                // convert to 0.01 inch to pixel and invert Y
+                states->scalingX = states->scaling * states->pxPerMm * 0.01 * mmPerInch * 1;
+                states->scalingY = states->scaling * states->pxPerMm * 0.01 * mmPerInch * -1;
+                states->offsetX = 0;
+                states->offsetY = states->imgHeight;
+                break;
+            case U_MM_HIENGLISH:
+                // convert to 0.001 inch to pixel and invert Y
+                states->scalingX = states->scaling * states->pxPerMm * 0.001 * mmPerInch * 1;
+                states->scalingY = states->scaling * states->pxPerMm * 0.001 * mmPerInch * -1;
+                states->offsetX = 0;
+                states->offsetY = states->imgHeight;
+                break;
+            case U_MM_TWIPS:
+                // convert to 1 twips to pixel and invert Y
+                states->scalingX = states->scaling * states->pxPerMm / 1440 * mmPerInch * 1;
+                states->scalingY = states->scaling * states->pxPerMm / 1440 * mmPerInch * -1;
+                states->offsetX = 0;
+                states->offsetY = states->imgHeight;
+                break;
+            case U_MM_ISOTROPIC:
+                states->MapMode = U_MM_ISOTROPIC;
+                break;
+            case U_MM_ANISOTROPIC:
+                states->MapMode = U_MM_ANISOTROPIC;
+                break;
+        }
         U_EMRSETMAPMODE_print(contents, states);
     }
 
@@ -628,13 +704,10 @@ extern "C" {
         }
         else{
             PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
-            states->cur_x = (pEmr->pair.x * states->currentDeviceContext.worldTransform.eM11 + \
-                    pEmr->pair.y * states->currentDeviceContext.worldTransform.eM21 + \
-                    states->currentDeviceContext.worldTransform.eDx) * states->scaling;
-            states->cur_y = (pEmr->pair.x * states->currentDeviceContext.worldTransform.eM12 + \
-                    pEmr->pair.y * states->currentDeviceContext.worldTransform.eM22 + \
-                    states->currentDeviceContext.worldTransform.eDy) * states->scaling;
+            U_POINT pt = pEmr->pair;
 
+            states->cur_x = pt.x;
+            states->cur_y = pt.y;
         }
     } 
 
@@ -1325,8 +1398,32 @@ extern "C" {
     }
 
     void U_EMRPOLYLINE16_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMRPOLYLINE16_print(contents, states);
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath ", states->nameSpaceString);
+            if (states->clipSet)
+                fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+            fprintf(out, "d=\"");
+        }
+        bool ispolygon = true;
+        polyline_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
+
+        if (localPath){
+            states->inPath = false;
+            fprintf(out, "Z\" ");
+            bool filled = false;
+            bool stroked = false;
+            fill_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            fprintf(out, "stroke=\"none\" ");
+
+            fprintf(out, "/>\n");
+        }
     }
 
     void U_EMRPOLYBEZIERTO16_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1353,10 +1450,9 @@ extern "C" {
             if (states->clipSet)
                 fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
             fprintf(out, "d=\"");
-
         }
         bool ispolygon = false;
-        polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, ispolygon);
+        polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
 
         if (localPath){
             states->inPath = false;
