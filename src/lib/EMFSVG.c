@@ -1414,14 +1414,15 @@ extern "C" {
 
         if (localPath){
             states->inPath = false;
-            fprintf(out, "Z\" ");
+            //fprintf(out, "Z\" ");
+            fprintf(out, "\" ");
             bool filled = false;
             bool stroked = false;
-            fill_draw(states, out, &filled, &stroked);
+            stroke_draw(states, out, &filled, &stroked);
             if (!filled)
                 fprintf(out, "fill=\"none\" ");
-            fprintf(out, "stroke=\"none\" ");
-
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
             fprintf(out, "/>\n");
         }
     }

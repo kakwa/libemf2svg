@@ -46,8 +46,11 @@ extern "C" {
             case(U_WINDING):
                 verbose_printf("   Fill Rule:      U_WINDING\n");
                 break;
+            case(0):
+                verbose_printf("   Fill Rule:      UNSET\n");
+                break;
             default:
-                verbose_printf("   Fill Rule:      UNKNWONW\n");
+                verbose_printf("   Fill Rule:      UNKNOWN\n");
                 break;
         }
         switch(states->currentDeviceContext.fill_mode){
