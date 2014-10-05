@@ -1943,18 +1943,6 @@ extern "C" {
                 verbose_printf("   cIdent:         EMF+\n");
                 PU_EMRCOMMENT_EMFPLUS pEmrpl = (PU_EMRCOMMENT_EMFPLUS) pEmr;
                 src = (char *)&(pEmrpl->Data);
-                if (states->emfplus){
-                    loff = 16;  /* Header size of the header part of an EMF+ comment record */
-                    verbose_printf("\n   =====================%s START EMF+ RECORD ANALYSING %s=====================\n\n", KCYN, KNRM);
-//                    while(loff < cbData + 12){  // EMF+ records may not fill the entire comment, cbData value includes cIdent, but not U_EMR or cbData
-//                        recsize =  U_pmf_onerec_print(src, blimit, recnum, loff + off, states);
-//                        if(recsize<=0)break;
-//                        loff += recsize;
-//                        src  += recsize;
-//                        recnum++;
-//                    }
-                    verbose_printf("\n   ======================%s END EMF+ RECORD ANALYSING %s======================\n", KBLU , KNRM);
-                }
                 //return;
             }
             else {

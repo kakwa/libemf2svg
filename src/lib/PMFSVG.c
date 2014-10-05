@@ -124,7 +124,7 @@ extern "C" {
       \param recnum     EMF number of this record in contents
       \param off        Offset from the beginning of the EMF+ file.
       */
-    int U_pmf_onerec_print(const char *contents, const char *blimit, int recnum, int off, FILE *out, drawingStates *states){
+    int U_pmf_onerec_draw(const char *contents, const char *blimit, int recnum, int off, FILE *out, drawingStates *states){
         int status;
         static  U_OBJ_ACCUM ObjCont={NULL,0,0,0,0};           /* for keeping track of object continuation. These may
                                                                  be split across multiple EMF Comment records */
@@ -3239,7 +3239,7 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
             //   verbose_printf("WARNING: EMF file does not begin with an EMR_HEADER record\n");
             //}
 
-            result = U_pmf_onerec_print(contents, blimit, recnum, off, out, states);
+            result = U_pmf_onerec_draw(contents, blimit, recnum, off, out, states);
             if(result == (size_t) -1){
                 verbose_printf("ABORTING on invalid record - corrupt file?\n");
                 OK=0;
