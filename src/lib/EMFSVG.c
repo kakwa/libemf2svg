@@ -11,6 +11,7 @@ extern "C" {
 #include <string.h>
 #include "uemf.h"
 #include "EMFSVG.h"
+#include "EMFSVG_print.h"
 #include "PMFSVG.h"
 
     //! \cond
@@ -1454,8 +1455,7 @@ extern "C" {
     int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum, size_t off, FILE *out, drawingStates *states){
         PU_ENHMETARECORD  lpEMFR  = (PU_ENHMETARECORD)(contents + off);
         unsigned int size;
-        FLAG_RESET;
-        //verbose_printf("\n%-30srecord:%5d type:%-4d offset:%8d rsize:%8d\n",U_emr_names(lpEMFR->iType),recnum,lpEMFR->iType,(int) off,lpEMFR->nSize);
+        U_emf_onerec_print(contents, blimit, recnum, off, states);
         size      = lpEMFR->nSize;
         contents += off;
 

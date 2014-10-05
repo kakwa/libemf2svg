@@ -67,6 +67,7 @@ include_directories(
 )
 
 add_library(EMFSVG src/lib/EMFSVG.c)
+add_library(EMFSVG_print src/lib/EMFSVG_print.c)
 add_library(PMFSVG src/lib/PMFSVG.c)
 add_library(uemf_utf src/lib/uemf_utf.c)
 add_library(uemf_endian src/lib/uemf_endian.c)
@@ -81,7 +82,7 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 add_executable(emf2svg src/conv/emf2svg.cpp)
 
-target_link_libraries(emf2svg EMFSVG PMFSVG upmf uemf uemf_utf uemf_endian ${MEMSTREAMLIB} ${ARGPLIB} ${LIBICONVLIB}) 
+target_link_libraries(emf2svg EMFSVG EMFSVG_print PMFSVG upmf uemf uemf_utf uemf_endian ${MEMSTREAMLIB} ${ARGPLIB} ${LIBICONVLIB}) 
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")

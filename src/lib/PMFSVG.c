@@ -29,6 +29,7 @@ extern "C" {
 #include <stddef.h> /* for offsetof() macro */
 #include <string.h>
 #include "EMFSVG.h"
+#include "EMFSVG_print.h"
 #include "PMFSVG.h"
 
     //! \cond
