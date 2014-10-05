@@ -1,6 +1,6 @@
 #!/bin/sh
 
-OUTDIR="./svgs"
+OUTDIR="../out"
 EMFDIR="./emf"
 ret=0
 
@@ -17,7 +17,7 @@ verbose_print(){
     msg="$1"
     if [ $VERBOSE -eq 0 ]
     then
-       fprintf "$msg\n"
+       printf "$msg\n"
     fi
 }
 
@@ -26,14 +26,16 @@ rm -rf $OUTDIR
 mkdir -p $OUTDIR
 for emf in `find $EMFDIR -name "*.emf"`
 do
+    verbose_print "\n############## `basename ${emf}` ####################"
     ../../emf2svg -p -i $emf -o ${OUTDIR}/`basename ${emf}`.svg $VERBOSE_OPT
-    verbose_print "Commande: ../../emf2svg -p -i $emf -o ${OUTDIR}/`basename ${emf}`.svg"
+    verbose_print "Command: ../../emf2svg -p -i $emf -o ${OUTDIR}/`basename ${emf}`.svg"
     xmllint --dtdvalid ./svg11-flat.dtd  --noout ${OUTDIR}/`basename ${emf}`.svg
     if [ $? -ne 0 ]
     then
         printf "[ERROR] emf2svg generate bad svg '${OUTDIR}/`basename ${emf}`.svg' from emf '$emf'\n"
         ret=1
     fi
+    verbose_print "\n#####################################################\n"
 done
 if [ $ret -ne 0 ]
 then
