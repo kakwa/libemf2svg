@@ -55,7 +55,7 @@ extern "C" {
         }
     }
 
-    void addFormToStack(drawingStates *states, uint8_t type){
+    void addFormToStack(drawingStates *states){
         formStack * newForm = calloc(1, sizeof(formStack));
         FILE * NewFormStream = open_memstream(&newForm->form, &newForm->len);
         if (NewFormStream == NULL){
@@ -63,16 +63,8 @@ extern "C" {
             return;
         }
         newForm->formStream = NewFormStream;
-        switch(type){
-            case CLIP:
-                newForm->prev = states->currentDeviceContext.clipStack;
-                states->currentDeviceContext.clipStack = newForm;
-                break;
-            case MASK:
-                newForm->prev = states->currentDeviceContext.maskStack;
-                states->currentDeviceContext.maskStack = newForm;
-                break;
-        }
+        newForm->prev = states->currentDeviceContext.clipStack;
+        states->currentDeviceContext.clipStack = newForm;
     }
 
     void freeFormStack(formStack * stack){
@@ -317,13 +309,11 @@ extern "C" {
             strcpy(dest->font_name, src->font_name);    
         }
         dest->clipStack = cpFormStack(src->clipStack);
-        dest->maskStack = cpFormStack(src->maskStack);
     }
 
     void freeDeviceContext(EMF_DEVICE_CONTEXT *dc){
         free(dc->font_name);
         freeFormStack(dc->clipStack);
-        freeFormStack(dc->maskStack);
     }
 
     void restoreDeviceContext(drawingStates * states, int32_t index ){
@@ -1785,9 +1775,9 @@ extern "C" {
     void U_EMREXCLUDECLIPRECT_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         core4_print("U_EMREXCLUDECLIPRECT", contents, out, states);
-        addFormToStack(states, MASK);
+        addFormToStack(states);
         PU_EMRELLIPSE pEmr      = (PU_EMRELLIPSE)(   contents);
-        FILE * stream = states->currentDeviceContext.maskStack->formStream;
+        FILE * stream = states->currentDeviceContext.clipStack->formStream;
         fprintf(stream, "<%spath d\"", states->nameSpaceString);
         rectl_draw(states, stream, pEmr->rclBox);
         fprintf(stream, "fill=\"none\" draw=\"none\" />\n");
@@ -1801,9 +1791,9 @@ extern "C" {
     void U_EMRINTERSECTCLIPRECT_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         core4_print("U_EMRINTERSECTCLIPRECT", contents, out, states);
-        addFormToStack(states, MASK);
+        addFormToStack(states);
         PU_EMRELLIPSE pEmr      = (PU_EMRELLIPSE)(   contents);
-        FILE * stream = states->currentDeviceContext.maskStack->formStream;
+        FILE * stream = states->currentDeviceContext.clipStack->formStream;
         fprintf(stream, "<%spath d\"", states->nameSpaceString);
 
         /* The intersection is done by reverting the interior of the rectangle 

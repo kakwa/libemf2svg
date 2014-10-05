@@ -42,9 +42,6 @@ extern "C" {
 #define FLAG_UNUSED    verbose_printf("   Status:         %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
-#define CLIP 0
-#define MASK 1
-
 
     typedef struct emf_graph_object {
         char            *font_name;
@@ -130,7 +127,6 @@ extern "C" {
 
         // clipping structures
         formStack      *clipStack;
-        formStack      *maskStack;
     } EMF_DEVICE_CONTEXT, *PEMF_DEVICE_CONTEXT;
 
     // Stack of EMF Device Contexts
