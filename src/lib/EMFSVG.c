@@ -151,24 +151,24 @@ extern "C" {
             case U_BS_SOLID:
                 verbose_printf("   Fill Mode:      BS_SOLID          Status: %sSUPPORTED%s\n", KGRN, KNRM);
                 verbose_printf("   Fill Color:     #%02X%02X%02X\n",
-                       states->currentDeviceContext.fill_red,
-                       states->currentDeviceContext.fill_green,
-                       states->currentDeviceContext.fill_blue
-                      );
+                        states->currentDeviceContext.fill_red,
+                        states->currentDeviceContext.fill_green,
+                        states->currentDeviceContext.fill_blue
+                        );
 
-                 *filled = true;
+                *filled = true;
 
                 fprintf(out, "%s", fill_rule);
                 fprintf(out, "fill=\"#%02X%02X%02X\" ", 
-                    states->currentDeviceContext.fill_red,
-                    states->currentDeviceContext.fill_green,
-                    states->currentDeviceContext.fill_blue
-                );
+                        states->currentDeviceContext.fill_red,
+                        states->currentDeviceContext.fill_green,
+                        states->currentDeviceContext.fill_blue
+                       );
                 break;
             case U_BS_NULL:
                 verbose_printf("   Fill Mode:      BS_NULL           Status: %sSUPPORTED%s\n", KGRN, KNRM);
                 fprintf(out, "fill=\"none\" " );
-                 *filled = true;
+                *filled = true;
                 break;
             case U_BS_HATCHED:
                 verbose_printf("   Fill Mode:      BS_HATCHED        Status: %sUNSUPPORTED%s\n", KRED, KNRM);
@@ -196,92 +196,92 @@ extern "C" {
                 break;
             default:
                 verbose_printf("   Fill Mode:      %d     %sUNKNOWN%s\n", 
-                         states->currentDeviceContext.stroke_mode ,KRED, KNRM);
+                        states->currentDeviceContext.stroke_mode ,KRED, KNRM);
                 break;
-        free(fill_rule);
-        return;
+                free(fill_rule);
+                return;
         }
     }
 
     void stroke_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
         switch(states->currentDeviceContext.stroke_mode){
             case U_PS_SOLID:
-                 verbose_printf("   Stroke Mode:    PS_SOLID          Status: %sSUPPORTED%s\n", KGRN, KNRM);
-                 verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
-                       states->currentDeviceContext.stroke_red,
-                       states->currentDeviceContext.stroke_green,
-                       states->currentDeviceContext.stroke_blue
-                      );
-                 verbose_printf("   Stroke Width:   %f\n", states->currentDeviceContext.stroke_width); 
+                verbose_printf("   Stroke Mode:    PS_SOLID          Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
+                        states->currentDeviceContext.stroke_red,
+                        states->currentDeviceContext.stroke_green,
+                        states->currentDeviceContext.stroke_blue
+                        );
+                verbose_printf("   Stroke Width:   %f\n", states->currentDeviceContext.stroke_width); 
 
 
-                 fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
-                       states->currentDeviceContext.stroke_red,
-                       states->currentDeviceContext.stroke_green,
-                       states->currentDeviceContext.stroke_blue,
-                       states->currentDeviceContext.stroke_width
-                      );
-                 *stroked = true;
-                 break;
+                fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
+                        states->currentDeviceContext.stroke_red,
+                        states->currentDeviceContext.stroke_green,
+                        states->currentDeviceContext.stroke_blue,
+                        states->currentDeviceContext.stroke_width
+                       );
+                *stroked = true;
+                break;
             case U_PS_DASH:
-                 verbose_printf("   Stroke Mode:    PS_DASH           Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_DASH           Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_DOT:
-                 verbose_printf("   Stroke Mode:    PS_DOT            Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_DOT            Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_DASHDOT:
-                 verbose_printf("   Stroke Mode:    PS_DASHDOT        Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_DASHDOT        Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_DASHDOTDOT:
-                 verbose_printf("   Stroke Mode:    PS_DASHDOTDOT     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_DASHDOTDOT     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_NULL:
-                 verbose_printf("   Stroke Mode:    PS_NULL           Status: %sSUPPORTED%s\n", KGRN, KNRM);
-                 fprintf(out, "stroke=\"none\" " );
-                 fprintf(out, "stroke-width=\"0.0\" " );
-                 *stroked = true;
-                 break;
+                verbose_printf("   Stroke Mode:    PS_NULL           Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                fprintf(out, "stroke=\"none\" " );
+                fprintf(out, "stroke-width=\"0.0\" " );
+                *stroked = true;
+                break;
             case U_PS_INSIDEFRAME:
-                 verbose_printf("   Stroke Mode:    PS_INSIDEFRAME    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_INSIDEFRAME    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_USERSTYLE:
-                 verbose_printf("   Stroke Mode:    PS_USERSTYLE      Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_USERSTYLE      Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_ALTERNATE:
-                 verbose_printf("   Stroke Mode:    PS_ALTERNATE      Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_ALTERNATE      Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_ENDCAP_SQUARE:
-                 verbose_printf("   Stroke Mode:    PS_ENDCAP_SQUARE  Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_ENDCAP_SQUARE  Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_ENDCAP_FLAT:
-                 verbose_printf("   Stroke Mode:    PS_ENDCAP_FLAT    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_ENDCAP_FLAT    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_JOIN_BEVEL:
-                 verbose_printf("   Stroke Mode:    PS_JOIN_BEVEL     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_JOIN_BEVEL     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_JOIN_MITER:
-                 verbose_printf("   Stroke Mode:    PS_JOIN_MITER     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    PS_JOIN_MITER     Status: %sUNSUPPORTED%s\n", KRED, KNRM);
+                break;
             case U_PS_GEOMETRIC:
-                 verbose_printf("   Stroke Mode:    PS_GEOMETRIC      Status: %sSUPPORTED%s\n", KGRN, KNRM);
-                 verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
-                       states->currentDeviceContext.stroke_red,
-                       states->currentDeviceContext.stroke_green,
-                       states->currentDeviceContext.stroke_blue
-                      );
-                 verbose_printf("   Stroke Width:   %f\n", states->currentDeviceContext.stroke_width); 
-                 *stroked = true;
-                 fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
-                       states->currentDeviceContext.stroke_red,
-                       states->currentDeviceContext.stroke_green,
-                       states->currentDeviceContext.stroke_blue,
-                       states->currentDeviceContext.stroke_width
-                      );
-                 break;
+                verbose_printf("   Stroke Mode:    PS_GEOMETRIC      Status: %sSUPPORTED%s\n", KGRN, KNRM);
+                verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
+                        states->currentDeviceContext.stroke_red,
+                        states->currentDeviceContext.stroke_green,
+                        states->currentDeviceContext.stroke_blue
+                        );
+                verbose_printf("   Stroke Width:   %f\n", states->currentDeviceContext.stroke_width); 
+                *stroked = true;
+                fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
+                        states->currentDeviceContext.stroke_red,
+                        states->currentDeviceContext.stroke_green,
+                        states->currentDeviceContext.stroke_blue,
+                        states->currentDeviceContext.stroke_width
+                       );
+                break;
             default:
-                 verbose_printf("   Stroke Mode:    %d     %sUNKNOWN%s\n", 
-                         states->currentDeviceContext.stroke_mode ,KRED, KNRM);
-                 break;
+                verbose_printf("   Stroke Mode:    %d     %sUNKNOWN%s\n", 
+                        states->currentDeviceContext.stroke_mode ,KRED, KNRM);
+                break;
         }
     }
 
@@ -1145,8 +1145,8 @@ extern "C" {
         const int to = (2 + startingPoint) % 3;
         for(i = startingPoint; i<pEmr->cpts; i++){
             if (( i % 3 ) == ctrl1) {
-               fprintf(out, "C ");
-               verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
+                fprintf(out, "C ");
+                verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
             }
             else if (( i % 3 ) == ctrl2) {
                 verbose_printf(" [%d]:",i);  point16_draw(states, papts[i], out);
@@ -1456,8 +1456,8 @@ extern "C" {
             if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)){
                 fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ", states->nameSpace);
             }
-        states->imgHeight = (pEmr->rclBounds.bottom - pEmr->rclBounds.top)  * states->scaling;
-        states->imgWidth = (pEmr->rclBounds.right  - pEmr->rclBounds.left) * states->scaling;
+            states->imgHeight = (pEmr->rclBounds.bottom - pEmr->rclBounds.top)  * states->scaling;
+            states->imgWidth = (pEmr->rclBounds.right  - pEmr->rclBounds.left) * states->scaling;
 
             fprintf(out, "width=\"%f\" height=\"%f\">\n",
                     states->imgWidth, 
@@ -2972,7 +2972,7 @@ extern "C" {
                 fprintf(out, "fill=\"none\" ");
             if (!stroked)
                 fprintf(out, "stroke=\"none\" ");
-        
+
             fprintf(out, "/><!-- shit -->\n");
         }
         //core6_print("U_EMRPOLYGON16", contents, out, states);
@@ -3007,7 +3007,7 @@ extern "C" {
     void U_EMRPOLYLINETO16_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
         polyline_draw("U_EMRPOLYLINETO16", contents, out, states, false);
-        
+
     }
 
     // U_EMRPOLYPOLYLINE16       90
@@ -3040,7 +3040,7 @@ extern "C" {
                 fprintf(out, "fill=\"none\" ");
             if (!stroked)
                 fprintf(out, "stroke=\"none\" ");
-        
+
             fprintf(out, "/>\n");
         }
 
@@ -3073,7 +3073,7 @@ extern "C" {
                 fprintf(out, "fill=\"none\" ");
             if (!stroked)
                 fprintf(out, "stroke=\"none\" ");
-        
+
             fprintf(out, "/>\n");
         }
     }
@@ -3611,7 +3611,7 @@ extern "C" {
             case U_EMR_WIDENPATH:               states->emfStructure.pathStackLast->pathStruct.widdenOffset     = off; break;
             case U_EMR_SELECTCLIPPATH:          states->emfStructure.pathStackLast->pathStruct.clipOffset       = off; break;
             case U_EMR_ABORTPATH:               states->emfStructure.pathStackLast->pathStruct.abortOffset      = off; break;
-            //case U_EMR_UNDEF69:                 break;
+                                                //case U_EMR_UNDEF69:                 break;
             case U_EMR_COMMENT:                 break;
             case U_EMR_FILLRGN:                 break;
             case U_EMR_FRAMERGN:                break;
@@ -3638,32 +3638,32 @@ extern "C" {
             case U_EMR_CREATEMONOBRUSH:         break;
             case U_EMR_CREATEDIBPATTERNBRUSHPT: break;
             case U_EMR_EXTCREATEPEN:            break;
-            //case U_EMR_POLYTEXTOUTA:            break;
-            //case U_EMR_POLYTEXTOUTW:            break;
+                                                //case U_EMR_POLYTEXTOUTA:            break;
+                                                //case U_EMR_POLYTEXTOUTW:            break;
             case U_EMR_SETICMMODE:              break;
             case U_EMR_CREATECOLORSPACE:        break;
             case U_EMR_SETCOLORSPACE:           break;
             case U_EMR_DELETECOLORSPACE:        break;
-            //case U_EMR_GLSRECORD:               break;
-            //case U_EMR_GLSBOUNDEDRECORD:        break;
+                                                //case U_EMR_GLSRECORD:               break;
+                                                //case U_EMR_GLSBOUNDEDRECORD:        break;
             case U_EMR_PIXELFORMAT:             break;
-            //case U_EMR_DRAWESCAPE:              break;
-            //case U_EMR_EXTESCAPE:               break;
-            //case U_EMR_UNDEF107:                break;
+                                                //case U_EMR_DRAWESCAPE:              break;
+                                                //case U_EMR_EXTESCAPE:               break;
+                                                //case U_EMR_UNDEF107:                break;
             case U_EMR_SMALLTEXTOUT:            break;
-            //case U_EMR_FORCEUFIMAPPING:         break;
-            //case U_EMR_NAMEDESCAPE:             break;
-            //case U_EMR_COLORCORRECTPALETTE:     break;
-            //case U_EMR_SETICMPROFILEA:          break;
-            //case U_EMR_SETICMPROFILEW:          break;
+                                                //case U_EMR_FORCEUFIMAPPING:         break;
+                                                //case U_EMR_NAMEDESCAPE:             break;
+                                                //case U_EMR_COLORCORRECTPALETTE:     break;
+                                                //case U_EMR_SETICMPROFILEA:          break;
+                                                //case U_EMR_SETICMPROFILEW:          break;
             case U_EMR_ALPHABLEND:              break;
             case U_EMR_SETLAYOUT:               break;
             case U_EMR_TRANSPARENTBLT:          break;
-            //case U_EMR_UNDEF117:                break;
+                                                //case U_EMR_UNDEF117:                break;
             case U_EMR_GRADIENTFILL:            break;
-            //case U_EMR_SETLINKEDUFIS:           break;
-            //case U_EMR_SETTEXTJUSTIFICATION:    break;
-            //case U_EMR_COLORMATCHTOTARGETW:     break;
+                                                //case U_EMR_SETLINKEDUFIS:           break;
+                                                //case U_EMR_SETTEXTJUSTIFICATION:    break;
+                                                //case U_EMR_COLORMATCHTOTARGETW:     break;
             case U_EMR_CREATECOLORSPACEW:       break;
             default:                            break;
         }  //end of switch
