@@ -1735,9 +1735,9 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMROFFSETCLIPRGN_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_PARTIAL;
+        FLAG_IGNORED;
         PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
-        verbose_printf("   %-15s {%d,%d}\n",field1,pEmr->pair.x,pEmr->pair.y);
+        //verbose_printf("   %-15s {%d,%d}\n",field1,pEmr->pair.x,pEmr->pair.y);
 
 
         core7_print("U_EMROFFSETCLIPRGN", "ptl:","",contents, out, states);
@@ -1783,7 +1783,7 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMREXCLUDECLIPRECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_PARTIAL;
+        FLAG_IGNORED;
         core4_print("U_EMREXCLUDECLIPRECT", contents, out, states);
         addFormToStack(states, MASK);
         PU_EMRELLIPSE pEmr      = (PU_EMRELLIPSE)(   contents);
@@ -1799,7 +1799,7 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRINTERSECTCLIPRECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_PARTIAL;
+        FLAG_IGNORED;
         core4_print("U_EMRINTERSECTCLIPRECT", contents, out, states);
         addFormToStack(states, MASK);
         PU_EMRELLIPSE pEmr      = (PU_EMRELLIPSE)(   contents);
