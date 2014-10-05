@@ -202,6 +202,9 @@ extern "C" {
         uint16_t objectTableSize; 
         // scaling ratio
         double scaling;
+        // Image dimensions
+        double imgHeight;
+        double imgWidth;
         // current cursor position
         double          cur_x;
         double          cur_y;
@@ -210,6 +213,7 @@ extern "C" {
         // for example, associate path and pathfill/pathstroke/clipping
         emfStruct emfStructure;
         bool            clipSet;
+        bool            inClip;
         int             clipId;
     } drawingStates;
 
@@ -230,6 +234,8 @@ extern "C" {
     void freeDeviceContextStack(drawingStates * states);
     // stroke shape
     void stroke_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked);
+    void point16_draw(drawingStates *states, U_POINT16 pt, FILE * out);
+    void point_draw(drawingStates *states, U_POINT pt, FILE * out);
 
     /* prototypes for objects used in EMR records */
     void hexbytes_print(drawingStates *states, uint8_t *buf,unsigned int num);

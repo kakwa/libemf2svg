@@ -86,26 +86,27 @@ extern "C" {
     }
 
     formStack * cpFormStack(formStack * stack){
+
         if (stack == NULL)
             return NULL;
-
         formStack * ret = calloc(1, sizeof(formStack));
         FILE * NewFormStream = open_memstream(&ret->form, &ret->len);
         ret->formStream = NewFormStream;
         ret->drawn = stack->drawn; 
         ret->id = stack->id;
-        fprintf(ret->formStream, "%s", stack->form);
+        if (stack->len != 0)
+            fprintf(ret->formStream, "%s", stack->form);
 
         formStack * cur = ret;
         stack = stack->prev;
-
         while (stack != NULL){
             formStack * new = calloc(1, sizeof(formStack));
             FILE * NewFormStream = open_memstream(&new->form, &new->len);
             new->formStream = NewFormStream;
             new->drawn = stack->drawn; 
             new->id = stack->id;
-            fprintf(new->formStream, "%s", stack->form);
+            if (stack->len != 0)
+                fprintf(new->formStream, "%s", stack->form);
             stack = stack->prev;
             cur->prev = new;
             formStack * cur = new;
@@ -404,6 +405,43 @@ extern "C" {
             ){
         verbose_printf("{%d,%d,%d,%d} ",rect.left,rect.top,rect.right,rect.bottom);
     }
+
+    void rectl_draw(
+            drawingStates *states,
+            FILE * out,
+            U_RECTL rect
+            ){
+        U_POINT pt; 
+        fprintf(out, "M ");
+        pt.x = rect.left;
+        pt.y = rect.top;
+        verbose_printf("   Point R1:       ");
+        point_draw(states, pt, out);
+        fprintf(out, "L ");
+        pt.x = rect.right;
+        pt.y = rect.top;
+        verbose_printf("\n   Point R2:       ");
+        point_draw(states, pt, out);
+        fprintf(out, "L ");
+        pt.x = rect.right;
+        pt.y = rect.bottom;
+        verbose_printf("\n   Point R3:       ");
+        point_draw(states, pt, out);
+        fprintf(out, "L ");
+        pt.x = rect.left;
+        pt.y = rect.bottom;
+        verbose_printf("\n   Point R4:       ");
+        point_draw(states, pt, out);
+        fprintf(out, "L ");
+        pt.x = rect.left;
+        pt.y = rect.top;
+        verbose_printf("\n   Point R1:       ");
+        point_draw(states, pt, out);
+        verbose_printf("\n");
+        fprintf(out, "Z ");
+    }
+
+
 
     /**
       \brief Print a U_SIZEL object.
@@ -1418,10 +1456,12 @@ extern "C" {
             if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)){
                 fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ", states->nameSpace);
             }
+        states->imgHeight = (pEmr->rclBounds.bottom - pEmr->rclBounds.top)  * states->scaling;
+        states->imgWidth = (pEmr->rclBounds.right  - pEmr->rclBounds.left) * states->scaling;
 
             fprintf(out, "width=\"%f\" height=\"%f\">\n",
-                    (pEmr->rclBounds.right  - pEmr->rclBounds.left) * states->scaling, 
-                    (pEmr->rclBounds.bottom - pEmr->rclBounds.top)  * states->scaling);
+                    states->imgWidth, 
+                    states->imgHeight);
         }
 
         fprintf(out, "<%sg>\n", states->nameSpaceString);
@@ -1695,7 +1735,11 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMROFFSETCLIPRGN_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
+        PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
+        verbose_printf("   %-15s {%d,%d}\n",field1,pEmr->pair.x,pEmr->pair.y);
+
+
         core7_print("U_EMROFFSETCLIPRGN", "ptl:","",contents, out, states);
     } 
 
@@ -1739,8 +1783,14 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMREXCLUDECLIPRECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         core4_print("U_EMREXCLUDECLIPRECT", contents, out, states);
+        addFormToStack(states, MASK);
+        PU_EMRELLIPSE pEmr      = (PU_EMRELLIPSE)(   contents);
+        FILE * stream = states->currentDeviceContext.maskStack->formStream;
+        fprintf(stream, "<%spath d\"", states->nameSpaceString);
+        rectl_draw(states, stream, pEmr->rclBox);
+        fprintf(stream, "fill=\"none\" draw=\"none\" />\n");
     }
 
     // U_EMRINTERSECTCLIPRECT    30
@@ -1749,8 +1799,26 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRINTERSECTCLIPRECT_print(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         core4_print("U_EMRINTERSECTCLIPRECT", contents, out, states);
+        addFormToStack(states, MASK);
+        PU_EMRELLIPSE pEmr      = (PU_EMRELLIPSE)(   contents);
+        FILE * stream = states->currentDeviceContext.maskStack->formStream;
+        fprintf(stream, "<%spath d\"", states->nameSpaceString);
+
+        /* The intersection is done by reverting the interior of the rectangle 
+         * and using it as a mask
+         */
+        U_RECTL allRect;
+        U_RECTL rect = pEmr->rclBox;
+        allRect.top  = 0;
+        allRect.left = 0;
+        allRect.bottom = states->imgHeight;
+        allRect.right  = states->imgWidth;
+
+        rectl_draw(states, stream, allRect);
+        rectl_draw(states, stream, pEmr->rclBox);
+        fprintf(stream, "fill=\"none\" draw=\"none\" fill-rule=\"evenodd\" />\n");
     }
 
     // U_EMRSCALEVIEWPORTEXTEX   31
@@ -2336,9 +2404,10 @@ extern "C" {
         pathStack * stack = states->emfStructure.pathStack;
         uint32_t clipOffset       = stack->pathStruct.clipOffset;
         if (clipOffset != 0){
-            int id = get_id(states);
-            fprintf(out, "<%sclipPath id=\"clip-%d\">\n", states->nameSpaceString, id);
-            states->clipId = id;
+            //int id = get_id(states);
+            //fprintf(out, "<%sclipPath id=\"clip-%d\">\n", states->nameSpaceString, id);
+            //states->clipId = id;
+            states->inClip = true;
         }
         fprintf(out, "<%spath d=\"", states->nameSpaceString);
         states->inPath = 1;
@@ -2376,7 +2445,7 @@ extern "C" {
 
         fprintf(out, "/>\n");
         if (clipOffset != 0){
-            fprintf(out, "</%sclipPath>\n", states->nameSpaceString);
+            //fprintf(out, "</%sclipPath>\n", states->nameSpaceString);
             states->clipSet = true;
         }
 
