@@ -107,6 +107,7 @@ extern "C" {
     }
 
     void fill_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
+        fill_print(states);
         char * fill_rule = calloc(40, sizeof(char));
         switch(states->currentDeviceContext.fill_mode){
             case(U_ALTERNATE):
@@ -157,6 +158,7 @@ extern "C" {
     }
 
     void stroke_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
+        stroke_print(states);
         switch(states->currentDeviceContext.stroke_mode){
             case U_PS_SOLID:
                 fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
