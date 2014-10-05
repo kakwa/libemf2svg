@@ -1029,6 +1029,7 @@ extern "C" {
     void U_EMRELLIPSE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         U_EMRELLIPSE_print(contents, states);
+        PU_EMRELLIPSE pEmr      = (PU_EMRELLIPSE)(   contents);
     }
 
     void U_EMRRECTANGLE_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1372,7 +1373,7 @@ extern "C" {
     }
 
     void U_EMRPOLYGON16_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_PARTIAL;
+        FLAG_SUPPORTED;
         U_EMRPOLYGON16_print(contents, states);
         bool localPath = false;
         if (!states->inPath){
@@ -1403,7 +1404,7 @@ extern "C" {
     }
 
     void U_EMRPOLYLINE16_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_PARTIAL;
+        FLAG_SUPPORTED;
         U_EMRPOLYLINE16_print(contents, states);
         bool localPath = false;
         if (!states->inPath){
@@ -1446,7 +1447,7 @@ extern "C" {
     }
 
     void U_EMRPOLYPOLYLINE16_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_PARTIAL;
+        FLAG_SUPPORTED;
         U_EMRPOLYPOLYLINE16_print(contents, states);
         bool localPath = false;
         if (!states->inPath){
@@ -1477,7 +1478,7 @@ extern "C" {
     }
 
     void U_EMRPOLYPOLYGON16_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_PARTIAL;
+        FLAG_SUPPORTED;
         U_EMRPOLYPOLYGON16_print(contents, states);
         bool localPath = false;
         if (!states->inPath){
