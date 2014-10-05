@@ -535,17 +535,22 @@ extern "C" {
     } 
 
     void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMRSETWINDOWEXTEX_print(contents, states);
 
         PU_EMRSETWINDOWEXTEX pEmr = (PU_EMRSETVIEWPORTEXTEX)(contents);
         states->scalingX = (double)states->imgWidth  / (double)pEmr->szlExtent.cx;
-        states->scalingY = (double)states->imgHeight / (double)pEmr->szlExtent.cy * -1;
+        states->scalingY = (double)states->imgHeight / (double)pEmr->szlExtent.cy;
     } 
 
     void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMRSETWINDOWORGEX_print(contents, states);
+
+        PU_EMRSETWINDOWORGEX pEmr = (PU_EMRSETWINDOWORGEX)(contents);
+        states->offsetX = -1 * (double)pEmr->ptlOrigin.x * states->scalingX;
+        states->offsetY = -1 * (double)pEmr->ptlOrigin.y * states->scalingY;
+
     } 
 
     void U_EMRSETVIEWPORTEXTEX_draw(const char *contents, FILE *out, drawingStates *states){
