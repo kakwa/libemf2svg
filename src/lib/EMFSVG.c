@@ -320,6 +320,18 @@ extern "C" {
         fprintf(out, "Z ");
     }
 
+    POINT_D point_cal(drawingStates *states, double x, double y)
+    {
+        POINT_D ret;
+        ret.x = states->offsetX + ((double)x * (double)states->currentDeviceContext.worldTransform.eM11 + \
+                (double)y * (double)states->currentDeviceContext.worldTransform.eM21 + \
+                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scalingX;
+
+        ret.y = states->offsetY + ((double)x * (double)states->currentDeviceContext.worldTransform.eM12 + \
+                (double)y * (double)states->currentDeviceContext.worldTransform.eM22 + \
+                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scalingY;
+        return ret;
+    }
     /**
       \brief Print a pointer to a U_POINT16 object
       \param pt pointer to a U_POINT16 object
@@ -331,15 +343,10 @@ extern "C" {
             U_POINT16 pt,
             FILE * out
             ){
-        double x = states->offsetX + ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM11 + \
-                (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM21 + \
-                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scalingX;
-        double y = states->offsetY + ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM12 + \
-                (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM22 + \
-                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scalingY;
+        POINT_D ptd = point_cal(states, (double)pt.x, (double)pt.y);
         states->cur_x = pt.x;
         states->cur_y = pt.y;
-        fprintf(out, "%.2f %.2f ", x ,y);
+        fprintf(out, "%.2f %.2f ", ptd.x ,ptd.y);
     } 
 
     void point_draw(
@@ -347,15 +354,10 @@ extern "C" {
             U_POINT pt,
             FILE * out
             ){
-        double x = states->offsetX + ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM11 + \
-                (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM21 + \
-                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scalingX;
-        double y = states->offsetY + ((double)pt.x * (double)states->currentDeviceContext.worldTransform.eM12 + \
-                (double)pt.y * (double)states->currentDeviceContext.worldTransform.eM22 + \
-                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scalingY;
+        POINT_D ptd = point_cal(states, (double)pt.x, (double)pt.y);
         states->cur_x = pt.x;
         states->cur_y = pt.y;
-        fprintf(out, "%.2f %.2f ", x ,y);
+        fprintf(out, "%.2f %.2f ", ptd.x ,ptd.y);
     } 
 
     // Functions with the same form starting with U_EMRPOLYBEZIER16_draw

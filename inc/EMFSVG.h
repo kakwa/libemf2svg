@@ -171,6 +171,11 @@ extern "C" {
     }
     emfStruct;
 
+    typedef struct {
+        double x;
+        double y;
+    } POINT_D;
+
     // structure recording drawing states
     typedef struct {
         // unique ID (simple increment)
