@@ -1908,14 +1908,42 @@ extern "C" {
             case U_EMR_BEGINPATH:               newPathStruct(states); break;
             case U_EMR_ENDPATH:                 break;
             case U_EMR_CLOSEFIGURE:             break;
-            case U_EMR_FILLPATH:                states->emfStructure.pathStackLast->pathStruct.fillOffset       = off; break;
-            case U_EMR_STROKEANDFILLPATH:       states->emfStructure.pathStackLast->pathStruct.strokeFillOffset = off; break;
-            case U_EMR_STROKEPATH:              states->emfStructure.pathStackLast->pathStruct.strokeOffset     = off; break;
-            case U_EMR_FLATTENPATH:             states->emfStructure.pathStackLast->pathStruct.flattenOffset    = off; break;
-            case U_EMR_WIDENPATH:               states->emfStructure.pathStackLast->pathStruct.widdenOffset     = off; break;
-            case U_EMR_SELECTCLIPPATH:          states->emfStructure.pathStackLast->pathStruct.clipOffset       = off; break;
-            case U_EMR_ABORTPATH:               states->emfStructure.pathStackLast->pathStruct.abortOffset      = off; break;
-                                                //case U_EMR_UNDEF69:                 break;
+            case U_EMR_FILLPATH:                
+                if(states->emfStructure.pathStackLast != NULL){
+                    states->emfStructure.pathStackLast->pathStruct.fillOffset       = off;
+                }
+                break;
+            case U_EMR_STROKEANDFILLPATH:
+                if(states->emfStructure.pathStackLast != NULL){
+                    states->emfStructure.pathStackLast->pathStruct.strokeFillOffset = off; 
+                }
+                break;
+            case U_EMR_STROKEPATH:
+                if(states->emfStructure.pathStackLast != NULL){
+                    states->emfStructure.pathStackLast->pathStruct.strokeOffset = off; 
+                }
+                break;
+            case U_EMR_FLATTENPATH:
+                if(states->emfStructure.pathStackLast != NULL){
+                    states->emfStructure.pathStackLast->pathStruct.flattenOffset = off; 
+                }
+                break;
+            case U_EMR_WIDENPATH:
+                if(states->emfStructure.pathStackLast != NULL){
+                    states->emfStructure.pathStackLast->pathStruct.widdenOffset = off; 
+                }
+                break;
+            case U_EMR_SELECTCLIPPATH:
+                if(states->emfStructure.pathStackLast != NULL){
+                    states->emfStructure.pathStackLast->pathStruct.clipOffset = off; 
+                }
+                break;
+            case U_EMR_ABORTPATH:
+                if(states->emfStructure.pathStackLast != NULL){
+                    states->emfStructure.pathStackLast->pathStruct.abortOffset = off; 
+                }
+                break;
+            //case U_EMR_UNDEF69:                 break;
             case U_EMR_COMMENT:                 break;
             case U_EMR_FILLRGN:                 break;
             case U_EMR_FRAMERGN:                break;
