@@ -1029,9 +1029,34 @@ extern "C" {
     } 
 
     void U_EMRELLIPSE_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRELLIPSE_print(contents, states);
         PU_EMRELLIPSE pEmr      = (PU_EMRELLIPSE)(   contents);
+        POINT_D LT = point_cal(states, (double)pEmr->rclBox.left, (double)pEmr->rclBox.top);
+        POINT_D RB = point_cal(states, (double)pEmr->rclBox.right, (double)pEmr->rclBox.bottom);
+        POINT_D center;
+        POINT_D radius;
+        center.x = (LT.x + RB.x) / 2;
+        center.y = (LT.y + RB.y) / 2;
+        radius.x = RB.x - LT.x;
+        radius.y = RB.y - LT.y;
+        bool localPath = false;
+        fprintf(out, "<%sellipse cx=\"%.2f\" cy=\"%.2f\" rx=\"%.2f\" ry=\"%.2f\" ",
+                states->nameSpaceString,
+                center.x,
+                center.y,
+                radius.x,
+                radius.y
+               );
+        bool filled = false;
+        bool stroked = false;
+        fill_draw(states, out, &filled, &stroked);
+        stroke_draw(states, out, &filled, &stroked);
+        if (!filled)
+            fprintf(out, "fill=\"none\" ");
+        if (!stroked)
+            fprintf(out, "stroke=\"none\" ");
+        fprintf(out, "/>\n");
     }
 
     void U_EMRRECTANGLE_draw(const char *contents, FILE *out, drawingStates *states){
