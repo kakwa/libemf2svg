@@ -1060,8 +1060,32 @@ extern "C" {
     }
 
     void U_EMRRECTANGLE_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRRECTANGLE_print(contents, states);
+        PU_EMRRECTANGLE pEmr      = (PU_EMRRECTANGLE)(contents);
+        POINT_D LT = point_cal(states, (double)pEmr->rclBox.left, (double)pEmr->rclBox.top);
+        POINT_D RB = point_cal(states, (double)pEmr->rclBox.right, (double)pEmr->rclBox.bottom);
+        POINT_D dim;
+        dim.x = RB.x - LT.x;
+        dim.y = RB.y - LT.y;
+        bool localPath = false;
+        fprintf(out, "<%srect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" ",
+                states->nameSpaceString,
+                LT.x,
+                LT.y,
+                dim.x,
+                dim.y
+               );
+        bool filled = false;
+        bool stroked = false;
+        fill_draw(states, out, &filled, &stroked);
+        stroke_draw(states, out, &filled, &stroked);
+        if (!filled)
+            fprintf(out, "fill=\"none\" ");
+        if (!stroked)
+            fprintf(out, "stroke=\"none\" ");
+        fprintf(out, "/>\n");
+
     }
 
     void U_EMRROUNDRECT_draw(const char *contents, FILE *out, drawingStates *states){
