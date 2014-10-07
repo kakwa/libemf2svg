@@ -27,7 +27,7 @@ mkdir -p $OUTDIR
 for emf in `find $EMFDIR -name "*.emf"`
 do
     verbose_print "\n############## `basename ${emf}` ####################"
-    ../../emf2svg -p -i $emf -o ${OUTDIR}/`basename ${emf}`.svg $VERBOSE_OPT
+    ../../emf2svg -p -w 800 -h 600 -i $emf -o ${OUTDIR}/`basename ${emf}`.svg $VERBOSE_OPT
     verbose_print "Command: ../../emf2svg -p -i $emf -o ${OUTDIR}/`basename ${emf}`.svg"
     xmllint --dtdvalid ./svg11-flat.dtd  --noout ${OUTDIR}/`basename ${emf}`.svg
     if [ $? -ne 0 ]

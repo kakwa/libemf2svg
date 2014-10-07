@@ -43,10 +43,12 @@ const char *argp_program_bug_address = "<carpentier.pf@gmail.com>";
 static char doc[] = "emf2svg -- Enhanced Metafile to SVG converter";
 
 static struct argp_option options[] = {
-    {"verbose",  'v', 0,      0, "Produce verbose output"},
-    {"emfplus",  'p', 0,      0, "Handle EMF+ records"},
-    {"input",    'i', "FILE", 0, "Input EMF file"},
-    {"output",   'o', "FILE", 0, "Output SVG file"},
+    {"verbose",  'v', 0,       0, "Produce verbose output"},
+    {"emfplus",  'p', 0,       0, "Handle EMF+ records"},
+    {"input",    'i', "FILE",  0, "Input EMF file"},
+    {"output",   'o', "FILE",  0, "Output SVG file"},
+    {"width",    'w', "WIDTH", 0, "Max width in px"},
+    {"height",   'h', "FILE",  0, "Max height in px"},
     { 0 }
 };
 
@@ -59,6 +61,8 @@ struct arguments
     bool verbose, emfplus;
     char *output;
     char *input;
+    int  width;
+    int  height;
 };
 
 static error_t parse_opt (int key, char *arg, struct argp_state *state)
@@ -76,11 +80,18 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             arguments->emfplus = 1;
             break;
         case 'o':
-            arguments->output = arg;
+            arguments->output  = arg;
             break;
         case 'i':
-            arguments->input = arg;
+            arguments->input   = arg;
             break;
+        case 'w':
+            arguments->width   = std::atoi(arg);
+            break;
+        case 'h':
+            arguments->height  = std::atoi(arg);
+            break;
+
         default:
             return ARGP_ERR_UNKNOWN;
     }
@@ -94,6 +105,8 @@ int main(int argc, char *argv[])
 {
 
     struct arguments arguments;
+    arguments.width = 0;
+    arguments.height = 0;
     arguments.verbose = 0;
     arguments.input = NULL;
     arguments.output = NULL;
@@ -129,7 +142,9 @@ int main(int argc, char *argv[])
     options->verbose = arguments.verbose; 
     options->emfplus = arguments.emfplus; 
     //options->nameSpace = (char *)"svg"; 
-    options->svgDelimiter = 1; 
+    options->svgDelimiter = true; 
+    options->imgWidth = arguments.width; 
+    options->imgHeight = arguments.height; 
     emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
     out << std::string(svg_out);
     free(svg_out);

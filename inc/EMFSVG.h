@@ -115,18 +115,20 @@ extern "C" {
         uint8_t         fill_green;
         uint16_t        fill_hatch_style;
         int             dirty;        // holds the dirty bits for text, stroke, fill
-        U_SIZEL         sizeWnd;
-        U_SIZEL         sizeView;
-        U_POINTL        winorg;
-        U_POINTL        vieworg;
-        double          ScaleInX, ScaleInY;
-        double          ScaleOutX, ScaleOutY;
-        uint16_t        bkMode;
-        U_COLORREF      bkColor;
-        U_COLORREF      textColor;
-        uint32_t        textAlign;
+
+        // text properties
+        uint8_t         text_red;    
+        uint8_t         text_blue;
+        uint8_t         text_green;
+        uint16_t        text_align;
+
+        // bk propertier
+        uint8_t         bk_red;    
+        uint8_t         bk_blue;
+        uint8_t         bk_green;
+        uint16_t        bk_mode;
+
         U_XFORM         worldTransform;
-        U_POINTL        cur;
 
         // clipping structures
         formStack      *clipStack;
@@ -148,7 +150,10 @@ extern "C" {
         bool emfplus; 
         // draw svg document delimiter or not
         bool svgDelimiter;
-
+        // height of the target image
+        int imgHeight;
+        // width of the target image
+        int imgWidth;
     } generatorOptions;
 
     typedef struct {

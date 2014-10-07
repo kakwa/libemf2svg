@@ -475,15 +475,37 @@ extern "C" {
         states->objectTable = calloc(pEmr->nHandles + 1, sizeof(emfGraphObject));
         states->objectTableSize = pEmr->nHandles;
 
+        double ratioXY = (double)(pEmr->rclBounds.right  - pEmr->rclBounds.left) / 
+            (double)(pEmr->rclBounds.bottom  - pEmr->rclBounds.top);
+
+        if ((states->imgHeight != 0) && (states->imgWidth != 0)){
+            double tmpWidth = states->imgHeight * ratioXY;
+            double tmpHeight = states->imgWidth / ratioXY;
+            if (tmpWidth > states->imgWidth){
+                states->imgHeight = tmpHeight;
+            }
+            else{
+                states->imgWidth = tmpWidth;
+            }
+        }
+        else if ( states->imgHeight != 0 ){
+            states->imgWidth = states->imgHeight * ratioXY;
+        }
+        else if (states->imgWidth != 0){
+            states->imgHeight = states->imgWidth / ratioXY;
+        }
+        else {
+            states->imgWidth = pEmr->szlDevice.cx;
+            states->imgHeight = states->imgWidth / ratioXY;
+        }
+
         // set scaling for original resolution
-        states->scaling = (double)pEmr->szlDevice.cx / (double)(pEmr->rclBounds.right  - pEmr->rclBounds.left);
+        states->scaling = states->imgWidth / (double)(pEmr->rclBounds.right  - pEmr->rclBounds.left);
 
         states->scalingX = states->scaling;
         states->scalingY = states->scaling;
 
         states->pxPerMm = (double)pEmr->szlDevice.cx / (double)pEmr->szlMillimeters.cx;
-        states->imgHeight = (double)(pEmr->rclBounds.bottom - pEmr->rclBounds.top) * states->scaling;
-        states->imgWidth  = (double)(pEmr->rclBounds.right - pEmr->rclBounds.left) * states->scaling;
 
         if (states->svgDelimiter){
             fprintf(out, "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n"); 
@@ -651,8 +673,10 @@ extern "C" {
     }
 
     void U_EMRSETBKMODE_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMRSETBKMODE_print(contents, states);
+        PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
+        states->currentDeviceContext.bk_mode = pEmr->iMode;
     }
 
     void U_EMRSETPOLYFILLMODE_draw(const char *contents, FILE *out, drawingStates *states){
@@ -673,9 +697,10 @@ extern "C" {
     }
 
     void U_EMRSETTEXTALIGN_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMRSETTEXTALIGN_print(contents, states);
         PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
+        states->currentDeviceContext.text_align = pEmr->iMode;
     }
 
     void U_EMRSETCOLORADJUSTMENT_draw(const char *contents, FILE *out, drawingStates *states){
@@ -685,14 +710,21 @@ extern "C" {
     }
 
     void U_EMRSETTEXTCOLOR_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMRSETTEXTCOLOR_print(contents, states);
-
+        PU_EMRSETTEXTCOLOR pEmr = (PU_EMRSETTEXTCOLOR)(contents);
+        states->currentDeviceContext.text_red   = pEmr->crColor.Red;
+        states->currentDeviceContext.text_blue  = pEmr->crColor.Blue;
+        states->currentDeviceContext.text_green = pEmr->crColor.Green;
     }
 
     void U_EMRSETBKCOLOR_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMRSETBKCOLOR_print(contents, states);
+        PU_EMRSETBKCOLOR pEmr = (PU_EMRSETBKCOLOR)(contents);
+        states->currentDeviceContext.bk_red   = pEmr->crColor.Red;
+        states->currentDeviceContext.bk_blue  = pEmr->crColor.Blue;
+        states->currentDeviceContext.bk_green = pEmr->crColor.Green;
     }
 
     void U_EMROFFSETCLIPRGN_draw(const char *contents, FILE *out, drawingStates *states){
@@ -2019,6 +2051,8 @@ extern "C" {
         drawingStates * states = (drawingStates *)calloc(1,sizeof(drawingStates));
         states->verbose = options->verbose;
         states->emfplus = options->emfplus;
+        states->imgWidth = options->imgWidth;
+        states->imgHeight = options->imgHeight;
         if ((options->nameSpace != NULL) && (strlen(options->nameSpace) != 0)){
             states->nameSpace = options->nameSpace;
             states->nameSpaceString = (char *)malloc(strlen(options->nameSpace)+2);
