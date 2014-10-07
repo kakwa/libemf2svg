@@ -675,6 +675,7 @@ extern "C" {
     void U_EMRSETTEXTALIGN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         U_EMRSETTEXTALIGN_print(contents, states);
+        PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
     }
 
     void U_EMRSETCOLORADJUSTMENT_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1800,32 +1801,32 @@ extern "C" {
             case U_EMR_CREATEMONOBRUSH:         U_EMRCREATEMONOBRUSH_draw(contents, out, states);         break;
             case U_EMR_CREATEDIBPATTERNBRUSHPT: U_EMRCREATEDIBPATTERNBRUSHPT_draw(contents, out, states); break;
             case U_EMR_EXTCREATEPEN:            U_EMREXTCREATEPEN_draw(contents, out, states);            break;
-                                                //case U_EMR_POLYTEXTOUTA:            U_EMRPOLYTEXTOUTA_draw(contents, out, states);            break;
-                                                //case U_EMR_POLYTEXTOUTW:            U_EMRPOLYTEXTOUTW_draw(contents, out, states);            break;
+          //case U_EMR_POLYTEXTOUTA:            U_EMRPOLYTEXTOUTA_draw(contents, out, states);            break;
+          //case U_EMR_POLYTEXTOUTW:            U_EMRPOLYTEXTOUTW_draw(contents, out, states);            break;
             case U_EMR_SETICMMODE:              U_EMRSETICMMODE_draw(contents, out, states);              break;
             case U_EMR_CREATECOLORSPACE:        U_EMRCREATECOLORSPACE_draw(contents, out, states);        break;
             case U_EMR_SETCOLORSPACE:           U_EMRSETCOLORSPACE_draw(contents, out, states);           break;
             case U_EMR_DELETECOLORSPACE:        U_EMRDELETECOLORSPACE_draw(contents, out, states);        break;
-                                                //case U_EMR_GLSRECORD:               U_EMRGLSRECORD_draw(contents, out, states);               break;
-                                                //case U_EMR_GLSBOUNDEDRECORD:        U_EMRGLSBOUNDEDRECORD_draw(contents, out, states);        break;
+          //case U_EMR_GLSRECORD:               U_EMRGLSRECORD_draw(contents, out, states);               break;
+          //case U_EMR_GLSBOUNDEDRECORD:        U_EMRGLSBOUNDEDRECORD_draw(contents, out, states);        break;
             case U_EMR_PIXELFORMAT:             U_EMRPIXELFORMAT_draw(contents, out, states);             break;
-                                                //case U_EMR_DRAWESCAPE:              U_EMRDRAWESCAPE_draw(contents, out, states);              break;
-                                                //case U_EMR_EXTESCAPE:               U_EMREXTESCAPE_draw(contents, out, states);               break;
-                                                //case U_EMR_UNDEF107:                U_EMRUNDEF107_draw(contents, out, states);                break;
+          //case U_EMR_DRAWESCAPE:              U_EMRDRAWESCAPE_draw(contents, out, states);              break;
+          //case U_EMR_EXTESCAPE:               U_EMREXTESCAPE_draw(contents, out, states);               break;
+          //case U_EMR_UNDEF107:                U_EMRUNDEF107_draw(contents, out, states);                break;
             case U_EMR_SMALLTEXTOUT:            U_EMRSMALLTEXTOUT_draw(contents, out, states);            break;
-                                                //case U_EMR_FORCEUFIMAPPING:         U_EMRFORCEUFIMAPPING_draw(contents, out, states);         break;
-                                                //case U_EMR_NAMEDESCAPE:             U_EMRNAMEDESCAPE_draw(contents, out, states);             break;
-                                                //case U_EMR_COLORCORRECTPALETTE:     U_EMRCOLORCORRECTPALETTE_draw(contents, out, states);     break;
-                                                //case U_EMR_SETICMPROFILEA:          U_EMRSETICMPROFILEA_draw(contents, out, states);          break;
-                                                //case U_EMR_SETICMPROFILEW:          U_EMRSETICMPROFILEW_draw(contents, out, states);          break;
+          //case U_EMR_FORCEUFIMAPPING:         U_EMRFORCEUFIMAPPING_draw(contents, out, states);         break;
+          //case U_EMR_NAMEDESCAPE:             U_EMRNAMEDESCAPE_draw(contents, out, states);             break;
+          //case U_EMR_COLORCORRECTPALETTE:     U_EMRCOLORCORRECTPALETTE_draw(contents, out, states);     break;
+          //case U_EMR_SETICMPROFILEA:          U_EMRSETICMPROFILEA_draw(contents, out, states);          break;
+          //case U_EMR_SETICMPROFILEW:          U_EMRSETICMPROFILEW_draw(contents, out, states);          break;
             case U_EMR_ALPHABLEND:              U_EMRALPHABLEND_draw(contents, out, states);              break;
             case U_EMR_SETLAYOUT:               U_EMRSETLAYOUT_draw(contents, out, states);               break;
             case U_EMR_TRANSPARENTBLT:          U_EMRTRANSPARENTBLT_draw(contents, out, states);          break;
-                                                //case U_EMR_UNDEF117:                U_EMRUNDEF117_draw(contents, out, states);                break;
+          //case U_EMR_UNDEF117:                U_EMRUNDEF117_draw(contents, out, states);                break;
             case U_EMR_GRADIENTFILL:            U_EMRGRADIENTFILL_draw(contents, out, states);            break;
-                                                //case U_EMR_SETLINKEDUFIS:           U_EMRSETLINKEDUFIS_draw(contents, out, states);           break;
-                                                //case U_EMR_SETTEXTJUSTIFICATION:    U_EMRSETTEXTJUSTIFICATION_draw(contents, out, states);    break;
-                                                //case U_EMR_COLORMATCHTOTARGETW:     U_EMRCOLORMATCHTOTARGETW_draw(contents, out, states);     break;
+          //case U_EMR_SETLINKEDUFIS:           U_EMRSETLINKEDUFIS_draw(contents, out, states);           break;
+          //case U_EMR_SETTEXTJUSTIFICATION:    U_EMRSETTEXTJUSTIFICATION_draw(contents, out, states);    break;
+          //case U_EMR_COLORMATCHTOTARGETW:     U_EMRCOLORMATCHTOTARGETW_draw(contents, out, states);     break;
             case U_EMR_CREATECOLORSPACEW:       U_EMRCREATECOLORSPACEW_draw(contents, out, states);       break;
             default:                            U_EMRNOTIMPLEMENTED_draw("?",contents, out, states);      break;
         }  //end of switch
@@ -1910,7 +1911,7 @@ extern "C" {
             case U_EMR_CLOSEFIGURE:             break;
             case U_EMR_FILLPATH:                
                 if(states->emfStructure.pathStackLast != NULL){
-                    states->emfStructure.pathStackLast->pathStruct.fillOffset       = off;
+                    states->emfStructure.pathStackLast->pathStruct.fillOffset = off;
                 }
                 break;
             case U_EMR_STROKEANDFILLPATH:
@@ -1943,7 +1944,7 @@ extern "C" {
                     states->emfStructure.pathStackLast->pathStruct.abortOffset = off; 
                 }
                 break;
-            //case U_EMR_UNDEF69:                 break;
+          //case U_EMR_UNDEF69:                 break;
             case U_EMR_COMMENT:                 break;
             case U_EMR_FILLRGN:                 break;
             case U_EMR_FRAMERGN:                break;
@@ -1970,32 +1971,32 @@ extern "C" {
             case U_EMR_CREATEMONOBRUSH:         break;
             case U_EMR_CREATEDIBPATTERNBRUSHPT: break;
             case U_EMR_EXTCREATEPEN:            break;
-                                                //case U_EMR_POLYTEXTOUTA:            break;
-                                                //case U_EMR_POLYTEXTOUTW:            break;
+          //case U_EMR_POLYTEXTOUTA:            break;
+          //case U_EMR_POLYTEXTOUTW:            break;
             case U_EMR_SETICMMODE:              break;
             case U_EMR_CREATECOLORSPACE:        break;
             case U_EMR_SETCOLORSPACE:           break;
             case U_EMR_DELETECOLORSPACE:        break;
-                                                //case U_EMR_GLSRECORD:               break;
-                                                //case U_EMR_GLSBOUNDEDRECORD:        break;
+          //case U_EMR_GLSRECORD:               break;
+          //case U_EMR_GLSBOUNDEDRECORD:        break;
             case U_EMR_PIXELFORMAT:             break;
-                                                //case U_EMR_DRAWESCAPE:              break;
-                                                //case U_EMR_EXTESCAPE:               break;
-                                                //case U_EMR_UNDEF107:                break;
+          //case U_EMR_DRAWESCAPE:              break;
+          //case U_EMR_EXTESCAPE:               break;
+          //case U_EMR_UNDEF107:                break;
             case U_EMR_SMALLTEXTOUT:            break;
-                                                //case U_EMR_FORCEUFIMAPPING:         break;
-                                                //case U_EMR_NAMEDESCAPE:             break;
-                                                //case U_EMR_COLORCORRECTPALETTE:     break;
-                                                //case U_EMR_SETICMPROFILEA:          break;
-                                                //case U_EMR_SETICMPROFILEW:          break;
+          //case U_EMR_FORCEUFIMAPPING:         break;
+          //case U_EMR_NAMEDESCAPE:             break;
+          //case U_EMR_COLORCORRECTPALETTE:     break;
+          //case U_EMR_SETICMPROFILEA:          break;
+          //case U_EMR_SETICMPROFILEW:          break;
             case U_EMR_ALPHABLEND:              break;
             case U_EMR_SETLAYOUT:               break;
             case U_EMR_TRANSPARENTBLT:          break;
-                                                //case U_EMR_UNDEF117:                break;
+          //case U_EMR_UNDEF117:                break;
             case U_EMR_GRADIENTFILL:            break;
-                                                //case U_EMR_SETLINKEDUFIS:           break;
-                                                //case U_EMR_SETTEXTJUSTIFICATION:    break;
-                                                //case U_EMR_COLORMATCHTOTARGETW:     break;
+          //case U_EMR_SETLINKEDUFIS:           break;
+          //case U_EMR_SETTEXTJUSTIFICATION:    break;
+          //case U_EMR_COLORMATCHTOTARGETW:     break;
             case U_EMR_CREATECOLORSPACEW:       break;
             default:                            break;
         }  //end of switch
