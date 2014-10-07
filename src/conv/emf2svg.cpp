@@ -43,12 +43,12 @@ const char *argp_program_bug_address = "<carpentier.pf@gmail.com>";
 static char doc[] = "emf2svg -- Enhanced Metafile to SVG converter";
 
 static struct argp_option options[] = {
-    {"verbose",  'v', 0,       0, "Produce verbose output"},
-    {"emfplus",  'p', 0,       0, "Handle EMF+ records"},
-    {"input",    'i', "FILE",  0, "Input EMF file"},
-    {"output",   'o', "FILE",  0, "Output SVG file"},
-    {"width",    'w', "WIDTH", 0, "Max width in px"},
-    {"height",   'h', "FILE",  0, "Max height in px"},
+    {"verbose",  'v', 0,        0, "Produce verbose output"},
+    {"emfplus",  'p', 0,        0, "Handle EMF+ records"},
+    {"input",    'i', "FILE",   0, "Input EMF file"},
+    {"output",   'o', "FILE",   0, "Output SVG file"},
+    {"width",    'w', "WIDTH",  0, "Max width in px"},
+    {"height",   'h', "HEIGHT", 0, "Max height in px"},
     { 0 }
 };
 
