@@ -2,10 +2,10 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install cmake
   - sudo apt-get install clang
+  - sudo apt-get install libxml2-utils
 
 language: cpp
 
-compiler:
-  - clang
+compiler: clang
 
 script: cmake . && make && ./tests/resources/check_correctness.sh
