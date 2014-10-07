@@ -47,6 +47,7 @@ extern "C" {
 
     typedef struct emf_graph_object {
         char            *font_name;
+
         bool            stroke_set;
         int             stroke_mode;  // enumeration from drawmode, not used if fill_set is not True
         int             stroke_idx;   // used with DRAW_PATTERN and DRAW_IMAGE to return the appropriate fill
@@ -67,18 +68,18 @@ extern "C" {
         uint8_t         fill_green;
         uint16_t        fill_hatch_style;
 
-        int             dirty;        // holds the dirty bits for text, stroke, fill
-        U_SIZEL         sizeWnd;
-        U_SIZEL         sizeView;
-        U_POINTL        winorg;
-        U_POINTL        vieworg;
-        double          ScaleInX, ScaleInY;
-        double          ScaleOutX, ScaleOutY;
-        uint16_t        bkMode;
-        U_COLORREF      bkColor;
-        U_COLORREF      textColor;
-        uint32_t        textAlign;
-        U_XFORM         worldTransform;
+        // text properties
+        uint8_t         text_red;    
+        uint8_t         text_blue;
+        uint8_t         text_green;
+        uint16_t        text_align;
+
+        // bk propertier
+        uint8_t         bk_red;    
+        uint8_t         bk_blue;
+        uint8_t         bk_green;
+        uint16_t        bk_mode;
+
     } emfGraphObject;
 
     typedef struct formstack{
