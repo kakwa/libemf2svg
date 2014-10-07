@@ -7,6 +7,5 @@ language: cpp
 
 compiler:
   - clang
-  - gcc
 
 script: cmake . && make && ./tests/resources/check_correctness.sh
