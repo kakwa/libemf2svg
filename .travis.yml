@@ -1,0 +1,12 @@
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install cmake
+  - sudo apt-get install clang
+
+language: cpp
+
+compiler:
+  - clang
+  - gcc
+
+script: cmake . && make && ./tests/resources/check_correctness.sh
