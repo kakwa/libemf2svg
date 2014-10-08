@@ -4,6 +4,9 @@
 *.o
 *.obj
 
+# Vim
+*.swp
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
