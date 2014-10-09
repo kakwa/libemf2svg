@@ -46,7 +46,17 @@ extern "C" {
 
 
     typedef struct emf_graph_object {
+        bool            font_set;
         char            *font_name;
+        char            *font_family;
+        uint32_t        font_height;
+        uint32_t        font_width;
+        bool            font_italic;
+        bool            font_underline;
+        bool            font_strikeout;
+        uint32_t        font_weight;
+        uint32_t        font_escapement;
+        uint32_t        font_orientation;
 
         bool            stroke_set;
         int             stroke_mode;  // enumeration from drawmode, not used if fill_set is not True
@@ -93,7 +103,19 @@ extern "C" {
 
     // EMF Device Context structure
     typedef struct emf_device_context {
-        char           *font_name;
+
+        bool            font_set;
+        char            *font_name;
+        char            *font_family;
+        uint32_t        font_height;
+        uint32_t        font_width;
+        bool            font_italic;
+        bool            font_underline;
+        bool            font_strikeout;
+        uint32_t        font_weight;
+        uint32_t        font_escapement;
+        uint32_t        font_orientation;
+
         bool            stroke_set;
         int             stroke_mode;  // enumeration from drawmode, not used if fill_set is not True
         int             stroke_idx;   // used with DRAW_PATTERN and DRAW_IMAGE to return the appropriate fill

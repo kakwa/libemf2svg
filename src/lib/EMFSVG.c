@@ -252,14 +252,19 @@ extern "C" {
 
         // copy more complex data (pointers...)
         if (src->font_name != NULL){
-            dest->font_name = (char *)malloc(strlen(src->font_name) + 1);
-            strcpy(dest->font_name, src->font_name);    
+            dest->font_name = (char *)calloc(strlen(src->font_name) + 1, sizeof(char)); 
+            strcpy(dest->font_name, src->font_name);
+        }
+        if (src->font_family != NULL){
+            dest->font_family = (char *)calloc(strlen(src->font_family) + 1, sizeof(char));
+            strcpy(dest->font_family, src->font_family);
         }
         dest->clipStack = cpFormStack(src->clipStack);
     }
 
     void freeDeviceContext(EMF_DEVICE_CONTEXT *dc){
         free(dc->font_name);
+        free(dc->font_family);
         freeFormStack(dc->clipStack);
     }
 
@@ -1006,6 +1011,29 @@ extern "C" {
                 states->currentDeviceContext.stroke_mode    = states->objectTable[index].stroke_mode;
                 states->currentDeviceContext.stroke_width   = states->objectTable[index].stroke_width;
             }
+            else if(states->objectTable[index].font_set){
+                states->currentDeviceContext.font_width       = states->objectTable[index].font_width;
+                states->currentDeviceContext.font_height      = states->objectTable[index].font_height;
+                states->currentDeviceContext.font_italic      = states->objectTable[index].font_italic;
+                states->currentDeviceContext.font_underline   = states->objectTable[index].font_underline;
+                states->currentDeviceContext.font_strikeout   = states->objectTable[index].font_strikeout;
+                states->currentDeviceContext.font_escapement  = states->objectTable[index].font_escapement;
+                states->currentDeviceContext.font_orientation = states->objectTable[index].font_escapement;
+                if (states->currentDeviceContext.font_name != NULL)
+                    free(states->currentDeviceContext.font_name);
+                if (states->objectTable[index].font_name != NULL){
+                    size_t len = strlen(states->objectTable[index].font_name);
+                    states->currentDeviceContext.font_name = calloc((len + 1), sizeof(char)); 
+                    strcpy(states->currentDeviceContext.font_name, states->objectTable[index].font_name);
+                }
+                if (states->currentDeviceContext.font_family != NULL)
+                    free(states->currentDeviceContext.font_family);
+                if (states->objectTable[index].font_family != NULL){
+                    size_t len = strlen(states->objectTable[index].font_family);
+                    states->currentDeviceContext.font_family = calloc((len + 1), sizeof(char)); 
+                    strcpy(states->currentDeviceContext.font_family, states->objectTable[index].font_family);
+                }
+            }
         }
     } 
 
@@ -1438,6 +1466,14 @@ extern "C" {
         FLAG_IGNORED;
         U_EMREXTCREATEFONTINDIRECTW_print(contents, states);
         PU_EMREXTCREATEFONTINDIRECTW pEmr = (PU_EMREXTCREATEFONTINDIRECTW) (contents);
+        uint16_t index = pEmr->ihFont;
+        if(pEmr->emr.nSize == sizeof(U_EMREXTCREATEFONTINDIRECTW)){ // holds logfont_panose
+            //logfont_panose_print(states, pEmr->elfw);
+        }
+        else { // holds logfont
+            //logfont_print(states, *(PU_LOGFONT) &(pEmr->elfw));
+        }
+        states->objectTable[index].font_name         = NULL;
     }
 
     void U_EMREXTTEXTOUTA_draw(const char *contents, FILE *out, drawingStates *states){
