@@ -2170,9 +2170,9 @@ extern "C" {
         FLAG_RESET;
 
         free(states->objectTable);
-        free(states);
         freeDeviceContext(&(states->currentDeviceContext));
         freeDeviceContextStack(states);
+        free(states);
 
         fflush(stream);
         fclose(stream);
