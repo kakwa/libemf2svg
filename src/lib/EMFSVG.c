@@ -56,6 +56,7 @@ extern "C" {
 
     void freeFormStack(formStack * stack){
         while (stack != NULL){
+            fclose(stack->formStream);
             free(stack->form);
             formStack * tmp = stack;
             stack = stack->prev;
@@ -156,9 +157,9 @@ extern "C" {
                 break;
             default:
                 break;
-                free(fill_rule);
-                return;
-        }
+            } 
+            free(fill_rule);
+            return;
     }
 
     void stroke_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
@@ -263,9 +264,13 @@ extern "C" {
     }
 
     void freeDeviceContext(EMF_DEVICE_CONTEXT *dc){
-        free(dc->font_name);
-        free(dc->font_family);
-        freeFormStack(dc->clipStack);
+        if(dc != NULL){
+            if(dc->font_name != NULL)
+                free(dc->font_name);
+            if(dc->font_family != NULL)
+                free(dc->font_family);
+            freeFormStack(dc->clipStack);
+        }
     }
 
     void restoreDeviceContext(drawingStates * states, int32_t index ){

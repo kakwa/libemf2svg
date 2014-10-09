@@ -11,6 +11,13 @@ if(USE_CLANG)
     SET(CMAKE_CC_COMPILER    "clang")
 endif(USE_CLANG)
 
+option(DEBUG "compile with debug symbol" OFF)
+
+if(DEBUG)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
+endif(DEBUG)
+
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    SET(MEMSTREAMLIB "memstream")
