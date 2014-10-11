@@ -9,6 +9,7 @@ extern "C" {
 #include <stdio.h>
 #include <stddef.h> /* for offsetof() macro */
 #include <string.h>
+#include <math.h>
 #include "uemf.h"
 #include "EMFSVG.h"
 #include "EMFSVG_print.h"
@@ -1492,8 +1493,8 @@ extern "C" {
             logfont = *(PU_LOGFONT) &(pEmr->elfw);
         }
         char *family = U_Utf16leToUtf8(logfont.lfFaceName, U_LF_FACESIZE, NULL);
-        states->objectTable[index].font_width       = logfont.lfWidth;
-        states->objectTable[index].font_height      = logfont.lfHeight;
+        states->objectTable[index].font_width       = abs(logfont.lfWidth);
+        states->objectTable[index].font_height      = abs(logfont.lfHeight);
         states->objectTable[index].font_weight      = logfont.lfWeight;
         states->objectTable[index].font_italic      = logfont.lfItalic;
         states->objectTable[index].font_underline   = logfont.lfUnderline;
@@ -1501,6 +1502,7 @@ extern "C" {
         states->objectTable[index].font_escapement  = logfont.lfEscapement;
         states->objectTable[index].font_orientation = logfont.lfOrientation;
         states->objectTable[index].font_family      = family;
+        states->objectTable[index].font_set         = true;
     }
 
     void U_EMREXTTEXTOUTA_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1509,8 +1511,53 @@ extern "C" {
     }
 
     void U_EMREXTTEXTOUTW_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMREXTTEXTOUTW_print(contents, states);
+        PU_EMREXTTEXTOUTW pEmr = (PU_EMREXTTEXTOUTW) (contents);
+        PU_EMRTEXT pemt = (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
+        char *string = U_Utf16leToUtf8((uint16_t *)(contents + pemt->offString), pemt->nChars, NULL);
+        fprintf(out, "<%stext ", states->nameSpaceString);
+        POINT_D Org = point_cal(states, (double)pemt->ptlReference.x, (double)pemt->ptlReference.y);
+        pemt->ptlReference;
+        double font_height = fabs((double)states->currentDeviceContext.font_height * states->scalingY);
+        if( states->currentDeviceContext.font_family != NULL)
+            fprintf(out, "font-family=\"%s\" ", states->currentDeviceContext.font_family);
+        uint16_t align = states->currentDeviceContext.text_align;
+        fprintf(out, "fill=\"#%02X%02X%02X\" ", 
+                states->currentDeviceContext.text_red,
+                states->currentDeviceContext.text_green,
+                states->currentDeviceContext.text_blue
+               );
+
+        if(states->currentDeviceContext.font_escapement != 0){
+            fprintf(out, "transform=\"rotate(%d, %f, %f)\" ", states->currentDeviceContext.font_escapement / 10, Org.x, Org.y + font_height * 0.8);
+        }
+
+        fprintf(out, "width=\"0\" height=\"0\" ");
+        // horizontal position
+        if(align & U_TA_CENTER == U_TA_CENTER){
+            fprintf(out, "text-anchor=\"middle\" ");
+        }
+        else if (align & U_TA_RIGHT == U_TA_RIGHT){
+            fprintf(out, "text-anchor=\"end\" ");
+        }
+        else {
+            fprintf(out, "text-anchor=\"start\" ");
+        }
+        // vertical position
+        if(align & U_TA_BOTTOM == U_TA_BOTTOM){
+            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y);
+        }
+        else if (align & U_TA_BASELINE == U_TA_BASELINE){
+            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y + font_height * 0.8);
+        }
+        else {
+            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y + font_height * 0.9);
+        }
+        fprintf(out, "font-size=\"%f\" ", font_height);
+        fprintf(out, ">");
+        fprintf(out, "<![CDATA[%s]]>", string);
+        fprintf(out, "</%stext>\n", states->nameSpaceString);
     }
 
     void U_EMRPOLYBEZIER16_draw(const char *contents, FILE *out, drawingStates *states){
