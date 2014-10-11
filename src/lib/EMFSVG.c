@@ -1019,11 +1019,12 @@ extern "C" {
             else if(states->objectTable[index].font_set){
                 states->currentDeviceContext.font_width       = states->objectTable[index].font_width;
                 states->currentDeviceContext.font_height      = states->objectTable[index].font_height;
+                states->currentDeviceContext.font_weight      = states->objectTable[index].font_weight;
                 states->currentDeviceContext.font_italic      = states->objectTable[index].font_italic;
                 states->currentDeviceContext.font_underline   = states->objectTable[index].font_underline;
                 states->currentDeviceContext.font_strikeout   = states->objectTable[index].font_strikeout;
                 states->currentDeviceContext.font_escapement  = states->objectTable[index].font_escapement;
-                states->currentDeviceContext.font_orientation = states->objectTable[index].font_escapement;
+                states->currentDeviceContext.font_orientation = states->objectTable[index].font_orientation;
                 if (states->currentDeviceContext.font_name != NULL)
                     free(states->currentDeviceContext.font_name);
                 if (states->objectTable[index].font_name != NULL){
@@ -1468,17 +1469,38 @@ extern "C" {
     }
 
     void U_EMREXTCREATEFONTINDIRECTW_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         U_EMREXTCREATEFONTINDIRECTW_print(contents, states);
         PU_EMREXTCREATEFONTINDIRECTW pEmr = (PU_EMREXTCREATEFONTINDIRECTW) (contents);
         uint16_t index = pEmr->ihFont;
+
+        if (states->objectTable[index].font_name != NULL)
+            free(states->objectTable[index].font_name);
+
+        if (states->objectTable[index].font_family != NULL)
+            free(states->objectTable[index].font_family);
+
+         U_LOGFONT logfont;
+
         if(pEmr->emr.nSize == sizeof(U_EMREXTCREATEFONTINDIRECTW)){ // holds logfont_panose
-            //logfont_panose_print(states, pEmr->elfw);
+            U_LOGFONT_PANOSE lfp = pEmr->elfw;
+            logfont = pEmr->elfw.elfLogFont; 
+            char *fullname = U_Utf16leToUtf8(lfp.elfFullName, U_LF_FULLFACESIZE, NULL);
+            states->objectTable[index].font_name = fullname;
         }
         else { // holds logfont
-            //logfont_print(states, *(PU_LOGFONT) &(pEmr->elfw));
+            logfont = *(PU_LOGFONT) &(pEmr->elfw);
         }
-        states->objectTable[index].font_name         = NULL;
+        char *family = U_Utf16leToUtf8(logfont.lfFaceName, U_LF_FACESIZE, NULL);
+        states->objectTable[index].font_width       = logfont.lfWidth;
+        states->objectTable[index].font_height      = logfont.lfHeight;
+        states->objectTable[index].font_weight      = logfont.lfWeight;
+        states->objectTable[index].font_italic      = logfont.lfItalic;
+        states->objectTable[index].font_underline   = logfont.lfUnderline;
+        states->objectTable[index].font_strikeout   = logfont.lfStrikeOut;
+        states->objectTable[index].font_escapement  = logfont.lfEscapement;
+        states->objectTable[index].font_orientation = logfont.lfOrientation;
+        states->objectTable[index].font_family      = family;
     }
 
     void U_EMREXTTEXTOUTA_draw(const char *contents, FILE *out, drawingStates *states){
