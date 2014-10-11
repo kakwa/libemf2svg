@@ -1533,6 +1533,8 @@ extern "C" {
             fprintf(out, "transform=\"rotate(%d, %f, %f)\" ", states->currentDeviceContext.font_escapement / 10, Org.x, Org.y + font_height * 0.8);
         }
 
+        fprintf(out, "font-weight=\"%d\" ", states->currentDeviceContext.font_weight);
+
         fprintf(out, "width=\"0\" height=\"0\" ");
         // horizontal position
         if(align & U_TA_CENTER == U_TA_CENTER){
