@@ -484,7 +484,7 @@ extern "C" {
                );
 
         if(states->currentDeviceContext.font_escapement != 0){
-            fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", states->currentDeviceContext.font_escapement / 10, Org.x, Org.y + font_height * 0.9, font_height * 0.9);
+            fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", (states->currentDeviceContext.font_escapement / 10), Org.x, Org.y + font_height * 0.9, font_height * 0.9);
         }
 
         if(states->currentDeviceContext.font_italic){
@@ -1303,8 +1303,17 @@ extern "C" {
     }
 
     void U_EMRSETARCDIRECTION_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRSETARCDIRECTION_print(contents, states);
+        PU_EMRSETARCDIRECTION pEmr = (PU_EMRSETARCDIRECTION)contents;
+        switch(pEmr->iArcDirection){
+            case U_AD_CLOCKWISE:
+                states->currentDeviceContext.arcdir = 1;
+                break;
+            case U_AD_COUNTERCLOCKWISE:
+                states->currentDeviceContext.arcdir = -1;
+                break;
+        }
     }
 
     void U_EMRSETMITERLIMIT_draw(const char *contents, FILE *out, drawingStates *states){
