@@ -1506,7 +1506,7 @@ extern "C" {
     }
 
     void U_EMREXTTEXTOUTA_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         //U_EMREXTTEXTOUTA_print(contents, states);
         U_EMREXTTEXTOUTW_draw(contents, out, states);
     }
@@ -1532,6 +1532,22 @@ extern "C" {
         if(states->currentDeviceContext.font_escapement != 0){
             fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", states->currentDeviceContext.font_escapement / 10, Org.x, Org.y + font_height * 0.9, font_height * 0.9);
         }
+
+        if(states->currentDeviceContext.font_italic){
+            fprintf(out, "font-style=\"italic\" ");
+        }
+
+        if(states->currentDeviceContext.font_underline && states->currentDeviceContext.font_strikeout){
+            fprintf(out, "text-decoration=\"line-through,underline\" ");
+        }
+        else if(states->currentDeviceContext.font_underline){
+            fprintf(out, "text-decoration=\"underline\" ");
+        }
+        else if(states->currentDeviceContext.font_strikeout){
+            fprintf(out, "text-decoration=\"line-through\" ");
+        }
+
+
 
         fprintf(out, "font-weight=\"%d\" ", states->currentDeviceContext.font_weight);
 
