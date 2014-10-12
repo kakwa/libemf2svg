@@ -30,6 +30,7 @@ do
     ../../emf2svg -p -w 800 -h 600 -i $emf -o ${OUTDIR}/`basename ${emf}`.svg $VERBOSE_OPT
     verbose_print "Command: ../../emf2svg -p -i $emf -o ${OUTDIR}/`basename ${emf}`.svg"
     xmllint --dtdvalid ./svg11-flat.dtd  --noout ${OUTDIR}/`basename ${emf}`.svg
+    valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes --error-exitcode=1 ../../emf2svg -p -w 800 -h 600 -i $emf -o ${OUTDIR}/`basename ${emf}`.svg $VERBOSE_OPT
     if [ $? -ne 0 ]
     then
         printf "[ERROR] emf2svg generate bad svg '${OUTDIR}/`basename ${emf}`.svg' from emf '$emf'\n"

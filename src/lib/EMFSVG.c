@@ -25,7 +25,7 @@ extern "C" {
 
     void saveDeviceContext(drawingStates * states){
         // create the new device context in the stack
-        EMF_DEVICE_CONTEXT_STACK * new_entry = (EMF_DEVICE_CONTEXT_STACK *)malloc(sizeof(EMF_DEVICE_CONTEXT_STACK));
+        EMF_DEVICE_CONTEXT_STACK * new_entry = (EMF_DEVICE_CONTEXT_STACK *)calloc(1, sizeof(EMF_DEVICE_CONTEXT_STACK));
         copyDeviceContext(&(new_entry->DeviceContext), &(states->currentDeviceContext));
         // put the new entry on the stack
         new_entry->previous = states->DeviceContextStack;
@@ -532,6 +532,9 @@ extern "C" {
         fprintf(out, ">");
         fprintf(out, "<![CDATA[%s]]>", string);
         fprintf(out, "</%stext>\n", states->nameSpaceString);
+        if(type == UTF_16){
+            free(string);
+        }
     }
 
 
