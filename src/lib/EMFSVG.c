@@ -400,6 +400,17 @@ extern "C" {
         endPathDraw(states, out);
     } 
 
+    void arc_draw(const char *contents, FILE *out, drawingStates *states){
+        PU_EMRARC pEmr = (PU_EMRARC) (contents);
+        startPathDraw(states, out);
+        fprintf(out, "A ");
+        point_draw(states, pEmr->ptlStart, out);
+        point_draw(states, pEmr->ptlEnd, out);
+        endPathDraw(states, out);
+    } 
+
+
+
     void cubic_bezier_draw(const char *name, const char *contents, FILE *out, drawingStates *states, int startingPoint){
         UNUSED(name);
         unsigned int i;
@@ -1440,8 +1451,9 @@ extern "C" {
     }
 
     void U_EMRARC_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRARC_print(contents, states);
+        arc_draw(contents, out, states);
     }
 
     void U_EMRCHORD_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1495,8 +1507,9 @@ extern "C" {
     } 
 
     void U_EMRARCTO_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRARCTO_print(contents, states);
+        arc_draw(contents, out, states);
     }
 
     void U_EMRPOLYDRAW_draw(const char *contents, FILE *out, drawingStates *states){
