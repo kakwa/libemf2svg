@@ -401,7 +401,7 @@ extern "C" {
     } 
 
     // Functions drawing a polyline
-    void polyline_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
+    void polyline16_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
         UNUSED(name);
         unsigned int i;
         PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16) (contents);
@@ -418,6 +418,24 @@ extern "C" {
         }
         endPathDraw(states, out);
     } 
+
+    void polyline_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
+        UNUSED(name);
+        unsigned int i;
+        PU_EMRPOLYLINETO pEmr = (PU_EMRPOLYLINETO) (contents);
+        startPathDraw(states, out);
+        for(i=0; i<pEmr->cptl; i++){
+            if (polygon && i == 0){
+                fprintf(out, "M ");
+            }
+            else{
+                fprintf(out, "L ");
+            }
+            point_draw(states, pEmr->aptl[i], out);
+        }
+        endPathDraw(states, out);
+    } 
+
 
     void moveto_draw(const char *name, const char *field1, const char *field2, const char *contents, FILE *out, drawingStates *states){
         UNUSED(name);
@@ -614,8 +632,34 @@ extern "C" {
     } 
 
     void U_EMRPOLYGON_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRPOLYGON_print(contents, states);
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath ", states->nameSpaceString);
+            if (states->clipSet)
+                fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+            fprintf(out, "d=\"");
+        }
+        bool ispolygon = true;
+        polyline_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
+
+        if (localPath){
+            states->inPath = false;
+            fprintf(out, "Z\" ");
+            bool filled = false;
+            bool stroked = false;
+            stroke_draw(states, out, &filled, &stroked);
+            fill_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+
+            fprintf(out, "/><!-- shit -->\n");
+        }
     } 
 
     void U_EMRPOLYLINE_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1619,7 +1663,7 @@ extern "C" {
             fprintf(out, "d=\"");
         }
         bool ispolygon = true;
-        polyline_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
+        polyline16_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
 
         if (localPath){
             states->inPath = false;
@@ -1650,7 +1694,7 @@ extern "C" {
             fprintf(out, "d=\"");
         }
         bool ispolygon = true;
-        polyline_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
+        polyline16_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
 
         if (localPath){
             states->inPath = false;
@@ -1676,8 +1720,7 @@ extern "C" {
     void U_EMRPOLYLINETO16_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
         U_EMRPOLYLINETO16_print(contents, states);
-        polyline_draw("U_EMRPOLYLINETO16", contents, out, states, false);
-
+        polyline16_draw("U_EMRPOLYLINETO16", contents, out, states, false);
     }
 
     void U_EMRPOLYPOLYLINE16_draw(const char *contents, FILE *out, drawingStates *states){
