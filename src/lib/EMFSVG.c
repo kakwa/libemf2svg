@@ -755,8 +755,9 @@ extern "C" {
     } 
 
     void U_EMRPOLYLINETO_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRPOLYLINETO_print(contents, states);
+        polyline_draw("U_EMRPOLYLINETO", contents, out, states, false);
     } 
 
     void U_EMRPOLYPOLYLINE_draw(const char *contents, FILE *out, drawingStates *states){
