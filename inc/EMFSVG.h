@@ -42,6 +42,13 @@ extern "C" {
 #define FLAG_UNUSED    verbose_printf("   Status:         %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
+
+#define UTF_16 1
+#define ASCII  0
+
+// apparently 0x04 is text-align middle to
+#define U_TA_CENTER2     0x04
+
 #define mmPerInch   25.4
 
 

@@ -461,6 +461,80 @@ extern "C" {
         }
     } 
 
+    void text_draw(const char *contents, FILE *out, drawingStates *states, uint8_t type){
+        PU_EMREXTTEXTOUTW pEmr = (PU_EMREXTTEXTOUTW) (contents);
+        PU_EMRTEXT pemt = (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
+        char *string;
+        if(type == UTF_16){
+            string = U_Utf16leToUtf8((uint16_t *)(contents + pemt->offString), pemt->nChars, NULL);
+        }
+        else{
+            string = (char *)(contents + pemt->offString);
+        }
+        fprintf(out, "<%stext ", states->nameSpaceString);
+        POINT_D Org = point_cal(states, (double)pemt->ptlReference.x, (double)pemt->ptlReference.y);
+        pemt->ptlReference;
+        double font_height = fabs((double)states->currentDeviceContext.font_height * states->scalingY);
+        if( states->currentDeviceContext.font_family != NULL)
+            fprintf(out, "font-family=\"%s\" ", states->currentDeviceContext.font_family);
+        fprintf(out, "fill=\"#%02X%02X%02X\" ", 
+                states->currentDeviceContext.text_red,
+                states->currentDeviceContext.text_green,
+                states->currentDeviceContext.text_blue
+               );
+
+        if(states->currentDeviceContext.font_escapement != 0){
+            fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", states->currentDeviceContext.font_escapement / 10, Org.x, Org.y + font_height * 0.9, font_height * 0.9);
+        }
+
+        if(states->currentDeviceContext.font_italic){
+            fprintf(out, "font-style=\"italic\" ");
+        }
+
+        if(states->currentDeviceContext.font_underline && states->currentDeviceContext.font_strikeout){
+            fprintf(out, "text-decoration=\"line-through,underline\" ");
+        }
+        else if(states->currentDeviceContext.font_underline){
+            fprintf(out, "text-decoration=\"underline\" ");
+        }
+        else if(states->currentDeviceContext.font_strikeout){
+            fprintf(out, "text-decoration=\"line-through\" ");
+        }
+
+        if(states->currentDeviceContext.font_weight != 0)
+            fprintf(out, "font-weight=\"%d\" ", states->currentDeviceContext.font_weight);
+
+        // horizontal position
+        uint16_t align = states->currentDeviceContext.text_align;
+        if((align & U_TA_CENTER) == U_TA_CENTER){
+            fprintf(out, "text-anchor=\"middle\" ");
+        }
+        else if ((align & U_TA_CENTER2) == U_TA_CENTER2){
+            fprintf(out, "text-anchor=\"middle\" ");
+        }
+        else if ((align & U_TA_RIGHT) == U_TA_RIGHT){
+            fprintf(out, "text-anchor=\"end\" ");
+        }
+        else {
+            fprintf(out, "text-anchor=\"start\" ");
+        }
+        // vertical position
+        if((align & U_TA_BOTTOM) == U_TA_BOTTOM){
+            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y);
+        }
+        else if ((align & U_TA_BASELINE) == U_TA_BASELINE){
+            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y + font_height * 0.7);
+        }
+        else {
+            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y + font_height * 0.9);
+        }
+        fprintf(out, "font-size=\"%f\" ", font_height);
+        fprintf(out, ">");
+        fprintf(out, "<![CDATA[%s]]>", string);
+        fprintf(out, "</%stext>\n", states->nameSpaceString);
+    }
+
+
     void U_EMRNOTIMPLEMENTED_draw(const char *name, const char *contents, FILE *out, drawingStates *states){
         UNUSED(name);
         //U_EMRNOTIMPLEMENTED_print(contents, states);
@@ -1507,76 +1581,14 @@ extern "C" {
 
     void U_EMREXTTEXTOUTA_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
-        //U_EMREXTTEXTOUTA_print(contents, states);
-        U_EMREXTTEXTOUTW_draw(contents, out, states);
+        U_EMREXTTEXTOUTA_print(contents, states);
+        text_draw(contents, out, states, ASCII);
     }
 
     void U_EMREXTTEXTOUTW_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
         U_EMREXTTEXTOUTW_print(contents, states);
-        PU_EMREXTTEXTOUTW pEmr = (PU_EMREXTTEXTOUTW) (contents);
-        PU_EMRTEXT pemt = (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
-        char *string = U_Utf16leToUtf8((uint16_t *)(contents + pemt->offString), pemt->nChars, NULL);
-        fprintf(out, "<%stext ", states->nameSpaceString);
-        POINT_D Org = point_cal(states, (double)pemt->ptlReference.x, (double)pemt->ptlReference.y);
-        pemt->ptlReference;
-        double font_height = fabs((double)states->currentDeviceContext.font_height * states->scalingY);
-        if( states->currentDeviceContext.font_family != NULL)
-            fprintf(out, "font-family=\"%s\" ", states->currentDeviceContext.font_family);
-        fprintf(out, "fill=\"#%02X%02X%02X\" ", 
-                states->currentDeviceContext.text_red,
-                states->currentDeviceContext.text_green,
-                states->currentDeviceContext.text_blue
-               );
-
-        if(states->currentDeviceContext.font_escapement != 0){
-            fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", states->currentDeviceContext.font_escapement / 10, Org.x, Org.y + font_height * 0.9, font_height * 0.9);
-        }
-
-        if(states->currentDeviceContext.font_italic){
-            fprintf(out, "font-style=\"italic\" ");
-        }
-
-        if(states->currentDeviceContext.font_underline && states->currentDeviceContext.font_strikeout){
-            fprintf(out, "text-decoration=\"line-through,underline\" ");
-        }
-        else if(states->currentDeviceContext.font_underline){
-            fprintf(out, "text-decoration=\"underline\" ");
-        }
-        else if(states->currentDeviceContext.font_strikeout){
-            fprintf(out, "text-decoration=\"line-through\" ");
-        }
-
-
-
-        if(states->currentDeviceContext.font_weight != 0)
-            fprintf(out, "font-weight=\"%d\" ", states->currentDeviceContext.font_weight);
-
-        // horizontal position
-        uint16_t align = states->currentDeviceContext.text_align;
-        if(align & U_TA_CENTER == U_TA_CENTER){
-            fprintf(out, "text-anchor=\"middle\" ");
-        }
-        else if ((align & U_TA_RIGHT) == U_TA_RIGHT){
-            fprintf(out, "text-anchor=\"end\" ");
-        }
-        else {
-            fprintf(out, "text-anchor=\"start\" ");
-        }
-        // vertical position
-        if((align & U_TA_BOTTOM) == U_TA_BOTTOM){
-            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y);
-        }
-        else if ((align & U_TA_BASELINE) == U_TA_BASELINE){
-            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y + font_height * 0.7);
-        }
-        else {
-            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y + font_height * 0.9);
-        }
-        fprintf(out, "font-size=\"%f\" ", font_height);
-        fprintf(out, ">");
-        fprintf(out, "<![CDATA[%s]]>", string);
-        fprintf(out, "</%stext>\n", states->nameSpaceString);
+        text_draw(contents, out, states, UTF_16);
     }
 
     void U_EMRPOLYBEZIER16_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1797,9 +1809,8 @@ extern "C" {
     void U_EMRSMALLTEXTOUT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         U_EMRSMALLTEXTOUT_print(contents, states);
-        int roff;
-        char *string;
         PU_EMRSMALLTEXTOUT pEmr = (PU_EMRSMALLTEXTOUT)(contents);
+        //text_draw(contents, out, states, UTF_16);
     }
 
     // U_EMRFORCEUFIMAPPING     109  Not implemented
