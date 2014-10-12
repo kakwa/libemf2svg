@@ -1549,9 +1549,9 @@ extern "C" {
 
 
 
-        fprintf(out, "font-weight=\"%d\" ", states->currentDeviceContext.font_weight);
+        if(states->currentDeviceContext.font_weight != 0)
+            fprintf(out, "font-weight=\"%d\" ", states->currentDeviceContext.font_weight);
 
-        fprintf(out, "width=\"0\" height=\"0\" ");
         // horizontal position
         uint16_t align = states->currentDeviceContext.text_align;
         if(align & U_TA_CENTER == U_TA_CENTER){
