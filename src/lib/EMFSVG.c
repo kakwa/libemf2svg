@@ -1354,8 +1354,8 @@ extern "C" {
         POINT_D radius;
         center.x = (LT.x + RB.x) / 2;
         center.y = (LT.y + RB.y) / 2;
-        radius.x = RB.x - LT.x;
-        radius.y = RB.y - LT.y;
+        radius.x = (RB.x - LT.x) / 2;
+        radius.y = (RB.y - LT.y) / 2;
         bool localPath = false;
         fprintf(out, "<%sellipse cx=\"%.2f\" cy=\"%.2f\" rx=\"%.2f\" ry=\"%.2f\" ",
                 states->nameSpaceString,
