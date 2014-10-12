@@ -285,7 +285,20 @@ extern "C" {
         }
         // we copy it as the current device context
         freeDeviceContext(&(states->currentDeviceContext));
+        states->currentDeviceContext = (EMF_DEVICE_CONTEXT){ 0 };
         copyDeviceContext(&(states->currentDeviceContext), &(stack_entry->DeviceContext));
+    }
+
+    void freeObject(drawingStates * states, uint16_t index){
+        if(states->objectTable[index].font_name != NULL)
+            free(states->objectTable[index].font_name);
+        if(states->objectTable[index].font_family != NULL)
+            free(states->objectTable[index].font_family);
+    }
+    void freeObjectTable(drawingStates * states){
+        for(uint16_t i = 0; i < (states->objectTableSize + 1); i++){
+            freeObject(states, i);
+        }
     }
 
     void freeDeviceContextStack(drawingStates * states){
@@ -1164,6 +1177,7 @@ extern "C" {
         U_EMRDELETEOBJECT_print(contents, states);
         PU_EMRDELETEOBJECT pEmr = (PU_EMRDELETEOBJECT)(contents);
         uint16_t index = pEmr->ihObject;
+        freeObject(states, index);
         states->objectTable[index] = (const emfGraphObject){ 0 };
     } 
 
@@ -2198,7 +2212,7 @@ extern "C" {
         states->imgHeight = options->imgHeight;
         if ((options->nameSpace != NULL) && (strlen(options->nameSpace) != 0)){
             states->nameSpace = options->nameSpace;
-            states->nameSpaceString = (char *)malloc(strlen(options->nameSpace)+2);
+            states->nameSpaceString = (char *)calloc(strlen(options->nameSpace)+2, sizeof(char));
             sprintf(states->nameSpaceString, "%s%s", states->nameSpace, ":");
         }
         else{
@@ -2270,7 +2284,7 @@ extern "C" {
             }
         }  //end of while
         FLAG_RESET;
-
+        freeObjectTable(states);
         free(states->objectTable);
         freeDeviceContext(&(states->currentDeviceContext));
         freeDeviceContextStack(states);
