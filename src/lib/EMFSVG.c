@@ -452,7 +452,7 @@ extern "C" {
         endPathDraw(states, out);
     }
 
-    void polypolygon_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
+    void polypolygon16_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
         UNUSED(name);
         unsigned int i;
         PU_EMRPOLYPOLYLINE16 pEmr = (PU_EMRPOLYPOLYLINE16) (contents);
@@ -665,6 +665,30 @@ extern "C" {
     void U_EMRPOLYLINE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         U_EMRPOLYLINE_print(contents, states);
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath ", states->nameSpaceString);
+            if (states->clipSet)
+                fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+            fprintf(out, "d=\"");
+        }
+        bool ispolygon = true;
+        polyline_draw("U_EMRPOLYLINE", contents, out, states, ispolygon);
+        if (localPath){
+            states->inPath = false;
+            //fprintf(out, "Z\" ");
+            fprintf(out, "\" ");
+            bool filled = false;
+            bool stroked = false;
+            stroke_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+            fprintf(out, "/>\n");
+        }
     } 
 
     void U_EMRPOLYBEZIERTO_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1736,7 +1760,7 @@ extern "C" {
             fprintf(out, "d=\"");
         }
         bool ispolygon = false;
-        polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
+        polypolygon16_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
 
         if (localPath){
             states->inPath = false;
@@ -1764,7 +1788,7 @@ extern "C" {
             fprintf(out, "<%spath d=\"", states->nameSpaceString);
         }
         bool ispolygon = true;
-        polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, ispolygon);
+        polypolygon16_draw("U_EMRPOLYPOLYGON16", contents, out, states, ispolygon);
 
         if (localPath){
             states->inPath = false;
