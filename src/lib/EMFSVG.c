@@ -385,7 +385,7 @@ extern "C" {
     } 
 
     // Functions with the same form starting with U_EMRPOLYBEZIER16_draw
-    void cubic_bezier_draw(const char *name, const char *contents, FILE *out, drawingStates *states, int startingPoint){
+    void cubic_bezier16_draw(const char *name, const char *contents, FILE *out, drawingStates *states, int startingPoint){
         UNUSED(name);
         unsigned int i;
         PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16) (contents);
@@ -413,8 +413,48 @@ extern "C" {
         endPathDraw(states, out);
     } 
 
+    void arc_draw(const char *contents, FILE *out, drawingStates *states){
+        PU_EMRARC pEmr = (PU_EMRARC) (contents);
+        startPathDraw(states, out);
+        fprintf(out, "A ");
+        point_draw(states, pEmr->ptlStart, out);
+        point_draw(states, pEmr->ptlEnd, out);
+        endPathDraw(states, out);
+    } 
+
+
+
+    void cubic_bezier_draw(const char *name, const char *contents, FILE *out, drawingStates *states, int startingPoint){
+        UNUSED(name);
+        unsigned int i;
+        PU_EMRPOLYBEZIER pEmr = (PU_EMRPOLYBEZIER) (contents);
+        startPathDraw(states, out);
+        PU_POINT papts = (PU_POINT)(&(pEmr->aptl));
+        if (startingPoint == 1){
+            fprintf(out, "M ");
+            point_draw(states, papts[0], out);
+        }
+        const int ctrl1 = (0 + startingPoint) % 3;
+        const int ctrl2 = (1 + startingPoint) % 3;
+        const int to = (2 + startingPoint) % 3;
+        for(i = startingPoint; i<pEmr->cptl; i++){
+            if (( i % 3 ) == ctrl1) {
+                fprintf(out, "C ");
+                point_draw(states, papts[i], out);
+            }
+            else if (( i % 3 ) == ctrl2) {
+                point_draw(states, papts[i], out);
+            }
+            else if (( i % 3 ) == to) {
+                point_draw(states, papts[i], out);
+            }
+        }
+        endPathDraw(states, out);
+    } 
+
+
     // Functions drawing a polyline
-    void polyline_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
+    void polyline16_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
         UNUSED(name);
         unsigned int i;
         PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16) (contents);
@@ -432,6 +472,24 @@ extern "C" {
         endPathDraw(states, out);
     } 
 
+    void polyline_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
+        UNUSED(name);
+        unsigned int i;
+        PU_EMRPOLYLINETO pEmr = (PU_EMRPOLYLINETO) (contents);
+        startPathDraw(states, out);
+        for(i=0; i<pEmr->cptl; i++){
+            if (polygon && i == 0){
+                fprintf(out, "M ");
+            }
+            else{
+                fprintf(out, "L ");
+            }
+            point_draw(states, pEmr->aptl[i], out);
+        }
+        endPathDraw(states, out);
+    } 
+
+
     void moveto_draw(const char *name, const char *field1, const char *field2, const char *contents, FILE *out, drawingStates *states){
         UNUSED(name);
         PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
@@ -447,7 +505,7 @@ extern "C" {
         endPathDraw(states, out);
     }
 
-    void polypolygon_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
+    void polypolygon16_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
         UNUSED(name);
         unsigned int i;
         PU_EMRPOLYPOLYLINE16 pEmr = (PU_EMRPOLYPOLYLINE16) (contents);
@@ -463,6 +521,33 @@ extern "C" {
             else{
                 fprintf(out, "L ");
                 point16_draw(states, papts[i], out);
+            }
+            counter++;
+            if (pEmr->aPolyCounts[polygon_index] == counter){
+                if (polygon)
+                    fprintf(out, "Z ");
+                counter = 0;
+                polygon_index++;
+            }
+        }
+    } 
+
+    void polypolygon_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
+        UNUSED(name);
+        unsigned int i;
+        PU_EMRPOLYPOLYLINE16 pEmr = (PU_EMRPOLYPOLYLINE16) (contents);
+        PU_POINT papts = (PU_POINT)((char *)pEmr->aPolyCounts + sizeof(uint32_t)* pEmr->nPolys);
+
+        int counter = 0;
+        int polygon_index = 0;
+        for(i=0; i<pEmr->cpts; i++){
+            if(counter == 0){
+                fprintf(out, "M ");
+                point_draw(states, papts[i], out);
+            }
+            else{
+                fprintf(out, "L ");
+                point_draw(states, papts[i], out);
             }
             counter++;
             if (pEmr->aPolyCounts[polygon_index] == counter){
@@ -497,7 +582,7 @@ extern "C" {
                );
 
         if(states->currentDeviceContext.font_escapement != 0){
-            fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", states->currentDeviceContext.font_escapement / 10, Org.x, Org.y + font_height * 0.9, font_height * 0.9);
+            fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", (states->currentDeviceContext.font_escapement / 10), Org.x, Org.y + font_height * 0.9, font_height * 0.9);
         }
 
         if(states->currentDeviceContext.font_italic){
@@ -625,38 +710,139 @@ extern "C" {
     }
 
     void U_EMRPOLYBEZIER_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRPOLYBEZIER_print(contents, states);
+        cubic_bezier_draw("U_EMRPOLYBEZIER", contents, out, states, 1);
     } 
 
     void U_EMRPOLYGON_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRPOLYGON_print(contents, states);
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath ", states->nameSpaceString);
+            if (states->clipSet)
+                fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+            fprintf(out, "d=\"");
+        }
+        bool ispolygon = true;
+        polyline_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
+
+        if (localPath){
+            states->inPath = false;
+            fprintf(out, "Z\" ");
+            bool filled = false;
+            bool stroked = false;
+            stroke_draw(states, out, &filled, &stroked);
+            fill_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+
+            fprintf(out, "/><!-- shit -->\n");
+        }
     } 
 
     void U_EMRPOLYLINE_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRPOLYLINE_print(contents, states);
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath ", states->nameSpaceString);
+            if (states->clipSet)
+                fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+            fprintf(out, "d=\"");
+        }
+        bool ispolygon = true;
+        polyline_draw("U_EMRPOLYLINE", contents, out, states, ispolygon);
+        if (localPath){
+            states->inPath = false;
+            //fprintf(out, "Z\" ");
+            fprintf(out, "\" ");
+            bool filled = false;
+            bool stroked = false;
+            stroke_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+            fprintf(out, "/>\n");
+        }
     } 
 
     void U_EMRPOLYBEZIERTO_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRPOLYBEZIERTO_print(contents, states);
+        cubic_bezier_draw("U_EMRPOLYBEZIER", contents, out, states, false);
     } 
 
     void U_EMRPOLYLINETO_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRPOLYLINETO_print(contents, states);
+        polyline_draw("U_EMRPOLYLINETO", contents, out, states, false);
     } 
 
     void U_EMRPOLYPOLYLINE_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRPOLYPOLYLINE_print(contents, states);
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath ", states->nameSpaceString);
+            if (states->clipSet)
+                fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+            fprintf(out, "d=\"");
+        }
+        bool ispolygon = false;
+        polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
+
+        if (localPath){
+            states->inPath = false;
+            fprintf(out, "\" ");
+            bool filled = false;
+            bool stroked = false;
+            stroke_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+
+            fprintf(out, "/>\n");
+        }
     } 
 
     void U_EMRPOLYPOLYGON_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRPOLYPOLYLINE_print(contents, states);
+        bool localPath = false;
+        if (!states->inPath){
+            localPath = true;
+            states->inPath = true;
+            fprintf(out, "<%spath d=\"", states->nameSpaceString);
+        }
+        bool ispolygon = true;
+        polypolygon_draw("U_EMRPOLYPOLYGON", contents, out, states, ispolygon);
+
+        if (localPath){
+            states->inPath = false;
+            fprintf(out, "\" ");
+            bool filled = false;
+            bool stroked = false;
+            fill_draw(states, out, &filled, &stroked);
+            stroke_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+
+            fprintf(out, "/>\n");
+        }
     } 
 
     void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1197,8 +1383,8 @@ extern "C" {
         POINT_D radius;
         center.x = (LT.x + RB.x) / 2;
         center.y = (LT.y + RB.y) / 2;
-        radius.x = RB.x - LT.x;
-        radius.y = RB.y - LT.y;
+        radius.x = (RB.x - LT.x) / 2;
+        radius.y = (RB.y - LT.y) / 2;
         bool localPath = false;
         fprintf(out, "<%sellipse cx=\"%.2f\" cy=\"%.2f\" rx=\"%.2f\" ry=\"%.2f\" ",
                 states->nameSpaceString,
@@ -1248,14 +1434,43 @@ extern "C" {
     }
 
     void U_EMRROUNDRECT_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRROUNDRECT_print(contents, states);
         PU_EMRROUNDRECT pEmr = (PU_EMRROUNDRECT)(contents);
+        POINT_D LT = point_cal(states, (double)pEmr->rclBox.left, (double)pEmr->rclBox.top);
+        POINT_D RB = point_cal(states, (double)pEmr->rclBox.right, (double)pEmr->rclBox.bottom);
+        POINT_D dim;
+        POINT_D round;
+        dim.x = RB.x - LT.x;
+        dim.y = RB.y - LT.y;
+        bool localPath = false;
+        fprintf(out, "<%srect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" ",
+                states->nameSpaceString,
+                LT.x,
+                LT.y,
+                dim.x,
+                dim.y
+               );
+        round = point_cal(states, (double)pEmr->szlCorner.cx, (double)pEmr->szlCorner.cy);
+        fprintf(out, "rx=\"%.2f\" ry=\"%.2f\" ",
+                round.x,
+                round.y
+        );
+        bool filled = false;
+        bool stroked = false;
+        fill_draw(states, out, &filled, &stroked);
+        stroke_draw(states, out, &filled, &stroked);
+        if (!filled)
+            fprintf(out, "fill=\"none\" ");
+        if (!stroked)
+            fprintf(out, "stroke=\"none\" ");
+        fprintf(out, "/>\n");
     }
 
     void U_EMRARC_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRARC_print(contents, states);
+        arc_draw(contents, out, states);
     }
 
     void U_EMRCHORD_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1309,8 +1524,9 @@ extern "C" {
     } 
 
     void U_EMRARCTO_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRARCTO_print(contents, states);
+        arc_draw(contents, out, states);
     }
 
     void U_EMRPOLYDRAW_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1320,8 +1536,17 @@ extern "C" {
     }
 
     void U_EMRSETARCDIRECTION_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_SUPPORTED;
         U_EMRSETARCDIRECTION_print(contents, states);
+        PU_EMRSETARCDIRECTION pEmr = (PU_EMRSETARCDIRECTION)contents;
+        switch(pEmr->iArcDirection){
+            case U_AD_CLOCKWISE:
+                states->currentDeviceContext.arcdir = 1;
+                break;
+            case U_AD_COUNTERCLOCKWISE:
+                states->currentDeviceContext.arcdir = -1;
+                break;
+        }
     }
 
     void U_EMRSETMITERLIMIT_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1611,7 +1836,7 @@ extern "C" {
     void U_EMRPOLYBEZIER16_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
         U_EMRPOLYBEZIER16_print(contents, states);
-        cubic_bezier_draw("U_EMRPOLYBEZIER16", contents, out, states, 1);
+        cubic_bezier16_draw("U_EMRPOLYBEZIER16", contents, out, states, 1);
     }
 
     void U_EMRPOLYGON16_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1627,7 +1852,7 @@ extern "C" {
             fprintf(out, "d=\"");
         }
         bool ispolygon = true;
-        polyline_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
+        polyline16_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
 
         if (localPath){
             states->inPath = false;
@@ -1658,7 +1883,7 @@ extern "C" {
             fprintf(out, "d=\"");
         }
         bool ispolygon = true;
-        polyline_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
+        polyline16_draw("U_EMRPOLYGON16", contents, out, states, ispolygon);
 
         if (localPath){
             states->inPath = false;
@@ -1678,14 +1903,13 @@ extern "C" {
     void U_EMRPOLYBEZIERTO16_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
         U_EMRPOLYBEZIERTO16_print(contents, states);
-        cubic_bezier_draw("U_EMRPOLYBEZIERTO16", contents, out, states, 0);
+        cubic_bezier16_draw("U_EMRPOLYBEZIERTO16", contents, out, states, false);
     }
 
     void U_EMRPOLYLINETO16_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
         U_EMRPOLYLINETO16_print(contents, states);
-        polyline_draw("U_EMRPOLYLINETO16", contents, out, states, false);
-
+        polyline16_draw("U_EMRPOLYLINETO16", contents, out, states, false);
     }
 
     void U_EMRPOLYPOLYLINE16_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1701,7 +1925,7 @@ extern "C" {
             fprintf(out, "d=\"");
         }
         bool ispolygon = false;
-        polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
+        polypolygon16_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
 
         if (localPath){
             states->inPath = false;
@@ -1729,7 +1953,7 @@ extern "C" {
             fprintf(out, "<%spath d=\"", states->nameSpaceString);
         }
         bool ispolygon = true;
-        polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, ispolygon);
+        polypolygon16_draw("U_EMRPOLYPOLYGON16", contents, out, states, ispolygon);
 
         if (localPath){
             states->inPath = false;

@@ -122,6 +122,8 @@ extern "C" {
         uint32_t        font_weight;
         uint32_t        font_escapement;
         uint32_t        font_orientation;
+        
+        int16_t         arcdir;
 
         bool            stroke_set;
         int             stroke_mode;  // enumeration from drawmode, not used if fill_set is not True
