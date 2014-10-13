@@ -3,15 +3,35 @@
 OUTDIR="../out"
 EMFDIR="./emf"
 ret=0
-
+VAGRIND_CMD="valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes --error-exitcode=1"
 
 VERBOSE=1
 
-if [ "$1" = "-v" ] || [ "$1" = "--verbose" ]
-then
-    VERBOSE=0
-    VERBOSE_OPT='--verbose'
-fi
+while getopts ":hnv" opt; do
+  case $opt in
+
+    h) help
+        ;;
+    n)
+        VAGRIND_CMD=""
+        ;;
+    v)
+        VERBOSE=0
+        VERBOSE_OPT='--verbose'
+        ;;
+
+    \?)
+        echo "Invalid option: -$OPTARG" >&2
+        help
+        exit 1
+        ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+        help
+        exit 1
+        ;;
+  esac
+done
 
 verbose_print(){
     msg="$1"
@@ -28,8 +48,7 @@ for emf in `find $EMFDIR -name "*.emf"`
 do
     verbose_print "\n############## `basename ${emf}` ####################"
     verbose_print "Command: ../../emf2svg -p -i $emf -o ${OUTDIR}/`basename ${emf}`.svg"
-    valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes --error-exitcode=1 \
-    ../../emf2svg -p -w 800 -h 600 -i $emf -o ${OUTDIR}/`basename ${emf}`.svg $VERBOSE_OPT
+    $VAGRIND_CMD ../../emf2svg -p -w 800 -h 600 -i $emf -o ${OUTDIR}/`basename ${emf}`.svg $VERBOSE_OPT
     if [ $? -ne 0 ]
     then
         printf "[ERROR] emf2svg memleaked or crash converting emf '$emf'\n"
