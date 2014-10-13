@@ -347,13 +347,8 @@ extern "C" {
     POINT_D point_cal(drawingStates *states, double x, double y)
     {
         POINT_D ret;
-        ret.x = states->offsetX + ((double)x * (double)states->currentDeviceContext.worldTransform.eM11 + \
-                (double)y * (double)states->currentDeviceContext.worldTransform.eM21 + \
-                (double)states->currentDeviceContext.worldTransform.eDx) * (double)states->scalingX;
-
-        ret.y = states->offsetY + ((double)x * (double)states->currentDeviceContext.worldTransform.eM12 + \
-                (double)y * (double)states->currentDeviceContext.worldTransform.eM22 + \
-                (double)states->currentDeviceContext.worldTransform.eDy) * (double)states->scalingY;
+        ret.x = states->offsetX + ((double)x * (double)states->scalingX);
+        ret.y = states->offsetY + ((double)y * (double)states->scalingY);
         return ret;
     }
     /**
@@ -383,6 +378,22 @@ extern "C" {
         states->cur_y = pt.y;
         fprintf(out, "%.2f %.2f ", ptd.x ,ptd.y);
     } 
+
+    void transform_draw(
+            drawingStates *states,
+            FILE * out
+            ){
+        fprintf(out, "<%sg transform=\"matrix(%f %f %f %f %f %f)\">\n",  
+                states->nameSpaceString,
+                (double)states->currentDeviceContext.worldTransform.eM11,
+                (double)states->currentDeviceContext.worldTransform.eM12,
+                (double)states->currentDeviceContext.worldTransform.eM21,
+                (double)states->currentDeviceContext.worldTransform.eM22,
+                (double)states->currentDeviceContext.worldTransform.eDx * (double)states->scalingX,
+                (double)states->currentDeviceContext.worldTransform.eDy * (double)states->scalingY
+                );
+        states->transform_open = true;
+    }
 
     // Functions with the same form starting with U_EMRPOLYBEZIER16_draw
     void cubic_bezier16_draw(const char *name, const char *contents, FILE *out, drawingStates *states, int startingPoint){
@@ -887,6 +898,9 @@ extern "C" {
         FLAG_PARTIAL;
         U_EMREOF_print(contents, states);
         PU_EMREOF pEmr = (PU_EMREOF)(contents);
+        if(states->transform_open){
+            fprintf(out, "</%sg>\n",  states->nameSpaceString);
+        }
         fprintf(out, "</%sg>\n", states->nameSpaceString);
         if(states->svgDelimiter)
             fprintf(out, "</%ssvg>\n", states->nameSpaceString);
@@ -1098,17 +1112,25 @@ extern "C" {
         U_EMRSETWORLDTRANSFORM_print(contents, states);
         PU_EMRSETWORLDTRANSFORM pEmr = (PU_EMRSETWORLDTRANSFORM)(contents);
         states->currentDeviceContext.worldTransform = pEmr->xform;
+        if(states->transform_open){
+            fprintf(out, "</%sg>\n",  states->nameSpaceString);
+        }
+        transform_draw(states, out);
     } 
 
     void U_EMRMODIFYWORLDTRANSFORM_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
         U_EMRMODIFYWORLDTRANSFORM_print(contents, states);
         PU_EMRMODIFYWORLDTRANSFORM pEmr = (PU_EMRMODIFYWORLDTRANSFORM)(contents);
+        if(states->transform_open){
+            fprintf(out, "</%sg>\n",  states->nameSpaceString);
+        }
         switch (pEmr->iMode)
         {
             case U_MWT_IDENTITY:
                 {
                     setTransformIdentity(states);
+                    states->transform_open = false;
                     break;
                 }
             case U_MWT_LEFTMULTIPLY:
@@ -1150,7 +1172,7 @@ extern "C" {
                     states->currentDeviceContext.worldTransform.eM22 = c22;;
                     states->currentDeviceContext.worldTransform.eDx = c31;
                     states->currentDeviceContext.worldTransform.eDy = c32;
-
+                    transform_draw(states, out);
                     break;
                 }
             case U_MWT_RIGHTMULTIPLY:
@@ -1191,12 +1213,14 @@ extern "C" {
                     states->currentDeviceContext.worldTransform.eM22 = c22;;
                     states->currentDeviceContext.worldTransform.eDx = c31;
                     states->currentDeviceContext.worldTransform.eDy = c32;
+                    transform_draw(states, out);
 
                     break;
                 }
             case U_MWT_SET:
                 {
                     states->currentDeviceContext.worldTransform = pEmr->xform;
+                    transform_draw(states, out);
                     break;
                 }
             default:

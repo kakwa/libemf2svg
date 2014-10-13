@@ -251,6 +251,8 @@ extern "C" {
         // Image dimensions
         double imgHeight;
         double imgWidth;
+        // flag if there is an opened transformation
+        bool   transform_open;
         // current cursor position
         double          cur_x;
         double          cur_y;
