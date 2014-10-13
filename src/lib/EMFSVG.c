@@ -887,6 +887,7 @@ extern "C" {
     void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         U_EMRSETVIEWPORTORGEX_print(contents, states);
+        PU_EMRSETVIEWPORTORGEX pEmr = (PU_EMRSETVIEWPORTORGEX)(contents);
     } 
 
     void U_EMRSETBRUSHORGEX_draw(const char *contents, FILE *out, drawingStates *states){
