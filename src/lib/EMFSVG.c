@@ -1305,6 +1305,9 @@ extern "C" {
             }
         }
         else {
+            if (index > states->objectTableSize){
+                return;
+            }
             if(states->objectTable[index].fill_set){
                 states->currentDeviceContext.fill_red   = states->objectTable[index].fill_red;
                 states->currentDeviceContext.fill_blue  = states->objectTable[index].fill_blue;
@@ -1352,6 +1355,9 @@ extern "C" {
         PU_EMRCREATEPEN pEmr = (PU_EMRCREATEPEN)(contents);
 
         uint32_t index = pEmr->ihPen;
+        if (index > states->objectTableSize){
+            return;
+        }
         states->objectTable[index].stroke_set     = true;
         states->objectTable[index].stroke_red     = pEmr->lopn.lopnColor.Red;
         states->objectTable[index].stroke_blue    = pEmr->lopn.lopnColor.Blue;
@@ -1366,6 +1372,9 @@ extern "C" {
         PU_EMRCREATEBRUSHINDIRECT pEmr = (PU_EMRCREATEBRUSHINDIRECT)(contents);
 
         uint16_t index = pEmr->ihBrush;
+        if (index > states->objectTableSize){
+            return;
+        }
         if(pEmr->lb.lbStyle == U_BS_SOLID){
             states->objectTable[index].fill_red     = pEmr->lb.lbColor.Red;
             states->objectTable[index].fill_green   = pEmr->lb.lbColor.Green;
@@ -1388,6 +1397,9 @@ extern "C" {
         U_EMRDELETEOBJECT_print(contents, states);
         PU_EMRDELETEOBJECT pEmr = (PU_EMRDELETEOBJECT)(contents);
         uint16_t index = pEmr->ihObject;
+        if (index > states->objectTableSize){
+            return;
+        }
         freeObject(states, index);
         states->objectTable[index] = (const emfGraphObject){ 0 };
     } 
@@ -1815,7 +1827,9 @@ extern "C" {
         U_EMREXTCREATEFONTINDIRECTW_print(contents, states);
         PU_EMREXTCREATEFONTINDIRECTW pEmr = (PU_EMREXTCREATEFONTINDIRECTW) (contents);
         uint16_t index = pEmr->ihFont;
-
+        if (index > states->objectTableSize){
+            return;
+        }
         if (states->objectTable[index].font_name != NULL)
             free(states->objectTable[index].font_name);
 
@@ -2018,6 +2032,9 @@ extern "C" {
         U_EMREXTCREATEPEN_print(contents, states);
         PU_EMREXTCREATEPEN pEmr = (PU_EMREXTCREATEPEN)(contents);
         uint32_t index = pEmr->ihPen;
+        if (index > states->objectTableSize){
+            return;
+        }
         PU_EXTLOGPEN pen = (PU_EXTLOGPEN) &(pEmr->elp);
         states->objectTable[index].stroke_set     = true;
         states->objectTable[index].stroke_red     = pen->elpColor.Red;
