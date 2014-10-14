@@ -2510,6 +2510,7 @@ extern "C" {
 
         OK=1;
         off=0;
+        int err=1;
         recnum=0;
         while(OK){
             if(off>=length){ //normally should exit from while after EMREOF sets OK to false, this is most likely a corrupt EMF
@@ -2523,6 +2524,7 @@ extern "C" {
             if(result == (size_t) -1){
                 verbose_printf("ABORTING on invalid record - corrupt file?\n");
                 OK=0;
+                err=0;
             }
             else if(!result){
                 OK=0;
@@ -2542,7 +2544,7 @@ extern "C" {
         fflush(stream);
         fclose(stream);
 
-        return 1;
+        return err;
     }
 
 #ifdef __cplusplus

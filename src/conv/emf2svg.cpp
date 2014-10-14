@@ -131,12 +131,6 @@ int main(int argc, char *argv[])
     std::string contents((std::istreambuf_iterator<char>(in)), 
             std::istreambuf_iterator<char>());
 
-    std::ofstream out(arguments.output);
-    if (! out.is_open()){
-        std::cerr << "[ERROR] " << "Impossible to open output file '"<< arguments.output << "'\n";
-        return 1;
-    }
-
     char *svg_out = NULL;
     generatorOptions * options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
     options->verbose = arguments.verbose; 
@@ -145,13 +139,22 @@ int main(int argc, char *argv[])
     options->svgDelimiter = true; 
     options->imgWidth = arguments.width; 
     options->imgHeight = arguments.height; 
-    emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
-    out << std::string(svg_out);
+    int ret = emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
+    if (ret != 0){
+        std::ofstream out(arguments.output);
+        if (! out.is_open()){
+            std::cerr << "[ERROR] " << "Impossible to open output file '"<< arguments.output << "'\n";
+            return 1;
+        }
+        out << std::string(svg_out);
+        out.close();
+    }
     free(svg_out);
     free(options);
 
     in.close();
-    out.close();
+    if(ret == 0)
+        return 1;
     return 0;
 }
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */
