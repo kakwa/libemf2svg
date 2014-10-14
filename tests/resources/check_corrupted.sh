@@ -23,7 +23,7 @@ do
     elif [ $ret -gt 1 ]
     then
         ts=`date +"%F-%H%M%S"`
-        printf "[ERROR] corrupted 'bad_corrupted_${ts}.emf' caused something wrong\n"
+        printf "[ERROR] corrupted file 'bad_corrupted_${ts}.emf' caused something wrong\n"
         cp ../out/test.emf ../out/bad_corrupted_${ts}.emf
         exit $ret
     fi
