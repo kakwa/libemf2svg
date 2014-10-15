@@ -13,9 +13,18 @@ endif(USE_CLANG)
 
 option(DEBUG "compile with debug symbol" OFF)
 
+option(STATIC "compile statically" OFF)
+
 if(DEBUG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
 endif(DEBUG)
+
+if(STATIC)
+    set(SHARED "")
+else(STATIC)
+    set(SHARED "SHARED")
+endif(STATIC)
+
 
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -73,17 +82,17 @@ include_directories(
     ${LIBICONVHEADERDIR}
 )
 
-add_library(EMFSVG src/lib/EMFSVG.c)
-add_library(EMFSVG_print src/lib/EMFSVG_print.c)
-add_library(PMFSVG src/lib/PMFSVG.c)
-add_library(uemf_utf src/lib/uemf_utf.c)
-add_library(uemf_endian src/lib/uemf_endian.c)
-add_library(uemf src/lib/uemf.c)
-add_library(upmf src/lib/upmf.c)
+add_library(EMFSVG ${SHARED} src/lib/EMFSVG.c)
+add_library(EMFSVG_print ${SHARED} src/lib/EMFSVG_print.c)
+add_library(PMFSVG ${SHARED} src/lib/PMFSVG.c)
+add_library(uemf_utf ${SHARED} src/lib/uemf_utf.c)
+add_library(uemf_endian ${SHARED} src/lib/uemf_endian.c)
+add_library(uemf ${SHARED} src/lib/uemf.c)
+add_library(upmf ${SHARED} src/lib/upmf.c)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
-   add_library(memstream src/lib/memstream.c)
+   add_library(memstream ${SHARED} src/lib/memstream.c)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 
@@ -94,3 +103,8 @@ target_link_libraries(emf2svg EMFSVG EMFSVG_print PMFSVG upmf uemf uemf_utf uemf
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 
+INSTALL(TARGETS emf2svg EMFSVG EMFSVG_print PMFSVG upmf uemf uemf_utf uemf_endian ${MEMSTREAMLIB} ${ARGPLIB} ${LIBICONVLIB}
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
