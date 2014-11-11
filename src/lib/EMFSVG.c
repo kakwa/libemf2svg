@@ -717,6 +717,12 @@ extern "C" {
                     (int)states->imgHeight);
         }
 
+        // set origin
+        states->originX = -1 * (double)pEmr->rclBounds.left * states->scalingX;
+        states->originY = -1 * (double)pEmr->rclBounds.top * states->scalingY;
+        states->offsetX = states->originX;
+        states->offsetY = states->originY;
+
         fprintf(out, "<%sg>\n", states->nameSpaceString);
     }
 
@@ -863,6 +869,8 @@ extern "C" {
         PU_EMRSETWINDOWEXTEX pEmr = (PU_EMRSETVIEWPORTEXTEX)(contents);
         states->scalingX = (double)states->imgWidth  / (double)pEmr->szlExtent.cx;
         states->scalingY = (double)states->imgHeight / (double)pEmr->szlExtent.cy;
+        states->offsetX = states->originX;
+        states->offsetY = states->originY;
     } 
 
     void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out, drawingStates *states){
@@ -870,8 +878,8 @@ extern "C" {
         U_EMRSETWINDOWORGEX_print(contents, states);
 
         PU_EMRSETWINDOWORGEX pEmr = (PU_EMRSETWINDOWORGEX)(contents);
-        states->offsetX = -1 * (double)pEmr->ptlOrigin.x * states->scalingX;
-        states->offsetY = -1 * (double)pEmr->ptlOrigin.y * states->scalingY;
+        states->offsetX = -1 * (double)pEmr->ptlOrigin.x * states->scalingX + states->offsetX;
+        states->offsetY = -1 * (double)pEmr->ptlOrigin.y * states->scalingY + states->offsetY;
 
     } 
 
@@ -885,9 +893,9 @@ extern "C" {
     } 
 
     void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_UNUSED;
         U_EMRSETVIEWPORTORGEX_print(contents, states);
-        PU_EMRSETVIEWPORTORGEX pEmr = (PU_EMRSETVIEWPORTORGEX)(contents);
+        //PU_EMRSETVIEWPORTORGEX pEmr = (PU_EMRSETVIEWPORTORGEX)(contents);
     } 
 
     void U_EMRSETBRUSHORGEX_draw(const char *contents, FILE *out, drawingStates *states){
@@ -2509,7 +2517,6 @@ extern "C" {
             if(!recnum && (pEmr->iType != U_EMR_HEADER)){
                 verbose_printf("WARNING: EMF file does not begin with an EMR_HEADER record\n");
             }
-
             result = U_emf_onerec_analyse(contents, blimit, recnum, off, states);
             if(result == (size_t) -1){
                 verbose_printf("ABORTING on invalid record - corrupt file?\n");

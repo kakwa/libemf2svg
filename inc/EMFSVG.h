@@ -246,6 +246,8 @@ extern "C" {
         double scalingY;
         double offsetX;
         double offsetY;
+        double originX;
+        double originY;
         double pxPerMm;
         uint16_t MapMode;
         // Image dimensions
