@@ -632,7 +632,7 @@ extern "C" {
             fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y);
         }
         else if ((align & U_TA_BASELINE) == U_TA_BASELINE){
-            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y + font_height * 0.7);
+            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y);
         }
         else {
             fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y + font_height * 0.9);
