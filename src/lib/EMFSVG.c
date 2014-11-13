@@ -1862,8 +1862,8 @@ extern "C" {
         states->objectTable[index].font_italic      = logfont.lfItalic;
         states->objectTable[index].font_underline   = logfont.lfUnderline;
         states->objectTable[index].font_strikeout   = logfont.lfStrikeOut;
-        states->objectTable[index].font_escapement  = logfont.lfEscapement;
-        states->objectTable[index].font_orientation = logfont.lfOrientation;
+        states->objectTable[index].font_escapement  = (logfont.lfEscapement % 3600);
+        states->objectTable[index].font_orientation = (logfont.lfOrientation % 3600);
         states->objectTable[index].font_family      = family;
         states->objectTable[index].font_set         = true;
     }
