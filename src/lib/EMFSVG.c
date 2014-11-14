@@ -591,9 +591,16 @@ extern "C" {
                 states->currentDeviceContext.text_green,
                 states->currentDeviceContext.text_blue
                );
+        int orientation;
+        if (states->scalingY > 0){
+            orientation = -1;
+        }
+        else{
+            orientation = 1;
+        }
 
         if(states->currentDeviceContext.font_escapement != 0){
-            fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", (states->currentDeviceContext.font_escapement / 10), Org.x, Org.y + font_height * 0.9, font_height * 0.9);
+            fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", (orientation * (int)states->currentDeviceContext.font_escapement / 10), Org.x, (Org.y + font_height * 0.9), font_height * 0.9);
         }
 
         if(states->currentDeviceContext.font_italic){
