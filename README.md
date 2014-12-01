@@ -130,4 +130,4 @@ tests/out/test-000.emf.svg  tests/out/test-051.emf.svg  tests/out/test-102.emf.s
 [...]
 ```
 
-The emf files used for these checks are in *./tests/resources/emf/*.
+The emf files used for these checks are located in [./tests/resources/emf/](https://github.com/kakwa/libemf2svg/blob/master/tests/resources/emf/).
