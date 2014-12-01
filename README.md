@@ -5,7 +5,7 @@ libemf2svg
 
 EMF to SVG conversion library
 
-work in progress.
+**Work in progress.**
 
 Building
 --------
@@ -14,12 +14,16 @@ Commands to build this project:
 
 ```bash
 
-# options: [-DUSE_CLANG=on] [-DSTATIC=on] [-DDEBUG=on]
+# options: 
+# * [-DUSE_CLANG=on]: use clang instead of gcc
+# * [-DSTATIC=on]: build static library
+# * [-DDEBUG=on]: compile with debugging symboles
 $ cmake .
 
+# compilation
 $ make
 
-# if you want to install
+# installation
 $ make install
 ```
 
@@ -45,6 +49,9 @@ Mandatory or optional arguments to long options are also mandatory or optional
 for any corresponding short options.
 
 Report bugs to <carpentier.pf@gmail.com>.
+
+# usage example:
+$ ./emf2svg -i ./tests/resources/emf/test-037.emf -o example.svg -v
 ```
 
 Library
@@ -59,25 +66,33 @@ usage example:
 #include "uemf_utf.h"
 #include "upmf.h"
 
-// allocate the option structure)
+// allocate the options structure)
 generatorOptions * options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
 // debugging flag (prints the emf record in stdout if true)
 options->verbose = false;
-// emf+ flag (handle emf+ flag if supported and true)
-options->emfplus = false; 
+// emf+ flag (handles emf+ records or not)
+options->emfplus = false;
 // if a custom xml/svg namespace is needed (keep empty in doubt)
-options->nameSpace = (char *)"svg"; 
-// includes the svg start and stop balise (set to false if the result of this call is meant to be used in another svg)
+options->nameSpace = (char *)"svg";
+// includes the svg start and stop balise 
+// (set to false if the result of this call is meant to be used in another svg)
 options->svgDelimiter = true;
 // image width (set to 0 to use the original emf device width)
 options->imgWidth = arguments.width;
 // image height (set to 0 to use the original emf device height)
 options->imgHeight = arguments.height;
 
+// emf content
 char *emf_content;
+// emf content size
 int  emf_size;
+// svg output string
 char *svg_out = NULL;
+// conversion function
 int ret = emf2svg(emf_content, emf_size, &svg_out, options);
+// free the allocated structures
+free(svg_out);
+free(options);
 ```
 
 Test tools:
