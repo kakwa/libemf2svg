@@ -39,3 +39,6 @@ out
 
 # external build directory
 external-build
+
+# exceptions
+!tests/resources/filesmasher-master/Makefile
