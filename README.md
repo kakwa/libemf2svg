@@ -95,15 +95,16 @@ free(svg_out);
 free(options);
 ```
 
-Test tools:
+Test tools
+----------
 
-stats on the number of emf records covered:
+* Stats on the number of emf records covered:
 
 ```bash
 $ ./tests/resources/coverage.sh
 ```
 
-fuzzing on the library:
+* Fuzzing on the library:
 
 ```bash
 $ ./tests/resources/check_corrupted.sh
@@ -114,7 +115,7 @@ tests/out/bad_corrupted_2014-12-01-063258.emf  tests/out/bad_corrupted_2014-12-0
 
 ```
 
-check correctness and memleaks:
+* Check correctness and memleaks:
 
 ```bash
 # options: -n to disable valgrind tests, -v for verbose output
