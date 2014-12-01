@@ -95,6 +95,8 @@ free(svg_out);
 free(options);
 ```
 
+See [./src/conv/emf2svg.cpp](https://github.com/kakwa/libemf2svg/blob/master/src/conv/emf2svg.cpp) for a real life example.
+
 Test tools
 ----------
 
