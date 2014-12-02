@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 2.6)
 
 project (emf2svg)
 
+set(EMFSVG_VERSION_MAJOR 0)
+set(EMFSVG_VERSION_MINOR 0)
+set(EMFSVG_VERSION_PATCH 1)
+set(EMFSVG_VERSION ${EMFSVG_VERSION_MAJOR}.${EMFSVG_VERSION_MINOR}.${EMFSVG_VERSION_PATCH})
+
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES external-build)
 
 option(USE_CLANG "build application with clang" OFF)
@@ -101,6 +106,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    add_library(memstream ${SHARED} src/lib/memstream.c)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+set_target_properties(EMFSVG PROPERTIES VERSION ${EMFSVG_VERSION} SOVERSION ${EMFSVG_VERSION_MAJOR})
 
 
 add_executable(emf2svg src/conv/emf2svg.cpp)
