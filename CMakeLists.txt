@@ -48,6 +48,20 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         BUILD_COMMAND ${MAKE}
    )
 
+   SET(LIBCLIPPERBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/clipper/")
+   SET(LIBCLIPPERHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/clipper/")
+   SET(LIBCLIPPERLINKDIR  "${LIBCLIPPERBUILDDIR}/src/iconv-standalone-build/lib/")
+   SET(LIBCLIPPERLIB  "clipper")
+
+   ExternalProject_Add( clipper-standalone
+        PREFIX ${LIBCLIPPERBUILDDIR}
+        DOWNLOAD_DIR ${LIBCLIPPERBUILDDIR}/sources/
+        DOWNLOAD_COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/deps/libpolyclipping/ ./
+        SOURCE_DIR ${LIBCLIPPERBUILDDIR}/sources/
+        CONFIGURE_COMMAND cmake ${LIBCLIPPERBUILDDIR}/sources/configure/
+        BUILD_COMMAND ${MAKE}
+   )
+
    SET(ARGPHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/argp-standalone/")
    SET(ARGPBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/argp/")
    SET(ARGPLINKDIR  "${ARGPBUILDDIR}/src/argp-standalone-build/")

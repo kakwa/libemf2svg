@@ -1,0 +1,88 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>ZFillFunction</title>
+
+  <link rel="stylesheet" href="../../../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../../../_Body.htm" class="Banner"><img src="../../../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../../../Images/_Class.gif" align="absmiddle">Clipper</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>Clipper.ZFillFunction</h1>
+
+
+  <p class="Decl"><span class="Comment">Del.&raquo;</span> <b>property</b> ZFillFunction: <a href="../../../Types/ZFillCallback.htm">TZFillCallback</a> <b>read</b> FZFillCallback <b>write</b> FZFillCallback;</p>
+
+  <p class="Decl2"><span class="Comment">C++&nbsp;&raquo;</span> <b>void</b> ZFillFunction(<a href="../../../Types/ZFillCallback.htm">ZFillCallback</a> zFillFunc);</p>
+
+  <p class="Decl3"><span class="Comment">C#&nbsp;&nbsp;&raquo;</span> <b>public</b> <a href="../../../Types/ZFillCallback.htm">ZFillCallback</a> ZFillFunction { <b>get</b>; <b>set</b>; };</p>
+<br>
+
+  <p class="Body"> <span class="maroon">This property is only exposed if the Preprocessor directive <a href="../../../PreProcessor/Defines.htm"><b>use_xyz</b></a> has been defined.</span> (If it is defined, a Z member will be added to the <a href="../../../Types/IntPoint.htm">IntPoint</a> structure.) When a custom callback function is assigned it will be called during clipping operations so custom Z values can be assigned intersection vertices. <br><br> Vertices in the solution of clipping operations more often than not correspond to input (subject or clip) vertices, but those vertices created at edge intersections do not. While the X and Y coordinates for these 'intersection' vertices are obviously defined by the points of intersection, there's no obvious way to assign their Z values. It really depends on the needs of the library user. While there are 4 vertices directly influencing an intersection vertex (ie the vertices on each end of the 2 intersecting edges), in an attempt to keep things simple only the vertices bounding one edge will be passed to the callback function.<br><br> The <b>CurvesDemo</b> application in the Curves directory in the distrubution zip package shows how the Z member together with the callback function can be used to flatten curved paths (defined by control points) and after clipping, to 'de-flatten' or reconstruct curved paths in the clipping solution.<br><br> 
+    <table cellspacing="0" cellpadding="0" border="0" align="left" style="margin: 0;" width="600px">
+  
+      <tr>
+        <td class="White">
+  
+          <pre class="brush: cpp;">
+Del. &raquo; procedure MyCallback(const Vert1, Vert2: TIntPoint; var IntersectPt: TIntPoint);  
+C++&nbsp; &raquo; void MyCallback(const IntPoint& vert1, const IntPoint& vert2, IntPoint& intersectPt){...}
+C#&nbsp;&nbsp; &raquo; public static void MyCallback(IntPoint vert1, IntPoint vert2, ref IntPoint intersectPt){...}
+          </pre>
+  
+        </td>
+      </tr>
+  
+    </table> <div style="clear:both">&nbsp;</div> </p>
+
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../../../PreProcessor/Defines.htm">Defines</a>, <a href="../../../Types/IntPoint.htm">IntPoint</a>, <a href="../../../Types/ZFillCallback.htm">ZFillCallback</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper Ver 6.1.3 &nbsp; - &nbsp; Help file built on 20-January-2014 <br><br> </p>
+  
+</body>
+
+</html>

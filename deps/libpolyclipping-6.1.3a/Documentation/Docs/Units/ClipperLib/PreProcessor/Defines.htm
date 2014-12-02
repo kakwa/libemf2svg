@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    
+  <script type="text/javascript" src="../../../../Scripts/jquery.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shCore.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushDelphi.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCpp.js">
+  </script>
+    
+  <script type="text/javascript" src="../../../../Scripts/SyntaxHighlighter/scripts/shBrushCSharp.js">
+  </script>
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shCoreDefault.css">
+    
+  <link type="text/css" rel="stylesheet" href="../../../../Scripts/SyntaxHighlighter/styles/shThemeDefault.css">
+  
+
+  <title>Defines</title>
+
+  <link rel="stylesheet" href="../../../../Styles/default.css" type="text/css">
+
+    
+  <script type="text/javascript" src="../../../../Scripts/bootstrap.js">
+  </script>
+  
+</head>
+
+<body bgcolor="#FFFFFF">
+    
+  <!-- THIS FILE HAS BEEN AUTOMATICALLY PROCESSED FROM A SOURCE COPY -->
+    
+  <!-- DO NOT EDIT MANUALLY !!! -->
+  
+  <table class="Banner" cellspacing="0" cellpadding="0" border="1" bordercolorlight="#303080" bordercolordark="#7070B0">
+    <tr>
+      <td class="Banner" nowrap=""><a href="../../../_Body.htm" class="Banner"><img src="../../../../Images/_Home.gif" align="absmiddle">Home</a>
+      </td>
+      <td class="Banner" nowrap=""><a href="../_Body.htm" class="Banner"><img src="../../../../Images/_Unit.gif" align="absmiddle">ClipperLib</a>
+      </td>
+      <td class="Banner" width="100%" align="right"><img src="../../../../Images/_Project_Logo.gif" align="absmiddle">
+      </td>
+    </tr>
+  </table>
+  <h1>Defines</h1>
+
+
+  <p class="Decl">Del.&raquo;<br> &nbsp;{$DEFINE use_int32}<br> &nbsp;{$DEFINE use_xyz}<br> &nbsp;{$DEFINE use_lines}<br> &nbsp;{$DEFINE use_deprecated}</p>
+
+  <p class="Decl2">C++&nbsp;&raquo;<br> &nbsp;#define use_int32<br> &nbsp;#define use_xyz<br> &nbsp;#define use_lines<br> &nbsp;#define use_deprecated</p>
+
+  <p class="Decl3">C#&nbsp;&nbsp;&raquo;<br> &nbsp;#define use_int32<br> &nbsp;#define use_xyz<br> &nbsp;#define use_lines<br> &nbsp;#define use_deprecated</p>
+
+
+  <p class="Body"> <b>PreProcessor Defines:</b><br><br> <b>use_int32</b>:<br> When enabled 32bit integers are used instead of 64bit integers. This improves clipping performance by about 20-30% but coordinate values are limited to the range &plusmn; 46340. (Disabled by default)<br><br> <b>use_xyz</b>:<br> Adds a 'Z' member to <a href="../Types/IntPoint.htm"><b>IntPoint</b></a> with only a minor cost to perfomance. For more details see Clipper's <a href="../Classes/Clipper/Properties/ZFillFunction.htm"><b>ZFillFunction</b></a> property. (Disabled by default)<br><br> <b>use_lines</b>:<br> Enables open path (line) clipping. If line clipping is disabled, there's generally a very small (ie ~5%) improvement in performance. (Enabled by default)<br><br> <b>use_deprecated</b>:<br> Enables code developed with versions of Clipper prior to version 6 to compile without changes.<br> This exposes compatability code that will be removed in a future update. (Enabled by default) </p>
+
+  <h2 id="Auto-SeeAlso">See Also</h2>
+  <p class="Body"><a href="../Classes/Clipper/Properties/ZFillFunction.htm">Clipper.ZFillFunction</a>, <a href="../Types/IntPoint.htm">IntPoint</a></p>
+    
+  <p class="Copyright" id="auto"> <br><br> Copyright &copy;2010-2014 Angus Johnson&nbsp; - &nbsp; Clipper Ver 6.1.3 &nbsp; - &nbsp; Help file built on 20-January-2014 <br><br> </p>
+  
+</body>
+
+</html>
