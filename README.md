@@ -7,7 +7,7 @@ EMF to SVG conversion library
 
 **Work in progress.**
 
-![SVG example](https://cdn.rawgit.com/kakwa/libemf2svg/master/goodies/out-example.svgz)
+![SVG example](https://cdn.rawgit.com/kakwa/libemf2svg/master/goodies/out-example.svg =50x)
 
 Building
 --------
