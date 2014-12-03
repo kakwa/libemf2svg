@@ -17,7 +17,8 @@ int main(int argc, char *argv[]){
     size_t  emf_size;
 
     /* allocate the options structure) */
-    generatorOptions *options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
+    generatorOptions *options = (generatorOptions *)calloc(1, \
+            sizeof(generatorOptions));
     /* debugging flag (prints the emf record in stdout if true) */
     options->verbose = true;
     /* emf+ flag (handles emf+ records if true) */

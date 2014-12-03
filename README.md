@@ -62,13 +62,14 @@ Library
 usage example:
 
 ```C
-#include <EMFSVG.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
+
+#include <EMFSVG.h>
 
 /* to compile: gcc -Wall -std=c99 -lm -lEMFSVG ./example.c -o test */
 int main(int argc, char *argv[]){
@@ -81,7 +82,8 @@ int main(int argc, char *argv[]){
     size_t  emf_size;
 
     /* allocate the options structure) */
-    generatorOptions *options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
+    generatorOptions *options = (generatorOptions *)calloc(1, 
+        sizeof(generatorOptions));
     /* debugging flag (prints the emf record in stdout if true) */
     options->verbose = true;
     /* emf+ flag (handles emf+ records if true) */
@@ -130,8 +132,8 @@ int main(int argc, char *argv[]){
 
 See [./src/conv/emf2svg.cpp](https://github.com/kakwa/libemf2svg/blob/master/src/conv/emf2svg.cpp) for a real life example.
 
-Test tools
-----------
+Testing
+-------
 
 * Stats on the number of emf records covered:
 
@@ -146,21 +148,28 @@ $ ./tests/resources/check_corrupted.sh
 
 # generated corrupted files crashing the library are stored here:
 ls ./tests/out/bad*
-tests/out/bad_corrupted_2014-12-01-063258.emf  tests/out/bad_corrupted_2014-12-01-070313.emf
+tests/out/bad_corrupted_2014-12-01-063258.emf
 
 ```
 
-* Check correctness and memleaks:
+* Check correctness and memleaks (xmllint and valgrind needed):
 
 ```bash
 # options: -n to disable valgrind tests, -v for verbose output
 $ ./tests/resources/check_correctness.sh #[-n] [-v]
 
 # generated svg:
-
 $ ls tests/out/test-*
-tests/out/test-000.emf.svg  tests/out/test-051.emf.svg  tests/out/test-102.emf.svg
+tests/out/test-000.emf.svg  tests/out/test-051.emf.svg
 [...]
 ```
 
 The emf files used for these checks are located in [./tests/resources/emf/](https://github.com/kakwa/libemf2svg/blob/master/tests/resources/emf/).
+
+Useful Commands
+---------------
+
+To build, run on emf test files and visualize (with geeqie):
+```
+cmake .&&make&&./tests/resources/check_correctness.sh -n&&geeqie tests/out
+```
