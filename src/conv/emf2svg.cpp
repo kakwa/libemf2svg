@@ -30,9 +30,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "EMFSVG.h"
-#include "PMFSVG.h"
-#include "uemf_utf.h"
-#include "upmf.h"
 
 using namespace std;
 

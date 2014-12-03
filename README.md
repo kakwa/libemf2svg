@@ -64,9 +64,6 @@ usage example:
 ```C
 
 #include "EMFSVG.h"
-#include "PMFSVG.h"
-#include "uemf_utf.h"
-#include "upmf.h"
 
 // allocate the options structure)
 generatorOptions * options = (generatorOptions *)calloc(1,sizeof(generatorOptions));

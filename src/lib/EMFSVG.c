@@ -12,6 +12,7 @@ extern "C" {
 #include <math.h>
 #include "uemf.h"
 #include "EMFSVG.h"
+#include "EMFSVG_private.h"
 #include "EMFSVG_print.h"
 #include "PMFSVG.h"
 
