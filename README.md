@@ -5,8 +5,15 @@ libemf2svg
 
 EMF to SVG conversion library
 
+Disclaimer
+----------
+
 **Work in progress.**
-<img src="https://cdn.rawgit.com/kakwa/libemf2svg/master/goodies/demo-example.svg" alt="SVG example" style="height:50px">
+
+Output example
+--------------
+
+![Example](https://cdn.rawgit.com/kakwa/libemf2svg/master/goodies/demo-example.svg)
 
 Building
 --------
