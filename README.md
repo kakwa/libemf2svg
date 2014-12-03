@@ -62,36 +62,70 @@ Library
 usage example:
 
 ```C
+#include <EMFSVG.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
-#include "EMFSVG.h"
+/* to compile: gcc -Wall -std=c99 -lm -lEMFSVG ./example.c -o test */
+int main(int argc, char *argv[]){
 
-// allocate the options structure)
-generatorOptions * options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
-// debugging flag (prints the emf record in stdout if true)
-options->verbose = false;
-// emf+ flag (handles emf+ records or not)
-options->emfplus = false;
-// if a custom xml/svg namespace is needed (keep empty in doubt)
-options->nameSpace = (char *)"svg";
-// includes the svg start and stop balise 
-// (set to false if the result of this call is meant to be used in another svg)
-options->svgDelimiter = true;
-// image width (set to 0 to use the original emf device width)
-options->imgWidth = arguments.width;
-// image height (set to 0 to use the original emf device height)
-options->imgHeight = arguments.height;
+    if (argc != 2){fprintf(stderr, "file missing\n"); exit(1);}
 
-// emf content
-char *emf_content;
-// emf content size
-int  emf_size;
-// svg output string
-char *svg_out = NULL;
-// conversion function
-int ret = emf2svg(emf_content, emf_size, &svg_out, options);
-// free the allocated structures
-free(svg_out);
-free(options);
+    /* emf content */
+    char *emf_content;
+    /* emf content size */
+    size_t  emf_size;
+
+    /* allocate the options structure) */
+    generatorOptions *options = (generatorOptions *)calloc(1,sizeof(generatorOptions));
+    /* debugging flag (prints the emf record in stdout if true) */
+    options->verbose = true;
+    /* emf+ flag (handles emf+ records if true) */
+    options->emfplus = true;
+    /* if a custom xml/svg namespace is needed (keep empty in doubt) */
+    options->nameSpace = (char *)"svg";
+    /* includes the svg start and stop balise
+       (set to false if the result of this call is meant to be used in another svg) */
+    options->svgDelimiter = true;
+    /* image width in px (set to 0 to use the original emf device width) */
+    options->imgWidth = 0;
+    /* image height in px (set to 0 to use the original emf device height) */
+    options->imgHeight = 0;
+
+    /* svg output string */
+    char *svg_out = NULL;
+
+    // quick and dirty way to load the file in memory
+    struct stat s; const char * file_name = argv[1];
+    int fd = open(file_name, O_RDONLY);
+    if (fd < 0){fprintf(stderr, "file access failed\n"); exit(1);}
+    fstat (fd, &s); emf_size = s.st_size;
+    emf_content = mmap(0, emf_size, PROT_READ, MAP_PRIVATE, fd, 0);
+
+    fprintf(stdout,"##### BEGIN CONVERSION ####\n");
+    /* conversion function */
+    int ret = emf2svg(emf_content, emf_size, &svg_out, options);
+    /* end conversion */
+    fprintf(stdout,"#####  END CONVERSION  ####\n");
+
+    // do something with the generated SVG
+    fprintf(stdout,"#####  BEGIN SVG DUMP  ####\n");
+    fprintf(stdout,"%s", svg_out);
+    fprintf(stdout,"#####   END SVG DUMP   ####\n");
+
+    // free the allocated structures
+    free(svg_out);
+    free(options);
+    //close file and free content
+    close(fd);
+    munmap(emf_content, emf_size);
+    //return
+    exit(!ret);
+}
 ```
 
 See [./src/conv/emf2svg.cpp](https://github.com/kakwa/libemf2svg/blob/master/src/conv/emf2svg.cpp) for a real life example.
