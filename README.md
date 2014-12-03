@@ -18,7 +18,9 @@ Commands to build this project:
 # * [-DUSE_CLANG=on]: use clang instead of gcc
 # * [-DSTATIC=on]: build static library
 # * [-DDEBUG=on]: compile with debugging symboles
-$ cmake .
+#
+# CMAKE_INSTALL_PREFIX is optional, default is /usr/local/
+$ cmake . -DCMAKE_INSTALL_PREFIX=/usr/
 
 # compilation
 $ make
