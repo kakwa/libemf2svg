@@ -179,5 +179,16 @@ Useful Commands
 
 To build, run on emf test files and visualize (with geeqie):
 ```
-cmake .&&make&&./tests/resources/check_correctness.sh -n&&geeqie tests/out
+cmake .&& \
+make &&\
+./tests/resources/check_correctness.sh -n &&\
+geeqie tests/out
+```
+
+To check against corrupted emf:
+```
+cmake -DDEBUG=ON . -DUSE_CLANG=ON &&\
+make &&\
+./tests/resources/check_correctness.sh -s \
+-e tests/resources/emf-corrupted/
 ```
