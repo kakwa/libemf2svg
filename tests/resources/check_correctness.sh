@@ -6,11 +6,31 @@ ret=0
 VAGRIND_CMD="valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes --error-exitcode=1"
 
 VERBOSE=1
+ABSPATH=$( readlink -f "$(dirname $0)"  )
+STOPONERROR="no"
 
-while getopts ":hnv" opt; do
+help(){
+    cat <<EOF
+usage: `basename $0` [-h] [-v] [-e <emf dir>] [-s] [-n] 
+
+Script checking memleaks, segfault and svg correctness of emf2svg
+
+arguments:
+  -h: diplays this help
+  -v: verbose mode, print emf records
+  -e: alternate emf dir (default '`readlink -f "$ABSPATH/$EMFDIR"`')
+  -s: stop on first error
+  -n: disable valgrind (memleaks checks)
+EOF
+    exit 1
+}
+
+
+while getopts ":hnvse:" opt; do
   case $opt in
 
-    h) help
+    h) 
+        help
         ;;
     n)
         VAGRIND_CMD=""
@@ -19,7 +39,12 @@ while getopts ":hnv" opt; do
         VERBOSE=0
         VERBOSE_OPT='--verbose'
         ;;
-
+    e)
+        EMFDIR=`readlink -f "$OPTARG" |sed "s%$ABSPATH%.%"`
+        ;;
+    s)
+        STOPONERROR="yes"
+        ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
         help
@@ -41,7 +66,7 @@ verbose_print(){
     fi
 }
 
-cd `dirname $0`
+cd $ABSPATH
 rm -rf $OUTDIR
 mkdir -p $OUTDIR
 for emf in `find $EMFDIR -name "*.emf"`
@@ -61,6 +86,7 @@ do
         ret=1
     fi
     verbose_print "\n#####################################################\n"
+    [ "${STOPONERROR}" = "yes" ] && [ $ret -eq 1 ] && exit 1
 done
 if [ $ret -ne 0 ]
 then
