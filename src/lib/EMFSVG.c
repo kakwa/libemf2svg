@@ -2503,6 +2503,10 @@ extern "C" {
 
         states->svgDelimiter = options->svgDelimiter;
         states->currentDeviceContext.font_name = NULL;
+        /* initialized to -1 because real size of states->objectTable is always
+         * states->objectTableSize + 1 (for easier index manipulation since 
+         * indexes in emf files start at 1 and not 0)*/
+        states->objectTableSize = -1;
         setTransformIdentity(states);
 
         stream = open_memstream(out, &len);
