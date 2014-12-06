@@ -86,7 +86,7 @@ do
     if [ $tmpret -ne 0 ]
     then
         printf "[ERROR] emf2svg memleaked or crash converting emf '$emf'\n"
-        [ $tmpret -eq 42 ] || ! [ "$NOEMF2SVGERR" = "yes" ] && ret=1
+        [ $tmpret -eq 42 ] || [ $tmpret -eq 139 ] || ! [ "$NOEMF2SVGERR" = "yes" ] && ret=1
     fi
     if ! [ "$XMLLINT" = "no" ]
     then
