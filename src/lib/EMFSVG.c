@@ -240,6 +240,16 @@ extern "C" {
         }
     }
 
+    void freePathStack(pathStack * stack){
+        while (stack != NULL){
+            //free(stack->pathStruct);
+            pathStack * tmp = stack;
+            stack = stack->next;
+            free(tmp);
+        }
+        return;
+    }
+
     void setTransformIdentity(drawingStates * states){
         states->currentDeviceContext.worldTransform.eM11 = 1.0;
         states->currentDeviceContext.worldTransform.eM12 = 0.0;
@@ -279,10 +289,19 @@ extern "C" {
         EMF_DEVICE_CONTEXT device_context_to_restore;
         EMF_DEVICE_CONTEXT_STACK * stack_entry = states->DeviceContextStack;
         // we recover the 'abs(index)' element of the stack
-        for(int i=-1;i>index;i--){
-            if (stack_entry != NULL){
+        // we stop if the index was outside the DeviceContextStack
+        int i = -1;
+        for(i; i>index && stack_entry != NULL; i--){
+            if (stack_entry->previous != NULL){
                 stack_entry = stack_entry->previous;
             }
+            else {
+                break;
+            }
+        }
+        if (stack_entry == NULL || i != index){
+            states->Error = true;
+            return;
         }
         // we copy it as the current device context
         freeDeviceContext(&(states->currentDeviceContext));
@@ -2530,8 +2549,8 @@ extern "C" {
                 if (states->verbose){printf("WARNING: EMF file does not begin with an EMR_HEADER record\n");}
             }
             result = U_emf_onerec_analyse(contents, blimit, recnum, off, states);
-            if(result == (size_t) -1){
-                if (states->verbose){printf("ABORTING on invalid record - corrupt file?\n");}
+            if(result == (size_t) -1 || states->Error){
+                if (states->verbose){printf("ABORTING on invalid record - corrupted file?\n");}
                 OK=0;
             }
             else if(!result){
@@ -2557,8 +2576,8 @@ extern "C" {
             pEmr = (PU_ENHMETARECORD)(contents + off);
 
             result = U_emf_onerec_draw(contents, blimit, recnum, off, stream, states);
-            if(result == (size_t) -1){
-                if (states->verbose){printf("ABORTING on invalid record - corrupt file?\n");}
+            if(result == (size_t) -1 || states->Error){
+                if (states->verbose){printf("ABORTING on invalid record - corrupted file?\n");}
                 OK=0;
                 err=0;
             }
@@ -2572,6 +2591,7 @@ extern "C" {
         }  //end of while
         FLAG_RESET;
         freeObjectTable(states);
+        freePathStack(states->emfStructure.pathStack);
         free(states->objectTable);
         freeDeviceContext(&(states->currentDeviceContext));
         freeDeviceContextStack(states);

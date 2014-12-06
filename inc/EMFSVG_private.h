@@ -211,6 +211,8 @@ extern "C" {
         bool emfplus; 
         // draw svg document delimiter or not
         bool svgDelimiter;
+        // error flag
+        bool Error;
         /* The current EMF Device Context
          * (Device Context == pen, brush, palette... see [MS-EMF].pdf) */
         EMF_DEVICE_CONTEXT currentDeviceContext; 
@@ -274,6 +276,7 @@ extern "C" {
     void stroke_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked);
     void point16_draw(drawingStates *states, U_POINT16 pt, FILE * out);
     void point_draw(drawingStates *states, U_POINT pt, FILE * out);
+    void freePathStack(pathStack * stack);
 
     /* prototypes for objects used in EMR records */
     void hexbytes_draw(drawingStates *states, uint8_t *buf,unsigned int num);
