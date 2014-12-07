@@ -699,9 +699,11 @@ extern "C" {
 
         PU_EMRHEADER pEmr = (PU_EMRHEADER)(contents);
         if(pEmr->offDescription){
+            returnOutOfEmf((uint16_t *)((char *) pEmr + pEmr->offDescription) + 2 * pEmr->nDescription);
             string = U_Utf16leToUtf8((uint16_t *)((char *) pEmr + pEmr->offDescription), pEmr->nDescription, NULL);
             free(string);
             p1len = 2 + 2*wchar16len((uint16_t *)((char *) pEmr + pEmr->offDescription));
+            returnOutOfEmf((uint16_t *)((char *) pEmr + pEmr->offDescription + p1len) + 2 * pEmr->nDescription);
             string = U_Utf16leToUtf8((uint16_t *)((char *) pEmr + pEmr->offDescription + p1len), pEmr->nDescription, NULL);
             free(string);
         }
