@@ -96,7 +96,15 @@ extern "C" {
         return ret;
     }
 
-
+    bool checkOutOfEMF(drawingStates *states, void *address){
+        if (address > states->endAddress){
+            states->Error = true;
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
     void endPathDraw(drawingStates *states, FILE * out){
         if (!(states->inPath)){
@@ -2511,6 +2519,7 @@ extern "C" {
         states->emfplus = options->emfplus;
         states->imgWidth = options->imgWidth;
         states->imgHeight = options->imgHeight;
+        states->endAddress = contents + length;
         if ((options->nameSpace != NULL) && (strlen(options->nameSpace) != 0)){
             states->nameSpace = options->nameSpace;
             states->nameSpaceString = (char *)calloc(strlen(options->nameSpace)+2, sizeof(char));

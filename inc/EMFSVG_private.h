@@ -213,6 +213,8 @@ extern "C" {
         bool svgDelimiter;
         // error flag
         bool Error;
+        // end address of the emf content
+        void *endAddress;
         /* The current EMF Device Context
          * (Device Context == pen, brush, palette... see [MS-EMF].pdf) */
         EMF_DEVICE_CONTEXT currentDeviceContext; 
@@ -277,6 +279,7 @@ extern "C" {
     void point16_draw(drawingStates *states, U_POINT16 pt, FILE * out);
     void point_draw(drawingStates *states, U_POINT pt, FILE * out);
     void freePathStack(pathStack * stack);
+    bool checkOutOfEMF(drawingStates *states, void * address);
 
     /* prototypes for objects used in EMR records */
     void hexbytes_draw(drawingStates *states, uint8_t *buf,unsigned int num);
