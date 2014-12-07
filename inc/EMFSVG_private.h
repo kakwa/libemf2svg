@@ -42,6 +42,7 @@ extern "C" {
 #define FLAG_UNUSED    verbose_printf("   Status:         %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
+#define returnOutOfEmf(a) if (checkOutOfEMF(states, (void *)(a))){return;}
 
 #define UTF_16 1
 #define ASCII  0
