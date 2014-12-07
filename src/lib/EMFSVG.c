@@ -1658,6 +1658,7 @@ extern "C" {
         FLAG_SUPPORTED;
         if (states->verbose){U_EMRBEGINPATH_print(contents, states);}
         pathStack * stack = states->emfStructure.pathStack;
+        if (stack == NULL){states->Error = true; return;}
         uint32_t clipOffset       = stack->pathStruct.clipOffset;
         if (clipOffset != 0){
             //int id = get_id(states);
