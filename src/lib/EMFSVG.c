@@ -15,6 +15,7 @@ extern "C" {
 #include "EMFSVG_private.h"
 #include "EMFSVG_print.h"
 #include "PMFSVG.h"
+#include "PMFSVG_print.h"
 
     //! \cond
 #define UNUSED(x) (void)(x)
@@ -1796,6 +1797,7 @@ extern "C" {
                     if (states->verbose){printf("\n   =====================%s START EMF+ RECORD ANALYSING %s=====================\n\n", KCYN, KNRM);}
                     while(loff < cbData + 12){  // EMF+ records may not fill the entire comment, cbData value includes cIdent, but not U_EMR or cbData
                         recsize =  U_pmf_onerec_draw(src, blimit, recnum, loff + off, out, states);
+                        if (states->verbose){U_pmf_onerec_print(src, blimit, recnum, loff + off, out, states);}
                         if(recsize<=0)break;
                         loff += recsize;
                         src  += recsize;
