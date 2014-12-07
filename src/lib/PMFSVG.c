@@ -161,6 +161,9 @@ extern "C" {
             case (U_PMR_SETTSGRAPHICS):            U_PMR_SETTSGRAPHICS_draw(contents, out, states);                break;
             case (U_PMR_SETTSCLIP):                U_PMR_SETTSCLIP_draw(contents, out, states);                    break;
         }
+        if (states->Error){
+            U_OA_release(&ObjCont);
+        }
         return(status);
     }
 
@@ -1479,10 +1482,18 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
             }
             U_PMF_OBJECTTYPEENUMERATION_draw(otype, out, states);
             if(ntype){
-                U_OA_append(ObjCont, Data, Header.DataSize - 4, otype, ObjID); // The total byte count is not added to the object
+                if (checkOutOfEMF(states, (void *)(Data + Header.DataSize - 4))){
+                    status=0;
+                }else{
+                    U_OA_append(ObjCont, Data, Header.DataSize - 4, otype, ObjID); // The total byte count is not added to the object
+                }
             }
             else {
-                U_OA_append(ObjCont, Data, Header.DataSize, otype, ObjID); // The total byte count is not added to the object
+                if (checkOutOfEMF(states, (void *)(Data + Header.DataSize))){
+                    status=0;
+                }else{
+                    U_OA_append(ObjCont, Data, Header.DataSize, otype, ObjID); // The total byte count is not added to the object
+                }
             }
             if(ntype && ObjCont->used < TSize)return(status);
             /* preceding terminates any continued series for >= accumulated bytes */

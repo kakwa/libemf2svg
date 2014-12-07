@@ -17,6 +17,8 @@ Copyright: 2013 David Mathog and California Institute of Technology (Caltech)
 #ifndef _UPMF_draw_
 #define _UPMF_draw_
 
+#define returnOutOfEmfP(a) if (checkOutOfEMF(states, (void *)(a))){return(0)}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
