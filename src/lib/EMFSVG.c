@@ -1673,6 +1673,7 @@ extern "C" {
         bool filled = false;
         bool stroked = false;
         pathStack * stack = states->emfStructure.pathStack;
+        if (stack == NULL){states->Error = true; return;}
         uint32_t fillOffset       = stack->pathStruct.fillOffset;
         uint32_t strokeOffset     = stack->pathStruct.strokeOffset;
         uint32_t strokeFillOffset = stack->pathStruct.strokeFillOffset;
