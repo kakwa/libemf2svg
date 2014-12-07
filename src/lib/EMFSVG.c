@@ -1394,15 +1394,19 @@ extern "C" {
                 states->currentDeviceContext.font_strikeout   = states->objectTable[index].font_strikeout;
                 states->currentDeviceContext.font_escapement  = states->objectTable[index].font_escapement;
                 states->currentDeviceContext.font_orientation = states->objectTable[index].font_orientation;
-                if (states->currentDeviceContext.font_name != NULL)
+                if (states->currentDeviceContext.font_name != NULL){
                     free(states->currentDeviceContext.font_name);
+                    states->currentDeviceContext.font_name = NULL;
+                }
                 if (states->objectTable[index].font_name != NULL){
                     size_t len = strlen(states->objectTable[index].font_name);
                     states->currentDeviceContext.font_name = calloc((len + 1), sizeof(char)); 
                     strcpy(states->currentDeviceContext.font_name, states->objectTable[index].font_name);
                 }
-                if (states->currentDeviceContext.font_family != NULL)
+                if (states->currentDeviceContext.font_family != NULL){
                     free(states->currentDeviceContext.font_family);
+                    states->currentDeviceContext.font_family = NULL;
+                }
                 if (states->objectTable[index].font_family != NULL){
                     size_t len = strlen(states->objectTable[index].font_family);
                     states->currentDeviceContext.font_family = calloc((len + 1), sizeof(char)); 
