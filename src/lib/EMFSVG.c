@@ -601,8 +601,11 @@ extern "C" {
     void text_draw(const char *contents, FILE *out, drawingStates *states, uint8_t type){
         PU_EMREXTTEXTOUTW pEmr = (PU_EMREXTTEXTOUTW) (contents);
         PU_EMRTEXT pemt = (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
+        returnOutOfEmf(pemt);
+
         char *string;
         if(type == UTF_16){
+            returnOutOfEmf(contents + pemt->offString +  2 * pemt->nChars);
             string = U_Utf16leToUtf8((uint16_t *)(contents + pemt->offString), pemt->nChars, NULL);
         }
         else{
