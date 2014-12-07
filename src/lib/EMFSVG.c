@@ -2556,18 +2556,22 @@ extern "C" {
         }
 
         blimit = contents + length;
+        int err=1;
 
         // analyze emf structure
         while(OK){
             if(off>=length){ //normally should exit from while after EMREOF sets OK to false, this is most likely a corrupt EMF
                 if (states->verbose){printf("WARNING: record claims to extend beyond the end of the EMF file\n");}
-                return(0);
+                OK=0;
+                err=0;
             }
 
             pEmr = (PU_ENHMETARECORD)(contents + off);
 
             if(!recnum && (pEmr->iType != U_EMR_HEADER)){
                 if (states->verbose){printf("WARNING: EMF file does not begin with an EMR_HEADER record\n");}
+                OK=0;
+                err=0;
             }
             result = U_emf_onerec_analyse(contents, blimit, recnum, off, states);
             if(result == (size_t) -1 || states->Error){
@@ -2584,14 +2588,21 @@ extern "C" {
         }  //end of while
         FLAG_RESET;
 
-        OK=1;
+        // continu only if no previous errors
+        if (err == 0){
+            OK=0;
+        }
+        else{
+            OK=1;
+        }
+
         off=0;
-        int err=1;
         recnum=0;
         while(OK){
             if(off>=length){ //normally should exit from while after EMREOF sets OK to false, this is most likely a corrupt EMF
                 if (states->verbose){printf("WARNING: record claims to extend beyond the end of the EMF file\n");}
-                return(0);
+                OK=0;
+                err=0;
             }
 
             pEmr = (PU_ENHMETARECORD)(contents + off);
