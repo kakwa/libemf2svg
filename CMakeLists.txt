@@ -22,6 +22,7 @@ option(STATIC "compile statically" OFF)
 
 if(DEBUG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
+    set(CMAKE_BUILD_TYPE Debug)
 endif(DEBUG)
 
 if(STATIC)
