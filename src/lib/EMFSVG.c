@@ -627,6 +627,7 @@ extern "C" {
             string = U_Utf16leToUtf8((uint16_t *)(contents + pemt->offString), pemt->nChars, NULL);
         }
         else{
+            returnOutOfEmf((uint64_t)contents + (uint64_t)pemt->offString);
             string = (char *)(contents + pemt->offString);
         }
         fprintf(out, "<%stext ", states->nameSpaceString);
