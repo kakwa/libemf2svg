@@ -77,11 +77,11 @@ verbose_print(){
 cd $ABSPATH
 rm -rf $OUTDIR
 mkdir -p $OUTDIR
-for emf in `find $EMFDIR -name "*.emf"`
+for emf in `find $EMFDIR -type f`
 do
-    verbose_print "\n############## `basename ${emf}` ####################"
-    verbose_print "Command: ../../emf2svg -p -i $emf -o ${OUTDIR}/`basename ${emf}`.svg"
-    $VAGRIND_CMD ../../emf2svg -p -w 800 -h 600 -i $emf -o ${OUTDIR}/`basename ${emf}`.svg $VERBOSE_OPT
+    verbose_print "\n############## `basename "${emf}"` ####################"
+    verbose_print "Command: ../../emf2svg -p -i \"$emf\" -o ${OUTDIR}/`basename ${emf}`.svg"
+    $VAGRIND_CMD ../../emf2svg -p -w 800 -h 600 -i "$emf" -o ${OUTDIR}/`basename "${emf}"`.svg $VERBOSE_OPT
     tmpret=$?
     if [ $tmpret -ne 0 ]
     then
@@ -90,10 +90,10 @@ do
     fi
     if ! [ "$XMLLINT" = "no" ]
     then
-        xmllint --dtdvalid ./svg11-flat.dtd  --noout ${OUTDIR}/`basename ${emf}`.svg
+        xmllint --dtdvalid ./svg11-flat.dtd  --noout ${OUTDIR}/`basename "${emf}"`.svg
         if [ $? -ne 0 ]
         then
-            printf "[ERROR] emf2svg generate bad svg '${OUTDIR}/`basename ${emf}`.svg' from emf '$emf'\n"
+            printf "[ERROR] emf2svg generate bad svg '${OUTDIR}/`basename "${emf}"`.svg' from emf '\"$emf\"'\n"
             ret=1
         fi
     fi
