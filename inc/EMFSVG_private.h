@@ -42,7 +42,7 @@ extern "C" {
 #define FLAG_UNUSED    verbose_printf("   Status:         %sUNUSED%s\n", KMAG, KNRM);
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
-#define returnOutOfEmf(a) if (checkOutOfEMF(states, (void *)(a))){return;}
+#define returnOutOfEmf(a) if (checkOutOfEMF(states, (uint64_t)(a))){return;}
 #define returnOutOfOTIndex(a) if (checkOutOfOTIndex(states, (int32_t)(a))){return;}
 
 #define UTF_16 1
@@ -216,7 +216,9 @@ extern "C" {
         // error flag
         bool Error;
         // end address of the emf content
-        void *endAddress;
+        // used for checks against overflow
+        // 64 bits to prevent pointer pointer calculation overflow
+        uint64_t endAddress;
         /* The current EMF Device Context
          * (Device Context == pen, brush, palette... see [MS-EMF].pdf) */
         EMF_DEVICE_CONTEXT currentDeviceContext; 
@@ -282,7 +284,7 @@ extern "C" {
     void point_draw(drawingStates *states, U_POINT pt, FILE * out);
     void freePathStack(pathStack * stack);
     // checks if address is outside the memory containing the emf file
-    bool checkOutOfEMF(drawingStates *states, void * address);
+    bool checkOutOfEMF(drawingStates *states, uint64_t address);
     // checks if index is greater than the object table size
     bool checkOutOfOTIndex(drawingStates *states, int32_t index);
 

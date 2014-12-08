@@ -1482,14 +1482,14 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
             }
             U_PMF_OBJECTTYPEENUMERATION_draw(otype, out, states);
             if(ntype){
-                if (checkOutOfEMF(states, (void *)(Data + Header.DataSize - 4))){
+                if (checkOutOfEMF(states, (uint64_t)((uint64_t)Data + (uint64_t)Header.DataSize - 4))){
                     status=0;
                 }else{
                     U_OA_append(ObjCont, Data, Header.DataSize - 4, otype, ObjID); // The total byte count is not added to the object
                 }
             }
             else {
-                if (checkOutOfEMF(states, (void *)(Data + Header.DataSize))){
+                if (checkOutOfEMF(states, (uint64_t)Data + (uint64_t)Header.DataSize)){
                     status=0;
                 }else{
                     U_OA_append(ObjCont, Data, Header.DataSize, otype, ObjID); // The total byte count is not added to the object
