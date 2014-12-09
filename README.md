@@ -25,7 +25,7 @@ Commands to build this project:
 # options: 
 # * [-DUSE_CLANG=on]: use clang instead of gcc
 # * [-DSTATIC=on]: build static library
-# * [-DDEBUG=on]: compile with debugging symboles
+# * [-DDEBUG=on]: compile with debugging symbols
 #
 # CMAKE_INSTALL_PREFIX is optional, default is /usr/local/
 $ cmake . -DCMAKE_INSTALL_PREFIX=/usr/
@@ -67,7 +67,7 @@ $ ./emf2svg -i ./tests/resources/emf/test-037.emf -o example.svg -v
 Library
 -------
 
-Shorten usage example ([complete example here](https://github.com/kakwa/libemf2svg/blob/master/goodies/example.c)):
+Shorten example ([complete example here](https://github.com/kakwa/libemf2svg/blob/master/goodies/example.c)):
 
 ```C
 #include <EMFSVG.h>
@@ -114,6 +114,18 @@ int main(int argc, char *argv[]){
 
 See [./src/conv/emf2svg.cpp](https://github.com/kakwa/libemf2svg/blob/master/src/conv/emf2svg.cpp) for a real life example.
 
+Development
+-----------
+
+General source code organisation:
+
+* [./src/lib/EMFSVG.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/EMFSVG.c): EMF record handler and API entry point.
+* [./src/lib/EMFSVG_print.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/EMFSVG_print.c): EMF record printer (debugging).
+* [./src/lib/PMFSVG.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/PMFSVG.c): EMF+ record handler.
+* [./src/lib/PMFSVG_print.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/PMFSVG_print.c): EMF+ record printer (debugging).
+* [./src/conv/emf2svg.cpp](https://github.com/kakwa/libemf2svg/blob/master/src/conv/emf2svg.cpp): Command line tool.
+* [./deps](https://github.com/kakwa/libemf2svg/blob/master/deps): external dependencies.
+
 Testing
 -------
 
@@ -134,10 +146,11 @@ tests/out/bad_corrupted_2014-12-01-063258.emf
 
 ```
 
-* Check correctness and memleaks (xmllint and valgrind needed):
+* Check correctness and memory leaks (xmllint and valgrind needed):
 
 ```bash
-# options: -n to disable valgrind tests, -v for verbose output
+# options: -n to disable valgrind tests, -v for verbose output 
+# see -h for complete list of options
 $ ./tests/resources/check_correctness.sh #[-n] [-v]
 
 # generated svg:
@@ -161,7 +174,7 @@ $ cmake .&& \
 
 To check against corrupted emf:
 ```bash
-$ cmake -DDEBUG=ON . -DUSE_CLANG=ON &&\
+$ cmake -DDEBUG=ON . &&\
     make &&\
     "./tests/resources/check_correctness.sh" -sxN \
     -e "./tests/resources/emf-corrupted/"
