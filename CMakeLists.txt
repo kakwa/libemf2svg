@@ -25,6 +25,10 @@ if(DEBUG)
     set(CMAKE_BUILD_TYPE Debug)
 endif(DEBUG)
 
+if(UNIX)
+  link_libraries(m)
+endif(UNIX)
+
 if(STATIC)
     set(SHARED "")
     SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")

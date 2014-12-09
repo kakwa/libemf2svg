@@ -441,7 +441,7 @@ extern "C" {
         PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16) (contents);
         startPathDraw(states, out);
         PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
-        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cpts) * sizeof(uint32_t)/sizeof(void *));
+        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cpts) * sizeof(uint32_t));
         if (startingPoint == 1){
             fprintf(out, "M ");
             point16_draw(states, papts[0], out);
@@ -481,7 +481,7 @@ extern "C" {
         PU_EMRPOLYBEZIER pEmr = (PU_EMRPOLYBEZIER) (contents);
         startPathDraw(states, out);
         PU_POINT papts = (PU_POINT)(&(pEmr->aptl));
-        returnOutOfEmf((uint64_t)papts + (uint64_t)pEmr->cptl * sizeof(uint32_t)/sizeof(void *));
+        returnOutOfEmf((uint64_t)papts + (uint64_t)pEmr->cptl * sizeof(uint32_t));
         if (startingPoint == 1){
             fprintf(out, "M ");
             point_draw(states, papts[0], out);
@@ -511,7 +511,7 @@ extern "C" {
         unsigned int i;
         PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16) (contents);
         PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
-        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cpts) * sizeof(uint32_t)/sizeof(void *));
+        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cpts) * sizeof(uint32_t));
         startPathDraw(states, out);
         for(i=0; i<pEmr->cpts; i++){
             if (polygon && i == 0){
@@ -531,7 +531,7 @@ extern "C" {
         PU_EMRPOLYLINETO pEmr = (PU_EMRPOLYLINETO) (contents);
         startPathDraw(states, out);
         PU_POINT papts = (PU_POINT)(&(pEmr->aptl));
-        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cptl) * sizeof(uint32_t)/sizeof(void *));
+        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cptl) * sizeof(uint32_t));
         for(i=0; i<pEmr->cptl; i++){
             if (polygon && i == 0){
                 fprintf(out, "M ");
@@ -565,7 +565,7 @@ extern "C" {
         unsigned int i;
         PU_EMRPOLYPOLYLINE16 pEmr = (PU_EMRPOLYPOLYLINE16) (contents);
         PU_POINT16 papts = (PU_POINT16)((char *)pEmr->aPolyCounts + sizeof(uint32_t)* pEmr->nPolys);
-        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cpts) * sizeof(uint32_t)/sizeof(void *));
+        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cpts) * sizeof(uint32_t));
 
         int counter = 0;
         int polygon_index = 0;
@@ -596,7 +596,7 @@ extern "C" {
 
         int counter = 0;
         int polygon_index = 0;
-        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cpts) * sizeof(uint32_t)/sizeof(void *));
+        returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cpts) * sizeof(uint32_t));
         for(i=0; i<pEmr->cpts; i++){
             if(counter == 0){
                 fprintf(out, "M ");
