@@ -1061,7 +1061,9 @@ extern "C" {
     }
 
     void U_EMRSETSTRETCHBLTMODE_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
+        PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
+        states->currentDeviceContext.stretchMode = pEmr->iMode;
         if (states->verbose){U_EMRSETSTRETCHBLTMODE_print(contents, states);}
     }
 

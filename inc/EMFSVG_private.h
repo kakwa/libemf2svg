@@ -124,6 +124,8 @@ extern "C" {
         uint32_t        font_weight;
         uint32_t        font_escapement;
         uint32_t        font_orientation;
+
+        uint32_t        stretchMode;
         
         int16_t         arcdir;
 
