@@ -310,7 +310,7 @@ extern "C" {
         // we recover the 'abs(index)' element of the stack
         // we stop if the index was outside the DeviceContextStack
         int i = -1;
-        for(i; i>index && stack_entry != NULL; i--){
+        for(; i>index && stack_entry != NULL; i--){
             if (stack_entry->previous != NULL){
                 stack_entry = stack_entry->previous;
             }
@@ -632,7 +632,6 @@ extern "C" {
         }
         fprintf(out, "<%stext ", states->nameSpaceString);
         POINT_D Org = point_cal(states, (double)pemt->ptlReference.x, (double)pemt->ptlReference.y);
-        pemt->ptlReference;
         double font_height = fabs((double)states->currentDeviceContext.font_height * states->scalingY);
         if( states->currentDeviceContext.font_family != NULL)
             fprintf(out, "font-family=\"%s\" ", states->currentDeviceContext.font_family);

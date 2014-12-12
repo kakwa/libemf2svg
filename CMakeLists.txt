@@ -121,8 +121,8 @@ add_executable(emf2svg src/conv/emf2svg.cpp)
 
 target_link_libraries(emf2svg EMFSVG ${MEMSTREAMLIB} ${ARGPLIB} ${LIBICONVLIB}) 
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
 
 INSTALL(TARGETS emf2svg EMFSVG ${MEMSTREAMLIB} ${ARGPLIB} ${LIBICONVLIB}
   RUNTIME DESTINATION bin

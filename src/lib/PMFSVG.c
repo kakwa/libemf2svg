@@ -176,7 +176,6 @@ extern "C" {
       common structure present at the beginning of all(*) EMF+ records
       */
     int U_PMF_CMN_HDR_draw(U_PMF_CMN_HDR Header, int precnum, int off, FILE *out, drawingStates *states){
-        int status=1;
         return((int) Header.Size);
     }
 
@@ -189,7 +188,6 @@ extern "C" {
       \param  End        Text to follow array data
       */
     int U_PMF_UINT8_ARRAY_draw(const char *Start, const uint8_t *Array, int Elements, char *End, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -244,7 +242,6 @@ extern "C" {
       EMF+ manual 2.1.1.23, Microsoft name: PathPointType Enumeration
       */
     int U_PMF_PATHPOINTTYPE_ENUM_draw(int Type, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -255,7 +252,6 @@ extern "C" {
       EMF+ manual 2.1.1.25, Microsoft name: PixelFormat Enumeration (U_PF_*)
       */
     int U_PMF_PX_FMT_ENUM_draw(int pfe, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -266,7 +262,6 @@ extern "C" {
       EMF+ manual 2.1.1.27, Microsoft name: RegionNodeDataType Enumeration (U_RNDT_*)
       */
     int U_PMF_NODETYPE_draw(int Type, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -694,7 +689,6 @@ extern "C" {
       EMF+ manual 2.2.2.30, Microsoft name: EmfPlusPathGradientBrushOptionalData Object
       */
     int U_PMF_PATHGRADIENTBRUSHOPTIONALDATA_draw(const char *contents, int BDFlag, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -763,7 +757,6 @@ extern "C" {
       EMF+ manual 2.2.2.35, Microsoft name: EmfPlusPoint Object
       */
     int U_PMF_POINT_S_draw(U_PMF_POINT *Point, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -785,7 +778,6 @@ extern "C" {
       EMF+ manual 2.2.2.36, Microsoft name: EmfPlusPointF Object
       */
     int U_PMF_POINTF_S_draw(U_PMF_POINTF *Point, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -825,7 +817,6 @@ extern "C" {
       EMF+ manual 2.2.2.39, Microsoft name: EmfPlusRectF Object
       */
     int U_PMF_RECT_S_draw(U_PMF_RECT *Rect, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -847,7 +838,6 @@ extern "C" {
       EMF+ manual 2.2.2.39, Microsoft name: EmfPlusRectF Object
       */
     int U_PMF_RECTF_S_draw(U_PMF_RECTF *Rect, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -953,7 +943,6 @@ extern "C" {
       EMF+ manual 2.2.2.47, Microsoft name: EmfPlusTransformMatrix Object
       */
     int U_PMF_TRANSFORMMATRIX2_draw(U_PMF_TRANSFORMMATRIX *Tm, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -964,7 +953,6 @@ extern "C" {
       NOT DOCUMENTED, like EMF+ manual 2.2.2.47, Microsoft name: EmfPlusTransformMatrix Object, but missing offset values
       */
     int U_PMF_ROTMATRIX2_draw(U_PMF_ROTMATRIX *Rm, FILE *out, drawingStates *states){
-        int status=1;
         return(1);
     }
 
@@ -1112,7 +1100,6 @@ extern "C" {
       EMF+ manual 2.3.1.2, Microsoft name: EmfPlusResetClip Record, Index 0x31
       */
     int U_PMR_RESETCLIP_draw(const char *contents, FILE *out, drawingStates *states){
-        int status=1;
         return(U_PMR_NODATAREC_draw(contents, out, states));
     }
 
@@ -1168,7 +1155,6 @@ extern "C" {
       EMF+ manual 2.3.3.1, Microsoft name: EmfPlusEndOfFile Record, Index 0x02
       */
     int U_PMR_ENDOFFILE_draw(const char *contents, FILE *out, drawingStates *states){
-        int status=1;
         return(U_PMR_NODATAREC_draw(contents, out, states));
     }
 
@@ -1179,7 +1165,6 @@ extern "C" {
       EMF+ manual 2.3.3.2, Microsoft name: EmfPlusGetDC Record, Index 0x04
       */
     int U_PMR_GETDC_draw(const char *contents, FILE *out, drawingStates *states){
-        int status=1;
         return(U_PMR_NODATAREC_draw(contents, out, states));
     }
 
@@ -1714,7 +1699,6 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual 2.3.9.2, Microsoft name: EmfPlusResetWorldTransform Record, Index 0x2B
       */
     int U_PMR_RESETWORLDTRANSFORM_draw(const char *contents, FILE *out, drawingStates *states){
-        int status=1;
         return(U_PMR_NODATAREC_draw(contents, out, states));
     }
 
@@ -1780,7 +1764,6 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       \param  contents    Record from which to print data
       */
     int U_PMR_STROKEFILLPATH_draw(const char *contents, FILE *out, drawingStates *states){
-        int status=1;
         return(U_PMR_NODATAREC_draw(contents, out, states));
     }
 
@@ -1791,7 +1774,6 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatStart Record, Index 0x05 
       */
     int U_PMR_MULTIFORMATSTART_draw(const char *contents, FILE *out, drawingStates *states){
-        int status=1;
         return(U_PMR_NODATAREC_draw(contents, out, states));
     }
 
@@ -1802,7 +1784,6 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatSection Record, Index 0x06 
       */
     int U_PMR_MULTIFORMATSECTION_draw(const char *contents, FILE *out, drawingStates *states){
-        int status=1;
         return(U_PMR_NODATAREC_draw(contents, out, states));
     }
 
@@ -1813,7 +1794,6 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatEnd Record, Index 0x06
       */
     int U_PMR_MULTIFORMATEND_draw(const char *contents, FILE *out, drawingStates *states){
-        int status=1;
         return(U_PMR_NODATAREC_draw(contents, out, states));
     }
 

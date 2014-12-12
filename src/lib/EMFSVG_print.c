@@ -1239,7 +1239,6 @@ extern "C" {
       */
     void U_EMRSETPOLYFILLMODE_print(const char *contents, drawingStates *states){
         
-        PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
         core3_print("U_EMRSETPOLYFILLMODE", "iMode:", contents, states);
     }
 
@@ -1313,10 +1312,6 @@ extern "C" {
       */
     void U_EMROFFSETCLIPRGN_print(const char *contents, drawingStates *states){
         
-        PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
-        //verbose_printf("   %-15s {%d,%d}\n",field1,pEmr->pair.x,pEmr->pair.y);
-
-
         core7_print("U_EMROFFSETCLIPRGN", "ptl:","",contents, states);
     } 
 
@@ -1467,55 +1462,55 @@ extern "C" {
         if(index & U_STOCK_OBJECT){
             switch(index){
                 case(U_WHITE_BRUSH):
-                    verbose_printf("   StockObject:    WHITE_BRUSH\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    WHITE_BRUSH\n" );
                     break;
                 case(U_LTGRAY_BRUSH):
-                    verbose_printf("   StockObject:    LTGRAY_BRUSH\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    LTGRAY_BRUSH\n");
                     break;
                 case(U_GRAY_BRUSH):
-                    verbose_printf("   StockObject:    GRAY_BRUSH\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    GRAY_BRUSH\n"  );
                     break;
                 case(U_DKGRAY_BRUSH):
-                    verbose_printf("   StockObject:    DKGRAY_BRUSH\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DKGRAY_BRUSH\n");
                     break;
                 case(U_BLACK_BRUSH):
-                    verbose_printf("   StockObject:    BLACK_BRUSH\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    BLACK_BRUSH\n" );
                     break;
                 case(U_NULL_BRUSH):
-                    verbose_printf("   StockObject:    NULL_BRUSH\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    NULL_BRUSH\n"  );
                     break;
                 case(U_WHITE_PEN):
-                    verbose_printf("   StockObject:    WHITE_PEN\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    WHITE_PEN\n"   );
                     break;
                 case(U_BLACK_PEN):
-                    verbose_printf("   StockObject:    BLACK_PEN\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    BLACK_PEN\n"   );
                     break;
                 case(U_NULL_PEN):
-                    verbose_printf("   StockObject:    NULL_PEN\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    NULL_PEN\n"    );
                     break;
                 case(U_OEM_FIXED_FONT):
-                    verbose_printf("   StockObject:    OEM_FIXED_FONT\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    OEM_FIXED_FONT\n" );
                     break;
                 case(U_ANSI_FIXED_FONT):
-                    verbose_printf("   StockObject:    ANSI_FIXED_FONT\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    ANSI_FIXED_FONT\n");
                     break;
                 case(U_ANSI_VAR_FONT):
-                    verbose_printf("   StockObject:    ANSI_VAR_FONT\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    ANSI_VAR_FONT\n"  );
                     break;
                 case(U_SYSTEM_FONT):
-                    verbose_printf("   StockObject:    SYSTEM_FONT\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    SYSTEM_FONT\n"    );
                     break;
                 case(U_DEVICE_DEFAULT_FONT):
-                    verbose_printf("   StockObject:    DEFAULT_FONT\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DEFAULT_FONT\n"   );
                     break;
                 case(U_DEFAULT_PALETTE):
-                    verbose_printf("   StockObject:    DEFAULT_PALETTE\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DEFAULT_PALETTE\n");
                     break;
                 case(U_SYSTEM_FIXED_FONT):
-                    verbose_printf("   StockObject:    DEFAULT_FIXED_FONT\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DEFAULT_FIXED_FONT\n");
                     break;
                 case(U_DEFAULT_GUI_FONT):
-                    verbose_printf("   StockObject:    DEFAULT_GUI_FONT\n",  pEmr->ihObject );
+                    verbose_printf("   StockObject:    DEFAULT_GUI_FONT\n"  );
                     break;
                 default:
                     verbose_printf("   StockObject:    0x%8.8X\n",  pEmr->ihObject );
@@ -1538,8 +1533,6 @@ extern "C" {
         PU_EMRCREATEPEN pEmr = (PU_EMRCREATEPEN)(contents);
         verbose_printf("   ihPen:          %u\n",      pEmr->ihPen );
         verbose_printf("   lopn:           ");    logpen_print(states, pEmr->lopn);  verbose_printf("\n");
-
-        uint32_t index = pEmr->ihPen;
     } 
 
     // U_EMRCREATEBRUSHINDIRECT  39
@@ -1553,7 +1546,6 @@ extern "C" {
         verbose_printf("   ihBrush:        %u\n",      pEmr->ihBrush );
         verbose_printf("   lb:             ");         logbrush_print(states, pEmr->lb);  verbose_printf("\n");
 
-        uint16_t index = pEmr->ihBrush;
         if(pEmr->lb.lbStyle == U_BS_SOLID){
         }
         else if(pEmr->lb.lbStyle == U_BS_HATCHED){
@@ -1569,7 +1561,6 @@ extern "C" {
         
         PU_EMRDELETEOBJECT pEmr = (PU_EMRDELETEOBJECT)(contents);
         verbose_printf("   ihObject:       %u\n",      pEmr->ihObject );
-        uint16_t index = pEmr->ihObject;
     } 
 
     // U_EMRANGLEARC             41
@@ -1907,9 +1898,6 @@ extern "C" {
         char *string;
         char *src;
         uint32_t cIdent,cIdent2,cbData;
-        size_t loff;
-        int    recsize;
-        static int recnum=0;
 
         PU_EMRCOMMENT pEmr = (PU_EMRCOMMENT)(contents);
 
@@ -2398,8 +2386,6 @@ extern "C" {
         verbose_printf("   cbBits:         %u\n", pEmr->cbBits    );
         verbose_printf("   elp:            ");     extlogpen_print(states, (PU_EXTLOGPEN) &(pEmr->elp));  verbose_printf("\n");
 
-        uint32_t index = pEmr->ihPen;
-        PU_EXTLOGPEN pen = (PU_EXTLOGPEN) &(pEmr->elp);
     } 
 
     // U_EMRPOLYTEXTOUTA         96 NOT IMPLEMENTED, denigrated after Windows NT
@@ -2617,7 +2603,6 @@ extern "C" {
     void U_emf_onerec_print(const char *contents, const char *blimit, int recnum, size_t off, drawingStates *states)
     {
         PU_ENHMETARECORD  lpEMFR  = (PU_ENHMETARECORD)(contents + off);
-        unsigned int size;
         FLAG_RESET;
         verbose_printf("\n%-30srecord:%5d type:%-4d offset:%8d rsize:%8d\n",U_emr_names(lpEMFR->iType),recnum,lpEMFR->iType,(int) off,lpEMFR->nSize);
     }
