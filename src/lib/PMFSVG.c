@@ -1797,49 +1797,6 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
         return(U_PMR_NODATAREC_draw(contents, out, states));
     }
 
-    int pmf2svg(char *contents, size_t length, FILE *out, drawingStates *states)
-    {
-        size_t   off=0;
-        size_t   result;
-        int      OK =1;
-        int      recnum=0;
-        PU_ENHMETARECORD pEmr;
-        char     *blimit;
-
-        blimit = contents + length;
-
-        while(OK){
-            if(off>=length){ //normally should exit from while after EMREOF sets OK to false, this is most likely a corrupt EMF
-                verbose_printf("%zu:%zu\n",off, length);
-                verbose_printf("WARNING: record claims to extend beyond the end of the EMF+ file\n");
-                return(0);
-            }
-
-            pEmr = (PU_ENHMETARECORD)(contents + off);
-
-            //if(!recnum && (pEmr->iType != U_PMR_HEADER)){
-            //   verbose_printf("WARNING: EMF file does not begin with an EMR_HEADER record\n");
-            //}
-
-            if (states->verbose){U_pmf_onerec_print(contents, blimit, recnum, off, out, states);}
-            result = U_pmf_onerec_draw(contents, blimit, recnum, off, out, states);
-            if(result == (size_t) -1){
-                verbose_printf("ABORTING on invalid record - corrupt file?\n");
-                OK=0;
-            }
-            else if(!result){
-                OK=0;
-            }
-            else {
-                off += result;
-                recnum++;
-            }
-        }  //end of while
-
-        return 1;
-    }
-
-
 #ifdef __cplusplus
 }
 #endif

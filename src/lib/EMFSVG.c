@@ -92,7 +92,7 @@ extern "C" {
                 fprintf(new->formStream, "%s", stack->form);
             stack = stack->prev;
             cur->prev = new;
-            formStack * cur = new;
+            cur = new;
         }
         return ret;
     }
@@ -305,7 +305,6 @@ extern "C" {
     }
 
     void restoreDeviceContext(drawingStates * states, int32_t index ){
-        EMF_DEVICE_CONTEXT device_context_to_restore;
         EMF_DEVICE_CONTEXT_STACK * stack_entry = states->DeviceContextStack;
         // we recover the 'abs(index)' element of the stack
         // we stop if the index was outside the DeviceContextStack
@@ -617,7 +616,6 @@ extern "C" {
     } 
 
     void text_draw(const char *contents, FILE *out, drawingStates *states, uint8_t type){
-        PU_EMREXTTEXTOUTW pEmr = (PU_EMREXTTEXTOUTW) (contents);
         PU_EMRTEXT pemt = (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
         returnOutOfEmf(pemt);
 
@@ -874,7 +872,6 @@ extern "C" {
                 fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
             fprintf(out, "d=\"");
         }
-        bool ispolygon = false;
         polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
 
         if (localPath){
@@ -964,7 +961,6 @@ extern "C" {
     void U_EMREOF_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
         if (states->verbose){U_EMREOF_print(contents, states);}
-        PU_EMREOF pEmr = (PU_EMREOF)(contents);
         if(states->transform_open){
             fprintf(out, "</%sg>\n",  states->nameSpaceString);
         }
@@ -976,13 +972,13 @@ extern "C" {
     void U_EMRSETPIXELV_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSETPIXELV_print(contents, states);}
-        PU_EMRSETPIXELV pEmr = (PU_EMRSETPIXELV)(contents);
+        //PU_EMRSETPIXELV pEmr = (PU_EMRSETPIXELV)(contents);
     } 
 
     void U_EMRSETMAPPERFLAGS_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSETMAPPERFLAGS_print(contents, states);}
-        PU_EMRSETMAPPERFLAGS pEmr = (PU_EMRSETMAPPERFLAGS)(contents);
+        //PU_EMRSETMAPPERFLAGS pEmr = (PU_EMRSETMAPPERFLAGS)(contents);
     } 
 
     void U_EMRSETMAPMODE_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1076,7 +1072,7 @@ extern "C" {
     void U_EMRSETCOLORADJUSTMENT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSETCOLORADJUSTMENT_print(contents, states);}
-        PU_EMRSETCOLORADJUSTMENT pEmr = (PU_EMRSETCOLORADJUSTMENT)(contents);
+        //PU_EMRSETCOLORADJUSTMENT pEmr = (PU_EMRSETCOLORADJUSTMENT)(contents);
     }
 
     void U_EMRSETTEXTCOLOR_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1100,8 +1096,7 @@ extern "C" {
     void U_EMROFFSETCLIPRGN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMROFFSETCLIPRGN_print(contents, states);}
-        PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
-
+        //PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
     } 
 
     void U_EMRMOVETOEX_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1471,7 +1466,7 @@ extern "C" {
     void U_EMRANGLEARC_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRANGLEARC_print(contents, states);}
-        PU_EMRANGLEARC pEmr = (PU_EMRANGLEARC)(contents);
+        //PU_EMRANGLEARC pEmr = (PU_EMRANGLEARC)(contents);
     } 
 
     void U_EMRELLIPSE_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1486,7 +1481,6 @@ extern "C" {
         center.y = (LT.y + RB.y) / 2;
         radius.x = (RB.x - LT.x) / 2;
         radius.y = (RB.y - LT.y) / 2;
-        bool localPath = false;
         fprintf(out, "<%sellipse cx=\"%.2f\" cy=\"%.2f\" rx=\"%.2f\" ry=\"%.2f\" ",
                 states->nameSpaceString,
                 center.x,
@@ -1514,7 +1508,6 @@ extern "C" {
         POINT_D dim;
         dim.x = RB.x - LT.x;
         dim.y = RB.y - LT.y;
-        bool localPath = false;
         fprintf(out, "<%srect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" ",
                 states->nameSpaceString,
                 LT.x,
@@ -1544,7 +1537,6 @@ extern "C" {
         POINT_D round;
         dim.x = RB.x - LT.x;
         dim.y = RB.y - LT.y;
-        bool localPath = false;
         fprintf(out, "<%srect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" ",
                 states->nameSpaceString,
                 LT.x,
@@ -1592,13 +1584,13 @@ extern "C" {
     void U_EMRCREATEPALETTE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRCREATEPALETTE_print(contents, states);}
-        PU_EMRCREATEPALETTE pEmr = (PU_EMRCREATEPALETTE)(contents);
+        //PU_EMRCREATEPALETTE pEmr = (PU_EMRCREATEPALETTE)(contents);
     }
 
     void U_EMRSETPALETTEENTRIES_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSETPALETTEENTRIES_print(contents, states);}
-        PU_EMRSETPALETTEENTRIES pEmr = (PU_EMRSETPALETTEENTRIES)(contents);
+        //PU_EMRSETPALETTEENTRIES pEmr = (PU_EMRSETPALETTEENTRIES)(contents);
     }
 
     void U_EMRRESIZEPALETTE_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1615,7 +1607,7 @@ extern "C" {
     void U_EMREXTFLOODFILL_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMREXTFLOODFILL_print(contents, states);}
-        PU_EMREXTFLOODFILL pEmr = (PU_EMREXTFLOODFILL)(contents);
+        //PU_EMREXTFLOODFILL pEmr = (PU_EMREXTFLOODFILL)(contents);
     }
 
     void U_EMRLINETO_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1633,7 +1625,7 @@ extern "C" {
     void U_EMRPOLYDRAW_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRPOLYDRAW_print(contents, states);}
-        PU_EMRPOLYDRAW pEmr = (PU_EMRPOLYDRAW)(contents);
+        //PU_EMRPOLYDRAW pEmr = (PU_EMRPOLYDRAW)(contents);
     }
 
     void U_EMRSETARCDIRECTION_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1826,14 +1818,13 @@ extern "C" {
     void U_EMRFILLRGN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRFILLRGN_print(contents, states);}
-        int i,roff;
-        PU_EMRFILLRGN pEmr = (PU_EMRFILLRGN)(contents);
+        //PU_EMRFILLRGN pEmr = (PU_EMRFILLRGN)(contents);
     } 
 
     void U_EMRFRAMERGN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRFRAMERGN_print(contents, states);}
-        PU_EMRFRAMERGN pEmr = (PU_EMRFRAMERGN)(contents);
+        //PU_EMRFRAMERGN pEmr = (PU_EMRFRAMERGN)(contents);
     } 
 
     void U_EMRINVERTRGN_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1849,44 +1840,43 @@ extern "C" {
     void U_EMREXTSELECTCLIPRGN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMREXTSELECTCLIPRGN_print(contents, states);}
-        int i,roff;
-        PU_EMREXTSELECTCLIPRGN pEmr = (PU_EMREXTSELECTCLIPRGN) (contents);
+        //PU_EMREXTSELECTCLIPRGN pEmr = (PU_EMREXTSELECTCLIPRGN) (contents);
     } 
 
     void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRBITBLT_print(contents, states);}
-        PU_EMRBITBLT pEmr = (PU_EMRBITBLT) (contents);
+        //PU_EMRBITBLT pEmr = (PU_EMRBITBLT) (contents);
     }
 
     void U_EMRSTRETCHBLT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSTRETCHBLT_print(contents, states);}
-        PU_EMRSTRETCHBLT pEmr = (PU_EMRSTRETCHBLT) (contents);
+        //PU_EMRSTRETCHBLT pEmr = (PU_EMRSTRETCHBLT) (contents);
     }
 
     void U_EMRMASKBLT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRMASKBLT_print(contents, states);}
-        PU_EMRMASKBLT pEmr = (PU_EMRMASKBLT) (contents);
+        //PU_EMRMASKBLT pEmr = (PU_EMRMASKBLT) (contents);
     }
 
     void U_EMRPLGBLT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRPLGBLT_print(contents, states);}
-        PU_EMRPLGBLT pEmr = (PU_EMRPLGBLT) (contents);
+        //PU_EMRPLGBLT pEmr = (PU_EMRPLGBLT) (contents);
     }
 
     void U_EMRSETDIBITSTODEVICE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSETDIBITSTODEVICE_print(contents, states);}
-        PU_EMRSETDIBITSTODEVICE pEmr = (PU_EMRSETDIBITSTODEVICE) (contents);
+        //PU_EMRSETDIBITSTODEVICE pEmr = (PU_EMRSETDIBITSTODEVICE) (contents);
     }
 
     void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSTRETCHDIBITS_print(contents, states);}
-        PU_EMRSTRETCHDIBITS pEmr = (PU_EMRSTRETCHDIBITS) (contents);
+        //PU_EMRSTRETCHDIBITS pEmr = (PU_EMRSTRETCHDIBITS) (contents);
     }
 
     void U_EMREXTCREATEFONTINDIRECTW_draw(const char *contents, FILE *out, drawingStates *states){
@@ -2029,7 +2019,6 @@ extern "C" {
                 fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
             fprintf(out, "d=\"");
         }
-        bool ispolygon = false;
         polypolygon16_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
 
         if (localPath){
@@ -2079,8 +2068,7 @@ extern "C" {
     void U_EMRPOLYDRAW16_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRPOLYDRAW16_print(contents, states);}
-        unsigned int i;
-        PU_EMRPOLYDRAW16 pEmr = (PU_EMRPOLYDRAW16)(contents);
+        //PU_EMRPOLYDRAW16 pEmr = (PU_EMRPOLYDRAW16)(contents);
     }
 
     void U_EMRCREATEMONOBRUSH_draw(const char *contents, FILE *out, drawingStates *states){
@@ -2123,7 +2111,7 @@ extern "C" {
     void U_EMRCREATECOLORSPACE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRCREATECOLORSPACE_print(contents, states);}
-        PU_EMRCREATECOLORSPACE pEmr = (PU_EMRCREATECOLORSPACE)(contents);
+        //PU_EMRCREATECOLORSPACE pEmr = (PU_EMRCREATECOLORSPACE)(contents);
     }
 
     void U_EMRSETCOLORSPACE_draw(const char *contents, FILE *out, drawingStates *states){
@@ -2144,7 +2132,7 @@ extern "C" {
     void U_EMRPIXELFORMAT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRPIXELFORMAT_print(contents, states);}
-        PU_EMRPIXELFORMAT pEmr = (PU_EMRPIXELFORMAT)(contents);
+        //PU_EMRPIXELFORMAT pEmr = (PU_EMRPIXELFORMAT)(contents);
     }
 
     // U_EMRDRAWESCAPE          105  Not implemented
@@ -2157,7 +2145,7 @@ extern "C" {
     void U_EMRSMALLTEXTOUT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSMALLTEXTOUT_print(contents, states);}
-        PU_EMRSMALLTEXTOUT pEmr = (PU_EMRSMALLTEXTOUT)(contents);
+        //PU_EMRSMALLTEXTOUT pEmr = (PU_EMRSMALLTEXTOUT)(contents);
         //text_draw(contents, out, states, UTF_16);
     }
 
@@ -2193,8 +2181,7 @@ extern "C" {
     void U_EMRGRADIENTFILL_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRGRADIENTFILL_print(contents, states);}
-        unsigned int i;
-        PU_EMRGRADIENTFILL pEmr = (PU_EMRGRADIENTFILL)(contents);
+        //PU_EMRGRADIENTFILL pEmr = (PU_EMRGRADIENTFILL)(contents);
     }
 
     // U_EMRSETLINKEDUFIS       119  Not implemented
@@ -2207,8 +2194,7 @@ extern "C" {
     void U_EMRCREATECOLORSPACEW_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRCREATECOLORSPACEW_print(contents, states);}
-        unsigned int i;
-        PU_EMRCREATECOLORSPACEW pEmr = (PU_EMRCREATECOLORSPACEW)(contents);
+        //PU_EMRCREATECOLORSPACEW pEmr = (PU_EMRCREATECOLORSPACEW)(contents);
     }
 
     int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum, size_t off, FILE *out, drawingStates *states){

@@ -168,7 +168,6 @@ extern "C" {
     int U_PMR_MULTIFORMATEND_print(const char *contents, FILE *out, drawingStates *states);      /* last of reserved but not used */
 
     int U_pmf_onerec_print(const char *contents, const char *blimit, int recnum, int off, FILE *out, drawingStates *states);
-    int pmf2svg(char *contents, size_t length, FILE *out, drawingStates *states);
 
 
 #ifdef __cplusplus
