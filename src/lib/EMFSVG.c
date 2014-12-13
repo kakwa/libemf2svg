@@ -335,7 +335,7 @@ extern "C" {
         states->objectTable[index] = (const emfGraphObject){ 0 };
     }
     void freeObjectTable(drawingStates * states){
-        for(uint16_t i = 0; i < (states->objectTableSize + 1); i++){
+        for(int32_t i = 0; i < (states->objectTableSize + 1); i++){
             freeObject(states, i);
         }
     }
@@ -2561,7 +2561,7 @@ extern "C" {
         // analyze emf structure
         while(OK){
             if(off>=length){ //normally should exit from while after EMREOF sets OK to false, this is most likely a corrupt EMF
-                if (states->verbose){printf("WARNING: record claims to extend beyond the end of the EMF file\n");}
+                if (states->verbose){printf("WARNING(scanning): record claims to extend beyond the end of the EMF file\n");}
                 OK=0;
                 err=0;
             }
@@ -2569,13 +2569,13 @@ extern "C" {
             pEmr = (PU_ENHMETARECORD)(contents + off);
 
             if(!recnum && (pEmr->iType != U_EMR_HEADER)){
-                if (states->verbose){printf("WARNING: EMF file does not begin with an EMR_HEADER record\n");}
+                if (states->verbose){printf("WARNING(scanning): EMF file does not begin with an EMR_HEADER record\n");}
                 OK=0;
                 err=0;
             }
             result = U_emf_onerec_analyse(contents, blimit, recnum, off, states);
             if(result == (size_t) -1 || states->Error){
-                if (states->verbose){printf("ABORTING on invalid record - corrupted file?\n");}
+                if (states->verbose){printf("ABORTING(scanning): invalid record - corrupted file?\n");}
                 OK=0;
             }
             else if(!result){
@@ -2600,7 +2600,7 @@ extern "C" {
         recnum=0;
         while(OK){
             if(off>=length){ //normally should exit from while after EMREOF sets OK to false, this is most likely a corrupt EMF
-                if (states->verbose){printf("WARNING: record claims to extend beyond the end of the EMF file\n");}
+                if (states->verbose){printf("WARNING(converting): record claims to extend beyond the end of the EMF file\n");}
                 OK=0;
                 err=0;
             }
@@ -2609,7 +2609,7 @@ extern "C" {
 
             result = U_emf_onerec_draw(contents, blimit, recnum, off, stream, states);
             if(result == (size_t) -1 || states->Error){
-                if (states->verbose){printf("ABORTING on invalid record - corrupted file?\n");}
+                if (states->verbose){printf("ABORTING(converting): invalid record - corrupted file?\n");}
                 OK=0;
                 err=0;
             }

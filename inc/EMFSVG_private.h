@@ -237,7 +237,7 @@ extern "C" {
         // initialized to -1
         // the "real" object table is objectTableSize + 1 
         // reason: (indexes in emf files start a 1 and not 0)
-        uint32_t objectTableSize; 
+        int32_t objectTableSize;
         // scaling ratio
         double scaling;
         double scalingX;
