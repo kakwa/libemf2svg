@@ -332,6 +332,7 @@ extern "C" {
             free(states->objectTable[index].font_name);
         if(states->objectTable[index].font_family != NULL)
             free(states->objectTable[index].font_family);
+        states->objectTable[index] = (const emfGraphObject){ 0 };
     }
     void freeObjectTable(drawingStates * states){
         for(uint16_t i = 0; i < (states->objectTableSize + 1); i++){
@@ -1460,7 +1461,6 @@ extern "C" {
         uint16_t index = pEmr->ihObject;
         returnOutOfOTIndex(index);
         freeObject(states, index);
-        states->objectTable[index] = (const emfGraphObject){ 0 };
     } 
 
     void U_EMRANGLEARC_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1885,11 +1885,15 @@ extern "C" {
         PU_EMREXTCREATEFONTINDIRECTW pEmr = (PU_EMREXTCREATEFONTINDIRECTW) (contents);
         uint16_t index = pEmr->ihFont;
         returnOutOfOTIndex(index);
-        if (states->objectTable[index].font_name != NULL)
+        if (states->objectTable[index].font_name != NULL){
             free(states->objectTable[index].font_name);
+            states->objectTable[index].font_name = NULL;
+        }
 
-        if (states->objectTable[index].font_family != NULL)
+        if (states->objectTable[index].font_family != NULL){
             free(states->objectTable[index].font_family);
+            states->objectTable[index].font_family = NULL;
+        }
 
          U_LOGFONT logfont;
 
