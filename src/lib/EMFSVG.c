@@ -107,7 +107,7 @@ extern "C" {
         }
     }
 
-    bool checkOutOfOTIndex(drawingStates *states, int32_t index){
+    bool checkOutOfOTIndex(drawingStates *states, int64_t index){
         if (index > states->objectTableSize){
             states->Error = true;
             return true;

@@ -43,7 +43,7 @@ extern "C" {
 #define FLAG_RESET     verbose_printf("%s", KNRM);
 
 #define returnOutOfEmf(a) if (checkOutOfEMF(states, (uint64_t)(a))){return;}
-#define returnOutOfOTIndex(a) if (checkOutOfOTIndex(states, (int32_t)(a))){return;}
+#define returnOutOfOTIndex(a) if (checkOutOfOTIndex(states, (int64_t)(a))){return;}
 
 #define UTF_16 1
 #define ASCII  0
@@ -237,7 +237,7 @@ extern "C" {
         // initialized to -1
         // the "real" object table is objectTableSize + 1 
         // reason: (indexes in emf files start a 1 and not 0)
-        int32_t objectTableSize;
+        int64_t objectTableSize;
         // scaling ratio
         double scaling;
         double scalingX;
@@ -288,7 +288,7 @@ extern "C" {
     // checks if address is outside the memory containing the emf file
     bool checkOutOfEMF(drawingStates *states, uint64_t address);
     // checks if index is greater than the object table size
-    bool checkOutOfOTIndex(drawingStates *states, int32_t index);
+    bool checkOutOfOTIndex(drawingStates *states, int64_t index);
 
     /* prototypes for objects used in EMR records */
     void hexbytes_draw(drawingStates *states, uint8_t *buf,unsigned int num);
