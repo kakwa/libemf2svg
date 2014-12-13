@@ -2573,6 +2573,12 @@ extern "C" {
                 OK=0;
                 err=0;
             }
+            if(recnum && (pEmr->iType == U_EMR_HEADER)){
+                if (states->verbose){printf("ABORTING(scanning): EMF contains two or more EMR_HEADER records\n");}
+                OK=0;
+                err=0;
+            }
+
             result = U_emf_onerec_analyse(contents, blimit, recnum, off, states);
             if(result == (size_t) -1 || states->Error){
                 if (states->verbose){printf("ABORTING(scanning): invalid record - corrupted file?\n");}
