@@ -1755,7 +1755,6 @@ extern "C" {
     void U_EMRCOMMENT_draw(const char *contents, FILE *out, drawingStates *states, const char *blimit, size_t off){
         FLAG_IGNORED;
         if (states->verbose){U_EMRCOMMENT_print(contents, states, blimit, off);}
-        char *string;
         char *src;
         uint32_t cIdent,cIdent2,cbData;
         size_t loff;
@@ -1806,12 +1805,6 @@ extern "C" {
                 }
                 return;
             }
-        }
-        if(cbData){ // The data may not be printable, but try it just in case
-            string = (char *)malloc(cbData + 1);
-            (void)strncpy(string, src, cbData);
-            string[cbData] = '\0'; // it might not be terminated - it might not even be text!
-            free(string);
         }
     } 
 
