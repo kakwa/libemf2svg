@@ -716,11 +716,15 @@ extern "C" {
 
         PU_EMRHEADER pEmr = (PU_EMRHEADER)(contents);
         if(pEmr->offDescription){
-            returnOutOfEmf((uint16_t *)((char *) pEmr + pEmr->offDescription) + 2 * pEmr->nDescription);
+            returnOutOfEmf((uint16_t *)((char *) (uint64_t)pEmr + \
+                (uint64_t)pEmr->offDescription) \
+                + 2 * (uint64_t)pEmr->nDescription);
             string = U_Utf16leToUtf8((uint16_t *)((char *) pEmr + pEmr->offDescription), pEmr->nDescription, NULL);
             free(string);
             p1len = 2 + 2*wchar16len((uint16_t *)((char *) pEmr + pEmr->offDescription));
-            returnOutOfEmf((uint16_t *)((char *) pEmr + pEmr->offDescription + p1len) + 2 * pEmr->nDescription);
+            returnOutOfEmf((uint16_t *)((char *) (uint64_t)pEmr + \
+                (uint64_t)pEmr->offDescription + \
+                (uint64_t)p1len) + 2 * (uint64_t)pEmr->nDescription);
             string = U_Utf16leToUtf8((uint16_t *)((char *) pEmr + pEmr->offDescription + p1len), pEmr->nDescription, NULL);
             free(string);
         }
