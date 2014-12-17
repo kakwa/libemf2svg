@@ -16,6 +16,11 @@ if(USE_CLANG)
     SET(CMAKE_CC_COMPILER    "clang")
 endif(USE_CLANG)
 
+if(USE_GCC)
+    SET(CMAKE_CXX_COMPILER "g++")
+    SET(CMAKE_CC_COMPILER  "gcc")
+endif(USE_GCC)
+
 option(DEBUG "compile with debug symbol" OFF)
 
 option(STATIC "compile statically" OFF)
