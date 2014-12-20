@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.6)
 
 project (emf2svg)
 
+include(TestBigEndian)
+
 set(EMFSVG_VERSION_MAJOR 0)
 set(EMFSVG_VERSION_MINOR 0)
 set(EMFSVG_VERSION_PATCH 1)
@@ -43,7 +45,10 @@ else(STATIC)
     set(SHARED "SHARED")
 endif(STATIC)
 
-
+TEST_BIG_ENDIAN(BIGENDIAN)
+IF(${BIGENDIAN})
+    add_definitions(-DWORDS_BIGENDIAN)
+ENDIF(${BIGENDIAN})
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code

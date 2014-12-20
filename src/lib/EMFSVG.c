@@ -2523,6 +2523,11 @@ extern "C" {
         FILE *stream;
         size_t len;
 
+#if U_BYTE_SWAP
+        //This is a Big Endian machine, EMF data is Little Endian
+        U_emf_endian(contents,length,0);  // LE to BE
+#endif
+
         drawingStates * states = (drawingStates *)calloc(1,sizeof(drawingStates));
         states->verbose = options->verbose;
         states->emfplus = options->emfplus;
