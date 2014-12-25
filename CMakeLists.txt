@@ -42,7 +42,11 @@ if(STATIC)
     SET(BUILD_SHARED_LIBRARIES OFF)
     SET(CMAKE_EXE_LINKER_FLAGS "-static")
 else(STATIC)
-    set(SHARED "SHARED")
+    IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(SHARED "")
+    ELSE(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(SHARED "SHARED")
+    ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif(STATIC)
 
 TEST_BIG_ENDIAN(BIGENDIAN)
@@ -57,23 +61,9 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
    include(ExternalProject)
 
-   SET(LIBICONVBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/libiconv/")
-   SET(LIBICONVHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv/")
-   SET(LIBICONVLINKDIR  "${LIBICONVBUILDDIR}/src/iconv-standalone-build/lib/")
-   SET(LIBICONVLIB  "iconv")
-
-   ExternalProject_Add( iconv-standalone
-        PREFIX ${LIBICONVBUILDDIR}
-        DOWNLOAD_DIR ${LIBICONVBUILDDIR}/sources/
-        DOWNLOAD_COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv/ ./
-        SOURCE_DIR ${LIBICONVBUILDDIR}/sources/
-        CONFIGURE_COMMAND ${LIBICONVBUILDDIR}/sources/configure
-        BUILD_COMMAND ${MAKE}
-   )
-
    SET(LIBCLIPPERBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/clipper/")
    SET(LIBCLIPPERHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/clipper/")
-   SET(LIBCLIPPERLINKDIR  "${LIBCLIPPERBUILDDIR}/src/iconv-standalone-build/lib/")
+   SET(LIBCLIPPERLINKDIR  "${LIBCLIPPERBUILDDIR}/src/clipper-standalone-build/lib/")
    SET(LIBCLIPPERLIB  "clipper")
 
    ExternalProject_Add( clipper-standalone
@@ -81,7 +71,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         DOWNLOAD_DIR ${LIBCLIPPERBUILDDIR}/sources/
         DOWNLOAD_COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/deps/libpolyclipping/ ./
         SOURCE_DIR ${LIBCLIPPERBUILDDIR}/sources/
-        CONFIGURE_COMMAND cmake ${LIBCLIPPERBUILDDIR}/sources/configure/
+        CONFIGURE_COMMAND cmake ${LIBCLIPPERBUILDDIR}/sources/cpp/
         BUILD_COMMAND ${MAKE}
    )
 
@@ -100,7 +90,23 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         BUILD_COMMAND ${MAKE}
    )
 
+   SET(LIBICONVBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/libiconv/")
+   SET(LIBICONVHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv/")
+   SET(LIBICONVLINKDIR  "${LIBICONVBUILDDIR}/src/iconv-standalone-build/lib/")
+   SET(LIBICONVLIB  "iconv")
+
+   ExternalProject_Add( iconv-standalone
+        PREFIX ${LIBICONVBUILDDIR}
+        DOWNLOAD_DIR ${LIBICONVBUILDDIR}/sources/
+        DOWNLOAD_COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv/ ./
+        SOURCE_DIR ${LIBICONVBUILDDIR}/sources/
+        CONFIGURE_COMMAND ${LIBICONVBUILDDIR}/sources/configure
+        BUILD_COMMAND ${MAKE}
+   )
+
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+
 
 LINK_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/
@@ -129,14 +135,22 @@ set_target_properties(EMFSVG PROPERTIES VERSION ${EMFSVG_VERSION} SOVERSION ${EM
 
 add_executable(emf2svg src/conv/emf2svg.cpp)
 
-target_link_libraries(emf2svg EMFSVG ${MEMSTREAMLIB} ${ARGPLIB} ${LIBICONVLIB}) 
+target_link_libraries(emf2svg EMFSVG ${LIBICONVLIB} ${MEMSTREAMLIB} ${ARGPLIB} ) 
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
 
-INSTALL(TARGETS emf2svg EMFSVG ${MEMSTREAMLIB} ${ARGPLIB} ${LIBICONVLIB}
+INSTALL(TARGETS emf2svg EMFSVG ${MEMSTREAMLIB}
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
 )
 INSTALL(FILES inc/EMFSVG.h DESTINATION "include")
+
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   add_dependencies(emf2svg clipper-standalone)
+   add_dependencies(emf2svg argp-standalone)
+   add_dependencies(emf2svg iconv-standalone)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+
