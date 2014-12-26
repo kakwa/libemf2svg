@@ -9,7 +9,7 @@ mkdir -p ../out
 
 # Once a file is seen as corrupted by emf2svg
 # we alter if $MAX more times to try to make
-# emf2svn crash
+# emf2svg crash
 MAX=100
 
 burn_in_hell(){
