@@ -77,7 +77,7 @@ verbose_print(){
 cd $ABSPATH
 rm -rf $OUTDIR
 mkdir -p $OUTDIR
-for emf in `find $EMFDIR -type f`
+for emf in `find $EMFDIR -type f |sort`
 do
     verbose_print "\n############## `basename "${emf}"` ####################"
     verbose_print "Command: ../../emf2svg -p -i \"$emf\" -o ${OUTDIR}/`basename ${emf}`.svg"
