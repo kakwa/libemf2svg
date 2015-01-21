@@ -4,6 +4,7 @@ before_install:
   - sudo apt-get install clang
   - sudo apt-get install valgrind
   - sudo apt-get install libxml2-utils
+  - sudo apt-get install libpolyclipping-dev
   - sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -f -q -y ; true
 
 language: cpp
