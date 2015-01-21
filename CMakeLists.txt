@@ -125,7 +125,7 @@ include_directories(
     ${LIBICONVHEADERDIR}
 )
 
-add_library(EMFSVG ${SHARED} src/lib/EMFSVG.c src/lib/EMFSVG_print.c src/lib/PMFSVG.c src/lib/PMFSVG_print.c src/lib/uemf_utf.c src/lib/uemf_endian.c src/lib/uemf.c src/lib/upmf.c)
+add_library(EMFSVG ${SHARED} src/lib/EMFSVG.c src/lib/EMFSVG_print.c src/lib/PMFSVG.c src/lib/PMFSVG_print.c src/lib/uemf_utf.c src/lib/uemf_endian.c src/lib/uemf.c src/lib/upmf.c src/lib/clipperWrapper.cpp)
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    add_library(memstream ${SHARED} src/lib/memstream.c)
