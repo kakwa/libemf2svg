@@ -336,9 +336,9 @@ void rgndataheader_swap(
 void rgndata_swap(
       PU_RGNDATA rd
    ){
-   int count = rd->rdh.nCount;
    rgndataheader_swap(&(rd->rdh));
-   U_swap4(rd->Buffer,4*count);
+   int count = rd->rdh.nCount;
+   rectl_swap((PU_RECTL)&(rd->Buffer), count);
 }
 
 /**
@@ -565,7 +565,7 @@ void core11_swap(char *record, int torev){
    }
    // This one is a pain since each RGNDATA may be a different size, so it isn't possible to index through them.
    char *prd = (char *) &(pEmr->RgnData);
-   while(roff + 28 < limit){                // up to the end of the record
+   if(pEmr->cbRgnData){
       if(torev){
          nextroff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
          rgndata_swap((PU_RGNDATA) (prd + roff));
@@ -1126,7 +1126,7 @@ void U_EMRFILLRGN_swap(char *record, int torev){
    U_swap4(&(pEmr->cbRgnData),2);           // cbRgnData ihBrush
    // This one is a pain since each RGNDATA may be a different size, so it isn't possible to index through them.
    char *prd = (char *) &(pEmr->RgnData);
-   while(roff + 28 < limit){                // up to the end of the record
+   if (pEmr->cbRgnData){
       if(torev){
          nextroff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
          rgndata_swap((PU_RGNDATA) (prd + roff));
@@ -1159,7 +1159,7 @@ void U_EMRFRAMERGN_swap(char *record, int torev){
    sizel_swap(&(pEmr->szlStroke), 2);       // szlStroke
    // This one is a pain since each RGNDATA may be a different size, so it isn't possible to index through them.
    char *prd = (char *) &(pEmr->RgnData);
-   while(roff + 28 < limit){                // up to the end of the record
+   if (pEmr->cbRgnData){
       if(torev){
          nextroff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
          rgndata_swap((PU_RGNDATA) (prd + roff));
@@ -1199,7 +1199,7 @@ void U_EMREXTSELECTCLIPRGN_swap(char *record, int torev){
    // This one is a pain since each RGNDATA may be a different size, so it isn't possible to index through them.
    char *prd = (char *) &(pEmr->RgnData);
    nextroff = roff = 0;
-   while(roff + 16 < limit){                // up to the end of the record
+   if (pEmr->cbRgnData){
       if(torev){
          nextroff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
          rgndata_swap((PU_RGNDATA) (prd + roff));
