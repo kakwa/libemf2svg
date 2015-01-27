@@ -545,36 +545,14 @@ void core10_swap(char *record, int torev){
 
 // Functions with the same form starting with  U_EMRINVERTRGN_swap and U_EMRPAINTRGN_swap,
 void core11_swap(char *record, int torev){
-   int roff=0;
-   int nextroff=0;
-   int limit=0;
    PU_EMRINVERTRGN pEmr = (PU_EMRINVERTRGN) (record);
-   roff = 0;
-   if(torev){
-      limit    = pEmr->emr.nSize;
-      nextroff = 0;
-   }
    core5_swap(record, torev);
-   if(!torev){
-      limit    = pEmr->emr.nSize;
-   }
    rectl_swap(&(pEmr->rclBounds),1);        // rclBounds
    U_swap4(&(pEmr->cbRgnData),1);           // cbRgnData
-   if(!torev){
-      limit = pEmr->emr.nSize;   
-   }
    // This one is a pain since each RGNDATA may be a different size, so it isn't possible to index through them.
    char *prd = (char *) &(pEmr->RgnData);
    if(pEmr->cbRgnData){
-      if(torev){
-         nextroff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-         rgndata_swap((PU_RGNDATA) (prd + roff));
-         roff  = nextroff;
-      }
-      else {
-         rgndata_swap((PU_RGNDATA) (prd + roff));
-         roff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-      }
+       rgndata_swap((PU_RGNDATA) (prd));
    }
 } 
 
@@ -1109,66 +1087,27 @@ void U_EMRCOMMENT_swap(char *record, int torev){
 
 // U_EMRFILLRGN              71
 void U_EMRFILLRGN_swap(char *record, int torev){
-   int roff=0;
-   int nextroff=0;
-   int limit=0;
-   roff=0;
    PU_EMRFILLRGN pEmr = (PU_EMRFILLRGN)(record);
-   if(torev){
-      limit    = pEmr->emr.nSize;
-      nextroff = 0; 
-   }
    core5_swap(record, torev);
-   if(!torev){
-      limit    = pEmr->emr.nSize;
-   }
    rectl_swap(&(pEmr->rclBounds),1);        // rclBounds
    U_swap4(&(pEmr->cbRgnData),2);           // cbRgnData ihBrush
-   // This one is a pain since each RGNDATA may be a different size, so it isn't possible to index through them.
    char *prd = (char *) &(pEmr->RgnData);
-   if (pEmr->cbRgnData){
-      if(torev){
-         nextroff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-         rgndata_swap((PU_RGNDATA) (prd + roff));
-         roff  = nextroff;
-      }
-      else {
-         rgndata_swap((PU_RGNDATA) (prd + roff));
-         roff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-      }
+   if(pEmr->cbRgnData){
+       rgndata_swap((PU_RGNDATA) prd);
    }
 } 
 
 // U_EMRFRAMERGN             72
 void U_EMRFRAMERGN_swap(char *record, int torev){
-   int roff=0;
-   int nextroff=0;
-   int limit=0;
    PU_EMRFRAMERGN pEmr = (PU_EMRFRAMERGN)(record);
-   roff = 0;
-   if(torev){
-      limit    = pEmr->emr.nSize;
-      nextroff = 0; 
-   }
+   
    core5_swap(record, torev);
-   if(!torev){
-      limit    = pEmr->emr.nSize;
-   }
    rectl_swap(&(pEmr->rclBounds),1);        // rclBounds
    U_swap4(&(pEmr->cbRgnData),2);           // cbRgnData ihBrush
    sizel_swap(&(pEmr->szlStroke), 2);       // szlStroke
-   // This one is a pain since each RGNDATA may be a different size, so it isn't possible to index through them.
    char *prd = (char *) &(pEmr->RgnData);
-   if (pEmr->cbRgnData){
-      if(torev){
-         nextroff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-         rgndata_swap((PU_RGNDATA) (prd + roff));
-         roff  = nextroff;
-      }
-      else {
-         rgndata_swap((PU_RGNDATA) (prd + roff));
-         roff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-      }
+   if(pEmr->cbRgnData){
+      rgndata_swap((PU_RGNDATA) prd);
    }
 } 
 
@@ -1184,31 +1123,12 @@ void U_EMRPAINTRGN_swap(char *record, int torev){
 
 // U_EMREXTSELECTCLIPRGN     75
 void U_EMREXTSELECTCLIPRGN_swap(char *record, int torev){
-   int roff=0;
-   int nextroff=0;
-   int limit=0;
    PU_EMREXTSELECTCLIPRGN pEmr = (PU_EMREXTSELECTCLIPRGN) (record);
-   if(torev){
-      limit    = pEmr->emr.nSize;
-   }
    core5_swap(record, torev);
-   if(!torev){
-      limit    = pEmr->emr.nSize;
-   }
    U_swap4(&(pEmr->cbRgnData),2);           // cbRgnData iMode
-   // This one is a pain since each RGNDATA may be a different size, so it isn't possible to index through them.
    char *prd = (char *) &(pEmr->RgnData);
-   nextroff = roff = 0;
-   if (pEmr->cbRgnData){
-      if(torev){
-         nextroff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-         rgndata_swap((PU_RGNDATA) (prd + roff));
-         roff  = nextroff;
-      }
-      else {
-         rgndata_swap((PU_RGNDATA) (prd + roff));
-         roff += (((PU_RGNDATA)prd)->rdh.dwSize + ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-      }
+   if(pEmr->cbRgnData){
+      rgndata_swap((PU_RGNDATA) prd);
    }
 } 
 
