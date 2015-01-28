@@ -2,69 +2,71 @@ cmake_minimum_required (VERSION 2.6)
 
 project (emf2svg)
 
-include(TestBigEndian)
-
+# Project version (sematic versionning)
 set(EMFSVG_VERSION_MAJOR 0)
 set(EMFSVG_VERSION_MINOR 0)
 set(EMFSVG_VERSION_PATCH 1)
+
 set(EMFSVG_VERSION ${EMFSVG_VERSION_MAJOR}.${EMFSVG_VERSION_MINOR}.${EMFSVG_VERSION_PATCH})
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES external-build)
 
+# Options
+option(DEBUG     "compile with debug symbol"    OFF)
+option(STATIC    "compile statically"           OFF)
 option(USE_CLANG "build application with clang" OFF)
+option(USE_GCC   "build application with gcc"   OFF)
 
 if(USE_CLANG)
-    SET(CMAKE_CXX_COMPILER "clang++")
-    SET(CMAKE_CC_COMPILER    "clang")
+    set(CMAKE_CXX_COMPILER "clang++")
+    set(CMAKE_CC_COMPILER  "clang"  )
 endif(USE_CLANG)
 
 if(USE_GCC)
-    SET(CMAKE_CXX_COMPILER "g++")
-    SET(CMAKE_CC_COMPILER  "gcc")
+    set(CMAKE_CXX_COMPILER "g++")
+    set(CMAKE_CC_COMPILER  "gcc")
 endif(USE_GCC)
-
-option(DEBUG "compile with debug symbol" OFF)
-
-option(STATIC "compile statically" OFF)
 
 if(DEBUG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
     set(CMAKE_BUILD_TYPE Debug)
 endif(DEBUG)
 
-if(UNIX)
-  link_libraries(m)
-endif(UNIX)
-
 if(STATIC)
     set(SHARED "")
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-    SET(BUILD_SHARED_LIBRARIES OFF)
-    SET(CMAKE_EXE_LINKER_FLAGS "-static")
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    set(BUILD_SHARED_LIBRARIES OFF)
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
 else(STATIC)
-    IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    IF(${CMAKE_SYSTEM_NAME}    MATCHES "Darwin")
         set(SHARED "")
-    ELSE(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    ELSE(${CMAKE_SYSTEM_NAME}  MATCHES "Darwin")
         set(SHARED "SHARED")
     ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif(STATIC)
 
+if(UNIX)
+  link_libraries(m)
+endif(UNIX)
+
+include(TestBigEndian)
 TEST_BIG_ENDIAN(BIGENDIAN)
 IF(${BIGENDIAN})
     add_definitions(-DWORDS_BIGENDIAN)
 ENDIF(${BIGENDIAN})
 
+# Build external dependancies if we are on OSX
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
-   SET(MEMSTREAMLIB "memstream")
+   set(MEMSTREAMLIB "memstream")
    add_definitions(-DDARWIN)
 
    include(ExternalProject)
 
-   SET(LIBCLIPPERBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/clipper/")
-   SET(LIBCLIPPERHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/clipper/")
-   SET(LIBCLIPPERLINKDIR  "${LIBCLIPPERBUILDDIR}/src/clipper-standalone-build/lib/")
-   SET(LIBCLIPPERLIB  "clipper")
+   set(LIBCLIPPERBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/clipper/")
+   set(LIBCLIPPERHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/clipper/")
+   set(LIBCLIPPERLINKDIR  "${LIBCLIPPERBUILDDIR}/src/clipper-standalone-build/lib/")
+   set(LIBCLIPPERLIB  "clipper")
 
    ExternalProject_Add( clipper-standalone
         PREFIX ${LIBCLIPPERBUILDDIR}
@@ -75,10 +77,10 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         BUILD_COMMAND ${MAKE}
    )
 
-   SET(ARGPHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/argp-standalone/")
-   SET(ARGPBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/argp/")
-   SET(ARGPLINKDIR  "${ARGPBUILDDIR}/src/argp-standalone-build/")
-   SET(ARGPLIB  "argp")
+   set(ARGPHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/argp-standalone/")
+   set(ARGPBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/argp/")
+   set(ARGPLINKDIR  "${ARGPBUILDDIR}/src/argp-standalone-build/")
+   set(ARGPLIB  "argp")
 
    ExternalProject_Add( argp-standalone
         PREFIX ${ARGPBUILDDIR}
@@ -90,10 +92,10 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         BUILD_COMMAND ${MAKE}
    )
 
-   SET(LIBICONVBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/libiconv/")
-   SET(LIBICONVHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv/")
-   SET(LIBICONVLINKDIR  "${LIBICONVBUILDDIR}/src/iconv-standalone-build/lib/")
-   SET(LIBICONVLIB  "iconv")
+   set(LIBICONVBUILDDIR "${CMAKE_CURRENT_SOURCE_DIR}/external-build/libiconv/")
+   set(LIBICONVHEADERDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/libiconv/")
+   set(LIBICONVLINKDIR  "${LIBICONVBUILDDIR}/src/iconv-standalone-build/lib/")
+   set(LIBICONVLIB  "iconv")
 
    ExternalProject_Add( iconv-standalone
         PREFIX ${LIBICONVBUILDDIR}
@@ -103,11 +105,9 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         CONFIGURE_COMMAND ${LIBICONVBUILDDIR}/sources/configure
         BUILD_COMMAND ${MAKE}
    )
-
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
-
-
+# linking directories
 LINK_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/
     /usr/local/lib
@@ -117,6 +117,7 @@ LINK_DIRECTORIES(
     ${LIBICONVLINKDIR}
 )
 
+# headers directories
 include_directories(
     ./inc/
     /usr/include/ 
@@ -125,6 +126,7 @@ include_directories(
     ${LIBICONVHEADERDIR}
 )
 
+# Compile the library
 add_library(EMFSVG ${SHARED} src/lib/EMFSVG.c src/lib/EMFSVG_print.c src/lib/PMFSVG.c src/lib/PMFSVG_print.c src/lib/uemf_utf.c src/lib/uemf_endian.c src/lib/uemf.c src/lib/upmf.c src/lib/clipperWrapper.cpp)
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
@@ -132,25 +134,25 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 set_target_properties(EMFSVG PROPERTIES VERSION ${EMFSVG_VERSION} SOVERSION ${EMFSVG_VERSION_MAJOR})
 
-
+# Compile the executable
 add_executable(emf2svg src/conv/emf2svg.cpp)
-
 target_link_libraries(emf2svg EMFSVG ${LIBICONVLIB} ${MEMSTREAMLIB} ${ARGPLIB} ) 
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
 
+# install binaries and library
 INSTALL(TARGETS emf2svg EMFSVG ${MEMSTREAMLIB}
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
 )
+# install header file
 INSTALL(FILES inc/EMFSVG.h DESTINATION "include")
 
+# dependancies if we are on OSX
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    add_dependencies(emf2svg clipper-standalone)
    add_dependencies(emf2svg argp-standalone)
    add_dependencies(emf2svg iconv-standalone)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-
