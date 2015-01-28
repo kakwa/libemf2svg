@@ -33,6 +33,7 @@ typedef struct clipsegmentlist {
 
 clipSegmentList bezierToLine(clipSegment seg);
 clipSegmentList  arcToLine(clipSegment seg);
+clipSegmentList merge(clipSegmentList form1, clipSegmentList form2, operation op);
 
 #ifdef __cplusplus
 }
