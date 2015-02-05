@@ -1,6 +1,8 @@
 libemf2svg
 ==========
 
+[![Join the chat at https://gitter.im/kakwa/libemf2svg](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kakwa/libemf2svg?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/kakwa/libemf2svg.svg?branch=master)](https://travis-ci.org/kakwa/libemf2svg)
 
 EMF to SVG conversion library
