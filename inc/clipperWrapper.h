@@ -18,8 +18,8 @@ enum operation{
 
 typedef struct{
     //start
-    POINT_D s;
-    POINT_D e;
+    POINT_D st;
+    POINT_D en;
     POINT_D c1;
     POINT_D c2;
     segmentType type;
@@ -28,11 +28,12 @@ typedef struct{
 typedef struct clipsegmentlist {
     clipSegment seg;
     struct clipsegmentlist * next;
+    struct clipsegmentlist * prev;
 } clipSegmentList;
 
 
-clipSegmentList bezierToLine(clipSegment seg);
-clipSegmentList  arcToLine(clipSegment seg);
+clipSegmentList *bezierToLine(clipSegmentList *seg, uint32_t depth);
+clipSegmentList *arcToLine(clipSegmentList *seg, uint32_t depth);
 clipSegmentList merge(clipSegmentList form1, clipSegmentList form2, operation op);
 
 #ifdef __cplusplus
