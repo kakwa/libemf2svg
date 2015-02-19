@@ -7,43 +7,49 @@ extern "C" {
 
 clipSegmentList * bezierToLine(clipSegmentList *seg, uint32_t depth){
 
+    // end of recursion
     if (depth == 0){
         return seg;
     }
 
+    // each iteration transforms a bezier curve into 2 smaller bezier curves
     clipSegmentList *newPt1 = (clipSegmentList *)malloc(sizeof(clipSegmentList));
     clipSegmentList *newPt2 = (clipSegmentList *)malloc(sizeof(clipSegmentList));
 
-    // some math is still needed
-    newPt1->seg.st.x = 0;
-    newPt1->seg.en.x = 0;
-    newPt1->seg.c1.x = 0;
-    newPt1->seg.c2.x = 0;
+    // some matrix products
+    newPt1->seg.st.x = seg->seg.st.x;
+    newPt1->seg.c1.x = seg->seg.st.x / 2 + seg->seg.c1.x * 1 / 2;
+    newPt1->seg.c2.x = seg->seg.st.x / 4 + seg->seg.c1.x * 2 / 4 + seg->seg.c2.x * 1 / 4;
+    newPt1->seg.en.x = seg->seg.st.x / 8 + seg->seg.c1.x * 3 / 8 + seg->seg.c2.x * 3 / 8 + seg->seg.en.x / 8;
 
-    newPt1->seg.st.y = 0;
-    newPt1->seg.en.y = 0;
-    newPt1->seg.c1.y = 0;
-    newPt1->seg.c2.y = 0;
+    newPt1->seg.st.y = seg->seg.st.y;
+    newPt1->seg.c1.y = seg->seg.st.y / 2 + seg->seg.c1.y * 1 / 2;
+    newPt1->seg.c2.y = seg->seg.st.y / 4 + seg->seg.c1.y * 2 / 4 + seg->seg.c2.y * 1 / 4;
+    newPt1->seg.en.y = seg->seg.st.y / 8 + seg->seg.c1.y * 3 / 8 + seg->seg.c2.y * 3 / 8 + seg->seg.en.y / 8;
+
+
+    newPt2->seg.st.x = seg->seg.st.x / 8 + seg->seg.c1.x * 3 / 8 + seg->seg.c2.x * 3 / 8 + seg->seg.en.x / 8;
+    newPt2->seg.en.x =                     seg->seg.c1.x * 1 / 4 + seg->seg.c2.x * 2 / 4 + seg->seg.en.x / 4;
+    newPt2->seg.c1.x =                                             seg->seg.c2.x * 1 / 2 + seg->seg.en.x / 2;
+    newPt2->seg.c2.x =                                                                     seg->seg.en.x    ;
+
+    newPt2->seg.st.y = seg->seg.st.y / 8 + seg->seg.c1.y * 3 / 8 + seg->seg.c2.y * 3 / 8 + seg->seg.en.y / 8;
+    newPt2->seg.en.y =                     seg->seg.c1.y * 1 / 4 + seg->seg.c2.y * 2 / 4 + seg->seg.en.y / 4;
+    newPt2->seg.c1.y =                                             seg->seg.c2.y * 1 / 2 + seg->seg.en.y / 2;
+    newPt2->seg.c2.y =                                                                     seg->seg.en.y    ;
+
 
     newPt1->seg.type = LINE;
-
-    newPt2->seg.st.x = 0;
-    newPt2->seg.en.x = 0;
-    newPt2->seg.c1.x = 0;
-    newPt2->seg.c2.x = 0;
-
-    newPt2->seg.st.y = 0;
-    newPt2->seg.en.y = 0;
-    newPt2->seg.c1.y = 0;
-    newPt2->seg.c2.y = 0;
-
     newPt2->seg.type = LINE;
 
+    // free the input bezier curve
     free(seg);
 
+    // recursion
     clipSegmentList *newSegStart1 = bezierToLine(newPt1, depth - 1);
     clipSegmentList *newSegStart2 = bezierToLine(newPt2, depth - 1);
 
+    // link the two new bezier curves
     clipSegmentList *newSegEnd1 = newSegStart1->prev;
     clipSegmentList *newSegEnd2 = newSegStart2->prev;
 
