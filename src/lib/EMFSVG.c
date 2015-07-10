@@ -2551,14 +2551,16 @@ extern "C" {
         states->objectTableSize = -1;
         setTransformIdentity(states);
 
+        blimit = contents + length;
+        int err=1;
+
         stream = open_memstream(out, &len);
         if (stream == NULL){
             if (states->verbose){printf("Failed to allocate output stream\n");}
-            return(0);
+            FLAG_RESET;
+            err=0;
+            OK=0;
         }
-
-        blimit = contents + length;
-        int err=1;
 
         // analyze emf structure
         while(OK){
