@@ -33,7 +33,7 @@
 
 using namespace std;
 
-const char *argp_program_version = "emf2svg 1.0";
+const char *argp_program_version = E2S_VERSION;
 
 const char *argp_program_bug_address = "<carpentier.pf@gmail.com>";
 
@@ -41,6 +41,7 @@ static char doc[] = "emf2svg -- Enhanced Metafile to SVG converter";
 
 static struct argp_option options[] = {
     {"verbose",  'v', 0,        0, "Produce verbose output"},
+    {"version",  'V', 0,        0, "Print emf2svg version"},
     {"emfplus",  'p', 0,        0, "Handle EMF+ records"},
     {"input",    'i', "FILE",   0, "Input EMF file"},
     {"output",   'o', "FILE",   0, "Output SVG file"},
@@ -55,7 +56,7 @@ static char args_doc[] = "-i FILE -o FILE";
 struct arguments
 {
     char *args[2];                /* arg1 & arg2 */
-    bool verbose, emfplus;
+    bool verbose, emfplus, version;
     char *output;
     char *input;
     int  width;
@@ -88,7 +89,9 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         case 'h':
             arguments->height  = std::atoi(arg);
             break;
-
+        case 'V':
+            arguments->version = 1;
+            break;
         default:
             return ARGP_ERR_UNKNOWN;
     }
@@ -105,10 +108,16 @@ int main(int argc, char *argv[])
     arguments.width = 0;
     arguments.height = 0;
     arguments.verbose = 0;
+    arguments.version = 0;
     arguments.input = NULL;
     arguments.output = NULL;
     arguments.emfplus = 0;
     argp_parse (&argp, argc, argv, 0, 0, &arguments);
+
+    if (arguments.version){
+        std::cout << "emf2svg version: " << E2S_VERSION << "\n";
+        return 0;
+    }
 
     if (arguments.input == NULL){
         std::cerr << "[ERROR] " <<"Missing --input=FILE argument\n";

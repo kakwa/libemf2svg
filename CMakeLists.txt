@@ -138,8 +138,8 @@ set_target_properties(EMFSVG PROPERTIES VERSION ${EMFSVG_VERSION} SOVERSION ${EM
 add_executable(emf2svg src/conv/emf2svg.cpp)
 target_link_libraries(emf2svg EMFSVG ${LIBICONVLIB} ${MEMSTREAMLIB} ${ARGPLIB} ) 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -DE2S_VERSION='\"${EMFSVG_VERSION}\"'")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall -DE2S_VERSION='\"${EMFSVG_VERSION}\"'")
 
 # install binaries and library
 INSTALL(TARGETS emf2svg EMFSVG ${MEMSTREAMLIB}
