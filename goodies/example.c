@@ -1,4 +1,4 @@
-#include <EMFSVG.h>
+#include <emf2svg.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-/* to compile: gcc -Wall -std=c99 -lm -lEMFSVG ./example.c -o test */
+/* to compile: gcc -Wall -std=c99 -lm -lemf2svg ./example.c -o test */
 int main(int argc, char *argv[]){
 
     // quick and dirty way to load the file in memory

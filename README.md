@@ -72,7 +72,7 @@ Library
 Shorten example ([complete example here](https://github.com/kakwa/libemf2svg/blob/master/goodies/example.c)):
 
 ```C
-#include <EMFSVG.h>
+#include <emf2svg.h>
 //[...]
 int main(int argc, char *argv[]){
 
@@ -121,8 +121,8 @@ Development
 
 General source code organisation:
 
-* [./src/lib/EMFSVG.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/EMFSVG.c): EMF record handler and API entry point.
-* [./src/lib/EMFSVG_print.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/EMFSVG_print.c): EMF record printer (debugging).
+* [./src/lib/emf2svg.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/emf2svg.c): EMF record handler and API entry point.
+* [./src/lib/emf2svg_print.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/emf2svg_print.c): EMF record printer (debugging).
 * [./src/lib/PMFSVG.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/PMFSVG.c): EMF+ record handler.
 * [./src/lib/PMFSVG_print.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/PMFSVG_print.c): EMF+ record printer (debugging).
 * [./src/conv/emf2svg.cpp](https://github.com/kakwa/libemf2svg/blob/master/src/conv/emf2svg.cpp): Command line tool.

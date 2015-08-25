@@ -8,7 +8,7 @@ percent(){
     printf "$(( $1 * 100 / $2  ))"
 }
 
-EMFC="../../src/lib/EMFSVG.c"
+EMFC="../../src/lib/emf2svg.c"
 PMFC="../../src/lib/PMFSVG_print.c"
 count_emf_SUPPORTED=`grep -c FLAG_SUPPORTED $EMFC`
 count_emf_IGNORED=`grep -c FLAG_IGNORED $EMFC`

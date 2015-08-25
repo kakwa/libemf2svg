@@ -3,11 +3,11 @@ cmake_minimum_required (VERSION 2.6)
 project (emf2svg)
 
 # Project version (sematic versionning)
-set(EMFSVG_VERSION_MAJOR 0)
-set(EMFSVG_VERSION_MINOR 0)
-set(EMFSVG_VERSION_PATCH 1)
+set(emf2svg_VERSION_MAJOR 0)
+set(emf2svg_VERSION_MINOR 0)
+set(emf2svg_VERSION_PATCH 1)
 
-set(EMFSVG_VERSION ${EMFSVG_VERSION_MAJOR}.${EMFSVG_VERSION_MINOR}.${EMFSVG_VERSION_PATCH})
+set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES external-build)
 
@@ -127,28 +127,28 @@ include_directories(
 )
 
 # Compile the library
-add_library(EMFSVG ${SHARED} src/lib/EMFSVG.c src/lib/EMFSVG_print.c src/lib/PMFSVG.c src/lib/PMFSVG_print.c src/lib/uemf_utf.c src/lib/uemf_endian.c src/lib/uemf.c src/lib/upmf.c src/lib/clipperWrapper.cpp)
+add_library(emf2svg ${SHARED} src/lib/emf2svg.c src/lib/emf2svg_print.c src/lib/PMFSVG.c src/lib/PMFSVG_print.c src/lib/uemf_utf.c src/lib/uemf_endian.c src/lib/uemf.c src/lib/upmf.c src/lib/clipperWrapper.cpp)
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    add_library(memstream ${SHARED} src/lib/memstream.c)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-set_target_properties(EMFSVG PROPERTIES VERSION ${EMFSVG_VERSION} SOVERSION ${EMFSVG_VERSION_MAJOR})
+set_target_properties(emf2svg PROPERTIES VERSION ${emf2svg_VERSION} SOVERSION ${emf2svg_VERSION_MAJOR})
 
 # Compile the executable
-add_executable(emf2svg src/conv/emf2svg.cpp)
-target_link_libraries(emf2svg EMFSVG ${LIBICONVLIB} ${MEMSTREAMLIB} ${ARGPLIB} ) 
+add_executable(emf2svg_bin src/conv/emf2svg.cpp)
+target_link_libraries(emf2svg_bin emf2svg ${LIBICONVLIB} ${MEMSTREAMLIB} ${ARGPLIB} ) 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -DE2S_VERSION='\"${EMFSVG_VERSION}\"'")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall -DE2S_VERSION='\"${EMFSVG_VERSION}\"'")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 
 # install binaries and library
-INSTALL(TARGETS emf2svg EMFSVG ${MEMSTREAMLIB}
+INSTALL(TARGETS emf2svg_bin emf2svg ${MEMSTREAMLIB}
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
 )
 # install header file
-INSTALL(FILES inc/EMFSVG.h DESTINATION "include")
+INSTALL(FILES inc/emf2svg.h DESTINATION "include")
 
 # dependancies if we are on OSX
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

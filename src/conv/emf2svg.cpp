@@ -29,7 +29,7 @@
 #include <argp.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "EMFSVG.h"
+#include "emf2svg.h"
 
 using namespace std;
 

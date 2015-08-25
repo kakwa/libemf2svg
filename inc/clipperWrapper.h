@@ -1,7 +1,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "EMFSVG_private.h"
+#include "emf2svg_private.h"
 
 enum segmentType{
     LINE,
