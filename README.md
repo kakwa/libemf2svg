@@ -43,8 +43,8 @@ Command line tool
 -----------------
 
 ```bash
-$ ./emf2svg --help
-Usage: emf2svg [OPTION...] -i FILE -o FILE
+$ ./emf2svg-conv --help
+Usage: emf2svg-conv [OPTION...] -i FILE -o FILE
 emf2svg -- Enhanced Metafile to SVG converter
 
   -h, --height=HEIGHT        Max height in px
@@ -55,15 +55,16 @@ emf2svg -- Enhanced Metafile to SVG converter
   -w, --width=WIDTH          Max width in px
   -?, --help                 Give this help list
       --usage                Give a short usage message
-  -V, --version              Print program version
+      --version              Print program version
+  -V, --version              Print emf2svg version
 
 Mandatory or optional arguments to long options are also mandatory or optional
 for any corresponding short options.
 
-Report bugs to <carpentier.pf@gmail.com>.
+Report bugs to https://github.com/kakwa/libemf2svg/issues.
 
 # usage example:
-$ ./emf2svg -i ./tests/resources/emf/test-037.emf -o example.svg -v
+$ ./emf2svg-conv -i ./tests/resources/emf/test-037.emf -o example.svg -v
 ```
 
 Library

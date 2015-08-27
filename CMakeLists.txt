@@ -127,22 +127,42 @@ include_directories(
 )
 
 # Compile the library
-add_library(emf2svg ${SHARED} src/lib/emf2svg.c src/lib/emf2svg_print.c src/lib/PMFSVG.c src/lib/PMFSVG_print.c src/lib/uemf_utf.c src/lib/uemf_endian.c src/lib/uemf.c src/lib/upmf.c src/lib/clipperWrapper.cpp)
+add_library(emf2svg
+    ${SHARED}
+    src/lib/emf2svg.c
+    src/lib/emf2svg_print.c
+    src/lib/PMFSVG.c
+    src/lib/PMFSVG_print.c
+    src/lib/uemf_utf.c
+    src/lib/uemf_endian.c
+    src/lib/uemf.c
+    src/lib/upmf.c
+    src/lib/clipperWrapper.cpp
+    )
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
-   add_library(memstream ${SHARED} src/lib/memstream.c)
+   add_library(memstream 
+       ${SHARED} 
+       src/lib/memstream.c
+   )
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-set_target_properties(emf2svg PROPERTIES VERSION ${emf2svg_VERSION} SOVERSION ${emf2svg_VERSION_MAJOR})
+
+set_target_properties(emf2svg 
+    PROPERTIES 
+    VERSION ${emf2svg_VERSION} 
+    SOVERSION ${emf2svg_VERSION_MAJOR}
+)
 
 # Compile the executable
-add_executable(emf2svg_bin src/conv/emf2svg.cpp)
-target_link_libraries(emf2svg_bin emf2svg ${LIBICONVLIB} ${MEMSTREAMLIB} ${ARGPLIB} ) 
+add_executable(emf2svg-conv src/conv/emf2svg.cpp)
+target_link_libraries(emf2svg-conv emf2svg ${LIBICONVLIB} ${MEMSTREAMLIB} ${ARGPLIB} ) 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 
 # install binaries and library
-INSTALL(TARGETS emf2svg_bin emf2svg ${MEMSTREAMLIB}
+INSTALL(TARGETS emf2svg emf2svg ${MEMSTREAMLIB}
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

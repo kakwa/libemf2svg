@@ -32,8 +32,7 @@ cmake_install.cmake
 install_manifest.txt
 
 # compiled exe
-vss2svg
-emf2svg
+emf2svg-conv
 
 # out directory
 out

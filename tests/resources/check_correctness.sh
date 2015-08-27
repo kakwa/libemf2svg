@@ -13,7 +13,7 @@ help(){
     cat <<EOF
 usage: `basename $0` [-h] [-v] [-e <emf dir>] [-s] [-n] 
 
-Script checking memleaks, segfault and svg correctness of emf2svg
+Script checking memleaks, segfault and svg correctness of emf2svg-conv
 
 arguments:
   -h: diplays this help
@@ -22,7 +22,7 @@ arguments:
   -s: stop on first error
   -x: disable xmllint check (svg integrity)
   -n: disable valgrind (memleaks checks)
-  -N: ignore return code of emf2svg (useful for checks on corrupted files)
+  -N: ignore return code of emf2svg-conv (useful for checks on corrupted files)
 EOF
     exit 1
 }
@@ -51,7 +51,7 @@ while getopts ":hnNxvse:" opt; do
         XMLLINT="no"
         ;;
     N)
-        NOEMF2SVGERR="yes"
+        NOemf2svg-convERR="yes"
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -80,20 +80,20 @@ mkdir -p $OUTDIR
 for emf in `find $EMFDIR -type f -name "*.emf" |sort`
 do
     verbose_print "\n############## `basename "${emf}"` ####################"
-    verbose_print "Command: ../../emf2svg -p -i \"$emf\" -o ${OUTDIR}/`basename ${emf}`.svg"
-    $VAGRIND_CMD ../../emf2svg -p -w 800 -h 600 -i "$emf" -o ${OUTDIR}/`basename "${emf}"`.svg $VERBOSE_OPT
+    verbose_print "Command: ../../emf2svg-conv -p -i \"$emf\" -o ${OUTDIR}/`basename ${emf}`.svg"
+    $VAGRIND_CMD ../../emf2svg-conv -p -w 800 -h 600 -i "$emf" -o ${OUTDIR}/`basename "${emf}"`.svg $VERBOSE_OPT
     tmpret=$?
     if [ $tmpret -ne 0 ]
     then
-        printf "[ERROR] emf2svg exited on error or memleaked or crashed converting emf '$emf'\n"
-        [ $tmpret -eq 42 ] || [ $tmpret -eq 139 ] || ! [ "$NOEMF2SVGERR" = "yes" ] && ret=1
+        printf "[ERROR] emf2svg-conv exited on error or memleaked or crashed converting emf '$emf'\n"
+        [ $tmpret -eq 42 ] || [ $tmpret -eq 139 ] || ! [ "$NOemf2svg-convERR" = "yes" ] && ret=1
     fi
     if ! [ "$XMLLINT" = "no" ]
     then
         xmllint --dtdvalid ./svg11-flat.dtd  --noout ${OUTDIR}/`basename "${emf}"`.svg
         if [ $? -ne 0 ]
         then
-            printf "[ERROR] emf2svg generate bad svg '${OUTDIR}/`basename "${emf}"`.svg' from emf '\"$emf\"'\n"
+            printf "[ERROR] emf2svg-conv generate bad svg '${OUTDIR}/`basename "${emf}"`.svg' from emf '\"$emf\"'\n"
             ret=1
         fi
     fi

@@ -7,9 +7,9 @@ cd ..
 
 mkdir -p ../out
 
-# Once a file is seen as corrupted by emf2svg
+# Once a file is seen as corrupted by emf2svg-conv
 # we alter if $MAX more times to try to make
-# emf2svg crash
+# emf2svg-conv crash
 MAX=100
 
 burn_in_hell(){
@@ -21,7 +21,7 @@ burn_in_hell(){
         counter2=0
         while [ $counter2 -lt $MAX ]
         do
-            ../../emf2svg -p -w 800 -h 600 -i ${tmp_emf} -o ../out/test.svg -p
+            ../../emf2svg-conv -p -w 800 -h 600 -i ${tmp_emf} -o ../out/test.svg -p
             ret=$?
             if [ $ret -eq 1 ]
             then
