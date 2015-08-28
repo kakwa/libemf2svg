@@ -1,11 +1,13 @@
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install cmake
-  - sudo apt-get install clang
-  - sudo apt-get install valgrind
-  - sudo apt-get install libxml2-utils
-  - sudo apt-get install libpolyclipping-dev || cd ./deps/libpolyclipping/cpp/ && cmake . && sudo make install && cd -
-  - sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -f -q -y ; true
+sudo: false
+
+addons:
+  apt:
+    packages:
+    - cmake
+    - time
+    - valgrind
+    - libxml2-utils
+    - libpolyclipping-dev
 
 language: cpp
 
