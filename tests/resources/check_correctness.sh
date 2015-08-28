@@ -51,7 +51,7 @@ while getopts ":hnNxvse:" opt; do
         XMLLINT="no"
         ;;
     N)
-        NOemf2svg-convERR="yes"
+        IGNORECONVERR="yes"
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -86,7 +86,7 @@ do
     if [ $tmpret -ne 0 ]
     then
         printf "[ERROR] emf2svg-conv exited on error or memleaked or crashed converting emf '$emf'\n"
-        [ $tmpret -eq 42 ] || [ $tmpret -eq 139 ] || ! [ "$NOemf2svg-convERR" = "yes" ] && ret=1
+        [ $tmpret -eq 42 ] || [ $tmpret -eq 139 ] || ! [ "$IGNORECONVERR" = "yes" ] && ret=1
     fi
     if ! [ "$XMLLINT" = "no" ]
     then
