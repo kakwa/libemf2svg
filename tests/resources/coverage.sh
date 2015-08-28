@@ -9,7 +9,7 @@ percent(){
 }
 
 EMFC="../../src/lib/emf2svg.c"
-PMFC="../../src/lib/PMFSVG_print.c"
+PMFC="../../src/lib/pmf2svg_print.c"
 count_emf_SUPPORTED=`grep -c FLAG_SUPPORTED $EMFC`
 count_emf_IGNORED=`grep -c FLAG_IGNORED $EMFC`
 count_emf_UNUSED=`grep -c FLAG_UNUSED $EMFC`

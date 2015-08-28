@@ -131,8 +131,8 @@ add_library(emf2svg
     ${SHARED}
     src/lib/emf2svg.c
     src/lib/emf2svg_print.c
-    src/lib/PMFSVG.c
-    src/lib/PMFSVG_print.c
+    src/lib/pmf2svg.c
+    src/lib/pmf2svg_print.c
     src/lib/uemf_utf.c
     src/lib/uemf_endian.c
     src/lib/uemf.c
