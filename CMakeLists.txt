@@ -8,6 +8,9 @@ set(emf2svg_VERSION_MINOR 0)
 set(emf2svg_VERSION_PATCH 1)
 
 set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
+# set version as a definition
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES external-build)
 
@@ -156,10 +159,15 @@ set_target_properties(emf2svg
 
 # Compile the executable
 add_executable(emf2svg-conv src/conv/emf2svg.cpp)
-target_link_libraries(emf2svg-conv emf2svg ${LIBICONVLIB} ${MEMSTREAMLIB} ${ARGPLIB} ) 
+target_link_libraries(emf2svg-conv 
+    emf2svg 
+    ${LIBICONVLIB}
+    ${MEMSTREAMLIB}
+    ${ARGPLIB}
+) 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
 
 # install binaries and library
 INSTALL(TARGETS emf2svg emf2svg ${MEMSTREAMLIB}
