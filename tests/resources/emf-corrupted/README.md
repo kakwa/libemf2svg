@@ -17,4 +17,3 @@
 | bad_corrupted_2014-12-13-132605.emf | corrupted EMR_HEADER (wrong nHandles)                      |
 | bad_corrupted_2014-12-13-133727.emf | corrupted EMR_CREATEPEN (wrong ihPen)                      |
 | bad_corrupted_2014-12-14-080539.emf | corrupted EMF_HEADER (bad nDescription)                    |
-|-------------------------------------|------------------------------------------------------------|
