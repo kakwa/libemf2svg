@@ -9,6 +9,8 @@ addons:
     - libxml2-utils
     - libpolyclipping-dev
     - libc6-dev
+    - gcc
+    - g++
 
 language: cpp
 
