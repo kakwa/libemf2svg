@@ -3,18 +3,18 @@ extern "C" {
 #endif
 #include "emf2svg_private.h"
 
-enum segmentType{
+typedef enum{
     LINE,
     BEZIER,
     CUBIC
-};
+} segmentType;
 
-enum operation{
+typedef enum{
     INT,
     UNION,
     DIFF,
     XOR
-};
+} operation;
 
 typedef struct{
     //start
@@ -28,9 +28,12 @@ typedef struct{
 typedef struct clipsegmentlist {
     clipSegment seg;
     struct clipsegmentlist * next;
-    struct clipsegmentlist * prev;
 } clipSegmentList;
 
+typedef struct tuplesegment {
+    clipSegmentList * st;
+    clipSegmentList * en;
+} tupleSegments;
 
 clipSegmentList *bezierToLine(clipSegmentList *seg, uint32_t depth);
 clipSegmentList *arcToLine(clipSegmentList *seg, uint32_t depth);
