@@ -5,11 +5,14 @@ using namespace ClipperLib;
 
 extern "C" {
 
-clipSegmentList * bezierToLine(clipSegmentList *seg, uint32_t depth){
+tupleSegments i_bezierToLine(clipSegmentList *seg, uint32_t depth){
 
     // end of recursion
     if (depth == 0){
-        return seg;
+        tupleSegments ret;
+        ret.st = seg;
+        ret.en = seg;
+        return ret;
     }
 
     // each iteration transforms a bezier curve into 2 smaller bezier curves
@@ -38,7 +41,6 @@ clipSegmentList * bezierToLine(clipSegmentList *seg, uint32_t depth){
     newSeg2->seg.c2.y =                                             seg->seg.c2.y * 1 / 2 + seg->seg.en.y / 2;
     newSeg2->seg.en.y =                                                                     seg->seg.en.y    ;
 
-
     newSeg1->seg.type = LINE;
     newSeg2->seg.type = LINE;
 
@@ -49,18 +51,32 @@ clipSegmentList * bezierToLine(clipSegmentList *seg, uint32_t depth){
     free(seg);
 
     // recursion
-    clipSegmentList *newSegList1 = bezierToLine(newSeg1, depth - 1);
-    clipSegmentList *newSegList2 = bezierToLine(newSeg2, depth - 1);
-    clipSegmentList *ptr = newSegList1;
-    while (ptr->next != NULL)
-        ptr = ptr->next;
+    tupleSegments seg1 = i_bezierToLine(newSeg1, depth - 1);
+    tupleSegments seg2 = i_bezierToLine(newSeg2, depth - 1);
 
     // link the two new bezier curves
-    ptr->next = newSegList2;
+    seg1.en->next = seg2.st;
 
-    return newSegList1;
+    tupleSegments ret;
+    ret.st = seg1.st;
+    ret.en = seg2.en;
+
+    return ret;
 }
 
+clipSegmentList *bezierToLine(clipSegmentList *seg, uint32_t depth){
+    clipSegmentList *inseg = (clipSegmentList *)malloc(sizeof(clipSegmentList));
+    inseg->seg.st.x = seg->seg.st.x;
+    inseg->seg.en.x = seg->seg.en.x;
+    inseg->seg.c1.x = seg->seg.c1.x;
+    inseg->seg.c2.x = seg->seg.c2.x;
+    inseg->seg.st.y = seg->seg.st.y;
+    inseg->seg.en.y = seg->seg.en.y;
+    inseg->seg.c1.y = seg->seg.c1.y;
+    inseg->seg.c2.y = seg->seg.c2.y;
+    inseg->seg.type = seg->seg.type;
+    return i_bezierToLine(inseg, depth).st;
+}
 
 clipSegmentList *arcToLine(clipSegmentList *seg, uint32_t depth){
     clipSegmentList *out = NULL;
