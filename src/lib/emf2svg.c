@@ -467,8 +467,28 @@ extern "C" {
     void arc_draw(const char *contents, FILE *out, drawingStates *states){
         PU_EMRARC pEmr = (PU_EMRARC) (contents);
         startPathDraw(states, out);
+        U_POINTL radii;
+        int sweep_flag = 0;
+        int large_arc_flag = 0;
+        // TODO calculate the real orientation
+        if (states->currentDeviceContext.arcdir > 0){
+            sweep_flag = 1;
+            large_arc_flag = 0;
+        }
+        else {
+            sweep_flag = 0;
+            large_arc_flag = 1;
+        }
+        radii.x = pEmr->rclBox.right - pEmr->rclBox.left / 2;
+        radii.y = pEmr->rclBox.bottom - pEmr->rclBox.top / 2;
+        // TODO calculate the real start of the arc
+        //fprintf(out, "L ");
+        //point_draw(states, start, out);
         fprintf(out, "A ");
-        point_draw(states, pEmr->ptlStart, out);
+        point_draw(states, radii, out);
+        fprintf(out, "0 ");
+        fprintf(out, "%d %d ", large_arc_flag, sweep_flag);
+        // TODO calculate the real end
         point_draw(states, pEmr->ptlEnd, out);
         endPathDraw(states, out);
     } 
@@ -1565,7 +1585,7 @@ extern "C" {
     }
 
     void U_EMRARC_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_SUPPORTED;
+        FLAG_PARTIAL;
         if (states->verbose){U_EMRARC_print(contents, states);}
         arc_draw(contents, out, states);
     }
@@ -1621,7 +1641,7 @@ extern "C" {
     } 
 
     void U_EMRARCTO_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_SUPPORTED;
+        FLAG_PARTIAL;
         if (states->verbose){U_EMRARCTO_print(contents, states);}
         arc_draw(contents, out, states);
     }
