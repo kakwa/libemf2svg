@@ -91,7 +91,7 @@ extern "C" {
                 verbose_printf("   Fill Mode:      BS_MONOPATTERN    Status: %sUNSUPPORTED%s\n", KRED, KNRM);
                 break;
             default:
-                verbose_printf("   Fill Mode:      %d     %sUNKNOWN%s\n", 
+                verbose_printf("   Fill Mode:      %x     %sUNKNOWN%s\n", 
                         states->currentDeviceContext.stroke_mode ,KRED, KNRM);
                 break;
         }

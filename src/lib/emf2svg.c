@@ -183,26 +183,45 @@ extern "C" {
             return;
     }
 
+    void basic_stroke(drawingStates *states, FILE * out){
+       fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%.2f\" ", 
+               states->currentDeviceContext.stroke_red,
+               states->currentDeviceContext.stroke_green,
+               states->currentDeviceContext.stroke_blue,
+               1.0
+               //states->currentDeviceContext.stroke_width * states->scaling
+              );
+    }
+
     void stroke_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked){
+        float unit_stroke = states->currentDeviceContext.stroke_width * states->scaling;
+        float dash_len = unit_stroke * 5;
+        float dot_len = unit_stroke;
         if (states->verbose){stroke_print(states);}
         switch(states->currentDeviceContext.stroke_mode){
             case U_PS_SOLID:
-                fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
-                        states->currentDeviceContext.stroke_red,
-                        states->currentDeviceContext.stroke_green,
-                        states->currentDeviceContext.stroke_blue,
-                        1.0
-                        //states->currentDeviceContext.stroke_width
-                       );
                 *stroked = true;
+                basic_stroke(states, out);
                 break;
             case U_PS_DASH:
+                fprintf(out, "stroke-dasharray=\"%.2f,%.2f\" ", dash_len, dash_len);
+                basic_stroke(states, out);
+                *stroked = true;
                 break;
             case U_PS_DOT:
+                fprintf(out, "stroke-dasharray=\"%.2f,%.2f\" ", dot_len, dot_len);
+                basic_stroke(states, out);
+                *stroked = true;
                 break;
             case U_PS_DASHDOT:
+                fprintf(out, "stroke-dasharray=\"%.2f,%.2f,%.2f,%.2f\" ", dash_len, dash_len, dot_len, dash_len);
+                basic_stroke(states, out);
+                *stroked = true;
                 break;
             case U_PS_DASHDOTDOT:
+                fprintf(out, "stroke-dasharray=\"%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\" ", dash_len, dash_len, dot_len, dot_len, dot_len, dash_len);
+                basic_stroke(states, out);
+                *stroked = true;
                 break;
             case U_PS_NULL:
                 fprintf(out, "stroke=\"none\" " );
@@ -211,13 +230,7 @@ extern "C" {
                 break;
             case U_PS_INSIDEFRAME:
                 //partial
-                fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
-                        states->currentDeviceContext.stroke_red,
-                        states->currentDeviceContext.stroke_green,
-                        states->currentDeviceContext.stroke_blue,
-                        1.0
-                        //states->currentDeviceContext.stroke_width
-                       );
+                basic_stroke(states, out);
                 *stroked = true;
                 break;
             case U_PS_USERSTYLE:
@@ -233,16 +246,12 @@ extern "C" {
             case U_PS_JOIN_MITER:
                 break;
             case U_PS_GEOMETRIC:
+                basic_stroke(states, out);
                 *stroked = true;
-                fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%f\" ", 
-                        states->currentDeviceContext.stroke_red,
-                        states->currentDeviceContext.stroke_green,
-                        states->currentDeviceContext.stroke_blue,
-                        1.0
-                        //states->currentDeviceContext.stroke_width
-                       );
                 break;
             default:
+                basic_stroke(states, out);
+                *stroked = true;
                 break;
         }
     }
@@ -472,12 +481,12 @@ extern "C" {
         int large_arc_flag = 0;
         // TODO calculate the real orientation
         if (states->currentDeviceContext.arcdir > 0){
-            sweep_flag = 1;
-            large_arc_flag = 0;
-        }
-        else {
             sweep_flag = 0;
             large_arc_flag = 1;
+        }
+        else {
+            sweep_flag = 1;
+            large_arc_flag = 0;
         }
         radii.x = pEmr->rclBox.right - pEmr->rclBox.left / 2;
         radii.y = pEmr->rclBox.bottom - pEmr->rclBox.top / 2;
@@ -1451,7 +1460,7 @@ extern "C" {
         states->objectTable[index].stroke_blue    = pEmr->lopn.lopnColor.Blue;
         states->objectTable[index].stroke_green   = pEmr->lopn.lopnColor.Green;
         states->objectTable[index].stroke_mode    = pEmr->lopn.lopnStyle;
-        states->objectTable[index].stroke_width   = pEmr->lopn.lopnWidth.x;// * states->scaling;
+        states->objectTable[index].stroke_width   = pEmr->lopn.lopnWidth.x;
     } 
 
     void U_EMRCREATEBRUSHINDIRECT_draw(const char *contents, FILE *out, drawingStates *states){
@@ -2115,7 +2124,7 @@ extern "C" {
         states->objectTable[index].stroke_blue    = pen->elpColor.Blue;
         states->objectTable[index].stroke_green   = pen->elpColor.Green;
         states->objectTable[index].stroke_mode    = pen->elpPenStyle;
-        states->objectTable[index].stroke_width   = pen->elpWidth;// * states->scaling;
+        states->objectTable[index].stroke_width   = pen->elpWidth;
 
     } 
 
