@@ -143,7 +143,7 @@ add_library(emf2svg
     src/lib/uemf_endian.c
     src/lib/uemf.c
     src/lib/upmf.c
-    src/lib/clipperWrapper.cpp
+    #    src/lib/clipperWrapper.cpp
     )
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
