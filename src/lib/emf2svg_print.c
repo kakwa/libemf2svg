@@ -1321,7 +1321,8 @@ extern "C" {
       \param contents   pointer to a buffer holding all EMR records
       */
     void U_EMRMOVETOEX_print(const char *contents, drawingStates *states){
-        
+
+        core7_print("U_EMRMOVETOEX", "ptl:","", contents, states);
     } 
 
     // U_EMRSETMETARGN           28
