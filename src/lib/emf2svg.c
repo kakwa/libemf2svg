@@ -413,7 +413,7 @@ extern "C" {
         POINT_D ptd = point_cal(states, (double)pt.x, (double)pt.y);
         states->cur_x = pt.x;
         states->cur_y = pt.y;
-        fprintf(out, "%.2f %.2f ", ptd.x ,ptd.y);
+        fprintf(out, "%.2f,%.2f ", ptd.x ,ptd.y);
     } 
 
     void point_draw(
@@ -424,7 +424,7 @@ extern "C" {
         POINT_D ptd = point_cal(states, (double)pt.x, (double)pt.y);
         states->cur_x = pt.x;
         states->cur_y = pt.y;
-        fprintf(out, "%.2f %.2f ", ptd.x ,ptd.y);
+        fprintf(out, "%.2f,%.2f ", ptd.x ,ptd.y);
     } 
 
     void transform_draw(
