@@ -431,7 +431,7 @@ extern "C" {
             drawingStates *states,
             FILE * out
             ){
-        fprintf(out, "<%sg transform=\"matrix(%f %f %f %f %f %f)\">\n",  
+        fprintf(out, "<%sg transform=\"matrix(%.2f %.2f %.2f %.2f %.2f %.2f)\">\n",
                 states->nameSpaceString,
                 (double)states->currentDeviceContext.worldTransform.eM11,
                 (double)states->currentDeviceContext.worldTransform.eM12,
@@ -677,7 +677,7 @@ extern "C" {
         }
 
         if(states->currentDeviceContext.font_escapement != 0){
-            fprintf(out, "transform=\"rotate(%d, %f, %f) translate(0, %f)\" ", (orientation * (int)states->currentDeviceContext.font_escapement / 10), Org.x, (Org.y + font_height * 0.9), font_height * 0.9);
+            fprintf(out, "transform=\"rotate(%d, %.2f, %.2f) translate(0, %.2f)\" ", (orientation * (int)states->currentDeviceContext.font_escapement / 10), Org.x, (Org.y + font_height * 0.9), font_height * 0.9);
         }
 
         if(states->currentDeviceContext.font_italic){
@@ -713,15 +713,15 @@ extern "C" {
         }
         // vertical position
         if((align & U_TA_BOTTOM) == U_TA_BOTTOM){
-            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y);
+            fprintf(out, "x=\"%.2f\" y=\"%.2f\" ", Org.x, Org.y);
         }
         else if ((align & U_TA_BASELINE) == U_TA_BASELINE){
-            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y);
+            fprintf(out, "x=\"%.2f\" y=\"%.2f\" ", Org.x, Org.y);
         }
         else {
-            fprintf(out, "x=\"%f\" y=\"%f\" ", Org.x, Org.y + font_height * 0.9);
+            fprintf(out, "x=\"%.2f\" y=\"%.2f\" ", Org.x, Org.y + font_height * 0.9);
         }
-        fprintf(out, "font-size=\"%f\" ", font_height);
+        fprintf(out, "font-size=\"%.2f\" ", font_height);
         fprintf(out, ">");
         fprintf(out, "<![CDATA[%s]]>", string);
         fprintf(out, "</%stext>\n", states->nameSpaceString);
