@@ -188,6 +188,7 @@ extern "C" {
                states->currentDeviceContext.stroke_red,
                states->currentDeviceContext.stroke_green,
                states->currentDeviceContext.stroke_blue,
+               //FIXME
                1.0
                //states->currentDeviceContext.stroke_width * states->scaling
               );
@@ -479,7 +480,7 @@ extern "C" {
         U_POINTL radii;
         int sweep_flag = 0;
         int large_arc_flag = 0;
-        // TODO calculate the real orientation
+        // FIXME calculate the real orientation
         if (states->currentDeviceContext.arcdir > 0){
             sweep_flag = 0;
             large_arc_flag = 1;
@@ -490,14 +491,14 @@ extern "C" {
         }
         radii.x = pEmr->rclBox.right - pEmr->rclBox.left / 2;
         radii.y = pEmr->rclBox.bottom - pEmr->rclBox.top / 2;
-        // TODO calculate the real start of the arc
+        // FIXME calculate the real start of the arc
         //fprintf(out, "L ");
         //point_draw(states, start, out);
         fprintf(out, "A ");
         point_draw(states, radii, out);
         fprintf(out, "0 ");
         fprintf(out, "%d %d ", large_arc_flag, sweep_flag);
-        // TODO calculate the real end
+        // FIXME calculate the real end
         point_draw(states, pEmr->ptlEnd, out);
         endPathDraw(states, out);
     } 
