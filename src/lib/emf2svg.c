@@ -482,18 +482,20 @@ extern "C" {
         int large_arc_flag = 0;
         // FIXME calculate the real orientation
         if (states->currentDeviceContext.arcdir > 0){
-            sweep_flag = 0;
+            sweep_flag = 1;
             large_arc_flag = 1;
         }
         else {
-            sweep_flag = 1;
+            sweep_flag = 0;
             large_arc_flag = 0;
         }
-        radii.x = pEmr->rclBox.right - pEmr->rclBox.left / 2;
-        radii.y = pEmr->rclBox.bottom - pEmr->rclBox.top / 2;
+        radii.x = (pEmr->rclBox.right - pEmr->rclBox.left) / 2;
+        radii.y = (pEmr->rclBox.bottom - pEmr->rclBox.top) / 2;
         // FIXME calculate the real start of the arc
         //fprintf(out, "L ");
         //point_draw(states, start, out);
+        fprintf(out, "M ");
+        point_draw(states, pEmr->ptlStart, out);
         fprintf(out, "A ");
         point_draw(states, radii, out);
         fprintf(out, "0 ");
