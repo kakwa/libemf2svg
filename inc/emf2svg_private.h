@@ -289,6 +289,7 @@ extern "C" {
     bool checkOutOfEMF(drawingStates *states, uint64_t address);
     // checks if index is greater than the object table size
     bool checkOutOfOTIndex(drawingStates *states, int64_t index);
+    void fill_draw(drawingStates *states, FILE * out, bool * filled, bool * stroked);
 
     /* prototypes for objects used in EMR records */
     void hexbytes_draw(drawingStates *states, uint8_t *buf,unsigned int num);

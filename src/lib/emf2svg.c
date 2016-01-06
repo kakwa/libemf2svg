@@ -17,6 +17,10 @@ extern "C" {
 #include "pmf2svg.h"
 #include "pmf2svg_print.h"
 
+#define ARC_SIMPLE 0
+#define ARC_PIE 1
+#define ARC_CHORD 2
+
     //! \cond
 #define UNUSED(x) (void)(x)
 
@@ -126,6 +130,22 @@ extern "C" {
             fprintf(out," fill=\"none\" />\n");
         }
     }
+
+    void endFormDraw(drawingStates *states, FILE * out){
+        if (!(states->inPath)){
+            fprintf(out,"\" ");
+            bool filled;
+            bool stroked;
+            stroke_draw(states, out, &filled, &stroked);
+            fill_draw(states, out, &filled, &stroked);
+            if (!filled)
+                fprintf(out, "fill=\"none\" ");
+            if (!stroked)
+                fprintf(out, "stroke=\"none\" ");
+            fprintf(out," />\n");
+        }
+    }
+
 
     int get_id(drawingStates * states){
         states->uniqId++;
@@ -474,7 +494,7 @@ extern "C" {
         endPathDraw(states, out);
     } 
 
-    void arc_draw(const char *contents, FILE *out, drawingStates *states){
+    void arc_draw(const char *contents, FILE *out, drawingStates *states, int type){
         PU_EMRARC pEmr = (PU_EMRARC) (contents);
         startPathDraw(states, out);
         U_POINTL radii;
@@ -482,8 +502,8 @@ extern "C" {
         int large_arc_flag = 0;
         // FIXME calculate the real orientation
         if (states->currentDeviceContext.arcdir > 0){
-            sweep_flag = 1;
-            large_arc_flag = 1;
+            sweep_flag = 0;
+            large_arc_flag = 0;
         }
         else {
             sweep_flag = 0;
@@ -502,7 +522,24 @@ extern "C" {
         fprintf(out, "%d %d ", large_arc_flag, sweep_flag);
         // FIXME calculate the real end
         point_draw(states, pEmr->ptlEnd, out);
-        endPathDraw(states, out);
+        switch(type){
+            case ARC_PIE:
+                fprintf(out, "L ");
+                U_POINTL center;
+                center.x = (pEmr->rclBox.right  + pEmr->rclBox.left) / 2;
+                center.y = (pEmr->rclBox.bottom + pEmr->rclBox.top) / 2;
+                point_draw(states, center, out);
+                fprintf(out, "Z ");
+                endFormDraw(states, out);
+                break;
+            case ARC_CHORD:
+                fprintf(out, "Z ");
+                endFormDraw(states, out);
+                break;
+            default:
+                endPathDraw(states, out);
+                break;
+        }
     } 
 
 
@@ -1599,17 +1636,19 @@ extern "C" {
     void U_EMRARC_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
         if (states->verbose){U_EMRARC_print(contents, states);}
-        arc_draw(contents, out, states);
+        arc_draw(contents, out, states, ARC_SIMPLE);
     }
 
     void U_EMRCHORD_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         if (states->verbose){U_EMRCHORD_print(contents, states);}
+        arc_draw(contents, out, states, ARC_CHORD);
     }
 
     void U_EMRPIE_draw(const char *contents, FILE *out, drawingStates *states){
-        FLAG_IGNORED;
+        FLAG_PARTIAL;
         if (states->verbose){U_EMRPIE_print(contents, states);}
+        arc_draw(contents, out, states, ARC_PIE);
     }
 
     void U_EMRSELECTPALETTE_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1655,7 +1694,7 @@ extern "C" {
     void U_EMRARCTO_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
         if (states->verbose){U_EMRARCTO_print(contents, states);}
-        arc_draw(contents, out, states);
+        arc_draw(contents, out, states, ARC_SIMPLE);
     }
 
     void U_EMRPOLYDRAW_draw(const char *contents, FILE *out, drawingStates *states){
