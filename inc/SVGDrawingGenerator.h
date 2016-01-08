@@ -1,6 +1,6 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: t; c-basic-offset: 4 -*- */
 
-/* vss2svg 
+/* vss2svg
  * fork of RVNGSVGDrawingGenerator from librevenge
  */
 
@@ -35,90 +35,89 @@
 #include <librevenge/RVNGDrawingInterface.h>
 #include <librevenge/RVNGStringVector.h>
 
-namespace vss2svg
-{
+namespace vss2svg {
 
 struct SVGDrawingGeneratorPrivate;
 
-class REVENGE_API SVGDrawingGenerator : public librevenge::RVNGDrawingInterface
-{
-public:
-	SVGDrawingGenerator(librevenge::RVNGStringVector &vec, const librevenge::RVNGString &nmspace);
-	~SVGDrawingGenerator();
+class REVENGE_API SVGDrawingGenerator
+    : public librevenge::RVNGDrawingInterface {
+  public:
+    SVGDrawingGenerator(librevenge::RVNGStringVector &vec,
+                        const librevenge::RVNGString &nmspace);
+    ~SVGDrawingGenerator();
 
-	void startDocument(const librevenge::RVNGPropertyList &propList);
-	void endDocument();
-	void setDocumentMetaData(const librevenge::RVNGPropertyList &propList);
-	void defineEmbeddedFont(const librevenge::RVNGPropertyList &propList);
-	void startPage(const librevenge::RVNGPropertyList &propList);
-	void endPage();
-	void startMasterPage(const librevenge::RVNGPropertyList &propList);
-	void endMasterPage();
-	void startLayer(const librevenge::RVNGPropertyList &propList);
-	void endLayer();
-	void startEmbeddedGraphics(const librevenge::RVNGPropertyList &propList);
-	void endEmbeddedGraphics();
+    void startDocument(const librevenge::RVNGPropertyList &propList);
+    void endDocument();
+    void setDocumentMetaData(const librevenge::RVNGPropertyList &propList);
+    void defineEmbeddedFont(const librevenge::RVNGPropertyList &propList);
+    void startPage(const librevenge::RVNGPropertyList &propList);
+    void endPage();
+    void startMasterPage(const librevenge::RVNGPropertyList &propList);
+    void endMasterPage();
+    void startLayer(const librevenge::RVNGPropertyList &propList);
+    void endLayer();
+    void startEmbeddedGraphics(const librevenge::RVNGPropertyList &propList);
+    void endEmbeddedGraphics();
 
-	void openGroup(const librevenge::RVNGPropertyList &propList);
-	void closeGroup();
+    void openGroup(const librevenge::RVNGPropertyList &propList);
+    void closeGroup();
 
-	void setStyle(const librevenge::RVNGPropertyList &propList);
+    void setStyle(const librevenge::RVNGPropertyList &propList);
 
-	void drawRectangle(const librevenge::RVNGPropertyList &propList);
-	void drawEllipse(const librevenge::RVNGPropertyList &propList);
-	void drawPolyline(const librevenge::RVNGPropertyList &propList);
-	void drawPolygon(const librevenge::RVNGPropertyList &propList);
-	void drawPath(const librevenge::RVNGPropertyList &propList);
-	void drawGraphicObject(const librevenge::RVNGPropertyList &propList);
-	void drawConnector(const librevenge::RVNGPropertyList &propList);
-	void startTextObject(const librevenge::RVNGPropertyList &propList);
-	void endTextObject();
+    void drawRectangle(const librevenge::RVNGPropertyList &propList);
+    void drawEllipse(const librevenge::RVNGPropertyList &propList);
+    void drawPolyline(const librevenge::RVNGPropertyList &propList);
+    void drawPolygon(const librevenge::RVNGPropertyList &propList);
+    void drawPath(const librevenge::RVNGPropertyList &propList);
+    void drawGraphicObject(const librevenge::RVNGPropertyList &propList);
+    void drawConnector(const librevenge::RVNGPropertyList &propList);
+    void startTextObject(const librevenge::RVNGPropertyList &propList);
+    void endTextObject();
 
-	void startTableObject(const librevenge::RVNGPropertyList &propList);
-	void openTableRow(const librevenge::RVNGPropertyList &propList);
-	void closeTableRow();
-	void openTableCell(const librevenge::RVNGPropertyList &propList);
-	void closeTableCell();
-	void insertCoveredTableCell(const librevenge::RVNGPropertyList &propList);
-	void endTableObject();
+    void startTableObject(const librevenge::RVNGPropertyList &propList);
+    void openTableRow(const librevenge::RVNGPropertyList &propList);
+    void closeTableRow();
+    void openTableCell(const librevenge::RVNGPropertyList &propList);
+    void closeTableCell();
+    void insertCoveredTableCell(const librevenge::RVNGPropertyList &propList);
+    void endTableObject();
 
-	void openOrderedListLevel(const librevenge::RVNGPropertyList &propList);
-	void closeOrderedListLevel();
+    void openOrderedListLevel(const librevenge::RVNGPropertyList &propList);
+    void closeOrderedListLevel();
 
-	void openUnorderedListLevel(const librevenge::RVNGPropertyList &propList);
-	void closeUnorderedListLevel();
-	void openListElement(const librevenge::RVNGPropertyList &propList);
-	void closeListElement();
+    void openUnorderedListLevel(const librevenge::RVNGPropertyList &propList);
+    void closeUnorderedListLevel();
+    void openListElement(const librevenge::RVNGPropertyList &propList);
+    void closeListElement();
 
-	void defineParagraphStyle(const librevenge::RVNGPropertyList &propList);
-	void openParagraph(const librevenge::RVNGPropertyList &propList);
-	void closeParagraph();
+    void defineParagraphStyle(const librevenge::RVNGPropertyList &propList);
+    void openParagraph(const librevenge::RVNGPropertyList &propList);
+    void closeParagraph();
 
-	void defineCharacterStyle(const librevenge::RVNGPropertyList &propList);
-	void openSpan(const librevenge::RVNGPropertyList &propList);
-	void closeSpan();
+    void defineCharacterStyle(const librevenge::RVNGPropertyList &propList);
+    void openSpan(const librevenge::RVNGPropertyList &propList);
+    void closeSpan();
 
-	void openLink(const librevenge::RVNGPropertyList &propList);
-	void closeLink();
+    void openLink(const librevenge::RVNGPropertyList &propList);
+    void closeLink();
 
-	void insertTab();
-	void insertSpace();
-	void insertText(const librevenge::RVNGString &text);
-	void insertLineBreak();
-	void insertField(const librevenge::RVNGPropertyList &propList);
+    void insertTab();
+    void insertSpace();
+    void insertText(const librevenge::RVNGString &text);
+    void insertLineBreak();
+    void insertField(const librevenge::RVNGPropertyList &propList);
 
-private:
-	SVGDrawingGenerator(const SVGDrawingGenerator &);
-	SVGDrawingGenerator &operator=(const SVGDrawingGenerator &);
-	SVGDrawingGeneratorPrivate *m_pImpl;
+  private:
+    SVGDrawingGenerator(const SVGDrawingGenerator &);
+    SVGDrawingGenerator &operator=(const SVGDrawingGenerator &);
+    SVGDrawingGeneratorPrivate *m_pImpl;
     double textLastX;
     double textLastFontSize;
-    bool   textIsParagraph;
-    bool   firtLineWritten;
-    bool   textNewLine;
-    int    textSpaceCounter;
+    bool textIsParagraph;
+    bool firtLineWritten;
+    bool textNewLine;
+    int textSpaceCounter;
 };
-
 }
 
 //#endif // librevenge::RVNGSVGDRAWINGGENERATOR_H

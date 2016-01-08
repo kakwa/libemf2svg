@@ -2169,9 +2169,8 @@ void U_EMRCOMMENT_draw(const char *contents, FILE *out, drawingStates *states,
             PU_EMRCOMMENT_EMFPLUS pEmrpl = (PU_EMRCOMMENT_EMFPLUS)pEmr;
             src = (char *)&(pEmrpl->Data);
             if (states->emfplus) {
-                loff =
-                    16; /* Header size of the header part of an EMF+ comment
-                           record */
+                loff = 16; /* Header size of the header part of an EMF+ comment
+                              record */
                 if (states->verbose) {
                     printf("\n   =====================%s START EMF+ RECORD "
                            "ANALYSING %s=====================\n\n",
