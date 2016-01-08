@@ -3,5 +3,8 @@
 cd `dirname $0`/../
 
 clang-format -style="{BasedOnStyle: llvm, IndentWidth: 4, AllowShortFunctionsOnASingleLine: None, KeepEmptyLinesAtTheStartOfBlocks: false}" -i \
-    `find ./src/ ./inc/ -type f -name "*.cpp" -o -name "*.c" -o -name "*.h" -o -name "*.hpp"`
+    `find ./src/ ./inc/ -type f -name "*.cpp" -o \
+                        -type f -name "*.c" -o \
+                        -type f -name "*.h" -o \
+                        -type f -name "*.hpp"`
 
