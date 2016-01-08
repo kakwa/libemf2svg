@@ -494,6 +494,14 @@ extern "C" {
         endPathDraw(states, out);
     } 
 
+    U_POINTL int_el_rad(U_POINTL pt, U_RECTL rect){
+        U_POINTL center;
+        U_POINTL intersect;
+        center.x = (rect.right  + rect.left) / 2;
+        center.y = (rect.bottom + rect.top) / 2;
+        return intersect;
+    }
+
     void arc_draw(const char *contents, FILE *out, drawingStates *states, int type){
         PU_EMRARC pEmr = (PU_EMRARC) (contents);
         startPathDraw(states, out);
@@ -612,7 +620,6 @@ extern "C" {
         }
         endPathDraw(states, out);
     } 
-
 
     void moveto_draw(const char *name, const char *field1, const char *field2, const char *contents, FILE *out, drawingStates *states){
         UNUSED(name);
