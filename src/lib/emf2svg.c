@@ -527,7 +527,7 @@ extern "C" {
 
         // change orgin (new origin is ellipse center)
         pt_no.x = pt.x - center.x;
-        pt_no.y = pt.x - center.y;
+        pt_no.y = pt.y - center.y;
 
         if (pt_no.x == 0){
             intersect.x = center.x;
@@ -575,8 +575,8 @@ extern "C" {
         }
         radii.x = (pEmr->rclBox.right - pEmr->rclBox.left) / 2;
         radii.y = (pEmr->rclBox.bottom - pEmr->rclBox.top) / 2;
-        fprintf(out, "M ");
 
+        fprintf(out, "M ");
         POINT_D start = int_el_rad(pEmr->ptlStart, pEmr->rclBox);
         point_draw_d(states, start, out);
 
