@@ -437,6 +437,17 @@ extern "C" {
         fprintf(out, "%.2f,%.2f ", ptd.x ,ptd.y);
     }
 
+    void point_draw_d(
+            drawingStates *states,
+            POINT_D pt,
+            FILE * out
+            ){
+        POINT_D ptd = point_cal(states, pt.x, pt.y);
+        states->cur_x = pt.x;
+        states->cur_y = pt.y;
+        fprintf(out, "%.2f,%.2f ", ptd.x ,ptd.y);
+    }
+
     void point_draw(
             drawingStates *states,
             U_POINT pt,
@@ -494,11 +505,56 @@ extern "C" {
         endPathDraw(states, out);
     }
 
-    U_POINTL int_el_rad(U_POINTL pt, U_RECTL rect){
-        U_POINTL center;
-        U_POINTL intersect;
+    double _dsign(double v){
+        if (v >= 0)
+            return 1;
+        else
+            return -1;
+    }
+
+    // calculate the intersection point between:
+    // * an ellipse (delimited by the bounding rectangle rect)
+    // * a radial starting from the ellipse center and passing by pt
+    POINT_D int_el_rad(U_POINTL pt, U_RECTL rect){
+        POINT_D center, intersect, radii, pt_no;
         center.x = (rect.right  + rect.left) / 2;
-        center.y = (rect.bottom + rect.top) / 2;
+        center.y = (rect.bottom + rect.top)  / 2;
+
+        //FIXME handle divide by zero here and after
+        radii.x  = (rect.right  - rect.left) / 2;
+        radii.y  = (rect.bottom - rect.top)  / 2;
+
+
+        // change orgin (new origin is ellipse center)
+        pt_no.x = pt.x - center.x;
+        pt_no.y = pt.x - center.y;
+
+        if (pt_no.x == 0){
+            intersect.x = center.x;
+            intersect.y = _dsign(pt_no.y) * radii.y + center.y;
+            return intersect;
+        }
+
+        if (pt_no.y == 0){
+            intersect.x = _dsign(pt_no.x) * radii.x + center.x;
+            intersect.y = center.y;
+            return intersect;
+        }
+
+        // slope of the radial
+        double slope = pt_no.y / pt_no.x;
+
+        // Calculate the intersection.
+        // With center as the origin:
+        // * ellipse equation is: (x / radii.x)^2 + (y / radii.y) + 1
+        // * radial equation is:  y = x * slope
+        // Three part of the calculus:
+        // * '_dsign(...) *' -> get correct quadrant
+        // * 'sqrt(...)'     -> solve the equation
+        // * '+ center.x/y'  -> back the EMF origin
+        intersect.x = _dsign(pt_no.x) * sqrt(1 / ((pow(1 / radii.x, 2))     + pow((slope / radii.y), 2))) + center.x;
+        intersect.y = _dsign(pt_no.y) * sqrt(1 / ((pow(1 / (slope * radii.x), 2)) + pow((1 / radii.y), 2))) + center.y;
+
         return intersect;
     }
 
@@ -519,17 +575,20 @@ extern "C" {
         }
         radii.x = (pEmr->rclBox.right - pEmr->rclBox.left) / 2;
         radii.y = (pEmr->rclBox.bottom - pEmr->rclBox.top) / 2;
-        // FIXME calculate the real start of the arc
-        //fprintf(out, "L ");
-        //point_draw(states, start, out);
         fprintf(out, "M ");
-        point_draw(states, pEmr->ptlStart, out);
+
+        POINT_D start = int_el_rad(pEmr->ptlStart, pEmr->rclBox);
+        point_draw_d(states, start, out);
+
         fprintf(out, "A ");
         point_draw(states, radii, out);
+
         fprintf(out, "0 ");
         fprintf(out, "%d %d ", large_arc_flag, sweep_flag);
-        // FIXME calculate the real end
-        point_draw(states, pEmr->ptlEnd, out);
+
+        POINT_D end = int_el_rad(pEmr->ptlEnd, pEmr->rclBox);
+        point_draw_d(states, end, out);
+
         switch(type){
             case ARC_PIE:
                 fprintf(out, "L ");
