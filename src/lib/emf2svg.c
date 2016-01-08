@@ -509,9 +509,12 @@ POINT_D int_el_rad(U_POINTL pt, U_RECTL rect) {
     center.x = (rect.right + rect.left) / 2;
     center.y = (rect.bottom + rect.top) / 2;
 
-    // FIXME handle divide by zero here and after
     radii.x = (rect.right - rect.left) / 2;
     radii.y = (rect.bottom - rect.top) / 2;
+
+    if ((radii.x == 0) || (radii.y == 0)) {
+        return center;
+    }
 
     // change orgin (new origin is ellipse center)
     pt_no.x = pt.x - center.x;
