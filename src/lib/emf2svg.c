@@ -24,9 +24,9 @@ extern "C" {
     //! \cond
 #define UNUSED(x) (void)(x)
 
-    /** 
+    /**
       \brief save the current device context on the stack.
-      \param states drawingStates object    
+      \param states drawingStates object
       */
 
     void saveDeviceContext(drawingStates * states){
@@ -79,7 +79,7 @@ extern "C" {
         formStack * ret = calloc(1, sizeof(formStack));
         FILE * NewFormStream = open_memstream(&ret->form, &ret->len);
         ret->formStream = NewFormStream;
-        ret->drawn = stack->drawn; 
+        ret->drawn = stack->drawn;
         ret->id = stack->id;
         if (stack->len != 0)
             fprintf(ret->formStream, "%s", stack->form);
@@ -90,7 +90,7 @@ extern "C" {
             formStack * new = calloc(1, sizeof(formStack));
             FILE * NewFormStream = open_memstream(&new->form, &new->len);
             new->formStream = NewFormStream;
-            new->drawn = stack->drawn; 
+            new->drawn = stack->drawn;
             new->id = stack->id;
             if (stack->len != 0)
                 fprintf(new->formStream, "%s", stack->form);
@@ -170,7 +170,7 @@ extern "C" {
             case U_BS_SOLID:
                 *filled = true;
                 fprintf(out, "%s", fill_rule);
-                fprintf(out, "fill=\"#%02X%02X%02X\" ", 
+                fprintf(out, "fill=\"#%02X%02X%02X\" ",
                         states->currentDeviceContext.fill_red,
                         states->currentDeviceContext.fill_green,
                         states->currentDeviceContext.fill_blue
@@ -198,13 +198,13 @@ extern "C" {
                 break;
             default:
                 break;
-            } 
+            }
             free(fill_rule);
             return;
     }
 
     void basic_stroke(drawingStates *states, FILE * out){
-       fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%.2f\" ", 
+       fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%.2f\" ",
                states->currentDeviceContext.stroke_red,
                states->currentDeviceContext.stroke_green,
                states->currentDeviceContext.stroke_blue,
@@ -314,7 +314,7 @@ extern "C" {
 
         // copy more complex data (pointers...)
         if (src->font_name != NULL){
-            dest->font_name = (char *)calloc(strlen(src->font_name) + 1, sizeof(char)); 
+            dest->font_name = (char *)calloc(strlen(src->font_name) + 1, sizeof(char));
             strcpy(dest->font_name, src->font_name);
         }
         if (src->font_family != NULL){
@@ -389,7 +389,7 @@ extern "C" {
       \param rect U_RECTL object
       */
     void rectl_draw(drawingStates *states, FILE * out, U_RECTL rect){
-        U_POINT pt; 
+        U_POINT pt;
         fprintf(out, "M ");
         pt.x = rect.left;
         pt.y = rect.top;
@@ -435,7 +435,7 @@ extern "C" {
         states->cur_x = pt.x;
         states->cur_y = pt.y;
         fprintf(out, "%.2f,%.2f ", ptd.x ,ptd.y);
-    } 
+    }
 
     void point_draw(
             drawingStates *states,
@@ -446,7 +446,7 @@ extern "C" {
         states->cur_x = pt.x;
         states->cur_y = pt.y;
         fprintf(out, "%.2f,%.2f ", ptd.x ,ptd.y);
-    } 
+    }
 
     void transform_draw(
             drawingStates *states,
@@ -492,7 +492,7 @@ extern "C" {
             }
         }
         endPathDraw(states, out);
-    } 
+    }
 
     U_POINTL int_el_rad(U_POINTL pt, U_RECTL rect){
         U_POINTL center;
@@ -548,7 +548,7 @@ extern "C" {
                 endPathDraw(states, out);
                 break;
         }
-    } 
+    }
 
 
 
@@ -579,7 +579,7 @@ extern "C" {
             }
         }
         endPathDraw(states, out);
-    } 
+    }
 
 
     // Functions drawing a polyline
@@ -600,7 +600,7 @@ extern "C" {
             point16_draw(states, papts[i], out);
         }
         endPathDraw(states, out);
-    } 
+    }
 
     void polyline_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
         UNUSED(name);
@@ -619,7 +619,7 @@ extern "C" {
             point_draw(states, pEmr->aptl[i], out);
         }
         endPathDraw(states, out);
-    } 
+    }
 
     void moveto_draw(const char *name, const char *field1, const char *field2, const char *contents, FILE *out, drawingStates *states){
         UNUSED(name);
@@ -662,7 +662,7 @@ extern "C" {
                 polygon_index++;
             }
         }
-    } 
+    }
 
     void polypolygon_draw(const char *name, const char *contents, FILE *out, drawingStates *states, bool polygon){
         UNUSED(name);
@@ -690,7 +690,7 @@ extern "C" {
                 polygon_index++;
             }
         }
-    } 
+    }
 
     void text_draw(const char *contents, FILE *out, drawingStates *states, uint8_t type){
         PU_EMRTEXT pemt = (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
@@ -710,7 +710,7 @@ extern "C" {
         double font_height = fabs((double)states->currentDeviceContext.font_height * states->scalingY);
         if( states->currentDeviceContext.font_family != NULL)
             fprintf(out, "font-family=\"%s\" ", states->currentDeviceContext.font_family);
-        fprintf(out, "fill=\"#%02X%02X%02X\" ", 
+        fprintf(out, "fill=\"#%02X%02X%02X\" ",
                 states->currentDeviceContext.text_red,
                 states->currentDeviceContext.text_green,
                 states->currentDeviceContext.text_blue
@@ -809,7 +809,7 @@ extern "C" {
         states->objectTable = calloc(pEmr->nHandles + 1, sizeof(emfGraphObject));
         states->objectTableSize = pEmr->nHandles;
 
-        double ratioXY = (double)(pEmr->rclBounds.right  - pEmr->rclBounds.left) / 
+        double ratioXY = (double)(pEmr->rclBounds.right  - pEmr->rclBounds.left) /
             (double)(pEmr->rclBounds.bottom  - pEmr->rclBounds.top);
 
         if ((states->imgHeight != 0) && (states->imgWidth != 0)){
@@ -842,15 +842,15 @@ extern "C" {
         states->pxPerMm = (double)pEmr->szlDevice.cx / (double)pEmr->szlMillimeters.cx;
 
         if (states->svgDelimiter){
-            fprintf(out, "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n"); 
-            fprintf(out, "<%ssvg version=\"1.1\" ", 
+            fprintf(out, "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n");
+            fprintf(out, "<%ssvg version=\"1.1\" ",
                     states->nameSpaceString);
             fprintf(out, "xmlns=\"http://www.w3.org/2000/svg\" ");
             if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)){
                 fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ", states->nameSpace);
             }
                    fprintf(out, "width=\"%d\" height=\"%d\">\n",
-                    (int)states->imgWidth, 
+                    (int)states->imgWidth,
                     (int)states->imgHeight);
         }
 
@@ -867,7 +867,7 @@ extern "C" {
         FLAG_SUPPORTED;
         if (states->verbose){U_EMRPOLYBEZIER_print(contents, states);}
         cubic_bezier_draw("U_EMRPOLYBEZIER", contents, out, states, 1);
-    } 
+    }
 
     void U_EMRPOLYGON_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
@@ -898,7 +898,7 @@ extern "C" {
 
             fprintf(out, "/><!-- shit -->\n");
         }
-    } 
+    }
 
     void U_EMRPOLYLINE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
@@ -927,19 +927,19 @@ extern "C" {
                 fprintf(out, "stroke=\"none\" ");
             fprintf(out, "/>\n");
         }
-    } 
+    }
 
     void U_EMRPOLYBEZIERTO_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
         if (states->verbose){U_EMRPOLYBEZIERTO_print(contents, states);}
         cubic_bezier_draw("U_EMRPOLYBEZIER", contents, out, states, false);
-    } 
+    }
 
     void U_EMRPOLYLINETO_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
         if (states->verbose){U_EMRPOLYLINETO_print(contents, states);}
         polyline_draw("U_EMRPOLYLINETO", contents, out, states, false);
-    } 
+    }
 
     void U_EMRPOLYPOLYLINE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
@@ -968,7 +968,7 @@ extern "C" {
 
             fprintf(out, "/>\n");
         }
-    } 
+    }
 
     void U_EMRPOLYPOLYGON_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
@@ -996,7 +996,7 @@ extern "C" {
 
             fprintf(out, "/>\n");
         }
-    } 
+    }
 
     void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
@@ -1007,7 +1007,7 @@ extern "C" {
         states->scalingY = (double)states->imgHeight / (double)pEmr->szlExtent.cy;
         states->offsetX = states->originX;
         states->offsetY = states->originY;
-    } 
+    }
 
     void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
@@ -1017,7 +1017,7 @@ extern "C" {
         states->offsetX = -1 * (double)pEmr->ptlOrigin.x * states->scalingX + states->offsetX;
         states->offsetY = -1 * (double)pEmr->ptlOrigin.y * states->scalingY + states->offsetY;
 
-    } 
+    }
 
     void U_EMRSETVIEWPORTEXTEX_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
@@ -1026,18 +1026,18 @@ extern "C" {
 
         states->imgWidth  =  pEmr->szlExtent.cx * states->scaling;
         states->imgHeight =  pEmr->szlExtent.cy * states->scaling;
-    } 
+    }
 
     void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_UNUSED;
         if (states->verbose){U_EMRSETVIEWPORTORGEX_print(contents, states);}
         //PU_EMRSETVIEWPORTORGEX pEmr = (PU_EMRSETVIEWPORTORGEX)(contents);
-    } 
+    }
 
     void U_EMRSETBRUSHORGEX_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSETBRUSHORGEX_print(contents, states);}
-    } 
+    }
 
     void U_EMREOF_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
@@ -1048,19 +1048,19 @@ extern "C" {
         fprintf(out, "</%sg>\n", states->nameSpaceString);
         if(states->svgDelimiter)
             fprintf(out, "</%ssvg>\n", states->nameSpaceString);
-    } 
+    }
 
     void U_EMRSETPIXELV_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSETPIXELV_print(contents, states);}
         //PU_EMRSETPIXELV pEmr = (PU_EMRSETPIXELV)(contents);
-    } 
+    }
 
     void U_EMRSETMAPPERFLAGS_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRSETMAPPERFLAGS_print(contents, states);}
         //PU_EMRSETMAPPERFLAGS pEmr = (PU_EMRSETMAPPERFLAGS)(contents);
-    } 
+    }
 
     void U_EMRSETMAPMODE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
@@ -1128,7 +1128,7 @@ extern "C" {
         FLAG_SUPPORTED;
         if (states->verbose){U_EMRSETPOLYFILLMODE_print(contents, states);}
         PU_EMRSETMAPMODE pEmr   = (PU_EMRSETMAPMODE)(contents);
-        states->currentDeviceContext.fill_polymode = pEmr->iMode; 
+        states->currentDeviceContext.fill_polymode = pEmr->iMode;
     }
 
     void U_EMRSETROP2_draw(const char *contents, FILE *out, drawingStates *states){
@@ -1178,7 +1178,7 @@ extern "C" {
         FLAG_IGNORED;
         if (states->verbose){U_EMROFFSETCLIPRGN_print(contents, states);}
         //PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR) (contents);
-    } 
+    }
 
     void U_EMRMOVETOEX_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
@@ -1195,7 +1195,7 @@ extern "C" {
             states->cur_x = pt.x;
             states->cur_y = pt.y;
         }
-    } 
+    }
 
     void U_EMRSETMETARGN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
@@ -1261,7 +1261,7 @@ extern "C" {
             fprintf(out, "</%sg>\n",  states->nameSpaceString);
         }
         transform_draw(states, out);
-    } 
+    }
 
     void U_EMRMODIFYWORLDTRANSFORM_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
@@ -1371,7 +1371,7 @@ extern "C" {
             default:
                 break;
         }
-    } 
+    }
 
     void U_EMRSELECTOBJECT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
@@ -1478,7 +1478,7 @@ extern "C" {
                 }
                 if (states->objectTable[index].font_name != NULL){
                     size_t len = strlen(states->objectTable[index].font_name);
-                    states->currentDeviceContext.font_name = calloc((len + 1), sizeof(char)); 
+                    states->currentDeviceContext.font_name = calloc((len + 1), sizeof(char));
                     strcpy(states->currentDeviceContext.font_name, states->objectTable[index].font_name);
                 }
                 if (states->currentDeviceContext.font_family != NULL){
@@ -1487,12 +1487,12 @@ extern "C" {
                 }
                 if (states->objectTable[index].font_family != NULL){
                     size_t len = strlen(states->objectTable[index].font_family);
-                    states->currentDeviceContext.font_family = calloc((len + 1), sizeof(char)); 
+                    states->currentDeviceContext.font_family = calloc((len + 1), sizeof(char));
                     strcpy(states->currentDeviceContext.font_family, states->objectTable[index].font_family);
                 }
             }
         }
-    } 
+    }
 
     void U_EMRCREATEPEN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
@@ -1508,7 +1508,7 @@ extern "C" {
         states->objectTable[index].stroke_green   = pEmr->lopn.lopnColor.Green;
         states->objectTable[index].stroke_mode    = pEmr->lopn.lopnStyle;
         states->objectTable[index].stroke_width   = pEmr->lopn.lopnWidth.x;
-    } 
+    }
 
     void U_EMRCREATEBRUSHINDIRECT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
@@ -1532,7 +1532,7 @@ extern "C" {
             states->objectTable[index].fill_mode    = U_BS_HATCHED;
             states->objectTable[index].fill_set     = true;
         }
-    } 
+    }
 
     void U_EMRDELETEOBJECT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
@@ -1541,13 +1541,13 @@ extern "C" {
         uint16_t index = pEmr->ihObject;
         returnOutOfOTIndex(index);
         freeObject(states, index);
-    } 
+    }
 
     void U_EMRANGLEARC_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRANGLEARC_print(contents, states);}
         //PU_EMRANGLEARC pEmr = (PU_EMRANGLEARC)(contents);
-    } 
+    }
 
     void U_EMRELLIPSE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_SUPPORTED;
@@ -1678,7 +1678,7 @@ extern "C" {
     void U_EMRRESIZEPALETTE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRRESIZEPALETTE_print(contents, states);}
-    } 
+    }
 
     void U_EMRREALIZEPALETTE_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
@@ -1696,7 +1696,7 @@ extern "C" {
         FLAG_SUPPORTED;
         if (states->verbose){U_EMRLINETO_print(contents, states);}
         lineto_draw("U_EMRLINETO", "ptl:","",contents, out, states);
-    } 
+    }
 
     void U_EMRARCTO_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_PARTIAL;
@@ -1888,19 +1888,19 @@ extern "C" {
                 return;
             }
         }
-    } 
+    }
 
     void U_EMRFILLRGN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRFILLRGN_print(contents, states);}
         //PU_EMRFILLRGN pEmr = (PU_EMRFILLRGN)(contents);
-    } 
+    }
 
     void U_EMRFRAMERGN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         if (states->verbose){U_EMRFRAMERGN_print(contents, states);}
         //PU_EMRFRAMERGN pEmr = (PU_EMRFRAMERGN)(contents);
-    } 
+    }
 
     void U_EMRINVERTRGN_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
@@ -1916,7 +1916,7 @@ extern "C" {
         FLAG_IGNORED;
         if (states->verbose){U_EMREXTSELECTCLIPRGN_print(contents, states);}
         //PU_EMREXTSELECTCLIPRGN pEmr = (PU_EMREXTSELECTCLIPRGN) (contents);
-    } 
+    }
 
     void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
@@ -1974,7 +1974,7 @@ extern "C" {
 
         if(pEmr->emr.nSize == sizeof(U_EMREXTCREATEFONTINDIRECTW)){ // holds logfont_panose
             U_LOGFONT_PANOSE lfp = pEmr->elfw;
-            logfont = pEmr->elfw.elfLogFont; 
+            logfont = pEmr->elfw.elfLogFont;
             char *fullname = U_Utf16leToUtf8(lfp.elfFullName, U_LF_FULLFACESIZE, NULL);
             states->objectTable[index].font_name = fullname;
         }
@@ -2175,7 +2175,7 @@ extern "C" {
         states->objectTable[index].stroke_mode    = pen->elpPenStyle;
         states->objectTable[index].stroke_width   = pen->elpWidth;
 
-    } 
+    }
 
     // U_EMRPOLYTEXTOUTA         96 NOT IMPLEMENTED, denigrated after Windows NT
 #define U_EMRPOLYTEXTOUTA_draw(A) U_EMRNOTIMPLEMENTED_draw("U_EMRPOLYTEXTOUTA",A) //!< Not implemented.
@@ -2267,7 +2267,7 @@ extern "C" {
 #define U_EMRSETLINKEDUFIS_draw(A)        U_EMRNOTIMPLEMENTED_draw("U_EMR_SETLINKEDUFIS",A) //!< Not implemented.
     // U_EMRSETTEXTJUSTIFICATION120  Not implemented (denigrated)
 #define U_EMRSETTEXTJUSTIFICATION_draw(A) U_EMRNOTIMPLEMENTED_draw("U_EMR_SETTEXTJUSTIFICATION",A) //!< Not implemented.
-    // U_EMRCOLORMATCHTOTARGETW 121  Not implemented  
+    // U_EMRCOLORMATCHTOTARGETW 121  Not implemented
 #define U_EMRCOLORMATCHTOTARGETW_draw(A)  U_EMRNOTIMPLEMENTED_draw("U_EMR_COLORMATCHTOTARGETW",A) //!< Not implemented.
 
     void U_EMRCREATECOLORSPACEW_draw(const char *contents, FILE *out, drawingStates *states){
@@ -2286,7 +2286,7 @@ extern "C" {
         /* Check that the record size is OK, abort if not.
            Pointer math might wrap, so check both sides of the range */
         if(size < sizeof(U_EMR)           ||
-                contents + size - 1 >= blimit  || 
+                contents + size - 1 >= blimit  ||
                 contents + size - 1 < contents)return(-1);
 
         switch (lpEMFR->iType)
@@ -2428,7 +2428,7 @@ extern "C" {
         /* Check that the record size is OK, abort if not.
            Pointer math might wrap, so check both sides of the range */
         if(size < sizeof(U_EMR)           ||
-                contents + size - 1 >= blimit  || 
+                contents + size - 1 >= blimit  ||
                 contents + size - 1 < contents)return(-1);
 
         switch (lpEMFR->iType)
@@ -2494,39 +2494,39 @@ extern "C" {
             case U_EMR_BEGINPATH:               newPathStruct(states); break;
             case U_EMR_ENDPATH:                 break;
             case U_EMR_CLOSEFIGURE:             break;
-            case U_EMR_FILLPATH:                
+            case U_EMR_FILLPATH:
                 if(states->emfStructure.pathStackLast != NULL){
                     states->emfStructure.pathStackLast->pathStruct.fillOffset = off;
                 }
                 break;
             case U_EMR_STROKEANDFILLPATH:
                 if(states->emfStructure.pathStackLast != NULL){
-                    states->emfStructure.pathStackLast->pathStruct.strokeFillOffset = off; 
+                    states->emfStructure.pathStackLast->pathStruct.strokeFillOffset = off;
                 }
                 break;
             case U_EMR_STROKEPATH:
                 if(states->emfStructure.pathStackLast != NULL){
-                    states->emfStructure.pathStackLast->pathStruct.strokeOffset = off; 
+                    states->emfStructure.pathStackLast->pathStruct.strokeOffset = off;
                 }
                 break;
             case U_EMR_FLATTENPATH:
                 if(states->emfStructure.pathStackLast != NULL){
-                    states->emfStructure.pathStackLast->pathStruct.flattenOffset = off; 
+                    states->emfStructure.pathStackLast->pathStruct.flattenOffset = off;
                 }
                 break;
             case U_EMR_WIDENPATH:
                 if(states->emfStructure.pathStackLast != NULL){
-                    states->emfStructure.pathStackLast->pathStruct.widdenOffset = off; 
+                    states->emfStructure.pathStackLast->pathStruct.widdenOffset = off;
                 }
                 break;
             case U_EMR_SELECTCLIPPATH:
                 if(states->emfStructure.pathStackLast != NULL){
-                    states->emfStructure.pathStackLast->pathStruct.clipOffset = off; 
+                    states->emfStructure.pathStackLast->pathStruct.clipOffset = off;
                 }
                 break;
             case U_EMR_ABORTPATH:
                 if(states->emfStructure.pathStackLast != NULL){
-                    states->emfStructure.pathStackLast->pathStruct.abortOffset = off; 
+                    states->emfStructure.pathStackLast->pathStruct.abortOffset = off;
                 }
                 break;
           //case U_EMR_UNDEF69:                 break;
@@ -2591,7 +2591,7 @@ extern "C" {
 
 
     int emf2svg(char *contents, size_t length, char **out, generatorOptions *options)
-    {   
+    {
         size_t   off=0;
         size_t   result;
         int      OK =1;
@@ -2624,7 +2624,7 @@ extern "C" {
         states->svgDelimiter = options->svgDelimiter;
         states->currentDeviceContext.font_name = NULL;
         /* initialized to -1 because real size of states->objectTable is always
-         * states->objectTableSize + 1 (for easier index manipulation since 
+         * states->objectTableSize + 1 (for easier index manipulation since
          * indexes in emf files start at 1 and not 0)*/
         states->objectTableSize = -1;
         setTransformIdentity(states);
@@ -2669,7 +2669,7 @@ extern "C" {
             else if(!result){
                 OK=0;
             }
-            else { 
+            else {
                 off += result;
                 recnum++;
             }
@@ -2704,7 +2704,7 @@ extern "C" {
             else if(!result){
                 OK=0;
             }
-            else { 
+            else {
                 off += result;
                 recnum++;
             }

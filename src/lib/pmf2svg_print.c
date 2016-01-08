@@ -16,8 +16,8 @@ Copyright: 2014 David Mathog and California Institute of Technology (Caltech)
 /* compiler options:
 
    -DNOBRUSH causes brush objects to be treated as pen objects.  PowerPoint 2003 and 2010 define pen objects
-   as brush objects, and this is one way to see their structure even though they are misidentified.  
-   This option should only be used for tiny test files, consisting of just line objects.  
+   as brush objects, and this is one way to see their structure even though they are misidentified.
+   This option should only be used for tiny test files, consisting of just line objects.
    */
 
 #ifdef __cplusplus
@@ -38,7 +38,7 @@ extern "C" {
 
 #define UNUSED(x) (void)(x)  //! Please ignore - Doxygen simply insisted on including this
 
-    /* 
+    /*
        this function is not visible in the API.  Print "data" for one of the many records that has none.
        */
     int U_PMR_NODATAREC_print(const char *contents, FILE *out, drawingStates *states){
@@ -48,7 +48,7 @@ extern "C" {
         return(status);
     }
 
-    /* 
+    /*
        this function is not visible in the API.  Common routine used by many functions that draw points.
        */
     void U_PMF_VARPOINTS_print(const char **contents, int Flags, uint32_t Elements, FILE *out, drawingStates *states){
@@ -74,7 +74,7 @@ extern "C" {
         verbose_printf("\n");
     }
 
-    /* 
+    /*
        this function is not visible in the API.  Common routine used by many functions that draw points.
        */
     void U_PMF_VARPOINTF_S_print(U_PMF_POINTF *Points, uint32_t Elements, FILE *out, drawingStates *states){
@@ -87,7 +87,7 @@ extern "C" {
         verbose_printf("\n");
     }
 
-    /* 
+    /*
        this function is not visible in the API.  Common routine used by many functions that draw rectangles.
        */
     int U_PMF_VARRECTF_S_print(U_PMF_RECTF *Rects, uint32_t Elements, FILE *out, drawingStates *states){
@@ -103,7 +103,7 @@ extern "C" {
         return(1);
     }
 
-    /* 
+    /*
        this function is not visible in the API.  Common routine used by many functions.
        */
     int U_PMF_VARBRUSHID_print(int btype, uint32_t BrushID, FILE *out, drawingStates *states){
@@ -144,8 +144,8 @@ extern "C" {
             U_PMR_OBJECT_print(contents, blimit, &ObjCont, 1, out, states);
         }
 
-        switch(type){  
-            case (U_PMR_HEADER):                   U_PMR_HEADER_print(contents, out, states);                       break;                     
+        switch(type){
+            case (U_PMR_HEADER):                   U_PMR_HEADER_print(contents, out, states);                       break;
             case (U_PMR_ENDOFFILE):                U_PMR_ENDOFFILE_print(contents, out, states);
                                                    U_OA_release(&ObjCont);                             break;
             case (U_PMR_COMMENT):                  U_PMR_COMMENT_print(contents, out, states);                      break;
@@ -370,7 +370,7 @@ extern "C" {
 
     /**
       \brief Print value of a  U_PMF_PATHPOINTTYPE_ENUM object
-      \return 1 
+      \return 1
       \param  Type   Value to print
       EMF+ manual 2.1.1.23, Microsoft name: PathPointType Enumeration
       */
@@ -503,7 +503,7 @@ extern "C" {
         const char *Data;
         int status = U_PMF_CUSTOMLINECAP_get(contents, &Version, &Type, &Data);
 
-        if(status){      
+        if(status){
             verbose_printf("   +  %sLineCap:",Which);
             (void) U_PMF_GRAPHICSVERSION_print((char *)&Version, out, states);
             verbose_printf(", Type %X\n",Type);
@@ -535,13 +535,13 @@ extern "C" {
         const char *Data;
         char *string;
         int status = U_PMF_FONT_get(contents, &Version, &EmSize, &SizeUnit, &FSFlags, &Length, &Data);
-        if(status){      
+        if(status){
             verbose_printf("   +  Font:");
             (void) U_PMF_GRAPHICSVERSION_print((char *)&Version, out, states);
-            verbose_printf(" EmSize:%f ",  EmSize  );  
+            verbose_printf(" EmSize:%f ",  EmSize  );
             verbose_printf(" SizeUnit:%d ",SizeUnit);
-            verbose_printf(" FSFlags:%d ", FSFlags ); 
-            verbose_printf(" Length:%d",  Length  );  
+            verbose_printf(" FSFlags:%d ", FSFlags );
+            verbose_printf(" Length:%d",  Length  );
             string = U_Utf16leToUtf8((uint16_t *)Data, Length, NULL);
             if(string){
                 verbose_printf(" Family:<%s>\n",string);
@@ -566,7 +566,7 @@ extern "C" {
         uint32_t Version, Type;
         const char *Data;
         int status = U_PMF_IMAGE_get(contents, &Version, &Type, &Data);
-        if(status){      
+        if(status){
             verbose_printf("   +  Image:");
             (void) U_PMF_GRAPHICSVERSION_print((char *)&Version, out, states);
             verbose_printf(" Type:%X\n",Type);
@@ -599,7 +599,7 @@ extern "C" {
         uint32_t Version, WrapMode, ClampColor, ObjectClamp;
         int status = U_PMF_IMAGEATTRIBUTES_get(contents, &Version, &WrapMode, &ClampColor, &ObjectClamp);
 
-        if(status){      
+        if(status){
             verbose_printf("   +  Image Attributes: ");
             (void) U_PMF_GRAPHICSVERSION_print((char *)&Version, out, states);
             verbose_printf(" WrapMode:%X",      WrapMode);
@@ -1215,7 +1215,7 @@ extern "C" {
         int status = U_PMF_LINEARGRADIENTBRUSHOPTIONALDATA_get(contents, BDFlag, &Tm, &Bc, &BfH, &BfV);
         if(status){
             if(BDFlag & U_BD_Transform){
-                U_PMF_TRANSFORMMATRIX2_print(&Tm, out, states); 
+                U_PMF_TRANSFORMMATRIX2_print(&Tm, out, states);
                 None=0;
             }
             if(Bc){
@@ -1223,12 +1223,12 @@ extern "C" {
                 (void) U_PMF_BLENDCOLORS_print(Bc, out, states);
                 None=0;
             }
-            if(BfH){ 
+            if(BfH){
                 verbose_printf("\n");
                 (void) U_PMF_BLENDFACTORS_print(BfH,"H", out, states);
                 None=0;
             }
-            if(BfV){ 
+            if(BfV){
                 verbose_printf("\n");
                 (void) U_PMF_BLENDFACTORS_print(BfV,"V", out, states);
                 None=0;
@@ -1542,7 +1542,7 @@ extern "C" {
       \param  Ypos       Y coordinate for current point
 
       On each call the next relative offset is extracted, the current
-      coordinates are modified with that offset, and the pointer is 
+      coordinates are modified with that offset, and the pointer is
       advanced to the next data point.
 
       EMF+ manual 2.2.2.37, Microsoft name: EmfPlusPointR Object
@@ -1905,7 +1905,7 @@ extern "C" {
             for(i=0;i<5;i++){
                 verbose_printf(" {");
                 for(j=0;j<4;i++){  verbose_printf("%f,",Matrix.M[i][j]);  }
-                verbose_printf("%f}",Matrix.M[i][j]); 
+                verbose_printf("%f}",Matrix.M[i][j]);
             }
             verbose_printf("\n");
         }
@@ -2226,7 +2226,7 @@ EMF+ manual 2.3.4.4, Microsoft name: EmfPlusDrawClosedCurve Record, Index 0x17
 */
     int U_PMR_DRAWCLOSEDCURVE_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
-        uint32_t PenID; 
+        uint32_t PenID;
         int ctype, RelAbs;
         U_FLOAT Tension;
         uint32_t Elements;
@@ -2487,7 +2487,7 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
         int btype;
         U_PMF_RECTF Rect;
         uint16_t *String16;
-        int status = U_PMR_DRAWSTRING_get(contents, NULL, &FontID, &btype, 
+        int status = U_PMR_DRAWSTRING_get(contents, NULL, &FontID, &btype,
                 &BrushID, &FormatID, &Length, &Rect, &String16);
         if(status){
             verbose_printf("   +  FontID:%u StringFormatID:%u btype:%d Length:%u Rect:", FontID, FormatID, btype, Length);
@@ -2521,10 +2521,10 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
         U_FLOAT Tension;
         uint32_t Elements;
         U_PMF_POINTF *Points;
-        int status = U_PMR_FILLCLOSEDCURVE_get(contents, NULL, &btype, &ctype, &ftype, &RelAbs, 
+        int status = U_PMR_FILLCLOSEDCURVE_get(contents, NULL, &btype, &ctype, &ftype, &RelAbs,
                 &BrushID, &Tension, &Elements, &Points);
         if(status){
-            verbose_printf("   +  btype:%d ctype:%d ftype:%d RelAbs:%d Elements:%u", 
+            verbose_printf("   +  btype:%d ctype:%d ftype:%d RelAbs:%d Elements:%u",
                     btype, ctype, ftype, RelAbs, Elements);
             (void) U_PMF_VARBRUSHID_print(btype, BrushID, out, states);
             verbose_printf("\n");
@@ -2689,7 +2689,7 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
 
         if(term){ /* mode for handling unexpected end of accumulated object */
             if(ObjCont->used == 0)return(0);                           /* no continued object pending */
-            verbose_printf("   +  START Forced Termination of Accumulating object Bytes:%u ObjID:%u DeclaredType:%d(", 
+            verbose_printf("   +  START Forced Termination of Accumulating object Bytes:%u ObjID:%u DeclaredType:%d(",
                     ObjCont->used, ObjCont->Id, ObjCont->Type);
             U_PMF_OBJECTTYPEENUMERATION_print(ObjCont->Type, out, states);
             ttype = ObjCont->Type & 0x3F;
@@ -2699,7 +2699,7 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
         else {
             status = U_PMR_OBJECT_get(contents, &Header, &ObjID, &otype, &ntype, &TSize, &Data);
             /* In a corrupt EMF+ file we might hit a new type of record before all the continuation records
-               expected have been found.  If that happens terminate whatever we have accumulated so far, and then go on 
+               expected have been found.  If that happens terminate whatever we have accumulated so far, and then go on
                to emit the new (unexpected) record. */
             if(contents + Header.Size >= blimit)return(0);
             if(!status)return(status);
@@ -2740,7 +2740,7 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
                                            verbose_printf("INVALID OBJECT TYPE!!!!\n");
                                            break;
             }
-            U_OA_clear(ObjCont);  
+            U_OA_clear(ObjCont);
         }
         if(term)verbose_printf("   +  END   Forced Termination of Accumulating object\n");
         return(status);
@@ -2768,7 +2768,7 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
                 verbose_printf("\n   +  Effect:");
                 free(string);
                 switch(iee){
-                    case U_IEE_Unknown:                          verbose_printf("(undefined)\n");                     break;                        
+                    case U_IEE_Unknown:                          verbose_printf("(undefined)\n");                     break;
                     case U_IEE_BlurEffectGuid:                   U_PMF_IE_BLUR_print(Data, out, states);                   break;
                     case U_IEE_BrightnessContrastEffectGuid:     U_PMF_IE_BRIGHTNESSCONTRAST_print(Data, out, states);     break;
                     case U_IEE_ColorBalanceEffectGuid:           U_PMF_IE_COLORBALANCE_print(Data, out, states);           break;
@@ -3032,9 +3032,9 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
     int U_PMR_SETTSGRAPHICS_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
         int      vgatype, pptype;
-        uint8_t  AntiAliasMode, TextRenderHint, CompositingMode, CompositingQuality, FilterType, PixelOffset;  
+        uint8_t  AntiAliasMode, TextRenderHint, CompositingMode, CompositingQuality, FilterType, PixelOffset;
         int16_t  RenderOriginX, RenderOriginY;
-        uint16_t TextContrast;    
+        uint16_t TextContrast;
         U_PMF_TRANSFORMMATRIX WorldToDevice;
         const char *Data;
         int status = U_PMR_SETTSGRAPHICS_get(contents, NULL,
@@ -3188,7 +3188,7 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       \brief Print data from a  U_PMR_MULTIFORMATSTART record
       \return 1 on success, 0 on error
       \param  contents    Record from which to print data
-      EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatStart Record, Index 0x05 
+      EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatStart Record, Index 0x05
       */
     int U_PMR_MULTIFORMATSTART_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
@@ -3199,7 +3199,7 @@ EMF+ manual 2.3.4.5, Microsoft name: EmfPlusDrawCurve Record, Index 0x18
       \brief Print data from a  U_PMR_MULTIFORMATSECTION record
       \return 1 on success, 0 on error
       \param  contents    Record from which to print data
-      EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatSection Record, Index 0x06 
+      EMF+ manual mentioned in 2.1.1.1, reserved, not otherwise documented, Microsoft name: EmfPlusMultiFormatSection Record, Index 0x06
       */
     int U_PMR_MULTIFORMATSECTION_print(const char *contents, FILE *out, drawingStates *states){
         FLAG_IGNORED;
