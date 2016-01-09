@@ -795,7 +795,7 @@ void core1_print(const char *name, const char *contents,
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   cptl:           %d\n", pEmr->cptl);
-    verbose_printf("   Points:       ");
+    verbose_printf("   Points:         ");
     for (i = 0; i < pEmr->cptl; i++) {
         verbose_printf("[%d]:", i);
         pointl_print(states, pEmr->aptl[i]);
@@ -821,9 +821,9 @@ void core2_print(const char *name, const char *contents,
     verbose_printf("\n");
     PU_POINTL paptl = (PU_POINTL)((char *)pEmr->aPolyCounts +
                                   sizeof(uint32_t) * pEmr->nPolys);
-    verbose_printf("   Points:        ");
+    verbose_printf("   Points:         ");
     for (i = 0; i < pEmr->cptl; i++) {
-        verbose_printf(" [%d]:", i);
+        verbose_printf("[%d]:", i);
         pointl_print(states, paptl[i]);
     }
     verbose_printf("\n");
@@ -866,10 +866,10 @@ void core6_print(const char *name, const char *contents,
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   cpts:           %d\n", pEmr->cpts);
-    verbose_printf("   Points:        ");
+    verbose_printf("   Points:         ");
     PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
     for (i = 0; i < pEmr->cpts; i++) {
-        verbose_printf(" [%d]:", i);
+        verbose_printf("[%d]:", i);
         point16_print(states, papts[i]);
     }
     verbose_printf("\n");
@@ -949,7 +949,7 @@ void core10_print(const char *name, const char *contents,
     PU_POINT16 papts = (PU_POINT16)((char *)pEmr->aPolyCounts +
                                     sizeof(uint32_t) * pEmr->nPolys);
     for (i = 0; i < pEmr->cpts; i++) {
-        verbose_printf(" [%d]:", i);
+        verbose_printf("[%d]:", i);
         point16_print(states, papts[i]);
     }
     verbose_printf("\n");
@@ -1789,7 +1789,7 @@ void U_EMRPOLYDRAW_print(const char *contents, drawingStates *states) {
     verbose_printf("   cptl:           %d\n", pEmr->cptl);
     verbose_printf("   Points:         ");
     for (i = 0; i < pEmr->cptl; i++) {
-        verbose_printf(" [%d]:", i);
+        verbose_printf("[%d]:", i);
         pointl_print(states, pEmr->aptl[i]);
     }
     verbose_printf("\n");
@@ -2459,7 +2459,7 @@ void U_EMRPOLYDRAW16_print(const char *contents, drawingStates *states) {
     verbose_printf("   cpts:           %d\n", pEmr->cpts);
     verbose_printf("   Points:         ");
     for (i = 0; i < pEmr->cpts; i++) {
-        verbose_printf(" [%d]:", i);
+        verbose_printf("[%d]:", i);
         point16_print(states, pEmr->apts[i]);
     }
     verbose_printf("\n");
