@@ -2004,7 +2004,7 @@ void U_EMRENDPATH_draw(const char *contents, FILE *out, drawingStates *states) {
     if (states->verbose) {
         U_EMRENDPATH_print(contents, states);
     }
-    fprintf(out, "\" ");
+    fprintf(out, "Z \" ");
     states->inPath = 0;
     bool filled = false;
     bool stroked = false;
