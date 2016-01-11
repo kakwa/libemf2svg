@@ -252,28 +252,19 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
         fprintf(out, "stroke-width=\"0.0\" ");
         *stroked = true;
         break;
-    case U_PS_INSIDEFRAME:
-        // partial
-        basic_stroke(states, out);
-        *stroked = true;
-        break;
-    case U_PS_USERSTYLE:
-        break;
-    case U_PS_ALTERNATE:
-        break;
-    case U_PS_ENDCAP_SQUARE:
-        break;
-    case U_PS_ENDCAP_FLAT:
-        break;
-    case U_PS_JOIN_BEVEL:
-        break;
-    case U_PS_JOIN_MITER:
-        break;
     case U_PS_GEOMETRIC:
         basic_stroke(states, out);
         *stroked = true;
         break;
+    case U_PS_INSIDEFRAME:
+    case U_PS_USERSTYLE:
+    case U_PS_ALTERNATE:
+    case U_PS_ENDCAP_SQUARE:
+    case U_PS_ENDCAP_FLAT:
+    case U_PS_JOIN_BEVEL:
+    case U_PS_JOIN_MITER:
     default:
+        // partial
         basic_stroke(states, out);
         *stroked = true;
         break;
@@ -897,6 +888,7 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     }
 
     // set scaling for original resolution
+    // states->scaling = 1;
     states->scaling = states->imgWidth /
                       (double)(pEmr->rclBounds.right - pEmr->rclBounds.left);
 
