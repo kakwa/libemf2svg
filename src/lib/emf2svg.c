@@ -200,15 +200,20 @@ void fill_draw(drawingStates *states, FILE *out, bool *filled, bool *stroked) {
     return;
 }
 
-void basic_stroke(drawingStates *states, FILE *out) {
-    fprintf(out, "stroke=\"#%02X%02X%02X\" stroke-width=\"%.2f\" ",
+void width_stroke(drawingStates *states, FILE *out, double width) {
+    fprintf(out, "stroke-width=\"%.2f\" ", width * states->scaling);
+}
+
+void color_stroke(drawingStates *states, FILE *out) {
+    fprintf(out, "stroke=\"#%02X%02X%02X\" ",
             states->currentDeviceContext.stroke_red,
             states->currentDeviceContext.stroke_green,
-            states->currentDeviceContext.stroke_blue,
-            // FIXME
-            1.0
-            // states->currentDeviceContext.stroke_width * states->scaling
-            );
+            states->currentDeviceContext.stroke_blue);
+}
+
+void basic_stroke(drawingStates *states, FILE *out) {
+    color_stroke(states, out);
+    width_stroke(states, out, states->currentDeviceContext.stroke_width);
 }
 
 void stroke_draw(drawingStates *states, FILE *out, bool *filled,
@@ -220,52 +225,49 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
     if (states->verbose) {
         stroke_print(states);
     }
+
+    if ((states->currentDeviceContext.stroke_mode & 0x000000FF) == U_PS_NULL) {
+        fprintf(out, "stroke=\"none\" ");
+        fprintf(out, "stroke-width=\"0.0\" ");
+        *stroked = true;
+        return;
+    }
     // pen type
     switch (states->currentDeviceContext.stroke_mode & 0x000F0000) {
     case U_PS_COSMETIC:
+        color_stroke(states, out);
+        // width_stroke(states, out, 1 / states->scaling);
+        width_stroke(states, out, 1);
+        *stroked = true;
+        break;
     case U_PS_GEOMETRIC:
+        basic_stroke(states, out);
+        *stroked = true;
         break;
     }
     // line style.
     switch (states->currentDeviceContext.stroke_mode & 0x000000FF) {
     case U_PS_SOLID:
-        *stroked = true;
-        basic_stroke(states, out);
         break;
     case U_PS_DASH:
         fprintf(out, "stroke-dasharray=\"%.2f,%.2f\" ", dash_len, dash_len);
-        basic_stroke(states, out);
-        *stroked = true;
         break;
     case U_PS_DOT:
         fprintf(out, "stroke-dasharray=\"%.2f,%.2f\" ", dot_len, dot_len);
-        basic_stroke(states, out);
-        *stroked = true;
         break;
     case U_PS_DASHDOT:
         fprintf(out, "stroke-dasharray=\"%.2f,%.2f,%.2f,%.2f\" ", dash_len,
                 dash_len, dot_len, dash_len);
-        basic_stroke(states, out);
-        *stroked = true;
         break;
     case U_PS_DASHDOTDOT:
         fprintf(out, "stroke-dasharray=\"%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\" ",
                 dash_len, dash_len, dot_len, dot_len, dot_len, dash_len);
-        basic_stroke(states, out);
-        *stroked = true;
-        break;
-    case U_PS_NULL:
-        fprintf(out, "stroke=\"none\" ");
-        fprintf(out, "stroke-width=\"0.0\" ");
-        *stroked = true;
         break;
     case U_PS_INSIDEFRAME:
     case U_PS_USERSTYLE:
     case U_PS_ALTERNATE:
     default:
         // partial
-        basic_stroke(states, out);
-        *stroked = true;
         break;
     }
     // line cap.
