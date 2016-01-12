@@ -1763,6 +1763,12 @@ void U_EMRCREATEBRUSHINDIRECT_draw(const char *contents, FILE *out,
         states->objectTable[index].fill_blue = pEmr->lb.lbColor.Blue;
         states->objectTable[index].fill_mode = U_BS_HATCHED;
         states->objectTable[index].fill_set = true;
+    } else {
+        states->objectTable[index].fill_red = pEmr->lb.lbColor.Red;
+        states->objectTable[index].fill_green = pEmr->lb.lbColor.Green;
+        states->objectTable[index].fill_blue = pEmr->lb.lbColor.Blue;
+        states->objectTable[index].fill_mode = pEmr->lb.lbStyle;
+        states->objectTable[index].fill_set = true;
     }
 }
 
