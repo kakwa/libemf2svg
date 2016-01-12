@@ -202,15 +202,19 @@ void stroke_print(drawingStates *states) {
     switch (states->currentDeviceContext.stroke_mode & 0x00000F00) {
     case U_PS_ENDCAP_ROUND:
         verbose_printf(
-            "   Line Cap:       PS_ENDCAP_SQUARE  Status: %sUNSUPPORTED%s\n",
-            KRED, KNRM);
+            "   Line Cap:       PS_ENDCAP_ROUND   Status: %sSUPPORTED%s\n",
+            KGRN, KNRM);
         break;
     case U_PS_ENDCAP_SQUARE:
         verbose_printf(
-            "   Line Cap:       PS_ENDCAP_FLAT    Status: %sUNSUPPORTED%s\n",
-            KRED, KNRM);
+            "   Line Cap:       PS_ENDCAP_SQUARE  Status: %sSUPPORTED%s\n",
+            KGRN, KNRM);
         break;
     case U_PS_ENDCAP_FLAT:
+        verbose_printf(
+            "   Line Cap:       PS_ENDCAP_FLAT    Status: %sSUPPORTED%s\n",
+            KGRN, KNRM);
+        break;
     default:
         verbose_printf(
             "   Line Cap:       0x%X     %sUNKNOWN%s\n",
@@ -222,18 +226,18 @@ void stroke_print(drawingStates *states) {
     switch (states->currentDeviceContext.stroke_mode & 0x0000F000) {
     case U_PS_JOIN_ROUND:
         verbose_printf(
-            "   Line Join:      U_PS_JOIN_ROUND   Status: %sUNSUPPORTED%s\n",
-            KRED, KNRM);
+            "   Line Join:      U_PS_JOIN_ROUND   Status: %sSUPPORTED%s\n",
+            KGRN, KNRM);
         break;
     case U_PS_JOIN_BEVEL:
         verbose_printf(
-            "   Line Join:      PS_JOIN_BEVEL     Status: %sUNSUPPORTED%s\n",
-            KRED, KNRM);
+            "   Line Join:      PS_JOIN_BEVEL     Status: %sSUPPORTED%s\n",
+            KGRN, KNRM);
         break;
     case U_PS_JOIN_MITER:
         verbose_printf(
-            "   Line Join:      PS_JOIN_MITER     Status: %sUNSUPPORTED%s\n",
-            KRED, KNRM);
+            "   Line Join:      PS_JOIN_MITER     Status: %sSUPPORTED%s\n",
+            KGRN, KNRM);
         break;
     default:
         verbose_printf(

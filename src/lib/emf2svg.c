@@ -271,16 +271,28 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
     // line cap.
     switch (states->currentDeviceContext.stroke_mode & 0x00000F00) {
     case U_PS_ENDCAP_ROUND:
+        fprintf(out, " stroke-linecap=\"round\" ");
+        break;
     case U_PS_ENDCAP_SQUARE:
+        fprintf(out, " stroke-linecap=\"square\" ");
+        break;
     case U_PS_ENDCAP_FLAT:
+        fprintf(out, " stroke-linecap=\"butt\" ");
+        break;
     default:
         break;
     }
     // line join.
     switch (states->currentDeviceContext.stroke_mode & 0x0000F000) {
     case U_PS_JOIN_ROUND:
+        fprintf(out, " stroke-linejoin=\"round\" ");
+        break;
     case U_PS_JOIN_BEVEL:
+        fprintf(out, " stroke-linejoin=\"bevel\" ");
+        break;
     case U_PS_JOIN_MITER:
+        fprintf(out, " stroke-linejoin=\"miter\" ");
+        break;
     default:
         break;
     }
