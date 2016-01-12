@@ -119,7 +119,7 @@ void fill_print(drawingStates *states) {
 
 void stroke_print(drawingStates *states) {
     verbose_printf("   Stroke Mode:    0x%8.8X\n",
-                       states->currentDeviceContext.stroke_mode);
+                   states->currentDeviceContext.stroke_mode);
 
     verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
                    states->currentDeviceContext.stroke_red,
@@ -127,24 +127,25 @@ void stroke_print(drawingStates *states) {
                    states->currentDeviceContext.stroke_blue);
     verbose_printf("   Stroke Width:   %f\n",
                    states->currentDeviceContext.stroke_width);
-    //pen type
+    // pen type
     switch (states->currentDeviceContext.stroke_mode & 0x000F0000) {
     case U_PS_COSMETIC:
         verbose_printf(
             "   Pen Type:       PS_COSMETIC       Status: %sSUPPORTED%s\n",
             KGRN, KNRM);
-		break;
+        break;
     case U_PS_GEOMETRIC:
         verbose_printf(
             "   Pen Type:       PS_GEOMETRIC      Status: %sSUPPORTED%s\n",
             KGRN, KNRM);
-		break;
-	default:
+        break;
+    default:
         verbose_printf("   Pen Type:       0x%X     %sUNKNOWN%s\n",
-                       states->currentDeviceContext.stroke_mode & 0x000F0000, KRED, KNRM);
+                       states->currentDeviceContext.stroke_mode & 0x000F0000,
+                       KRED, KNRM);
         break;
     }
-    //line style.
+    // line style.
     switch (states->currentDeviceContext.stroke_mode & 0x000000FF) {
     case U_PS_SOLID:
         verbose_printf(
@@ -180,21 +181,21 @@ void stroke_print(drawingStates *states) {
         verbose_printf(
             "   Line Mode:      PS_INSIDEFRAME    Status: %sPARTIAL%s\n", KYEL,
             KNRM);
-		break;
+        break;
     case U_PS_USERSTYLE:
         verbose_printf(
             "   Line Mode:      PS_USERSTYLE      Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
-		break;
+        break;
     case U_PS_ALTERNATE:
         verbose_printf(
             "   Line Mode:      PS_ALTERNATE      Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
     default:
-        verbose_printf(
-            "   Line Mode:      0x%X     %sUNKNOWN%s\n",
-                       states->currentDeviceContext.stroke_mode & 0x000000FF, KRED, KNRM);
+        verbose_printf("   Line Mode:      0x%X     %sUNKNOWN%s\n",
+                       states->currentDeviceContext.stroke_mode & 0x000000FF,
+                       KRED, KNRM);
 
         break;
     }
@@ -216,9 +217,9 @@ void stroke_print(drawingStates *states) {
             KGRN, KNRM);
         break;
     default:
-        verbose_printf(
-            "   Line Cap:       0x%X     %sUNKNOWN%s\n",
-                       states->currentDeviceContext.stroke_mode & 0x00000F00, KRED, KNRM);
+        verbose_printf("   Line Cap:       0x%X     %sUNKNOWN%s\n",
+                       states->currentDeviceContext.stroke_mode & 0x00000F00,
+                       KRED, KNRM);
 
         break;
     }
@@ -240,9 +241,9 @@ void stroke_print(drawingStates *states) {
             KGRN, KNRM);
         break;
     default:
-        verbose_printf(
-            "   Line Join:      0x%X     %sUNKNOWN%s\n",
-                       states->currentDeviceContext.stroke_mode & 0x0000F000, KRED, KNRM);
+        verbose_printf("   Line Join:      0x%X     %sUNKNOWN%s\n",
+                       states->currentDeviceContext.stroke_mode & 0x0000F000,
+                       KRED, KNRM);
         break;
     }
 }
