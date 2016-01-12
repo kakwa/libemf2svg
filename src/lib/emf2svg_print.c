@@ -118,7 +118,7 @@ void fill_print(drawingStates *states) {
 }
 
 void stroke_print(drawingStates *states) {
-    verbose_printf("   Stroke Mode:    0x%X\n",
+    verbose_printf("   Stroke Mode:    0x%8.8X\n",
                        states->currentDeviceContext.stroke_mode);
 
     verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
