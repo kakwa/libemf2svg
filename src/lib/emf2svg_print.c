@@ -118,92 +118,127 @@ void fill_print(drawingStates *states) {
 }
 
 void stroke_print(drawingStates *states) {
-    switch (states->currentDeviceContext.stroke_mode) {
+    verbose_printf("   Stroke Mode:    0x%X\n",
+                       states->currentDeviceContext.stroke_mode);
+
+    verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
+                   states->currentDeviceContext.stroke_red,
+                   states->currentDeviceContext.stroke_green,
+                   states->currentDeviceContext.stroke_blue);
+    verbose_printf("   Stroke Width:   %f\n",
+                   states->currentDeviceContext.stroke_width);
+    //pen type
+    switch (states->currentDeviceContext.stroke_mode & 0x000F0000) {
+    case U_PS_COSMETIC:
+        verbose_printf(
+            "   Pen Type:       PS_COSMETIC       Status: %sSUPPORTED%s\n",
+            KGRN, KNRM);
+		break;
+    case U_PS_GEOMETRIC:
+        verbose_printf(
+            "   Pen Type:       PS_GEOMETRIC      Status: %sSUPPORTED%s\n",
+            KGRN, KNRM);
+		break;
+	default:
+        verbose_printf("   Pen Type:       0x%X     %sUNKNOWN%s\n",
+                       states->currentDeviceContext.stroke_mode & 0x000F0000, KRED, KNRM);
+        break;
+    }
+    //line style.
+    switch (states->currentDeviceContext.stroke_mode & 0x000000FF) {
     case U_PS_SOLID:
         verbose_printf(
-            "   Stroke Mode:    PS_SOLID          Status: %sSUPPORTED%s\n",
+            "   Line Mode:      PS_SOLID          Status: %sSUPPORTED%s\n",
             KGRN, KNRM);
-        verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
-                       states->currentDeviceContext.stroke_red,
-                       states->currentDeviceContext.stroke_green,
-                       states->currentDeviceContext.stroke_blue);
-        verbose_printf("   Stroke Width:   %f\n",
-                       states->currentDeviceContext.stroke_width);
         break;
     case U_PS_DASH:
         verbose_printf(
-            "   Stroke Mode:    PS_DASH           Status: %sUNSUPPORTED%s\n",
+            "   Line Mode:      PS_DASH           Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
     case U_PS_DOT:
         verbose_printf(
-            "   Stroke Mode:    PS_DOT            Status: %sUNSUPPORTED%s\n",
+            "   Line Mode:      PS_DOT            Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
     case U_PS_DASHDOT:
         verbose_printf(
-            "   Stroke Mode:    PS_DASHDOT        Status: %sUNSUPPORTED%s\n",
+            "   Line Mode:      PS_DASHDOT        Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
     case U_PS_DASHDOTDOT:
         verbose_printf(
-            "   Stroke Mode:    PS_DASHDOTDOT     Status: %sUNSUPPORTED%s\n",
+            "   Line Mode:      PS_DASHDOTDOT     Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
     case U_PS_NULL:
         verbose_printf(
-            "   Stroke Mode:    PS_NULL           Status: %sSUPPORTED%s\n",
+            "   Line Mode:      PS_NULL           Status: %sSUPPORTED%s\n",
             KGRN, KNRM);
         break;
     case U_PS_INSIDEFRAME:
         verbose_printf(
-            "   Stroke Mode:    PS_INSIDEFRAME    Status: %sPARTIAL%s\n", KYEL,
+            "   Line Mode:      PS_INSIDEFRAME    Status: %sPARTIAL%s\n", KYEL,
             KNRM);
-        break;
+		break;
     case U_PS_USERSTYLE:
         verbose_printf(
-            "   Stroke Mode:    PS_USERSTYLE      Status: %sUNSUPPORTED%s\n",
+            "   Line Mode:      PS_USERSTYLE      Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
-        break;
+		break;
     case U_PS_ALTERNATE:
         verbose_printf(
-            "   Stroke Mode:    PS_ALTERNATE      Status: %sUNSUPPORTED%s\n",
+            "   Line Mode:      PS_ALTERNATE      Status: %sUNSUPPORTED%s\n",
+            KRED, KNRM);
+        break;
+    default:
+        verbose_printf(
+            "   Line Mode:      0x%X     %sUNKNOWN%s\n",
+                       states->currentDeviceContext.stroke_mode & 0x000000FF, KRED, KNRM);
+
+        break;
+    }
+    // line cap.
+    switch (states->currentDeviceContext.stroke_mode & 0x00000F00) {
+    case U_PS_ENDCAP_ROUND:
+        verbose_printf(
+            "   Line Cap:       PS_ENDCAP_SQUARE  Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
     case U_PS_ENDCAP_SQUARE:
         verbose_printf(
-            "   Stroke Mode:    PS_ENDCAP_SQUARE  Status: %sUNSUPPORTED%s\n",
+            "   Line Cap:       PS_ENDCAP_FLAT    Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
     case U_PS_ENDCAP_FLAT:
+    default:
         verbose_printf(
-            "   Stroke Mode:    PS_ENDCAP_FLAT    Status: %sUNSUPPORTED%s\n",
+            "   Line Cap:       0x%X     %sUNKNOWN%s\n",
+                       states->currentDeviceContext.stroke_mode & 0x00000F00, KRED, KNRM);
+
+        break;
+    }
+    // line join.
+    switch (states->currentDeviceContext.stroke_mode & 0x0000F000) {
+    case U_PS_JOIN_ROUND:
+        verbose_printf(
+            "   Line Join:      U_PS_JOIN_ROUND   Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
     case U_PS_JOIN_BEVEL:
         verbose_printf(
-            "   Stroke Mode:    PS_JOIN_BEVEL     Status: %sUNSUPPORTED%s\n",
+            "   Line Join:      PS_JOIN_BEVEL     Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
     case U_PS_JOIN_MITER:
         verbose_printf(
-            "   Stroke Mode:    PS_JOIN_MITER     Status: %sUNSUPPORTED%s\n",
+            "   Line Join:      PS_JOIN_MITER     Status: %sUNSUPPORTED%s\n",
             KRED, KNRM);
         break;
-    case U_PS_GEOMETRIC:
-        verbose_printf(
-            "   Stroke Mode:    PS_GEOMETRIC      Status: %sSUPPORTED%s\n",
-            KGRN, KNRM);
-        verbose_printf("   Stroke Color:   #%02X%02X%02X\n",
-                       states->currentDeviceContext.stroke_red,
-                       states->currentDeviceContext.stroke_green,
-                       states->currentDeviceContext.stroke_blue);
-        verbose_printf("   Stroke Width:   %f\n",
-                       states->currentDeviceContext.stroke_width);
-        break;
     default:
-        verbose_printf("   Stroke Mode:    %d     %sUNKNOWN%s\n",
-                       states->currentDeviceContext.stroke_mode, KRED, KNRM);
+        verbose_printf(
+            "   Line Join:      0x%X     %sUNKNOWN%s\n",
+                       states->currentDeviceContext.stroke_mode & 0x0000F000, KRED, KNRM);
         break;
     }
 }

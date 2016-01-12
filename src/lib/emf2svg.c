@@ -220,7 +220,14 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
     if (states->verbose) {
         stroke_print(states);
     }
-    switch (states->currentDeviceContext.stroke_mode) {
+    //pen type
+    switch (states->currentDeviceContext.stroke_mode & 0x000F0000) {
+    case U_PS_COSMETIC:
+    case U_PS_GEOMETRIC:
+        break;
+    }
+    //line style.
+    switch (states->currentDeviceContext.stroke_mode & 0x000000FF) {
     case U_PS_SOLID:
         *stroked = true;
         basic_stroke(states, out);
@@ -252,21 +259,29 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
         fprintf(out, "stroke-width=\"0.0\" ");
         *stroked = true;
         break;
-    case U_PS_GEOMETRIC:
-        basic_stroke(states, out);
-        *stroked = true;
-        break;
     case U_PS_INSIDEFRAME:
     case U_PS_USERSTYLE:
     case U_PS_ALTERNATE:
-    case U_PS_ENDCAP_SQUARE:
-    case U_PS_ENDCAP_FLAT:
-    case U_PS_JOIN_BEVEL:
-    case U_PS_JOIN_MITER:
     default:
         // partial
         basic_stroke(states, out);
         *stroked = true;
+        break;
+    }
+    // line cap.
+    switch (states->currentDeviceContext.stroke_mode & 0x00000F00) {
+    case U_PS_ENDCAP_ROUND:
+    case U_PS_ENDCAP_SQUARE:
+    case U_PS_ENDCAP_FLAT:
+    default:
+        break;
+    }
+    // line join.
+    switch (states->currentDeviceContext.stroke_mode & 0x0000F000) {
+    case U_PS_JOIN_ROUND:
+    case U_PS_JOIN_BEVEL:
+    case U_PS_JOIN_MITER:
+    default:
         break;
     }
 }
@@ -888,9 +903,9 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     }
 
     // set scaling for original resolution
-    // states->scaling = 1;
-    states->scaling = states->imgWidth /
-                      (double)(pEmr->rclBounds.right - pEmr->rclBounds.left);
+    states->scaling = 1;
+    //states->scaling = states->imgWidth /
+    //                  (double)(pEmr->rclBounds.right - pEmr->rclBounds.left);
 
     states->scalingX = states->scaling;
     states->scalingY = states->scaling;
