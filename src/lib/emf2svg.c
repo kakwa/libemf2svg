@@ -178,22 +178,20 @@ void fill_draw(drawingStates *states, FILE *out, bool *filled, bool *stroked) {
         *filled = true;
         break;
     case U_BS_HATCHED:
-        break;
     case U_BS_PATTERN:
-        break;
     case U_BS_INDEXED:
-        break;
     case U_BS_DIBPATTERN:
-        break;
     case U_BS_DIBPATTERNPT:
-        break;
     case U_BS_PATTERN8X8:
-        break;
     case U_BS_DIBPATTERN8X8:
-        break;
     case U_BS_MONOPATTERN:
-        break;
     default:
+        // partial
+        fprintf(out, "fill=\"#%02X%02X%02X\" ",
+                states->currentDeviceContext.fill_red,
+                states->currentDeviceContext.fill_green,
+                states->currentDeviceContext.fill_blue);
+        *filled = true;
         break;
     }
     free(fill_rule);
