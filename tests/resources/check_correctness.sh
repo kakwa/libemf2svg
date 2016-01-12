@@ -20,6 +20,7 @@ arguments:
   -v: verbose mode, print emf records
   -e: alternate emf dir (default '`readlink -f "$ABSPATH/$EMFDIR"`')
   -s: stop on first error
+  -r: resize to 800x600
   -x: disable xmllint check (svg integrity)
   -n: disable valgrind (memleaks checks)
   -N: ignore return code of emf2svg-conv (useful for checks on corrupted files)
@@ -28,7 +29,7 @@ EOF
 }
 
 
-while getopts ":hnNxvse:" opt; do
+while getopts ":hnNxrvse:" opt; do
   case $opt in
 
     h) 
@@ -49,6 +50,9 @@ while getopts ":hnNxvse:" opt; do
         ;;
     x)
         XMLLINT="no"
+        ;;
+    r)
+        RESIZE_OPTS="-w 800 -h 600"
         ;;
     N)
         IGNORECONVERR="yes"
@@ -81,7 +85,7 @@ for emf in `find $EMFDIR -type f -name "*.emf" |sort`
 do
     verbose_print "\n############## `basename "${emf}"` ####################"
     verbose_print "Command: ../../emf2svg-conv -p -i \"$emf\" -o ${OUTDIR}/`basename ${emf}`.svg"
-    $VAGRIND_CMD ../../emf2svg-conv -p -w 800 -h 600 -i "$emf" -o ${OUTDIR}/`basename "${emf}"`.svg $VERBOSE_OPT
+    $VAGRIND_CMD ../../emf2svg-conv -p $RESIZE_OPTS -i "$emf" -o ${OUTDIR}/`basename "${emf}"`.svg $VERBOSE_OPT
     tmpret=$?
     if [ $tmpret -ne 0 ]
     then
