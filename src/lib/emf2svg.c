@@ -572,6 +572,44 @@ POINT_D int_el_rad(U_POINTL pt, U_RECTL rect) {
     return intersect;
 }
 
+void arc_circle_draw(const char *contents, FILE *out, drawingStates *states) {
+    PU_EMRANGLEARC pEmr = (PU_EMRANGLEARC)(contents);
+    startPathDraw(states, out);
+    U_POINTL radii;
+    int sweep_flag = 0;
+    int large_arc_flag = 0;
+    // FIXME calculate the real orientation
+    if (states->currentDeviceContext.arcdir > 0) {
+        sweep_flag = 0;
+        large_arc_flag = 0;
+    } else {
+        sweep_flag = 0;
+        large_arc_flag = 0;
+    }
+    radii.x = pEmr->nRadius;
+    radii.y = pEmr->nRadius;
+
+    fprintf(out, "M ");
+    POINT_D start;
+    double angle = pEmr->eStartAngle * U_PI / 180;
+    start.x = pEmr->nRadius * cos(angle) + pEmr->ptlCenter.x;
+    start.y = pEmr->nRadius * sin(angle) + pEmr->ptlCenter.y;
+    point_draw_d(states, start, out);
+
+    fprintf(out, "A ");
+    point_draw(states, radii, out);
+
+    fprintf(out, "0 ");
+    fprintf(out, "%d %d ", large_arc_flag, sweep_flag);
+
+    angle = (pEmr->eStartAngle + pEmr->eSweepAngle) * U_PI / 180;
+    POINT_D end;
+    end.x = pEmr->nRadius * cos(angle) + pEmr->ptlCenter.x;
+    end.y = pEmr->nRadius * sin(angle) + pEmr->ptlCenter.y;
+    point_draw_d(states, end, out);
+    endPathDraw(states, out);
+}
+
 void arc_draw(const char *contents, FILE *out, drawingStates *states,
               int type) {
     PU_EMRARC pEmr = (PU_EMRARC)(contents);
@@ -1790,11 +1828,11 @@ void U_EMRDELETEOBJECT_draw(const char *contents, FILE *out,
 
 void U_EMRANGLEARC_draw(const char *contents, FILE *out,
                         drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_SUPPORTED;
     if (states->verbose) {
         U_EMRANGLEARC_print(contents, states);
     }
-    // PU_EMRANGLEARC pEmr = (PU_EMRANGLEARC)(contents);
+    arc_circle_draw(contents, out, states);
 }
 
 void U_EMRELLIPSE_draw(const char *contents, FILE *out, drawingStates *states) {
