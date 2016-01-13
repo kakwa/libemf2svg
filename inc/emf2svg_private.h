@@ -269,6 +269,8 @@ typedef struct {
     double originY;
     double pxPerMm;
     uint16_t MapMode;
+    // Text orientation
+    uint32_t text_layout;
     // Image dimensions
     double imgHeight;
     double imgWidth;

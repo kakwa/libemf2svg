@@ -807,6 +807,10 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
                 Org.x, (Org.y + font_height * 0.9), font_height * 0.9);
     }
 
+    if (states->text_layout == U_LAYOUT_RTL) {
+        fprintf(out, "writing-mode=\"rl-tb\" ");
+    }
+
     if (states->currentDeviceContext.font_italic) {
         fprintf(out, "font-style=\"italic\" ");
     }
@@ -2693,10 +2697,12 @@ void U_EMRALPHABLEND_draw(const char *contents, FILE *out,
 
 void U_EMRSETLAYOUT_draw(const char *contents, FILE *out,
                          drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMRSETLAYOUT_print(contents, states);
     }
+    PU_EMRSETMAPMODE pEmr = (PU_EMRSETLAYOUT)(contents);
+    states->text_layout = pEmr->iMode;
 }
 
 void U_EMRTRANSPARENTBLT_draw(const char *contents, FILE *out,
