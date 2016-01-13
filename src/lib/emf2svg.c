@@ -1196,7 +1196,7 @@ void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out,
 
 void U_EMRSETBRUSHORGEX_draw(const char *contents, FILE *out,
                              drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_UNUSED;
     if (states->verbose) {
         U_EMRSETBRUSHORGEX_print(contents, states);
     }
