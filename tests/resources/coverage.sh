@@ -25,10 +25,10 @@ printf "EMF RECORDS:\n\n"
 
 printf "|   Status  | Count | Percent |\n"
 printf "|:---------:|:-----:|:-------:|\n"
-printf "| ${BGre}Supported ${RCol}|  % 3d  | [${BCya}% 3d%%${RCol}]  |\n"  "$count_emf_SUPPORTED" "`percent $count_emf_SUPPORTED $total_emf`"
-printf "| ${BYel}Partial   ${RCol}|  % 3d  | [${BCya}% 3d%%${RCol}]  |\n"  "$count_emf_PARTIAL"   "`percent $count_emf_PARTIAL   $total_emf`"
-printf "| ${BBlu}Unused    ${RCol}|  % 3d  | [${BCya}% 3d%%${RCol}]  |\n"  "$count_emf_UNUSED"    "`percent $count_emf_UNUSED    $total_emf`"
-printf "| ${BRed}Ignored   ${RCol}|  % 3d  | [${BCya}% 3d%%${RCol}]  |\n"  "$count_emf_IGNORED"   "`percent $count_emf_IGNORED   $total_emf`"
+printf "| ${BGre}Supported ${RCol}|  %3d  | [${BCya}%4d%%${RCol}] |\n"  "$count_emf_SUPPORTED" "`percent $count_emf_SUPPORTED $total_emf`"
+printf "| ${BYel}Partial   ${RCol}|  %3d  | [${BCya}%4d%%${RCol}] |\n"  "$count_emf_PARTIAL"   "`percent $count_emf_PARTIAL   $total_emf`"
+printf "| ${BBlu}Unused    ${RCol}|  %3d  | [${BCya}%4d%%${RCol}] |\n"  "$count_emf_UNUSED"    "`percent $count_emf_UNUSED    $total_emf`"
+printf "| ${BRed}Ignored   ${RCol}|  %3d  | [${BCya}%4d%%${RCol}] |\n"  "$count_emf_IGNORED"   "`percent $count_emf_IGNORED   $total_emf`"
 printf "| Total     |  %3d  |         |\n" $total_emf
 
 
@@ -43,9 +43,9 @@ printf "EMF+ RECORDS:\n\n"
 
 printf "|   Status  | Count | Percent |\n"
 printf "|:---------:|:-----:|:-------:|\n"
-printf "| ${BGre}Supported ${RCol}|  % 3d  | [${BCya}% 3d%%${RCol}]  |\n"  "$count_emf_SUPPORTED" "`percent $count_emf_SUPPORTED $total_emf`"
-printf "| ${BYel}Partial   ${RCol}|  % 3d  | [${BCya}% 3d%%${RCol}]  |\n"  "$count_emf_PARTIAL"   "`percent $count_emf_PARTIAL   $total_emf`"
-printf "| ${BBlu}Unused    ${RCol}|  % 3d  | [${BCya}% 3d%%${RCol}]  |\n"  "$count_emf_UNUSED"    "`percent $count_emf_UNUSED    $total_emf`"
-printf "| ${BRed}Ignored   ${RCol}|  % 3d  | [${BCya}% 3d%%${RCol}]  |\n"  "$count_emf_IGNORED"   "`percent $count_emf_IGNORED   $total_emf`"
+printf "| ${BGre}Supported ${RCol}|  %3d  | [${BCya}%4d%%${RCol}] |\n"  "$count_emf_SUPPORTED" "`percent $count_emf_SUPPORTED $total_emf`"
+printf "| ${BYel}Partial   ${RCol}|  %3d  | [${BCya}%4d%%${RCol}] |\n"  "$count_emf_PARTIAL"   "`percent $count_emf_PARTIAL   $total_emf`"
+printf "| ${BBlu}Unused    ${RCol}|  %3d  | [${BCya}%4d%%${RCol}] |\n"  "$count_emf_UNUSED"    "`percent $count_emf_UNUSED    $total_emf`"
+printf "| ${BRed}Ignored   ${RCol}|  %3d  | [${BCya}%4d%%${RCol}] |\n"  "$count_emf_IGNORED"   "`percent $count_emf_IGNORED   $total_emf`"
 printf "| Total     |  %3d  |         |\n" $total_emf
 
