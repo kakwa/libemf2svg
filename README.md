@@ -4,7 +4,7 @@ libemf2svg
 [![Join the chat at https://gitter.im/kakwa/libemf2svg](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kakwa/libemf2svg?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/kakwa/libemf2svg.svg?branch=master)](https://travis-ci.org/kakwa/libemf2svg)
 
-EMF to SVG conversion library
+EMF (Enhanced Metafile) to SVG conversion library
 
 Disclaimer
 ----------
@@ -115,6 +115,31 @@ int main(int argc, char *argv[]){
 ```
 
 See [./src/conv/emf2svg.cpp](https://github.com/kakwa/libemf2svg/blob/master/src/conv/emf2svg.cpp) for a real life example.
+
+EMF/EMF+ record type coverage
+-----------------------------
+
+EMF RECORDS:
+
+|   Status  | Count | Percent |
+|:---------:|:-----:|:-------:|
+| Supported |   29  | [ 27%]  |
+| Partial   |   25  | [ 23%]  |
+| Unused    |    2  | [  1%]  |
+| Ignored   |   49  | [ 46%]  |
+| Total     |  105  |         |
+
+EMF+ RECORDS:
+
+|   Status  | Count | Percent |
+|:---------:|:-----:|:-------:|
+| Supported |    0  | [  0%]  |
+| Partial   |    0  | [  0%]  |
+| Unused    |    0  | [  0%]  |
+| Ignored   |   85  | [ 100%]  |
+| Total     |   85  |         |
+
+
 
 Development
 -----------
