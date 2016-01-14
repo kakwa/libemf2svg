@@ -809,15 +809,31 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
         (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
     returnOutOfEmf(pemt);
 
-    char *string;
+    uint8_t *string;
+    size_t string_size;
     if (type == UTF_16) {
         returnOutOfEmf((uint64_t)contents + (uint64_t)pemt->offString +
                        2 * (uint64_t)pemt->nChars);
-        string = U_Utf16leToUtf8((uint16_t *)(contents + pemt->offString),
-                                 pemt->nChars, NULL);
+        string = (uint8_t *)U_Utf16leToUtf8((uint16_t *)(contents + pemt->offString),
+                                 pemt->nChars, &string_size);
     } else {
         returnOutOfEmf((uint64_t)contents + (uint64_t)pemt->offString);
-        string = (char *)(contents + pemt->offString);
+        string = (uint8_t *)(contents + pemt->offString);
+    }
+    int i = 0;
+    while(string[i] != 0x0){
+        if(string[i] < 0x20 &&
+                string[i] != 0x09 &&
+                string[i] != 0x0A &&
+                string[i] != 0x0B &&
+                string[i] != 0x09
+                ){
+            string[i] = 0x20;
+        }
+        if(type == ASCII && string[i] > 0x7F){
+            string[i] = 0x20;
+        }
+        i++;
     }
     fprintf(out, "<%stext ", states->nameSpaceString);
     POINT_D Org = point_cal(states, (double)pemt->ptlReference.x,
