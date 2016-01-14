@@ -97,7 +97,7 @@ do
         xmllint --dtdvalid ./svg11-flat.dtd  --noout ${OUTDIR}/`basename "${emf}"`.svg
         if [ $? -ne 0 ]
         then
-            printf "[ERROR] emf2svg-conv generate bad svg '${OUTDIR}/`basename "${emf}"`.svg' from emf '\"$emf\"'\n"
+            printf "[ERROR] emf2svg-conv generate bad svg '`readlink -f ${OUTDIR}`/`basename "${emf}"`.svg' from emf '\"$emf\"'\n"
             ret=1
         fi
     fi
