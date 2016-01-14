@@ -79,25 +79,39 @@ verbose_print(){
 }
 
 cd $ABSPATH
+. ./colors.sh
 rm -rf $OUTDIR
 mkdir -p $OUTDIR
+CMD="`readlink -f ../../emf2svg-conv`"
+OUTDIR=`readlink -f $OUTDIR`
+DTD=`readlink -f ./svg11-flat.dtd`
 for emf in `find $EMFDIR -type f -name "*.emf" |sort`
 do
+    EMF="`readlink -f $emf`"
+    SVG="${OUTDIR}/`basename ${emf}`.svg"
     verbose_print "\n############## `basename "${emf}"` ####################"
-    verbose_print "Command: ../../emf2svg-conv -p -i \"$emf\" -o ${OUTDIR}/`basename ${emf}`.svg"
-    $VAGRIND_CMD ../../emf2svg-conv -p $RESIZE_OPTS -i "$emf" -o ${OUTDIR}/`basename "${emf}"`.svg $VERBOSE_OPT
+    verbose_print "Command: $CMD -p -i \"$EMF\" -o \"${SVG}\""
+    $VAGRIND_CMD $CMD -p $RESIZE_OPTS -i "$EMF" -o ${SVG} $VERBOSE_OPT
     tmpret=$?
     if [ $tmpret -ne 0 ]
     then
-        printf "[ERROR] emf2svg-conv exited on error or memleaked or crashed converting emf '$emf'\n"
+        printf "${BRed}[ERROR]${RCol} emf2svg-conv exited on error or memleaked or crashed converting emf '$EMF'\n"
         [ $tmpret -eq 42 ] || [ $tmpret -eq 139 ] || ! [ "$IGNORECONVERR" = "yes" ] && ret=1
     fi
     if ! [ "$XMLLINT" = "no" ]
     then
-        xmllint --dtdvalid ./svg11-flat.dtd  --noout ${OUTDIR}/`basename "${emf}"`.svg
+        xmllint --dtdvalid ./svg11-flat.dtd  --noout ${SVG} 2>&1 >/dev/null
         if [ $? -ne 0 ]
         then
-            printf "[ERROR] emf2svg-conv generate bad svg '`readlink -f ${OUTDIR}`/`basename "${emf}"`.svg' from emf '\"$emf\"'\n"
+            printf "${BRed}[ERROR]${RCol} emf2svg-conv generate bad svg\n"
+            printf "source emf:  $EMF\n"
+            printf "out svg   :  $SVG\n\n"
+            printf "xmllint result:\n"
+            xmllint --dtdvalid ./svg11-flat.dtd  --noout ${SVG} 2>&1 >/dev/null
+            printf "\n"
+            printf "Convert and xmllint commands:\n"
+            printf "$CMD -p -i \"$EMF\" -o \"${SVG}\"\n"
+            printf "xmllint --dtdvalid $DTD --noout ${SVG}\n\n"
             ret=1
         fi
     fi
@@ -106,8 +120,8 @@ do
 done
 if [ $ret -ne 0 ]
 then
-    printf "[FAIL] Check exited with error(s)\n"
+    printf "${BRed}[FAIL]${RCol} Check exited with error(s)\n"
 else
-    printf "[SUCCESS] Check Ok\n"
+    printf "${BGre}[SUCCESS]${RCol} Check Ok\n"
 fi
 exit $ret
