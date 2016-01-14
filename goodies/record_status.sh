@@ -1,11 +1,12 @@
 #!/bin/sh
 
 help(){
-  echo "usage: `basename $0` <args>"
+  echo "usage: `basename $0` -i <emf> -s <PART|SUP|IGN|UN>"
   echo ""
-  echo "<description>"
-  echo "arguments:"
-  echo "  <options>"
+  echo "show record support status of an emf file"
+  echo ""
+  echo "ex:"
+  echo "  `basename $0` -i tests/resources/emf/test-150.emf -s SUP"
   exit 1
 }
 
