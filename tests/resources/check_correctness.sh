@@ -6,7 +6,7 @@ ret=0
 VAGRIND_CMD="valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes --error-exitcode=42"
 
 VERBOSE=1
-ABSPATH=$( readlink -f "$(dirname $0)"  )
+ABSPATH=$(readlink -f "$(dirname $0)")
 STOPONERROR="no"
 
 help(){
@@ -90,20 +90,20 @@ do
     EMF="`readlink -f $emf`"
     SVG="${OUTDIR}/`basename ${emf}`.svg"
     verbose_print "\n############## `basename "${emf}"` ####################"
-    verbose_print "Command: $CMD -p -i \"$EMF\" -o \"${SVG}\""
+    verbose_print "Command: $CMD $RESIZE_OPTS -p -i \"$EMF\" -o \"${SVG}\""
     $VAGRIND_CMD $CMD -p $RESIZE_OPTS -i "$EMF" -o ${SVG} $VERBOSE_OPT
     tmpret=$?
     if [ $tmpret -ne 0 ]
     then
-        printf "${BRed}[ERROR]${RCol} emf2svg-conv exited on error or memleaked or crashed converting emf '$EMF'\n"
+        printf "[${BYel}ERROR${RCol}] emf2svg-conv exited on error or memleaked or crashed converting emf '$EMF'\n"
         [ $tmpret -eq 42 ] || [ $tmpret -eq 139 ] || ! [ "$IGNORECONVERR" = "yes" ] && ret=1
     fi
     if ! [ "$XMLLINT" = "no" ]
     then
-        xmllint --dtdvalid ./svg11-flat.dtd  --noout ${SVG} 2>&1 >/dev/null
+        xmllint --dtdvalid ./svg11-flat.dtd  --noout ${SVG} >/dev/null 2>&1
         if [ $? -ne 0 ]
         then
-            printf "${BRed}[ERROR]${RCol} emf2svg-conv generate bad svg\n"
+            printf "[${BYel}ERROR${RCol}] emf2svg-conv generate bad svg\n"
             printf "source emf:  $EMF\n"
             printf "out svg   :  $SVG\n\n"
             printf "xmllint result:\n"
@@ -120,8 +120,8 @@ do
 done
 if [ $ret -ne 0 ]
 then
-    printf "${BRed}[FAIL]${RCol} Check exited with error(s)\n"
+    printf "[${BRed}FAIL${RCol}] Check exited with error(s)\n"
 else
-    printf "${BGre}[SUCCESS]${RCol} Check Ok\n"
+    printf "[${BGre}SUCCESS${RCol}] Check Ok\n"
 fi
 exit $ret
