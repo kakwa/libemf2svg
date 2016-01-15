@@ -199,7 +199,7 @@ void fill_draw(drawingStates *states, FILE *out, bool *filled, bool *stroked) {
 }
 
 void width_stroke(drawingStates *states, FILE *out, double width) {
-    fprintf(out, "stroke-width=\"%.2f\" ", width * states->scaling);
+    fprintf(out, "stroke-width=\"%.4f\" ", width * states->scaling);
 }
 
 void color_stroke(drawingStates *states, FILE *out) {
@@ -248,17 +248,17 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
     case U_PS_SOLID:
         break;
     case U_PS_DASH:
-        fprintf(out, "stroke-dasharray=\"%.2f,%.2f\" ", dash_len, dash_len);
+        fprintf(out, "stroke-dasharray=\"%.4f,%.4f\" ", dash_len, dash_len);
         break;
     case U_PS_DOT:
-        fprintf(out, "stroke-dasharray=\"%.2f,%.2f\" ", dot_len, dot_len);
+        fprintf(out, "stroke-dasharray=\"%.4f,%.4f\" ", dot_len, dot_len);
         break;
     case U_PS_DASHDOT:
-        fprintf(out, "stroke-dasharray=\"%.2f,%.2f,%.2f,%.2f\" ", dash_len,
+        fprintf(out, "stroke-dasharray=\"%.4f,%.4f,%.4f,%.4f\" ", dash_len,
                 dash_len, dot_len, dash_len);
         break;
     case U_PS_DASHDOTDOT:
-        fprintf(out, "stroke-dasharray=\"%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\" ",
+        fprintf(out, "stroke-dasharray=\"%.4f,%.4f,%.4f,%.4f,%.4f,%.4f\" ",
                 dash_len, dash_len, dot_len, dot_len, dot_len, dash_len);
         break;
     case U_PS_INSIDEFRAME:
@@ -452,25 +452,25 @@ void point16_draw(drawingStates *states, U_POINT16 pt, FILE *out) {
     POINT_D ptd = point_cal(states, (double)pt.x, (double)pt.y);
     states->cur_x = pt.x;
     states->cur_y = pt.y;
-    fprintf(out, "%.2f,%.2f ", ptd.x, ptd.y);
+    fprintf(out, "%.4f,%.4f ", ptd.x, ptd.y);
 }
 
 void point_draw_d(drawingStates *states, POINT_D pt, FILE *out) {
     POINT_D ptd = point_cal(states, pt.x, pt.y);
     states->cur_x = pt.x;
     states->cur_y = pt.y;
-    fprintf(out, "%.2f,%.2f ", ptd.x, ptd.y);
+    fprintf(out, "%.4f,%.4f ", ptd.x, ptd.y);
 }
 
 void point_draw(drawingStates *states, U_POINT pt, FILE *out) {
     POINT_D ptd = point_cal(states, (double)pt.x, (double)pt.y);
     states->cur_x = pt.x;
     states->cur_y = pt.y;
-    fprintf(out, "%.2f,%.2f ", ptd.x, ptd.y);
+    fprintf(out, "%.4f,%.4f ", ptd.x, ptd.y);
 }
 
 void transform_draw(drawingStates *states, FILE *out) {
-    fprintf(out, "<%sg transform=\"matrix(%.2f %.2f %.2f %.2f %.2f %.2f)\">\n",
+    fprintf(out, "<%sg transform=\"matrix(%.4f %.4f %.4f %.4f %.4f %.4f)\">\n",
             states->nameSpaceString,
             (double)states->currentDeviceContext.worldTransform.eM11,
             (double)states->currentDeviceContext.worldTransform.eM12,
@@ -852,7 +852,7 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
     }
 
     if (states->currentDeviceContext.font_escapement != 0) {
-        fprintf(out, "transform=\"rotate(%d, %.2f, %.2f) translate(0, %.2f)\" ",
+        fprintf(out, "transform=\"rotate(%d, %.4f, %.4f) translate(0, %.4f)\" ",
                 (orientation *
                  (int)states->currentDeviceContext.font_escapement / 10),
                 Org.x, (Org.y + font_height * 0.9), font_height * 0.9);
@@ -892,14 +892,14 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
     }
     // vertical position
     if ((align & U_TA_BOTTOM) == U_TA_BOTTOM) {
-        fprintf(out, "x=\"%.2f\" y=\"%.2f\" ", Org.x, Org.y);
+        fprintf(out, "x=\"%.4f\" y=\"%.4f\" ", Org.x, Org.y);
     } else if ((align & U_TA_BASELINE) == U_TA_BASELINE) {
-        fprintf(out, "x=\"%.2f\" y=\"%.2f\" ", Org.x, Org.y);
+        fprintf(out, "x=\"%.4f\" y=\"%.4f\" ", Org.x, Org.y);
     } else {
-        fprintf(out, "x=\"%.2f\" y=\"%.2f\" ", Org.x,
+        fprintf(out, "x=\"%.4f\" y=\"%.4f\" ", Org.x,
                 Org.y + font_height * 0.9);
     }
-    fprintf(out, "font-size=\"%.2f\" ", font_height);
+    fprintf(out, "font-size=\"%.4f\" ", font_height);
     fprintf(out, ">");
     fprintf(out, "<![CDATA[%s]]>", string);
     fprintf(out, "</%stext>\n", states->nameSpaceString);
@@ -1864,7 +1864,7 @@ void U_EMRELLIPSE_draw(const char *contents, FILE *out, drawingStates *states) {
     center.y = (LT.y + RB.y) / 2;
     radius.x = (RB.x - LT.x) / 2;
     radius.y = (RB.y - LT.y) / 2;
-    fprintf(out, "<%sellipse cx=\"%.2f\" cy=\"%.2f\" rx=\"%.2f\" ry=\"%.2f\" ",
+    fprintf(out, "<%sellipse cx=\"%.4f\" cy=\"%.4f\" rx=\"%.4f\" ry=\"%.4f\" ",
             states->nameSpaceString, center.x, center.y, radius.x, radius.y);
     bool filled = false;
     bool stroked = false;
@@ -1892,7 +1892,7 @@ void U_EMRRECTANGLE_draw(const char *contents, FILE *out,
     dim.x = RB.x - LT.x;
     dim.y = RB.y - LT.y;
     fprintf(out,
-            "<%srect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" ",
+            "<%srect x=\"%.4f\" y=\"%.4f\" width=\"%.4f\" height=\"%.4f\" ",
             states->nameSpaceString, LT.x, LT.y, dim.x, dim.y);
     bool filled = false;
     bool stroked = false;
@@ -1921,11 +1921,11 @@ void U_EMRROUNDRECT_draw(const char *contents, FILE *out,
     dim.x = RB.x - LT.x;
     dim.y = RB.y - LT.y;
     fprintf(out,
-            "<%srect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" ",
+            "<%srect x=\"%.4f\" y=\"%.4f\" width=\"%.4f\" height=\"%.4f\" ",
             states->nameSpaceString, LT.x, LT.y, dim.x, dim.y);
     round = point_cal(states, (double)pEmr->szlCorner.cx,
                       (double)pEmr->szlCorner.cy);
-    fprintf(out, "rx=\"%.2f\" ry=\"%.2f\" ", round.x, round.y);
+    fprintf(out, "rx=\"%.4f\" ry=\"%.4f\" ", round.x, round.y);
     bool filled = false;
     bool stroked = false;
     fill_draw(states, out, &filled, &stroked);

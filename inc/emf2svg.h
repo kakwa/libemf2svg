@@ -19,9 +19,9 @@ typedef struct {
     // draw svg document delimiter or not
     bool svgDelimiter;
     // height of the target image
-    int imgHeight;
+    double imgHeight;
     // width of the target image
-    int imgWidth;
+    double imgWidth;
 } generatorOptions;
 
 // covert function
