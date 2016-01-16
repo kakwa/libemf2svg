@@ -214,6 +214,19 @@ void basic_stroke(drawingStates *states, FILE *out) {
     width_stroke(states, out, states->currentDeviceContext.stroke_width);
 }
 
+void no_stroke(drawingStates *states, FILE *out) {
+    if (states->currentDeviceContext.fill_mode != U_BS_NULL) {
+        fprintf(out, "stroke-width=\"1px\" ");
+        fprintf(out, "stroke=\"#%02X%02X%02X\" ",
+                states->currentDeviceContext.fill_red,
+                states->currentDeviceContext.fill_green,
+                states->currentDeviceContext.fill_blue);
+    } else {
+        fprintf(out, "stroke=\"none\" ");
+        fprintf(out, "stroke-width=\"0.0\" ");
+    }
+}
+
 void stroke_draw(drawingStates *states, FILE *out, bool *filled,
                  bool *stroked) {
     float unit_stroke =
@@ -225,8 +238,8 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
     }
 
     if ((states->currentDeviceContext.stroke_mode & 0x000000FF) == U_PS_NULL) {
-        fprintf(out, "stroke=\"none\" ");
-        fprintf(out, "stroke-width=\"0.0\" ");
+        // no stroke with the fill color with a with of 1px
+        no_stroke(states, out);
         *stroked = true;
         return;
     }
