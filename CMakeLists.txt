@@ -16,10 +16,16 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES external-build)
 
 # Options
 option(DEBUG     "compile with debug symbol"    OFF)
+option(INDEX     "print record indexes"         OFF)
 option(STATIC    "compile statically"           OFF)
 option(USE_CLANG "build application with clang" OFF)
 option(USE_GCC   "build application with gcc"   OFF)
 option(FORCELE   "force little endian architecture"   OFF)
+
+if(INDEX)
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -DRECORD_INDEX='true'")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRECORD_INDEX='true'")
+endif(INDEX)
 
 if(USE_CLANG)
     set(CMAKE_CXX_COMPILER "clang++")

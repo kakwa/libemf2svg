@@ -2818,6 +2818,11 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
     if (states->verbose) {
         U_emf_onerec_print(contents, blimit, recnum, off, states);
     }
+#ifdef RECORD_INDEX
+    if (recnum && ! states->inPath) {
+        fprintf(out, "<!-- begin record: %d -->\n", recnum);
+    }
+#endif /* RECORD_INDEX */
     size = lpEMFR->nSize;
     contents += off;
 
