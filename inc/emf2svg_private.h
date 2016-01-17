@@ -205,6 +205,8 @@ typedef struct {
     uint32_t widdenOffset;
     uint32_t clipOffset;
     uint32_t abortOffset;
+    U_XFORM wtBeforePath;
+    U_XFORM wtAfterPath;
 } pathStruct;
 
 typedef struct pathstack {
@@ -252,6 +254,8 @@ typedef struct {
     EMF_DEVICE_CONTEXT_STACK *DeviceContextStack;
     // flag to know if we are in an SVG path or not
     bool inPath;
+    // flag to know if we have start to draw the path
+    bool pathDrawn;
     // object table
     emfGraphObject *objectTable;
     // size of the object table (warning, could be negative)

@@ -3208,126 +3208,38 @@ int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum,
     case U_EMR_HEADER:
         break;
     case U_EMR_POLYBEZIER:
-        break;
     case U_EMR_POLYGON:
-        break;
     case U_EMR_POLYLINE:
-        break;
     case U_EMR_POLYBEZIERTO:
-        break;
     case U_EMR_POLYLINETO:
-        break;
     case U_EMR_POLYPOLYLINE:
-        break;
     case U_EMR_POLYPOLYGON:
-        break;
     case U_EMR_SETWINDOWEXTEX:
-        break;
-    case U_EMR_SETWINDOWORGEX:
-        break;
-    case U_EMR_SETVIEWPORTEXTEX:
-        break;
-    case U_EMR_SETVIEWPORTORGEX:
-        break;
-    case U_EMR_SETBRUSHORGEX:
+    case U_EMR_LINETO:
+    case U_EMR_ARCTO:
+    case U_EMR_POLYDRAW:
+    case U_EMR_POLYBEZIER16:
+    case U_EMR_POLYGON16:
+    case U_EMR_POLYLINE16:
+    case U_EMR_POLYBEZIERTO16:
+    case U_EMR_POLYLINETO16:
+    case U_EMR_POLYPOLYLINE16:
+    case U_EMR_POLYPOLYGON16:
+    case U_EMR_POLYDRAW16:
+        if (states->inPath) {
+            states->pathDrawn = true;
+        }
         break;
     case U_EMR_EOF:
         size = 0;
         break;
-    case U_EMR_SETPIXELV:
-        break;
-    case U_EMR_SETMAPPERFLAGS:
-        break;
-    case U_EMR_SETMAPMODE:
-        break;
-    case U_EMR_SETBKMODE:
-        break;
-    case U_EMR_SETPOLYFILLMODE:
-        break;
-    case U_EMR_SETROP2:
-        break;
-    case U_EMR_SETSTRETCHBLTMODE:
-        break;
-    case U_EMR_SETTEXTALIGN:
-        break;
-    case U_EMR_SETCOLORADJUSTMENT:
-        break;
-    case U_EMR_SETTEXTCOLOR:
-        break;
-    case U_EMR_SETBKCOLOR:
-        break;
-    case U_EMR_OFFSETCLIPRGN:
-        break;
-    case U_EMR_MOVETOEX:
-        break;
-    case U_EMR_SETMETARGN:
-        break;
-    case U_EMR_EXCLUDECLIPRECT:
-        break;
-    case U_EMR_INTERSECTCLIPRECT:
-        break;
-    case U_EMR_SCALEVIEWPORTEXTEX:
-        break;
-    case U_EMR_SCALEWINDOWEXTEX:
-        break;
-    case U_EMR_SAVEDC:
-        break;
-    case U_EMR_RESTOREDC:
-        break;
-    case U_EMR_SETWORLDTRANSFORM:
-        break;
-    case U_EMR_MODIFYWORLDTRANSFORM:
-        break;
-    case U_EMR_SELECTOBJECT:
-        break;
-    case U_EMR_CREATEPEN:
-        break;
-    case U_EMR_CREATEBRUSHINDIRECT:
-        break;
-    case U_EMR_DELETEOBJECT:
-        break;
-    case U_EMR_ANGLEARC:
-        break;
-    case U_EMR_ELLIPSE:
-        break;
-    case U_EMR_RECTANGLE:
-        break;
-    case U_EMR_ROUNDRECT:
-        break;
-    case U_EMR_ARC:
-        break;
-    case U_EMR_CHORD:
-        break;
-    case U_EMR_PIE:
-        break;
-    case U_EMR_SELECTPALETTE:
-        break;
-    case U_EMR_CREATEPALETTE:
-        break;
-    case U_EMR_SETPALETTEENTRIES:
-        break;
-    case U_EMR_RESIZEPALETTE:
-        break;
-    case U_EMR_REALIZEPALETTE:
-        break;
-    case U_EMR_EXTFLOODFILL:
-        break;
-    case U_EMR_LINETO:
-        break;
-    case U_EMR_ARCTO:
-        break;
-    case U_EMR_POLYDRAW:
-        break;
-    case U_EMR_SETARCDIRECTION:
-        break;
-    case U_EMR_SETMITERLIMIT:
-        break;
     case U_EMR_BEGINPATH:
         newPathStruct(states);
+        states->inPath = true;
         break;
     case U_EMR_ENDPATH:
-        break;
-    case U_EMR_CLOSEFIGURE:
+        states->inPath = false;
+        states->pathDrawn = false;
         break;
     case U_EMR_FILLPATH:
         if (states->emfStructure.pathStackLast != NULL) {
@@ -3365,99 +3277,103 @@ int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum,
             states->emfStructure.pathStackLast->pathStruct.abortOffset = off;
         }
         break;
-    // case U_EMR_UNDEF69:                 break;
+    case U_EMR_SETWORLDTRANSFORM:
+        break;
+    case U_EMR_MODIFYWORLDTRANSFORM:
+        break;
+    case U_EMR_SETWINDOWORGEX:
+    case U_EMR_SETVIEWPORTEXTEX:
+    case U_EMR_SETVIEWPORTORGEX:
+    case U_EMR_SETBRUSHORGEX:
+    case U_EMR_SETPIXELV:
+    case U_EMR_SETMAPPERFLAGS:
+    case U_EMR_SETMAPMODE:
+    case U_EMR_SETBKMODE:
+    case U_EMR_SETPOLYFILLMODE:
+    case U_EMR_SETROP2:
+    case U_EMR_SETSTRETCHBLTMODE:
+    case U_EMR_SETTEXTALIGN:
+    case U_EMR_SETCOLORADJUSTMENT:
+    case U_EMR_SETTEXTCOLOR:
+    case U_EMR_SETBKCOLOR:
+    case U_EMR_OFFSETCLIPRGN:
+    case U_EMR_MOVETOEX:
+    case U_EMR_SETMETARGN:
+    case U_EMR_EXCLUDECLIPRECT:
+    case U_EMR_INTERSECTCLIPRECT:
+    case U_EMR_SCALEVIEWPORTEXTEX:
+    case U_EMR_SCALEWINDOWEXTEX:
+    case U_EMR_SAVEDC:
+    case U_EMR_RESTOREDC:
+    case U_EMR_SELECTOBJECT:
+    case U_EMR_CREATEPEN:
+    case U_EMR_CREATEBRUSHINDIRECT:
+    case U_EMR_DELETEOBJECT:
+    case U_EMR_ANGLEARC:
+    case U_EMR_ELLIPSE:
+    case U_EMR_RECTANGLE:
+    case U_EMR_ROUNDRECT:
+    case U_EMR_ARC:
+    case U_EMR_CHORD:
+    case U_EMR_PIE:
+    case U_EMR_SELECTPALETTE:
+    case U_EMR_CREATEPALETTE:
+    case U_EMR_SETPALETTEENTRIES:
+    case U_EMR_RESIZEPALETTE:
+    case U_EMR_REALIZEPALETTE:
+    case U_EMR_EXTFLOODFILL:
+    case U_EMR_SETARCDIRECTION:
+    case U_EMR_SETMITERLIMIT:
+    case U_EMR_CLOSEFIGURE:
     case U_EMR_COMMENT:
-        break;
     case U_EMR_FILLRGN:
-        break;
     case U_EMR_FRAMERGN:
-        break;
     case U_EMR_INVERTRGN:
-        break;
     case U_EMR_PAINTRGN:
-        break;
     case U_EMR_EXTSELECTCLIPRGN:
-        break;
     case U_EMR_BITBLT:
-        break;
     case U_EMR_STRETCHBLT:
-        break;
     case U_EMR_MASKBLT:
-        break;
     case U_EMR_PLGBLT:
-        break;
     case U_EMR_SETDIBITSTODEVICE:
-        break;
     case U_EMR_STRETCHDIBITS:
-        break;
     case U_EMR_EXTCREATEFONTINDIRECTW:
-        break;
     case U_EMR_EXTTEXTOUTA:
-        break;
     case U_EMR_EXTTEXTOUTW:
-        break;
-    case U_EMR_POLYBEZIER16:
-        break;
-    case U_EMR_POLYGON16:
-        break;
-    case U_EMR_POLYLINE16:
-        break;
-    case U_EMR_POLYBEZIERTO16:
-        break;
-    case U_EMR_POLYLINETO16:
-        break;
-    case U_EMR_POLYPOLYLINE16:
-        break;
-    case U_EMR_POLYPOLYGON16:
-        break;
-    case U_EMR_POLYDRAW16:
-        break;
     case U_EMR_CREATEMONOBRUSH:
-        break;
     case U_EMR_CREATEDIBPATTERNBRUSHPT:
-        break;
     case U_EMR_EXTCREATEPEN:
-        break;
     // case U_EMR_POLYTEXTOUTA:            break;
     // case U_EMR_POLYTEXTOUTW:            break;
     case U_EMR_SETICMMODE:
-        break;
     case U_EMR_CREATECOLORSPACE:
-        break;
     case U_EMR_SETCOLORSPACE:
-        break;
     case U_EMR_DELETECOLORSPACE:
-        break;
     // case U_EMR_GLSRECORD:               break;
     // case U_EMR_GLSBOUNDEDRECORD:        break;
     case U_EMR_PIXELFORMAT:
-        break;
     // case U_EMR_DRAWESCAPE:              break;
     // case U_EMR_EXTESCAPE:               break;
     // case U_EMR_UNDEF107:                break;
     case U_EMR_SMALLTEXTOUT:
-        break;
     // case U_EMR_FORCEUFIMAPPING:         break;
     // case U_EMR_NAMEDESCAPE:             break;
     // case U_EMR_COLORCORRECTPALETTE:     break;
     // case U_EMR_SETICMPROFILEA:          break;
     // case U_EMR_SETICMPROFILEW:          break;
     case U_EMR_ALPHABLEND:
-        break;
     case U_EMR_SETLAYOUT:
-        break;
     case U_EMR_TRANSPARENTBLT:
-        break;
     // case U_EMR_UNDEF117:                break;
     case U_EMR_GRADIENTFILL:
-        break;
     // case U_EMR_SETLINKEDUFIS:           break;
     // case U_EMR_SETTEXTJUSTIFICATION:    break;
     // case U_EMR_COLORMATCHTOTARGETW:     break;
     case U_EMR_CREATECOLORSPACEW:
-        break;
     default:
+        // nothing to do for those records
         break;
+    // case U_EMR_UNDEF69:                 break;
     } // end of switch
     return (size);
 }
