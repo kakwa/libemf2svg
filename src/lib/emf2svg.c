@@ -482,7 +482,130 @@ void point_draw(drawingStates *states, U_POINT pt, FILE *out) {
     fprintf(out, "%.4f,%.4f ", ptd.x, ptd.y);
 }
 
+
+bool transform_set(drawingStates *states, U_XFORM xform, uint32_t iMode) {
+    switch (iMode) {
+    case U_MWT_IDENTITY: {
+        setTransformIdentity(states);
+        return false;
+    }
+    case U_MWT_LEFTMULTIPLY: {
+        float a11 = xform.eM11;
+        float a12 = xform.eM12;
+        float a13 = 0.0;
+        float a21 = xform.eM21;
+        float a22 = xform.eM22;
+        float a23 = 0.0;
+        float a31 = xform.eDx;
+        float a32 = xform.eDy;
+        float a33 = 1.0;
+
+        float b11 = states->currentDeviceContext.worldTransform.eM11;
+        float b12 = states->currentDeviceContext.worldTransform.eM12;
+        // float b13 = 0.0;
+        float b21 = states->currentDeviceContext.worldTransform.eM21;
+        float b22 = states->currentDeviceContext.worldTransform.eM22;
+        // float b23 = 0.0;
+        float b31 = states->currentDeviceContext.worldTransform.eDx;
+        float b32 = states->currentDeviceContext.worldTransform.eDy;
+        // float b33 = 1.0;
+
+        float c11 = a11 * b11 + a12 * b21 + a13 * b31;
+        ;
+        float c12 = a11 * b12 + a12 * b22 + a13 * b32;
+        ;
+        // float c13 = a11*b13 + a12*b23 + a13*b33;;
+        float c21 = a21 * b11 + a22 * b21 + a23 * b31;
+        ;
+        float c22 = a21 * b12 + a22 * b22 + a23 * b32;
+        ;
+        // float c23 = a21*b13 + a22*b23 + a23*b33;;
+        float c31 = a31 * b11 + a32 * b21 + a33 * b31;
+        ;
+        float c32 = a31 * b12 + a32 * b22 + a33 * b32;
+        ;
+        // float c33 = a31*b13 + a32*b23 + a33*b33;;
+
+        states->currentDeviceContext.worldTransform.eM11 = c11;
+        ;
+        states->currentDeviceContext.worldTransform.eM12 = c12;
+        ;
+        states->currentDeviceContext.worldTransform.eM21 = c21;
+        ;
+        states->currentDeviceContext.worldTransform.eM22 = c22;
+        ;
+        states->currentDeviceContext.worldTransform.eDx = c31;
+        states->currentDeviceContext.worldTransform.eDy = c32;
+        return true;
+    }
+    case U_MWT_RIGHTMULTIPLY: {
+        float a11 = states->currentDeviceContext.worldTransform.eM11;
+        float a12 = states->currentDeviceContext.worldTransform.eM12;
+        float a13 = 0.0;
+        float a21 = states->currentDeviceContext.worldTransform.eM21;
+        float a22 = states->currentDeviceContext.worldTransform.eM22;
+        float a23 = 0.0;
+        float a31 = states->currentDeviceContext.worldTransform.eDx;
+        float a32 = states->currentDeviceContext.worldTransform.eDy;
+        float a33 = 1.0;
+
+        float b11 = xform.eM11;
+        float b12 = xform.eM12;
+        // float b13 = 0.0;
+        float b21 = xform.eM21;
+        float b22 = xform.eM22;
+        // float b23 = 0.0;
+        float b31 = xform.eDx;
+        float b32 = xform.eDy;
+        // float b33 = 1.0;
+
+        float c11 = a11 * b11 + a12 * b21 + a13 * b31;
+        ;
+        float c12 = a11 * b12 + a12 * b22 + a13 * b32;
+        ;
+        // float c13 = a11*b13 + a12*b23 + a13*b33;;
+        float c21 = a21 * b11 + a22 * b21 + a23 * b31;
+        ;
+        float c22 = a21 * b12 + a22 * b22 + a23 * b32;
+        ;
+        // float c23 = a21*b13 + a22*b23 + a23*b33;;
+        float c31 = a31 * b11 + a32 * b21 + a33 * b31;
+        ;
+        float c32 = a31 * b12 + a32 * b22 + a33 * b32;
+        ;
+        // float c33 = a31*b13 + a32*b23 + a33*b33;;
+
+        states->currentDeviceContext.worldTransform.eM11 = c11;
+        ;
+        states->currentDeviceContext.worldTransform.eM12 = c12;
+        ;
+        states->currentDeviceContext.worldTransform.eM21 = c21;
+        ;
+        states->currentDeviceContext.worldTransform.eM22 = c22;
+        ;
+        states->currentDeviceContext.worldTransform.eDx = c31;
+        states->currentDeviceContext.worldTransform.eDy = c32;
+        return true;
+    }
+    case U_MWT_SET: {
+        states->currentDeviceContext.worldTransform = xform;
+        return true;
+    }
+    default:
+        return false;
+    }
+}
+
 void transform_draw(drawingStates *states, FILE *out) {
+    // transformation could be set inside path.
+    // If we are in a path, we do nothing here.
+    // However the transformation is set in BEGINPATH or ENDPATH.
+    // The "pre" parsing is used to determine if such cases can occure 
+    // and records transformations that doesn't occure where the record is
+    // declared.
+    // (function U_emf_onerec_analyse)
+    if ( states->inPath )
+        return;
     if (states->transform_open) {
         fprintf(out, "</%sg>\n", states->nameSpaceString);
     }
@@ -1525,121 +1648,9 @@ void U_EMRMODIFYWORLDTRANSFORM_draw(const char *contents, FILE *out,
         U_EMRMODIFYWORLDTRANSFORM_print(contents, states);
     }
     PU_EMRMODIFYWORLDTRANSFORM pEmr = (PU_EMRMODIFYWORLDTRANSFORM)(contents);
-    switch (pEmr->iMode) {
-    case U_MWT_IDENTITY: {
-        setTransformIdentity(states);
-        states->transform_open = false;
-        break;
-    }
-    case U_MWT_LEFTMULTIPLY: {
-        float a11 = pEmr->xform.eM11;
-        float a12 = pEmr->xform.eM12;
-        float a13 = 0.0;
-        float a21 = pEmr->xform.eM21;
-        float a22 = pEmr->xform.eM22;
-        float a23 = 0.0;
-        float a31 = pEmr->xform.eDx;
-        float a32 = pEmr->xform.eDy;
-        float a33 = 1.0;
-
-        float b11 = states->currentDeviceContext.worldTransform.eM11;
-        float b12 = states->currentDeviceContext.worldTransform.eM12;
-        // float b13 = 0.0;
-        float b21 = states->currentDeviceContext.worldTransform.eM21;
-        float b22 = states->currentDeviceContext.worldTransform.eM22;
-        // float b23 = 0.0;
-        float b31 = states->currentDeviceContext.worldTransform.eDx;
-        float b32 = states->currentDeviceContext.worldTransform.eDy;
-        // float b33 = 1.0;
-
-        float c11 = a11 * b11 + a12 * b21 + a13 * b31;
-        ;
-        float c12 = a11 * b12 + a12 * b22 + a13 * b32;
-        ;
-        // float c13 = a11*b13 + a12*b23 + a13*b33;;
-        float c21 = a21 * b11 + a22 * b21 + a23 * b31;
-        ;
-        float c22 = a21 * b12 + a22 * b22 + a23 * b32;
-        ;
-        // float c23 = a21*b13 + a22*b23 + a23*b33;;
-        float c31 = a31 * b11 + a32 * b21 + a33 * b31;
-        ;
-        float c32 = a31 * b12 + a32 * b22 + a33 * b32;
-        ;
-        // float c33 = a31*b13 + a32*b23 + a33*b33;;
-
-        states->currentDeviceContext.worldTransform.eM11 = c11;
-        ;
-        states->currentDeviceContext.worldTransform.eM12 = c12;
-        ;
-        states->currentDeviceContext.worldTransform.eM21 = c21;
-        ;
-        states->currentDeviceContext.worldTransform.eM22 = c22;
-        ;
-        states->currentDeviceContext.worldTransform.eDx = c31;
-        states->currentDeviceContext.worldTransform.eDy = c32;
+    bool draw = transform_set(states, pEmr->xform, pEmr->iMode);
+    if (draw)
         transform_draw(states, out);
-        break;
-    }
-    case U_MWT_RIGHTMULTIPLY: {
-        float a11 = states->currentDeviceContext.worldTransform.eM11;
-        float a12 = states->currentDeviceContext.worldTransform.eM12;
-        float a13 = 0.0;
-        float a21 = states->currentDeviceContext.worldTransform.eM21;
-        float a22 = states->currentDeviceContext.worldTransform.eM22;
-        float a23 = 0.0;
-        float a31 = states->currentDeviceContext.worldTransform.eDx;
-        float a32 = states->currentDeviceContext.worldTransform.eDy;
-        float a33 = 1.0;
-
-        float b11 = pEmr->xform.eM11;
-        float b12 = pEmr->xform.eM12;
-        // float b13 = 0.0;
-        float b21 = pEmr->xform.eM21;
-        float b22 = pEmr->xform.eM22;
-        // float b23 = 0.0;
-        float b31 = pEmr->xform.eDx;
-        float b32 = pEmr->xform.eDy;
-        // float b33 = 1.0;
-
-        float c11 = a11 * b11 + a12 * b21 + a13 * b31;
-        ;
-        float c12 = a11 * b12 + a12 * b22 + a13 * b32;
-        ;
-        // float c13 = a11*b13 + a12*b23 + a13*b33;;
-        float c21 = a21 * b11 + a22 * b21 + a23 * b31;
-        ;
-        float c22 = a21 * b12 + a22 * b22 + a23 * b32;
-        ;
-        // float c23 = a21*b13 + a22*b23 + a23*b33;;
-        float c31 = a31 * b11 + a32 * b21 + a33 * b31;
-        ;
-        float c32 = a31 * b12 + a32 * b22 + a33 * b32;
-        ;
-        // float c33 = a31*b13 + a32*b23 + a33*b33;;
-
-        states->currentDeviceContext.worldTransform.eM11 = c11;
-        ;
-        states->currentDeviceContext.worldTransform.eM12 = c12;
-        ;
-        states->currentDeviceContext.worldTransform.eM21 = c21;
-        ;
-        states->currentDeviceContext.worldTransform.eM22 = c22;
-        ;
-        states->currentDeviceContext.worldTransform.eDx = c31;
-        states->currentDeviceContext.worldTransform.eDy = c32;
-        transform_draw(states, out);
-
-        break;
-    }
-    case U_MWT_SET: {
-        states->currentDeviceContext.worldTransform = pEmr->xform;
-        transform_draw(states, out);
-        break;
-    }
-    default:
-        break;
-    }
 }
 
 void U_EMRSELECTOBJECT_draw(const char *contents, FILE *out,
@@ -2092,8 +2103,19 @@ void U_EMRBEGINPATH_draw(const char *contents, FILE *out,
         // states->clipId = id;
         states->inClip = true;
     }
+    if (stack->pathStruct.wtBeforeSet){
+        if (stack->pathStruct.wtBeforeiMode) {
+            bool draw = transform_set(states, stack->pathStruct.wtBeforexForm, stack->pathStruct.wtBeforeiMode);
+            if (draw)
+                transform_draw(states, out);
+        }
+        else {
+            states->currentDeviceContext.worldTransform = stack->pathStruct.wtBeforexForm;
+            transform_draw(states, out);
+        }
+    }
     fprintf(out, "<%spath d=\"", states->nameSpaceString);
-    states->inPath = 1;
+    states->inPath = true;
     UNUSED(contents);
 }
 
@@ -2103,7 +2125,7 @@ void U_EMRENDPATH_draw(const char *contents, FILE *out, drawingStates *states) {
         U_EMRENDPATH_print(contents, states);
     }
     fprintf(out, "Z \" ");
-    states->inPath = 0;
+    states->inPath = false;
     bool filled = false;
     bool stroked = false;
     pathStack *stack = states->emfStructure.pathStack;
@@ -2129,11 +2151,21 @@ void U_EMRENDPATH_draw(const char *contents, FILE *out, drawingStates *states) {
         fprintf(out, "stroke=\"none\" ");
 
     fprintf(out, "/>\n");
+    if (stack->pathStruct.wtAfterSet){
+        if (stack->pathStruct.wtBeforeiMode) {
+            bool draw = transform_set(states, stack->pathStruct.wtAfterxForm, stack->pathStruct.wtAfteriMode);
+            if (draw)
+                transform_draw(states, out);
+        }
+        else {
+            states->currentDeviceContext.worldTransform = stack->pathStruct.wtAfterxForm;
+            transform_draw(states, out);
+        }
+    }
     if (clipOffset != 0) {
         // fprintf(out, "</%sclipPath>\n", states->nameSpaceString);
         states->clipSet = true;
     }
-
     states->emfStructure.pathStack = stack->next;
     free(stack);
     UNUSED(contents);
@@ -3275,8 +3307,34 @@ int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum,
         }
         break;
     case U_EMR_SETWORLDTRANSFORM:
+        if (states->inPath) {
+            PU_EMRSETWORLDTRANSFORM pEmr = (PU_EMRSETWORLDTRANSFORM)(contents);
+            states->currentDeviceContext.worldTransform = pEmr->xform;
+            if (states->pathDrawn) {
+                states->emfStructure.pathStackLast->pathStruct.wtBeforeSet = true;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforeiMode = 0;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforexForm = pEmr->xform;
+            } else {
+                states->emfStructure.pathStackLast->pathStruct.wtAfterSet = true;
+                states->emfStructure.pathStackLast->pathStruct.wtAfteriMode = 0;
+                states->emfStructure.pathStackLast->pathStruct.wtAfterxForm = pEmr->xform;
+            }
+        }
         break;
     case U_EMR_MODIFYWORLDTRANSFORM:
+        if (states->inPath) {
+            PU_EMRMODIFYWORLDTRANSFORM pEmr = (PU_EMRMODIFYWORLDTRANSFORM)(contents);
+            states->currentDeviceContext.worldTransform = pEmr->xform;
+            if (states->pathDrawn) {
+                states->emfStructure.pathStackLast->pathStruct.wtBeforeSet = true;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforeiMode = pEmr->iMode;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforexForm = pEmr->xform;
+            } else {
+                states->emfStructure.pathStackLast->pathStruct.wtAfterSet = true;
+                states->emfStructure.pathStackLast->pathStruct.wtAfteriMode = pEmr->iMode;
+                states->emfStructure.pathStackLast->pathStruct.wtAfterxForm = pEmr->xform;
+            }
+        }
         break;
     case U_EMR_SETWINDOWORGEX:
     case U_EMR_SETVIEWPORTEXTEX:

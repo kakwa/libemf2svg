@@ -205,8 +205,12 @@ typedef struct {
     uint32_t widdenOffset;
     uint32_t clipOffset;
     uint32_t abortOffset;
-    U_XFORM wtBeforePath;
-    U_XFORM wtAfterPath;
+    bool wtBeforeSet;
+    bool wtAfterSet;
+    uint32_t wtBeforeiMode;
+    uint32_t wtAfteriMode;
+    U_XFORM wtBeforexForm;
+    U_XFORM wtAfterxForm;
 } pathStruct;
 
 typedef struct pathstack {
