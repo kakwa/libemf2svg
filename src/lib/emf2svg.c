@@ -482,7 +482,6 @@ void point_draw(drawingStates *states, U_POINT pt, FILE *out) {
     fprintf(out, "%.4f,%.4f ", ptd.x, ptd.y);
 }
 
-
 bool transform_set(drawingStates *states, U_XFORM xform, uint32_t iMode) {
     switch (iMode) {
     case U_MWT_IDENTITY: {
@@ -600,11 +599,11 @@ void transform_draw(drawingStates *states, FILE *out) {
     // transformation could be set inside path.
     // If we are in a path, we do nothing here.
     // However the transformation is set in BEGINPATH or ENDPATH.
-    // The "pre" parsing is used to determine if such cases can occure 
+    // The "pre" parsing is used to determine if such cases can occure
     // and records transformations that doesn't occure where the record is
     // declared.
     // (function U_emf_onerec_analyse)
-    if ( states->inPath )
+    if (states->inPath)
         return;
     if (states->transform_open) {
         fprintf(out, "</%sg>\n", states->nameSpaceString);
@@ -2103,14 +2102,15 @@ void U_EMRBEGINPATH_draw(const char *contents, FILE *out,
         // states->clipId = id;
         states->inClip = true;
     }
-    if (stack->pathStruct.wtBeforeSet){
+    if (stack->pathStruct.wtBeforeSet) {
         if (stack->pathStruct.wtBeforeiMode) {
-            bool draw = transform_set(states, stack->pathStruct.wtBeforexForm, stack->pathStruct.wtBeforeiMode);
+            bool draw = transform_set(states, stack->pathStruct.wtBeforexForm,
+                                      stack->pathStruct.wtBeforeiMode);
             if (draw)
                 transform_draw(states, out);
-        }
-        else {
-            states->currentDeviceContext.worldTransform = stack->pathStruct.wtBeforexForm;
+        } else {
+            states->currentDeviceContext.worldTransform =
+                stack->pathStruct.wtBeforexForm;
             transform_draw(states, out);
         }
     }
@@ -2151,14 +2151,15 @@ void U_EMRENDPATH_draw(const char *contents, FILE *out, drawingStates *states) {
         fprintf(out, "stroke=\"none\" ");
 
     fprintf(out, "/>\n");
-    if (stack->pathStruct.wtAfterSet){
+    if (stack->pathStruct.wtAfterSet) {
         if (stack->pathStruct.wtBeforeiMode) {
-            bool draw = transform_set(states, stack->pathStruct.wtAfterxForm, stack->pathStruct.wtAfteriMode);
+            bool draw = transform_set(states, stack->pathStruct.wtAfterxForm,
+                                      stack->pathStruct.wtAfteriMode);
             if (draw)
                 transform_draw(states, out);
-        }
-        else {
-            states->currentDeviceContext.worldTransform = stack->pathStruct.wtAfterxForm;
+        } else {
+            states->currentDeviceContext.worldTransform =
+                stack->pathStruct.wtAfterxForm;
             transform_draw(states, out);
         }
     }
@@ -2848,7 +2849,7 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
         U_emf_onerec_print(contents, blimit, recnum, off, states);
     }
 #ifdef RECORD_INDEX
-    if (recnum && ! states->inPath) {
+    if (recnum && !states->inPath) {
         fprintf(out, "<!-- begin record: %d -->\n", recnum);
     }
 #endif /* RECORD_INDEX */
@@ -3311,28 +3312,40 @@ int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum,
             PU_EMRSETWORLDTRANSFORM pEmr = (PU_EMRSETWORLDTRANSFORM)(contents);
             states->currentDeviceContext.worldTransform = pEmr->xform;
             if (states->pathDrawn) {
-                states->emfStructure.pathStackLast->pathStruct.wtBeforeSet = true;
-                states->emfStructure.pathStackLast->pathStruct.wtBeforeiMode = 0;
-                states->emfStructure.pathStackLast->pathStruct.wtBeforexForm = pEmr->xform;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforeSet =
+                    true;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforeiMode =
+                    0;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforexForm =
+                    pEmr->xform;
             } else {
-                states->emfStructure.pathStackLast->pathStruct.wtAfterSet = true;
+                states->emfStructure.pathStackLast->pathStruct.wtAfterSet =
+                    true;
                 states->emfStructure.pathStackLast->pathStruct.wtAfteriMode = 0;
-                states->emfStructure.pathStackLast->pathStruct.wtAfterxForm = pEmr->xform;
+                states->emfStructure.pathStackLast->pathStruct.wtAfterxForm =
+                    pEmr->xform;
             }
         }
         break;
     case U_EMR_MODIFYWORLDTRANSFORM:
         if (states->inPath) {
-            PU_EMRMODIFYWORLDTRANSFORM pEmr = (PU_EMRMODIFYWORLDTRANSFORM)(contents);
+            PU_EMRMODIFYWORLDTRANSFORM pEmr =
+                (PU_EMRMODIFYWORLDTRANSFORM)(contents);
             states->currentDeviceContext.worldTransform = pEmr->xform;
             if (states->pathDrawn) {
-                states->emfStructure.pathStackLast->pathStruct.wtBeforeSet = true;
-                states->emfStructure.pathStackLast->pathStruct.wtBeforeiMode = pEmr->iMode;
-                states->emfStructure.pathStackLast->pathStruct.wtBeforexForm = pEmr->xform;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforeSet =
+                    true;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforeiMode =
+                    pEmr->iMode;
+                states->emfStructure.pathStackLast->pathStruct.wtBeforexForm =
+                    pEmr->xform;
             } else {
-                states->emfStructure.pathStackLast->pathStruct.wtAfterSet = true;
-                states->emfStructure.pathStackLast->pathStruct.wtAfteriMode = pEmr->iMode;
-                states->emfStructure.pathStackLast->pathStruct.wtAfterxForm = pEmr->xform;
+                states->emfStructure.pathStackLast->pathStruct.wtAfterSet =
+                    true;
+                states->emfStructure.pathStackLast->pathStruct.wtAfteriMode =
+                    pEmr->iMode;
+                states->emfStructure.pathStackLast->pathStruct.wtAfterxForm =
+                    pEmr->xform;
             }
         }
         break;
@@ -3428,7 +3441,7 @@ int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum,
     default:
         // nothing to do for those records
         break;
-    // case U_EMR_UNDEF69:                 break;
+        // case U_EMR_UNDEF69:                 break;
     } // end of switch
     return (size);
 }
