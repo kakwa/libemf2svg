@@ -483,6 +483,9 @@ void point_draw(drawingStates *states, U_POINT pt, FILE *out) {
 }
 
 void transform_draw(drawingStates *states, FILE *out) {
+    if (states->transform_open) {
+        fprintf(out, "</%sg>\n", states->nameSpaceString);
+    }
     fprintf(out, "<%sg transform=\"matrix(%.4f %.4f %.4f %.4f %.4f %.4f)\">\n",
             states->nameSpaceString,
             (double)states->currentDeviceContext.worldTransform.eM11,
@@ -1512,9 +1515,6 @@ void U_EMRSETWORLDTRANSFORM_draw(const char *contents, FILE *out,
     }
     PU_EMRSETWORLDTRANSFORM pEmr = (PU_EMRSETWORLDTRANSFORM)(contents);
     states->currentDeviceContext.worldTransform = pEmr->xform;
-    if (states->transform_open) {
-        fprintf(out, "</%sg>\n", states->nameSpaceString);
-    }
     transform_draw(states, out);
 }
 
@@ -1525,9 +1525,6 @@ void U_EMRMODIFYWORLDTRANSFORM_draw(const char *contents, FILE *out,
         U_EMRMODIFYWORLDTRANSFORM_print(contents, states);
     }
     PU_EMRMODIFYWORLDTRANSFORM pEmr = (PU_EMRMODIFYWORLDTRANSFORM)(contents);
-    if (states->transform_open) {
-        fprintf(out, "</%sg>\n", states->nameSpaceString);
-    }
     switch (pEmr->iMode) {
     case U_MWT_IDENTITY: {
         setTransformIdentity(states);
