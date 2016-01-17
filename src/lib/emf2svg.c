@@ -486,7 +486,7 @@ bool transform_set(drawingStates *states, U_XFORM xform, uint32_t iMode) {
     switch (iMode) {
     case U_MWT_IDENTITY: {
         setTransformIdentity(states);
-        return false;
+        return true;
     }
     case U_MWT_LEFTMULTIPLY: {
         float a11 = xform.eM11;
