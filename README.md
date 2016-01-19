@@ -16,6 +16,11 @@ Output example
 
 ![Example](https://cdn.rawgit.com/kakwa/libemf2svg/master/goodies/demo-example.svg)
 
+Dependencies
+------------
+
+* libiconv
+
 Building
 --------
 
