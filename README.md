@@ -4,7 +4,17 @@ libemf2svg
 [![Join the chat at https://gitter.im/kakwa/libemf2svg](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kakwa/libemf2svg?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/kakwa/libemf2svg.svg?branch=master)](https://travis-ci.org/kakwa/libemf2svg)
 
-EMF (Enhanced Metafile) to SVG conversion library
+MS EMF (Enhanced Metafile) to SVG conversion library.
+
+Motivation
+----------
+
+By themselves, EMF/EMF+ files are rare in the wild. However, they are frequently embedded inside other MS file formats.
+
+This project was started to properly convert Visio stencils (.VSS) to svg and be able to reuse public stencils 
+in other environments than MS Visio (like inkscape, dia, calligraflow, yED...).
+
+However this project could be use beyond its original motivations to handle emf blobs in any MS formats.
 
 Disclaimer
 ----------
