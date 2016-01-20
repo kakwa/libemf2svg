@@ -138,22 +138,21 @@ EMF RECORDS:
 
 |   Status  | Count | Percent |
 |:---------:|:-----:|:-------:|
-| Supported |   29  | [ 27%]  |
-| Partial   |   25  | [ 23%]  |
-| Unused    |    2  | [  1%]  |
-| Ignored   |   49  | [ 46%]  |
+| Supported |   30  | [  28%] |
+| Partial   |   26  | [  24%] |
+| Unused    |    2  | [   1%] |
+| Ignored   |   47  | [  44%] |
 | Total     |  105  |         |
 
 EMF+ RECORDS:
 
 |   Status  | Count | Percent |
 |:---------:|:-----:|:-------:|
-| Supported |    0  | [  0%]  |
-| Partial   |    0  | [  0%]  |
-| Unused    |    0  | [  0%]  |
-| Ignored   |   85  | [ 100%]  |
+| Supported |    0  | [   0%] |
+| Partial   |    0  | [   0%] |
+| Unused    |    0  | [   0%] |
+| Ignored   |   85  | [ 100%] |
 | Total     |   85  |         |
-
 
 
 Development
@@ -161,7 +160,8 @@ Development
 
 General source code organisation:
 
-* [./src/lib/emf2svg.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/emf2svg.c): EMF record handler and API entry point.
+* [./src/lib/emf2svg.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/emf2svg.c): API entry point.
+* [./src/lib/emf2svg_rec_*](https://github.com/kakwa/libemf2svg/blob/master/src/lib/): EMF record handlers
 * [./src/lib/emf2svg_print.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/emf2svg_print.c): EMF record printer (debugging).
 * [./src/lib/pmf2svg.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/pmf2svg.c): EMF+ record handler.
 * [./src/lib/pmf2svg_print.c](https://github.com/kakwa/libemf2svg/blob/master/src/lib/pmf2svg_print.c): EMF+ record printer (debugging).
