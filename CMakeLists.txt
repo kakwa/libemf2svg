@@ -184,6 +184,7 @@ set_target_properties(emf2svg
 add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 target_link_libraries(emf2svg-conv 
     emf2svg 
+    png
     ${LIBICONVLIB}
     ${MEMSTREAMLIB}
     ${ARGPLIB}

@@ -389,6 +389,9 @@ void polypolygon_draw(const char *name, const char *contents, FILE *out,
                       drawingStates *states, bool polygon);
 void polyline16_draw(const char *name, const char *contents, FILE *out,
                      drawingStates *states, bool polygon);
+char *base64_encode(const unsigned char *data,
+                    size_t input_length,
+                    size_t *output_length);
 
 /* prototypes for EMR records */
 void U_EMRNOTIMPLEMENTED_draw(const char *name, const char *contents, FILE *out,
