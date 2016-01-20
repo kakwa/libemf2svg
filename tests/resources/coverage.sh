@@ -11,12 +11,12 @@ percent(){
     printf "$(( $1 * 100 / $2  ))"
 }
 
-EMFC="../../src/lib/emf2svg.c"
+EMFC="../../src/lib/emf2svg_rec_*"
 PMFC="../../src/lib/pmf2svg_print.c"
-count_emf_SUPPORTED=`grep -c FLAG_SUPPORTED $EMFC`
-count_emf_IGNORED=`grep -c FLAG_IGNORED $EMFC`
-count_emf_UNUSED=`grep -c FLAG_UNUSED $EMFC`
-count_emf_PARTIAL=`grep -c FLAG_PARTIAL $EMFC`
+count_emf_SUPPORTED=`cat $EMFC | grep -c FLAG_SUPPORTED`
+count_emf_IGNORED=`cat $EMFC | grep -c FLAG_IGNORED`
+count_emf_UNUSED=`cat $EMFC | grep -c FLAG_UNUSED`
+count_emf_PARTIAL=`cat $EMFC | grep -c FLAG_PARTIAL`
 total_emf=$(( $count_emf_SUPPORTED + $count_emf_IGNORED + $count_emf_UNUSED + $count_emf_PARTIAL  ))
 
 printf "EMF/EMF+ record type coverage\n"
