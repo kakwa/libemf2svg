@@ -141,14 +141,28 @@ include_directories(
 # Compile the library
 add_library(emf2svg
     ${SHARED}
-    src/lib/emf2svg.c
-    src/lib/emf2svg_print.c
     src/lib/pmf2svg.c
     src/lib/pmf2svg_print.c
     src/lib/uemf_utf.c
     src/lib/uemf_endian.c
     src/lib/uemf.c
     src/lib/upmf.c
+    src/lib/emf2svg_print.c
+    src/lib/emf2svg_rec_control.c
+    src/lib/emf2svg_rec_object_creation.c
+    src/lib/emf2svg.c
+    src/lib/emf2svg_rec_opengl.c
+    src/lib/emf2svg_rec_path.c
+    src/lib/emf2svg_rec_clipping.c
+    src/lib/emf2svg_rec_path_bracket.c
+    src/lib/emf2svg_rec_drawing.c
+    src/lib/emf2svg_rec_bitmap.c
+    src/lib/emf2svg_rec_escape.c
+    src/lib/emf2svg_rec_object_manipulation.c
+    src/lib/emf2svg_utils.c
+    src/lib/emf2svg_rec_comment.c
+    src/lib/emf2svg_rec_transform.c
+    src/lib/emf2svg_rec_state_record.c
     #    src/lib/clipperWrapper.cpp
     )
 

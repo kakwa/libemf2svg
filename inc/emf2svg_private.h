@@ -1,18 +1,3 @@
-/**
-  @file uemf_draw.h
-
-  @brief Prototypes for functions for printing records from EMF files.
-  */
-
-/*
-File:      uemf_draw.h
-Version:   0.0.5
-Date:      14-FEB-2013
-Author:    David Mathog, Biology Division, Caltech
-email:     mathog@caltech.edu
-Copyright: 2013 David Mathog and California Institute of Technology (Caltech)
-*/
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -57,6 +42,8 @@ extern "C" {
         return;                                                                \
     }
 
+#define UNUSED(x) (void)(x)
+
 #define UTF_16 1
 #define ASCII 0
 
@@ -64,6 +51,10 @@ extern "C" {
 #define U_TA_CENTER2 0x04
 
 #define mmPerInch 25.4
+
+#define ARC_SIMPLE 0
+#define ARC_PIE 1
+#define ARC_CHORD 2
 
 typedef struct emf_graph_object {
     bool font_set;
@@ -357,6 +348,47 @@ void pixelformatdescriptor_draw(drawingStates *states,
                                 U_PIXELFORMATDESCRIPTOR pfd);
 void emrtext_draw(drawingStates *states, const char *emt, const char *record,
                   int type);
+void arc_circle_draw(const char *contents, FILE *out, drawingStates *states);
+void addFormToStack(drawingStates *states);
+bool transform_set(drawingStates *states, U_XFORM xform, uint32_t iMode);
+void transform_draw(drawingStates *states, FILE *out);
+void arc_draw(const char *contents, FILE *out, drawingStates *states, int type);
+void newPathStruct(drawingStates *states);
+void setTransformIdentity(drawingStates *states);
+void freeObjectTable(drawingStates *states);
+void freePathStack(pathStack *stack);
+void freeDeviceContext(EMF_DEVICE_CONTEXT *dc);
+POINT_D point_cal(drawingStates *states, double x, double y);
+void text_draw(const char *contents, FILE *out, drawingStates *states,
+               uint8_t type);
+void lineto_draw(const char *name, const char *field1, const char *field2,
+                 const char *contents, FILE *out, drawingStates *states);
+void cubic_bezier_draw(const char *name, const char *contents, FILE *out,
+                       drawingStates *states, int startingPoint);
+void startPathDraw(drawingStates *states, FILE *out);
+void point_draw_d(drawingStates *states, POINT_D pt, FILE *out);
+void point_draw(drawingStates *states, U_POINT pt, FILE *out);
+void endPathDraw(drawingStates *states, FILE *out);
+POINT_D int_el_rad(U_POINTL pt, U_RECTL rect);
+void endFormDraw(drawingStates *states, FILE *out);
+void color_stroke(drawingStates *states, FILE *out);
+void width_stroke(drawingStates *states, FILE *out, double width);
+void freeObject(drawingStates *states, uint16_t index);
+formStack *cpFormStack(formStack *stack);
+void freeFormStack(formStack *stack);
+void cubic_bezier16_draw(const char *name, const char *contents, FILE *out,
+                         drawingStates *states, int startingPoint);
+void polyline_draw(const char *name, const char *contents, FILE *out,
+                   drawingStates *states, bool polygon);
+void polypolygon16_draw(const char *name, const char *contents, FILE *out,
+                        drawingStates *states, bool polygon);
+void U_swap4(void *ul, unsigned int count);
+void moveto_draw(const char *name, const char *field1, const char *field2,
+                 const char *contents, FILE *out, drawingStates *states);
+void polypolygon_draw(const char *name, const char *contents, FILE *out,
+                      drawingStates *states, bool polygon);
+void polyline16_draw(const char *name, const char *contents, FILE *out,
+                     drawingStates *states, bool polygon);
 
 /* prototypes for EMR records */
 void U_EMRNOTIMPLEMENTED_draw(const char *name, const char *contents, FILE *out,
