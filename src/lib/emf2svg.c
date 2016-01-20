@@ -1338,11 +1338,15 @@ void U_EMRSETVIEWPORTEXTEX_draw(const char *contents, FILE *out,
 
 void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
-    FLAG_UNUSED;
+    FLAG_IGNORED;
     if (states->verbose) {
         U_EMRSETVIEWPORTORGEX_print(contents, states);
     }
     // PU_EMRSETVIEWPORTORGEX pEmr = (PU_EMRSETVIEWPORTORGEX)(contents);
+    // states->offsetX =
+    //    (double)pEmr->ptlOrigin.x * states->scalingX;
+    // states->offsetY =
+    //    (double)pEmr->ptlOrigin.y * states->scalingY;
 }
 
 void U_EMRSETBRUSHORGEX_draw(const char *contents, FILE *out,
