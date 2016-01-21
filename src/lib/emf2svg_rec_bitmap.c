@@ -63,8 +63,7 @@ void my_png_flush(png_structp png_ptr) {
     return;
 }
 
-void save_png_to_file(RGBBitmap *bitmap, const char *path,
-                      png_structp png_ptr) {
+void bitmap2png(RGBBitmap *bitmap, const char *path, png_structp png_ptr) {
     /* static */
     struct mem_encode state;
 
@@ -134,48 +133,56 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRSTRETCHDIBITS_print(contents, states);
     }
-    PU_EMRSTRETCHDIBITS pEmr = (PU_EMRSTRETCHDIBITS) (contents);
+    PU_EMRSTRETCHDIBITS pEmr = (PU_EMRSTRETCHDIBITS)(contents);
     // FIXME Highly unsafe, trusting the EMF offsets where we shouldn't
-    PU_BITMAPINFOHEADER BmiSrc = (PU_BITMAPINFOHEADER) (contents + pEmr->offBmiSrc);
+    PU_BITMAPINFOHEADER BmiSrc =
+        (PU_BITMAPINFOHEADER)(contents + pEmr->offBmiSrc);
     // FIXME Highly unsafe, trusting the EMF offsets where we shouldn't
-    const unsigned char *BmpSrc = (const unsigned char *)(contents + pEmr->offBitsSrc);
+    const unsigned char *BmpSrc =
+        (const unsigned char *)(contents + pEmr->offBitsSrc);
     char *b64Bmp = NULL;
     size_t b64s;
-    POINT_D size = point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
-    POINT_D position  = point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
+    POINT_D size =
+        point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
+    POINT_D position =
+        point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
     fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
-            size.x,
-            size.y,
-            position.x,
-            position.y
-            );
-    switch(BmiSrc->biCompression) {
-        case U_BI_UNKNOWN:
-            fprintf(out, "xlink:href=\"data:image/png;base64,");
-            break;
-        case U_BI_RGB:
-            fprintf(out, "xlink:href=\"data:image/png;base64,");
-            break;
-        case U_BI_RLE8:
-            fprintf(out, "xlink:href=\"data:image/png;base64,");
-            break;
-        case U_BI_RLE4:
-            fprintf(out, "xlink:href=\"data:image/png;base64,");
-            break;
-        case U_BI_BITFIELDS:
-            fprintf(out, "xlink:href=\"data:image/png;base64,");
-            break;
-        case U_BI_JPEG:
-            b64Bmp = base64_encode(BmpSrc, pEmr->cbBitsSrc, &b64s);
-            fprintf(out, "xlink:href=\"data:image/jpg;base64,");
-            break;
-        case U_BI_PNG:
-            b64Bmp = base64_encode(BmpSrc, pEmr->cbBitsSrc, &b64s);
-            fprintf(out, "xlink:href=\"data:image/png;base64,");
-            break;
+            size.x, size.y, position.x, position.y);
+    switch (BmiSrc->biCompression) {
+    case U_BI_UNKNOWN:
+        fprintf(out, "xlink:href=\"data:image/png;base64,");
+        break;
+    case U_BI_RGB:
+        fprintf(out, "xlink:href=\"data:image/png;base64,");
+        break;
+    case U_BI_RLE8:
+        fprintf(out, "xlink:href=\"data:image/png;base64,");
+        break;
+    case U_BI_RLE4:
+        fprintf(out, "xlink:href=\"data:image/png;base64,");
+        break;
+    case U_BI_BITFIELDS:
+        fprintf(out, "xlink:href=\"data:image/png;base64,");
+        break;
+    case U_BI_JPEG:
+        b64Bmp = base64_encode(BmpSrc, pEmr->cbBitsSrc, &b64s);
+        fprintf(out, "xlink:href=\"data:image/jpg;base64,");
+        break;
+    case U_BI_PNG:
+        b64Bmp = base64_encode(BmpSrc, pEmr->cbBitsSrc, &b64s);
+        fprintf(out, "xlink:href=\"data:image/png;base64,");
+        break;
     }
-    fprintf(out, "%s\" />\n", b64Bmp);
-    free(b64Bmp);
+    if (b64Bmp != NULL) {
+        fprintf(out, "%s\" />\n", b64Bmp);
+        free(b64Bmp);
+    } else {
+        fprintf(out, "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAABGdBTUEAA"
+                     "LGPC/xhBQAAAAZiS0dEAP8A/wD/"
+                     "oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+"
+                     "ABFREtOJX7FAkAAAAIdEVYdENvbW1lbnQA9syWvwAAAAxJREFUCNdjYKA"
+                     "TAAAAaQABwB3y+AAAAABJRU5ErkJggg==\" />\n");
+    }
 }
 void U_EMRTRANSPARENTBLT_draw(const char *contents, FILE *out,
                               drawingStates *states) {
