@@ -156,6 +156,7 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
         fprintf(out, "xlink:href=\"data:image/png;base64,");
         break;
     case U_BI_RLE8:
+        // FIXME need to implement
         fprintf(out, "xlink:href=\"data:image/png;base64,");
         break;
     case U_BI_RLE4:
@@ -177,6 +178,7 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
         fprintf(out, "%s\" />\n", b64Bmp);
         free(b64Bmp);
     } else {
+        // transparent 5x5 px png
         fprintf(out, "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAABGdBTUEAA"
                      "LGPC/xhBQAAAAZiS0dEAP8A/wD/"
                      "oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+"
