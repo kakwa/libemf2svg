@@ -30,6 +30,7 @@ Dependencies
 ------------
 
 * libiconv
+* libpng
 
 Building
 --------
