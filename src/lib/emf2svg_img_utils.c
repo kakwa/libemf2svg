@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
@@ -8,6 +12,86 @@
 #include <stdint.h>
 #include <math.h>
 #include "emf2svg_img_utils.h"
+
+#include <png.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+/* Attempts to save PNG to file; returns 0 on success, non-zero on error. */
+int rgb2tpng(RGBBitmap *bitmap, char **out, size_t *size) {
+    FILE *fp = open_memstream(out, size);
+    if (fp == NULL) {
+        return -1;
+    }
+    png_structp png_ptr = NULL;
+    png_infop info_ptr = NULL;
+    size_t x, y;
+    // png_uint_32 bytes_per_row;
+    png_byte **row_pointers = NULL;
+
+    if (fp == NULL)
+        return -1;
+
+    /* Initialize the write struct. */
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (png_ptr == NULL) {
+        fclose(fp);
+        return -1;
+    }
+
+    /* Initialize the info struct. */
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL) {
+        png_destroy_write_struct(&png_ptr, NULL);
+        fclose(fp);
+        return -1;
+    }
+
+    /* Set up error handling. */
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        fclose(fp);
+        return -1;
+    }
+
+    /* Set image attributes. */
+    png_set_IHDR(png_ptr, info_ptr, bitmap->width, bitmap->height, 8,
+                 PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+    /* Initialize rows of PNG. */
+    // bytes_per_row = bitmap->width * bitmap->bytes_per_pixel;
+    row_pointers = png_malloc(png_ptr, bitmap->height * sizeof(png_byte *));
+    for (y = 0; y < bitmap->height; ++y) {
+        uint8_t *row =
+            png_malloc(png_ptr, sizeof(uint8_t) * bitmap->bytes_per_pixel);
+        row_pointers[y] = (png_byte *)row;
+        for (x = 0; x < bitmap->width; ++x) {
+            RGBPixel color = RGBPixelAtPoint(bitmap, x, y);
+            *row++ = color.red;
+            *row++ = color.green;
+            *row++ = color.blue;
+        }
+    }
+
+    /* Actually write the image data. */
+    png_init_io(png_ptr, fp);
+    png_set_rows(png_ptr, info_ptr, row_pointers);
+    png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+
+    /* Cleanup. */
+    for (y = 0; y < bitmap->height; y++) {
+        png_free(png_ptr, row_pointers[y]);
+    }
+    png_free(png_ptr, row_pointers);
+
+    /* Finish writing. */
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    fflush(fp);
+    fclose(fp);
+    return 0;
+}
 
 // uncompress RLE8 to get bitmap (section 3.1.6.2 [MS-WMF].pdf)
 dibImg rle8ToBitmap(dibImg img) {
@@ -38,7 +122,7 @@ dibImg rle8ToBitmap(dibImg img) {
             // check against potential overflow
             if ((bm + 2) > end) {
                 fclose(stream);
-				free(out);
+                free(out);
                 return out_img;
             };
         case RLE_MARK:
@@ -59,7 +143,7 @@ dibImg rle8ToBitmap(dibImg img) {
                 // offset handling, pad with (off.x + off.y * width) zeros
                 if ((bm + 3) > end) {
                     fclose(stream);
-					free(out);
+                    free(out);
                     return out_img;
                 };
                 for (int i = 0; i < (bm[2] + img.width * bm[3]); i++)
@@ -76,7 +160,7 @@ dibImg rle8ToBitmap(dibImg img) {
                 bm_next = bm + 1 + ((bm[1] + 1) / 2) * 2;
                 if (bm_next > end) {
                     fclose(stream);
-					free(out);
+                    free(out);
                     return out_img;
                 };
                 for (int i = 2; i < bm[1] + 2; i++)
@@ -153,7 +237,7 @@ dibImg rle4ToBitmap(dibImg img) {
             // check against potential overflow
             if ((bm + 2) > end) {
                 fclose(stream);
-				free(out);
+                free(out);
                 return out_img;
             };
         case RLE_MARK:
@@ -180,7 +264,7 @@ dibImg rle4ToBitmap(dibImg img) {
                 // offset handling, pad with (off.x + off.y * width) zeros
                 if ((bm + 3) > end) {
                     fclose(stream);
-					free(out);
+                    free(out);
                     return out_img;
                 };
 
@@ -209,7 +293,7 @@ dibImg rle4ToBitmap(dibImg img) {
                 bm_next = bm + (bm[1] / 2) + 2;
                 if (bm_next > end) {
                     fclose(stream);
-					free(out);
+                    free(out);
                     return out_img;
                 };
                 for (int i = 2; i < (bm[1] / 2) + 2; i++) {
@@ -280,3 +364,7 @@ dibImg rle4ToBitmap(dibImg img) {
     out_img.height = img.height;
     return out_img;
 }
+#ifdef __cplusplus
+}
+#endif
+/* vim:set shiftwidth=2 softtabstop=2 expandtab: */
