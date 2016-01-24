@@ -14,6 +14,7 @@ extern "C" {
 #include "uemf.h"
 #include "emf2svg.h"
 #include "emf2svg_private.h"
+#include "emf2svg_img_utils.h"
 #include "emf2svg_print.h"
 #include "pmf2svg.h"
 #include "pmf2svg_print.h"

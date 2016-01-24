@@ -39,6 +39,6 @@ typedef struct _RGBBitmap {
     *(((image)->pixels) +                                                      \
       (((image)->bytewidth * (y)) + ((x) * (image)->bytes_per_pixel)))
 
-int rgb2tpng(RGBBitmap *bitmap, char **out, size_t *size);
+int rgb2png(RGBBitmap *bitmap, char **out, size_t *size);
 dibImg rle8ToBitmap(dibImg img);
 dibImg rle4ToBitmap(dibImg img);
