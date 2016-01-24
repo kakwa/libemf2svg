@@ -19,7 +19,7 @@ extern "C" {
 #include <stdint.h>
 
 /* Attempts to save PNG to file; returns 0 on success, non-zero on error. */
-int rgb2tpng(RGBBitmap *bitmap, char **out, size_t *size) {
+int rgb2png(RGBBitmap *bitmap, char **out, size_t *size) {
     FILE *fp = open_memstream(out, size);
     if (fp == NULL) {
         return -1;
