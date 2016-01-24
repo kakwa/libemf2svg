@@ -52,6 +52,7 @@ typedef struct _RGBABitmap {
 } RGBABitmap;
 
 int rgb2png(RGBABitmap *bitmap, char **out, size_t *size);
+float get_pixel_size(uint32_t colortype);
 RGBBitmap rle4ToRGB8(RGBBitmap img);
 RGBBitmap RGB4ToRGB8(RGBBitmap img);
 RGBBitmap rle8ToRGB8(RGBBitmap img);

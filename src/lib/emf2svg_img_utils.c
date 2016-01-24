@@ -12,6 +12,7 @@ extern "C" {
 #include <stdint.h>
 #include <math.h>
 #include "emf2svg_img_utils.h"
+#include "uemf.h"
 
 #include <png.h>
 #include <stdio.h>
@@ -20,6 +21,25 @@ extern "C" {
 
 RGBAPixel *pixel_at(RGBABitmap *bitmap, int x, int y) {
     return bitmap->pixels + (bitmap->width * y + x);
+}
+
+// return the size in octet of a pixel
+float get_pixel_size(uint32_t colortype){
+     switch(colortype){
+	case U_BCBM_MONOCHROME:
+	    return 0.125;
+	case U_BCBM_COLOR4:
+	    return 0.5;
+	case U_BCBM_COLOR8:
+	    return 1;
+	case U_BCBM_COLOR16:
+	    return 2;
+	case U_BCBM_COLOR24:
+	    return 3;
+	case U_BCBM_COLOR32:
+	    return 4;
+     }
+     return 4;
 }
 
 /* Attempts to save PNG to file; returns 0 on success, non-zero on error. */
