@@ -61,7 +61,7 @@ int rgb2png(RGBBitmap *bitmap, char **out, size_t *size) {
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
     /* Initialize rows of PNG. */
-    // bytes_per_row = bitmap->width * bitmap->bytes_per_pixel;
+    // bytes_per_row = bitmap->width * bytes_per_pixel;
     row_pointers = png_malloc(png_ptr, bitmap->height * sizeof(png_byte *));
     for (y = 0; y < bitmap->height; ++y) {
         uint8_t *row =
@@ -94,19 +94,20 @@ int rgb2png(RGBBitmap *bitmap, char **out, size_t *size) {
 }
 
 // uncompress RLE8 to get bitmap (section 3.1.6.2 [MS-WMF].pdf)
-dibImg rle8ToBitmap(dibImg img) {
+RGBBitmap rle8ToRGB8(RGBBitmap img) {
     FILE *stream;
     bool decode = true;
     char *out;
     size_t size;
 
-    dibImg out_img;
+    RGBBitmap out_img;
     out_img.size = 0;
     out_img.width = 0;
     out_img.height = 0;
-    out_img.img = NULL;
+    out_img.bytes_per_pixel = 3;
+    out_img.pixels = NULL;
 
-    uint8_t *bm = (uint8_t *)img.img;
+    uint8_t *bm = (uint8_t *)img.pixels;
     uint32_t x = 0;
     uint32_t y = img.height - 1;
     uint8_t *bm_next;
@@ -188,7 +189,44 @@ dibImg rle8ToBitmap(dibImg img) {
 
     fflush(stream);
     fclose(stream);
-    out_img.img = (uint8_t *)out;
+    out_img.pixels = (RGBPixel *)out;
+    out_img.size = size;
+    out_img.width = img.width;
+    out_img.height = img.height;
+    return out_img;
+}
+
+RGBBitmap RGB4ToRGB8(RGBBitmap img){
+    FILE *stream;
+    char *out;
+    size_t size;
+
+    RGBBitmap out_img;
+    out_img.size = 0;
+    out_img.width = 0;
+    out_img.height = 0;
+    out_img.bytes_per_pixel = 3;
+    out_img.pixels = NULL;
+
+    uint8_t *bm = (uint8_t *)img.pixels;
+
+    stream = open_memstream(&out, &size);
+    if (stream == NULL) {
+        return out_img;
+    }
+
+    uint8_t tmp_u;
+    uint8_t tmp_l;
+
+    for(int i = 0; i < img.size; i++){
+       tmp_u = bm[i] & 0xF0;
+       tmp_l = bm[i] & 0x0F << 4;
+       fputc(tmp_u, stream);
+       fputc(tmp_l, stream);
+    }
+    fflush(stream);
+    fclose(stream);
+    out_img.pixels = (RGBPixel *)out;
     out_img.size = size;
     out_img.width = img.width;
     out_img.height = img.height;
@@ -197,19 +235,20 @@ dibImg rle8ToBitmap(dibImg img) {
 
 // uncompress RLE4 to get bitmap (section 3.1.6.2 [MS-WMF].pdf)
 // FIXME (probably) (handling 4 bits stuff is kind of messy...)
-dibImg rle4ToBitmap(dibImg img) {
+RGBBitmap rle4ToRGB8(RGBBitmap img) {
     FILE *stream;
     bool decode = true;
     char *out;
     size_t size;
 
-    dibImg out_img;
+    RGBBitmap out_img;
     out_img.size = 0;
     out_img.width = 0;
     out_img.height = 0;
-    out_img.img = NULL;
+    out_img.bytes_per_pixel = 2;
+    out_img.pixels = NULL;
 
-    uint8_t *bm = (uint8_t *)img.img;
+    uint8_t *bm = (uint8_t *)img.pixels;
     uint32_t x = 0;
     uint32_t y = img.height - 1;
     uint8_t *bm_next;
@@ -358,10 +397,13 @@ dibImg rle4ToBitmap(dibImg img) {
 
     fflush(stream);
     fclose(stream);
-    out_img.img = (uint8_t *)out;
+    out_img.pixels = (RGBPixel *)out;
     out_img.size = size;
     out_img.width = img.width;
     out_img.height = img.height;
+    // convert it to 24 bits/pixel bitmap
+    out_img = RGB4ToRGB8(out_img);
+    free(out);
     return out_img;
 }
 #ifdef __cplusplus

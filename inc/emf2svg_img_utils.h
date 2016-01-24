@@ -6,17 +6,15 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-typedef struct _dibImg {
-    uint8_t *img;
-    size_t size;
-    uint32_t width;
-    uint32_t height;
-} dibImg;
-
 #define RLE_MARK 0x00
 #define RLE_EOL 0x00
 #define RLE_EOB 0x01
 #define RLE_DELTA 0x02
+
+/* Returns pixel of bitmap at given point. */
+#define RGBPixelAtPoint(image, x, y)                                           \
+    *(((image)->pixels) +                                                      \
+      (((image)->bytewidth * (y)) + ((x) * (image)->bytes_per_pixel)))
 
 /* Pixels in this bitmap structure are stored as BGR. */
 typedef struct _RGBPixel {
@@ -32,13 +30,10 @@ typedef struct _RGBBitmap {
     size_t height;
     size_t bytewidth;
     uint8_t bytes_per_pixel;
+    size_t size;
 } RGBBitmap;
 
-/* Returns pixel of bitmap at given point. */
-#define RGBPixelAtPoint(image, x, y)                                           \
-    *(((image)->pixels) +                                                      \
-      (((image)->bytewidth * (y)) + ((x) * (image)->bytes_per_pixel)))
-
 int rgb2png(RGBBitmap *bitmap, char **out, size_t *size);
-dibImg rle8ToBitmap(dibImg img);
-dibImg rle4ToBitmap(dibImg img);
+RGBBitmap rle4ToRGB8(RGBBitmap img);
+RGBBitmap RGB4ToRGB8(RGBBitmap img);
+RGBBitmap rle8ToRGB8(RGBBitmap img);
