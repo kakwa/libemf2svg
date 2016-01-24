@@ -61,14 +61,14 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
 
     /* Set image attributes. */
     png_set_IHDR(png_ptr, info_ptr, bitmap->width, bitmap->height, 8,
-                 PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+                 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
     /* Initialize rows of PNG. */
     // bytes_per_row = bitmap->width * bytes_per_pixel;
     row_pointers = png_malloc(png_ptr, bitmap->height * sizeof(png_byte *));
     for (y = 0; y < bitmap->height; ++y) {
-        uint8_t *row = png_malloc(png_ptr, sizeof(uint8_t) * bitmap->width * 3);
+        uint8_t *row = png_malloc(png_ptr, sizeof(uint8_t) * bitmap->width * 4);
         // row_pointers[y] = (png_byte *)row;
         row_pointers[bitmap->height - y - 1] = row;
         for (x = 0; x < bitmap->width; ++x) {
@@ -81,6 +81,7 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
             *row++ = color.red;
             *row++ = color.green;
             *row++ = color.blue;
+            *row++ = color.alpha;
         }
     }
 
