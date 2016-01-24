@@ -997,9 +997,9 @@ static int mod_table[] = {0, 2, 1};
 
 char *base64_encode(const unsigned char *data, size_t input_length,
                     size_t *output_length) {
-    *output_length = 4 * ((input_length + 2) / 3);
+    *output_length = 4 * ((input_length + 2) / 3) + 3;
 
-    char *encoded_data = calloc(*output_length, 2);
+    char *encoded_data = calloc(*output_length, 1);
     if (encoded_data == NULL)
         return NULL;
 
