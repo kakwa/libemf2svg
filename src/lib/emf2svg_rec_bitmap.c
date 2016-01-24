@@ -73,18 +73,16 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
 
     // check that the header is not outside of the emf file
     returnOutOfEmf(contents + pEmr->offBmiSrc)
-    returnOutOfEmf(contents + pEmr->offBmiSrc + sizeof(U_BITMAPINFOHEADER))
-    // get the header
-    PU_BITMAPINFOHEADER BmiSrc =
-        (PU_BITMAPINFOHEADER)(contents + pEmr->offBmiSrc);
-
+        returnOutOfEmf(contents + pEmr->offBmiSrc + sizeof(U_BITMAPINFOHEADER))
+        // get the header
+        PU_BITMAPINFOHEADER BmiSrc =
+            (PU_BITMAPINFOHEADER)(contents + pEmr->offBmiSrc);
 
     // check that the bitmap is not outside the emf file
     returnOutOfEmf(contents + pEmr->offBitsSrc)
-    returnOutOfEmf(contents + pEmr->offBitsSrc + pEmr->cbBitsSrc)
-    const unsigned char *BmpSrc =
-        (const unsigned char *)(contents + pEmr->offBitsSrc);
-
+        returnOutOfEmf(contents + pEmr->offBitsSrc + pEmr->cbBitsSrc)
+            const unsigned char *BmpSrc =
+                (const unsigned char *)(contents + pEmr->offBitsSrc);
 
     char *b64Bmp = NULL;
     size_t b64s;
@@ -158,14 +156,16 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
                                (const U_RGBQUAD **)&ct, &numCt, &width, &height,
                                &colortype, &invert);
     // if enable to read header, then exit
-    if(dibparams){
-	free(convert_out.pixels);
-	states->Error = true;
-	return;
+    if (dibparams) {
+        free(convert_out.pixels);
+        states->Error = true;
+        return;
     }
-    // check that what we will read in the DIB_to_RGBA conversion is actually there
-    size_t offset_check =  (size_t)((float)width * (float)height * get_pixel_size(colortype));
-    if (((in + img_size) < in + offset_check)){
+    // check that what we will read in the DIB_to_RGBA conversion is actually
+    // there
+    size_t offset_check =
+        (size_t)((float)width * (float)height * get_pixel_size(colortype));
+    if (((in + img_size) < in + offset_check)) {
         free(convert_out.pixels);
         states->Error = true;
         return;
