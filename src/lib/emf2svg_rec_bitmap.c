@@ -78,29 +78,16 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
         (const unsigned char *)(contents + pEmr->offBitsSrc);
     char *b64Bmp = NULL;
     size_t b64s;
+    char *tmp = NULL;
     POINT_D size =
         point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
     POINT_D position =
         point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
     fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
             size.x, size.y, position.x, position.y);
+
+    // Handle simple cases first, no treatment needed for them
     switch (BmiSrc->biCompression) {
-    case U_BI_UNKNOWN:
-        fprintf(out, "xlink:href=\"data:image/png;base64,");
-        break;
-    case U_BI_RGB:
-        fprintf(out, "xlink:href=\"data:image/png;base64,");
-        break;
-    case U_BI_RLE8:
-        // FIXME need to implement
-        fprintf(out, "xlink:href=\"data:image/png;base64,");
-        break;
-    case U_BI_RLE4:
-        fprintf(out, "xlink:href=\"data:image/png;base64,");
-        break;
-    case U_BI_BITFIELDS:
-        fprintf(out, "xlink:href=\"data:image/png;base64,");
-        break;
     case U_BI_JPEG:
         b64Bmp = base64_encode(BmpSrc, pEmr->cbBitsSrc, &b64s);
         fprintf(out, "xlink:href=\"data:image/jpg;base64,");
@@ -110,6 +97,62 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
         fprintf(out, "xlink:href=\"data:image/png;base64,");
         break;
     }
+    if (b64Bmp != NULL) {
+        fprintf(out, "%s\" />\n", b64Bmp);
+        free(b64Bmp);
+        return;
+    }
+
+    // more complexe treatment, with conversion to png
+    RGBBitmap convert_in;
+    convert_in.size = pEmr->cbBitsSrc;
+    convert_in.width = BmiSrc->biWidth;
+    convert_in.height = BmiSrc->biHeight;
+    convert_in.pixels = (RGBPixel *)BmpSrc;
+    convert_in.bytewidth = BmiSrc->biWidth * 3;
+    convert_in.bytes_per_pixel = 3;
+
+    RGBBitmap convert_out;
+    convert_out.pixels = NULL;
+    const U_RGBQUAD *ct = NULL;
+    uint32_t width, height, colortype, numCt, invert;
+    char *rgba_px = NULL;
+    const char *px = NULL;
+    int dibparams;
+    const char *in;
+    size_t img_size;
+
+    // In any cases after that, we get a png blob
+    fprintf(out, "xlink:href=\"data:image/png;base64,");
+
+    switch (BmiSrc->biCompression) {
+    case U_BI_RLE8:
+        convert_out = rle8ToRGB8(convert_in);
+        break;
+    case U_BI_RLE4:
+        convert_out = rle4ToRGB8(convert_in);
+        break;
+    }
+
+    if (convert_out.pixels != NULL) {
+        in = (char *)convert_out.pixels;
+        img_size = convert_out.size;
+        free(convert_out.pixels);
+    } else {
+        in = (char *)convert_in.pixels;
+        img_size = convert_in.size;
+    }
+    /*
+    dibparams = get_DIB_params(pEmr, pEmr->offBitsSrc, pEmr->offBmiSrc, &px,
+                               (const U_RGBQUAD **)&ct, &numCt, &width, &height,
+                               &colortype, &invert);
+    DIB_to_RGBA(in, ct, numCt, rgba_px, width, height, colortype, numCt,
+                invert);
+    rgb2png(&convert_in, &b64Bmp, &b64s);
+    tmp = (char *)b64Bmp;
+    b64Bmp = base64_encode((unsigned char *)b64Bmp, b64s, &b64s);
+    free(tmp);
+    */
     if (b64Bmp != NULL) {
         fprintf(out, "%s\" />\n", b64Bmp);
         free(b64Bmp);

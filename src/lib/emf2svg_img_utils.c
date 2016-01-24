@@ -18,8 +18,12 @@ extern "C" {
 #include <stdlib.h>
 #include <stdint.h>
 
+RGBPixel *pixel_at(RGBBitmap *bitmap, int x, int y) {
+    return bitmap->pixels + (bitmap->width * y + x);
+}
+
 /* Attempts to save PNG to file; returns 0 on success, non-zero on error. */
-int rgb2png(RGBBitmap *bitmap, char **out, size_t *size) {
+int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
     FILE *fp = open_memstream(out, size);
     if (fp == NULL) {
         return -1;
@@ -64,11 +68,16 @@ int rgb2png(RGBBitmap *bitmap, char **out, size_t *size) {
     // bytes_per_row = bitmap->width * bytes_per_pixel;
     row_pointers = png_malloc(png_ptr, bitmap->height * sizeof(png_byte *));
     for (y = 0; y < bitmap->height; ++y) {
-        uint8_t *row =
-            png_malloc(png_ptr, sizeof(uint8_t) * bitmap->bytes_per_pixel);
-        row_pointers[y] = (png_byte *)row;
+        uint8_t *row = png_malloc(png_ptr, sizeof(uint8_t) * bitmap->width * 3);
+        // row_pointers[y] = (png_byte *)row;
+        row_pointers[bitmap->height - y - 1] = row;
         for (x = 0; x < bitmap->width; ++x) {
-            RGBPixel color = RGBPixelAtPoint(bitmap, x, y);
+            // RGBPixel *color = pixel_at(bitmap, x, y);
+            RGBAPixel color = bitmap->pixels[((x + bitmap->width * y) / 3)];
+            // printf("(%d, %d)\n", bitmap->width, bitmap->height);
+            // printf("(%d, %d)\n", x, y);
+            // printf("color:0x%0X%0X%0x\n", color.red, color.green,
+            // color.blue);
             *row++ = color.red;
             *row++ = color.green;
             *row++ = color.blue;
@@ -196,7 +205,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
     return out_img;
 }
 
-RGBBitmap RGB4ToRGB8(RGBBitmap img){
+RGBBitmap RGB4ToRGB8(RGBBitmap img) {
     FILE *stream;
     char *out;
     size_t size;
@@ -218,11 +227,11 @@ RGBBitmap RGB4ToRGB8(RGBBitmap img){
     uint8_t tmp_u;
     uint8_t tmp_l;
 
-    for(int i = 0; i < img.size; i++){
-       tmp_u = bm[i] & 0xF0;
-       tmp_l = bm[i] & 0x0F << 4;
-       fputc(tmp_u, stream);
-       fputc(tmp_l, stream);
+    for (int i = 0; i < img.size; i++) {
+        tmp_u = bm[i] & 0xF0;
+        tmp_l = bm[i] & 0x0F << 4;
+        fputc(tmp_u, stream);
+        fputc(tmp_l, stream);
     }
     fflush(stream);
     fclose(stream);

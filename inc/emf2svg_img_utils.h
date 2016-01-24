@@ -16,11 +16,11 @@
     *(((image)->pixels) +                                                      \
       (((image)->bytewidth * (y)) + ((x) * (image)->bytes_per_pixel)))
 
-/* Pixels in this bitmap structure are stored as BGR. */
+/* Pixels in this bitmap structure are stored as RGB. */
 typedef struct _RGBPixel {
-    uint8_t blue;
-    uint8_t green;
     uint8_t red;
+    uint8_t green;
+    uint8_t blue;
 } RGBPixel;
 
 /* Structure for containing decompressed bitmaps. */
@@ -33,7 +33,25 @@ typedef struct _RGBBitmap {
     size_t size;
 } RGBBitmap;
 
-int rgb2png(RGBBitmap *bitmap, char **out, size_t *size);
+/* Pixels in this bitmap structure are stored as RGB. */
+typedef struct _RGBAPixel {
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    uint8_t alpha;
+} RGBAPixel;
+
+/* Structure for containing decompressed bitmaps. */
+typedef struct _RGBABitmap {
+    RGBAPixel *pixels;
+    size_t width;
+    size_t height;
+    size_t bytewidth;
+    uint8_t bytes_per_pixel;
+    size_t size;
+} RGBABitmap;
+
+int rgb2png(RGBABitmap *bitmap, char **out, size_t *size);
 RGBBitmap rle4ToRGB8(RGBBitmap img);
 RGBBitmap RGB4ToRGB8(RGBBitmap img);
 RGBBitmap rle8ToRGB8(RGBBitmap img);
