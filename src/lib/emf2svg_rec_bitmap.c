@@ -65,7 +65,7 @@ void U_EMRSTRETCHBLT_draw(const char *contents, FILE *out,
 }
 void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
                              drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMRSTRETCHDIBITS_print(contents, states);
     }
@@ -122,6 +122,8 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     const char *in;
     size_t img_size;
 
+    RGBABitmap convert_inpng;
+
     // In any cases after that, we get a png blob
     fprintf(out, "xlink:href=\"data:image/png;base64,");
 
@@ -137,22 +139,31 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     if (convert_out.pixels != NULL) {
         in = (char *)convert_out.pixels;
         img_size = convert_out.size;
-        free(convert_out.pixels);
     } else {
         in = (char *)convert_in.pixels;
         img_size = convert_in.size;
     }
-    /*
+
     dibparams = get_DIB_params(pEmr, pEmr->offBitsSrc, pEmr->offBmiSrc, &px,
                                (const U_RGBQUAD **)&ct, &numCt, &width, &height,
                                &colortype, &invert);
-    DIB_to_RGBA(in, ct, numCt, rgba_px, width, height, colortype, numCt,
+    DIB_to_RGBA(in, ct, numCt, &rgba_px, width, height, colortype, numCt,
                 invert);
-    rgb2png(&convert_in, &b64Bmp, &b64s);
+
+    convert_inpng.size = width * 4 * height;
+    convert_inpng.width = width;
+    convert_inpng.height = height;
+    convert_inpng.pixels = (RGBAPixel *)rgba_px;
+    convert_inpng.bytewidth = BmiSrc->biWidth * 3;
+    convert_inpng.bytes_per_pixel = 3;
+
+    rgb2png(&convert_inpng, &b64Bmp, &b64s);
     tmp = (char *)b64Bmp;
     b64Bmp = base64_encode((unsigned char *)b64Bmp, b64s, &b64s);
+    free(convert_out.pixels);
     free(tmp);
-    */
+    free(rgba_px);
+
     if (b64Bmp != NULL) {
         fprintf(out, "%s\" />\n", b64Bmp);
         free(b64Bmp);
