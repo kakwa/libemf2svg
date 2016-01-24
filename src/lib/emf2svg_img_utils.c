@@ -18,7 +18,7 @@ extern "C" {
 #include <stdlib.h>
 #include <stdint.h>
 
-RGBPixel *pixel_at(RGBBitmap *bitmap, int x, int y) {
+RGBAPixel *pixel_at(RGBABitmap *bitmap, int x, int y) {
     return bitmap->pixels + (bitmap->width * y + x);
 }
 
@@ -73,7 +73,7 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
         row_pointers[bitmap->height - y - 1] = row;
         for (x = 0; x < bitmap->width; ++x) {
             // RGBPixel *color = pixel_at(bitmap, x, y);
-            RGBAPixel color = bitmap->pixels[((x + bitmap->width * y) / 3)];
+            RGBAPixel color = bitmap->pixels[((x + bitmap->width * y))];
             // printf("(%d, %d)\n", bitmap->width, bitmap->height);
             // printf("(%d, %d)\n", x, y);
             // printf("color:0x%0X%0X%0x\n", color.red, color.green,
