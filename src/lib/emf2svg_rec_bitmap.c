@@ -72,17 +72,19 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     PU_EMRSTRETCHDIBITS pEmr = (PU_EMRSTRETCHDIBITS)(contents);
 
     // check that the header is not outside of the emf file
-    returnOutOfEmf(contents + pEmr->offBmiSrc)
-        returnOutOfEmf(contents + pEmr->offBmiSrc + sizeof(U_BITMAPINFOHEADER))
-        // get the header
-        PU_BITMAPINFOHEADER BmiSrc =
-            (PU_BITMAPINFOHEADER)(contents + pEmr->offBmiSrc);
+    returnOutOfEmf(contents + pEmr->offBmiSrc);
+    returnOutOfEmf(contents + pEmr->offBmiSrc + sizeof(U_BITMAPINFOHEADER));
+
+    // get the header
+    PU_BITMAPINFOHEADER BmiSrc =
+        (PU_BITMAPINFOHEADER)(contents + pEmr->offBmiSrc);
 
     // check that the bitmap is not outside the emf file
-    returnOutOfEmf(contents + pEmr->offBitsSrc)
-        returnOutOfEmf(contents + pEmr->offBitsSrc + pEmr->cbBitsSrc)
-            const unsigned char *BmpSrc =
-                (const unsigned char *)(contents + pEmr->offBitsSrc);
+    returnOutOfEmf(contents + pEmr->offBitsSrc);
+    returnOutOfEmf(contents + pEmr->offBitsSrc + pEmr->cbBitsSrc);
+
+    const unsigned char *BmpSrc =
+        (const unsigned char *)(contents + pEmr->offBitsSrc);
 
     char *b64Bmp = NULL;
     size_t b64s;
