@@ -819,7 +819,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         string = (uint8_t *)U_Utf16leToUtf8((uint16_t *)in, size_in, size_out);
     } else {
         returnOutOfEmf((uint64_t)in + (uint64_t)size_in);
-        string = (uint8_t *)calloc(1, (size_in + 1));
+        string = (uint8_t *)calloc((size_in + 1), 1);
         strncpy((char *)string, in, size_in);
         *size_out = size_in;
     }
@@ -845,21 +845,27 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
                uint8_t type) {
     PU_EMRTEXT pemt =
         (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
+
     returnOutOfEmf(pemt);
 
-    char *string;
-    size_t string_size;
-    text_convert((char *)(contents + pemt->offString), pemt->nChars, &string,
-                 &string_size, type, states);
     fprintf(out, "<%stext ", states->nameSpaceString);
     POINT_D Org = point_cal(states, (double)pemt->ptlReference.x,
                             (double)pemt->ptlReference.y);
 
     text_style_draw(out, states, Org);
     fprintf(out, ">");
-    fprintf(out, "<![CDATA[%s]]>", string);
+
+    char *string = NULL;
+    size_t string_size;
+    text_convert((char *)(contents + pemt->offString), pemt->nChars, &string,
+                 &string_size, type, states);
+    if (string != NULL) {
+        fprintf(out, "<![CDATA[%s]]>", string);
+        free(string);
+    } else {
+        fprintf(out, "<![CDATA[]]>");
+    }
     fprintf(out, "</%stext>\n", states->nameSpaceString);
-    free(string);
 }
 void transform_draw(drawingStates *states, FILE *out) {
     // transformation could be set inside path.
