@@ -58,11 +58,50 @@ void U_EMRALPHABLEND_draw(const char *contents, FILE *out,
     fprintf(out, "/>\n");
 }
 void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMRBITBLT_print(contents, states);
     }
-    // PU_EMRBITBLT pEmr = (PU_EMRBITBLT) (contents);
+    PU_EMRBITBLT pEmr = (PU_EMRBITBLT)(contents);
+
+    // FIXME
+    // if no bitmap, return now.
+    // Should fill the output with the current brush and the raster operation
+    // specified
+    if (pEmr->cbBitsSrc == 0) {
+        return;
+    }
+
+    // FIXME doesn't handle ternary raster operation
+
+    // check that the header is not outside of the emf file
+    returnOutOfEmf(contents + pEmr->offBmiSrc);
+    returnOutOfEmf(contents + pEmr->offBmiSrc + sizeof(U_BITMAPINFOHEADER));
+
+    // get the header
+    PU_BITMAPINFOHEADER BmiSrc =
+        (PU_BITMAPINFOHEADER)(contents + pEmr->offBmiSrc);
+
+    // check that the bitmap is not outside the emf file
+    returnOutOfEmf(contents + pEmr->offBitsSrc);
+    returnOutOfEmf(contents + pEmr->offBitsSrc + pEmr->cbBitsSrc);
+
+    const unsigned char *BmpSrc =
+        (const unsigned char *)(contents + pEmr->offBitsSrc);
+
+    POINT_D size =
+        point_cal(states, (double)BmiSrc->biHeight, (double)BmiSrc->biWidth);
+    POINT_D position =
+        point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
+    fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
+            size.x, size.y, position.x, position.y);
+
+    // float alpha = (float)pEmr->Blend.Global / 255.0;
+    // fprintf(out, " fill-opacity=\"%.4f\" ", alpha);
+
+    dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
+                   (size_t)pEmr->cbBitsSrc);
+    fprintf(out, "/>\n");
 }
 void U_EMRMASKBLT_draw(const char *contents, FILE *out, drawingStates *states) {
     FLAG_IGNORED;
@@ -88,11 +127,36 @@ void U_EMRSETDIBITSTODEVICE_draw(const char *contents, FILE *out,
 }
 void U_EMRSTRETCHBLT_draw(const char *contents, FILE *out,
                           drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMRSTRETCHBLT_print(contents, states);
     }
-    // PU_EMRSTRETCHBLT pEmr = (PU_EMRSTRETCHBLT) (contents);
+    PU_EMRSTRETCHBLT pEmr = (PU_EMRSTRETCHBLT)(contents);
+    // check that the header is not outside of the emf file
+    returnOutOfEmf(contents + pEmr->offBmiSrc);
+    returnOutOfEmf(contents + pEmr->offBmiSrc + sizeof(U_BITMAPINFOHEADER));
+
+    // get the header
+    PU_BITMAPINFOHEADER BmiSrc =
+        (PU_BITMAPINFOHEADER)(contents + pEmr->offBmiSrc);
+
+    // check that the bitmap is not outside the emf file
+    returnOutOfEmf(contents + pEmr->offBitsSrc);
+    returnOutOfEmf(contents + pEmr->offBitsSrc + pEmr->cbBitsSrc);
+
+    const unsigned char *BmpSrc =
+        (const unsigned char *)(contents + pEmr->offBitsSrc);
+
+    POINT_D size =
+        point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
+    POINT_D position =
+        point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
+    fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
+            size.x, size.y, position.x, position.y);
+
+    dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
+                   (size_t)pEmr->cbBitsSrc);
+    fprintf(out, "/>\n");
 }
 void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
                              drawingStates *states) {

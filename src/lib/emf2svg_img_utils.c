@@ -256,9 +256,8 @@ int e2s_get_DIB_params(PU_BITMAPINFO Bmi, const U_RGBQUAD **ct, uint32_t *numCt,
                                     from PPT*/
         *numCt = 0;
         *ct = NULL;
-        bic =
-            U_BI_RGB; /* there seems to be no difference, at least for the 32
-                         bit images */
+        bic = U_BI_RGB; /* there seems to be no difference, at least for the 32
+                           bit images */
     } else {
         *numCt = Bmih->biSizeImage;
         *ct = NULL;
