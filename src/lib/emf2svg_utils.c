@@ -55,8 +55,8 @@ void arc_circle_draw(const char *contents, FILE *out, drawingStates *states) {
     int large_arc_flag = 0;
     // FIXME calculate the real orientation
     if (states->currentDeviceContext.arcdir > 0) {
-        sweep_flag = 0;
-        large_arc_flag = 0;
+        sweep_flag = 1;
+        large_arc_flag = 1;
     } else {
         sweep_flag = 0;
         large_arc_flag = 0;
@@ -93,8 +93,8 @@ void arc_draw(const char *contents, FILE *out, drawingStates *states,
     int large_arc_flag = 0;
     // FIXME calculate the real orientation
     if (states->currentDeviceContext.arcdir > 0) {
-        sweep_flag = 0;
-        large_arc_flag = 0;
+        sweep_flag = 1;
+        large_arc_flag = 1;
     } else {
         sweep_flag = 0;
         large_arc_flag = 0;
