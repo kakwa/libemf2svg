@@ -16,4 +16,4 @@ language: cpp
 
 compiler: clang
 
-script: cmake . -DFORCELE=ON && make && ./tests/resources/check_correctness.sh  -r && ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
+script: cmake . -DFORCELE=ON && make && ./tests/resources/check_correctness.sh  -r -s && ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
