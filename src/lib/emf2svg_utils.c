@@ -741,38 +741,8 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
         break;
     }
 }
-void text_draw(const char *contents, FILE *out, drawingStates *states,
-               uint8_t type) {
-    PU_EMRTEXT pemt =
-        (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
-    returnOutOfEmf(pemt);
 
-    uint8_t *string;
-    size_t string_size;
-    if (type == UTF_16) {
-        returnOutOfEmf((uint64_t)contents + (uint64_t)pemt->offString +
-                       2 * (uint64_t)pemt->nChars);
-        string =
-            (uint8_t *)U_Utf16leToUtf8((uint16_t *)(contents + pemt->offString),
-                                       pemt->nChars, &string_size);
-    } else {
-        returnOutOfEmf((uint64_t)contents + (uint64_t)pemt->offString);
-        string = (uint8_t *)(contents + pemt->offString);
-    }
-    int i = 0;
-    while (string[i] != 0x0) {
-        if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
-            string[i] != 0x0B && string[i] != 0x09) {
-            string[i] = 0x20;
-        }
-        if (type == ASCII && string[i] > 0x7F) {
-            string[i] = 0x20;
-        }
-        i++;
-    }
-    fprintf(out, "<%stext ", states->nameSpaceString);
-    POINT_D Org = point_cal(states, (double)pemt->ptlReference.x,
-                            (double)pemt->ptlReference.y);
+void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
     double font_height = fabs((double)states->currentDeviceContext.font_height *
                               states->scalingY);
     if (states->currentDeviceContext.font_family != NULL)
@@ -838,12 +808,73 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
                 Org.y + font_height * 0.9);
     }
     fprintf(out, "font-size=\"%.4f\" ", font_height);
+}
+
+void char_to_utf16(char *in, size_t size_in, char **out) {
+    *out = calloc(size_in, 2);
+    for (int i = 0; i < size_in; i++) {
+        *out[i * 2 + 1] = in[i];
+    }
+}
+
+void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
+                  uint8_t type, bool short_text, drawingStates *states) {
+    uint8_t *string;
+    if (short_text && type == ASCII) {
+        char *tmp;
+        size_t tmps = 2 * size_in;
+        char_to_utf16(in, size_in, &tmp);
+        string = (uint8_t *)U_Utf16leToUtf8((uint16_t *)tmp, tmps, size_out);
+        free(tmp);
+    } else {
+        if (type == UTF_16) {
+            returnOutOfEmf((uint64_t)in + 2 * (uint64_t)size_in);
+            string =
+                (uint8_t *)U_Utf16leToUtf8((uint16_t *)in, size_in, size_out);
+        } else {
+            returnOutOfEmf((uint64_t)in + (uint64_t)size_in);
+            string = (uint8_t *)calloc(1, (size_in + 1));
+            strncpy(in, (char *)string, size_in);
+            *size_out = size_in;
+        }
+    }
+
+    int i = 0;
+    while (string[i] != 0x0) {
+        // Clean-up not printable ascii char like bells \r etc...
+        if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
+            string[i] != 0x0B && string[i] != 0x09) {
+            string[i] = 0x20;
+        }
+        // If it's specified as ascii, it must be ascii,
+        // so, replace any char > 127 with 0x20 (space)
+        if (type == ASCII && string[i] > 0x7F) {
+            string[i] = 0x20;
+        }
+        i++;
+    }
+    *out = (char *)string;
+}
+
+void text_draw(const char *contents, FILE *out, drawingStates *states,
+               uint8_t type) {
+    PU_EMRTEXT pemt =
+        (PU_EMRTEXT)(contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT));
+    returnOutOfEmf(pemt);
+
+    char *string;
+    size_t string_size;
+    text_convert((char *)(contents + pemt->offString), pemt->nChars, &string,
+                 &string_size, type, false, states);
+    fprintf(out, "<%stext ", states->nameSpaceString);
+    POINT_D Org = point_cal(states, (double)pemt->ptlReference.x,
+                            (double)pemt->ptlReference.y);
+
+    text_style_draw(out, states, Org);
     fprintf(out, ">");
     fprintf(out, "<![CDATA[%s]]>", string);
     fprintf(out, "</%stext>\n", states->nameSpaceString);
-    if (type == UTF_16) {
-        free(string);
-    }
+    free(string);
 }
 void transform_draw(drawingStates *states, FILE *out) {
     // transformation could be set inside path.
