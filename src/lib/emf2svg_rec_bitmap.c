@@ -86,15 +86,16 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     const unsigned char *BmpSrc =
         (const unsigned char *)(contents + pEmr->offBitsSrc);
 
-    char *b64Bmp = NULL;
-    size_t b64s;
-    char *tmp = NULL;
     POINT_D size =
         point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
     POINT_D position =
         point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
     fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
             size.x, size.y, position.x, position.y);
+
+    char *b64Bmp = NULL;
+    size_t b64s;
+    char *tmp = NULL;
 
     // Handle simple cases first, no treatment needed for them
     switch (BmiSrc->biCompression) {
