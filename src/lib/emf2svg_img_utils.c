@@ -227,6 +227,45 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
     return out_img;
 }
 
+int e2s_get_DIB_params(PU_BITMAPINFO Bmi, const U_RGBQUAD **ct, uint32_t *numCt,
+                       uint32_t *width, uint32_t *height, uint32_t *colortype,
+                       uint32_t *invert) {
+    uint32_t bic;
+    /* if biCompression is not U_BI_RGB some or all of the following might not
+     * hold real values */
+    PU_BITMAPINFOHEADER Bmih = &(Bmi->bmiHeader);
+    bic = Bmih->biCompression;
+    *width = Bmih->biWidth;
+    *colortype = Bmih->biBitCount;
+    if (Bmih->biHeight < 0) {
+        *height = -Bmih->biHeight;
+        *invert = 1;
+    } else {
+        *height = Bmih->biHeight;
+        *invert = 0;
+    }
+    if (bic == U_BI_RGB) {
+        *numCt = get_real_color_count((const char *)Bmih);
+        if (numCt) {
+            *ct = (PU_RGBQUAD)((char *)Bmi + sizeof(U_BITMAPINFOHEADER));
+        } else {
+            *ct = NULL;
+        }
+    } else if (bic ==
+               U_BI_BITFIELDS) { /* to date only encountered once, for 32 bit,
+                                    from PPT*/
+        *numCt = 0;
+        *ct = NULL;
+        bic =
+            U_BI_RGB; /* there seems to be no difference, at least for the 32
+                         bit images */
+    } else {
+        *numCt = Bmih->biSizeImage;
+        *ct = NULL;
+    }
+    return (bic);
+}
+
 RGBBitmap RGB4ToRGB8(RGBBitmap img) {
     FILE *stream;
     char *out;

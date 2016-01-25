@@ -21,7 +21,7 @@ extern "C" {
 
 void U_EMRALPHABLEND_draw(const char *contents, FILE *out,
                           drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMRALPHABLEND_print(contents, states);
     }
@@ -50,9 +50,11 @@ void U_EMRALPHABLEND_draw(const char *contents, FILE *out,
     fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
             size.x, size.y, position.x, position.y);
 
-    float alpha = (float)pEmr->Blend.Global / (float)0xFF;
+    float alpha = (float)pEmr->Blend.Global / 255.0;
     fprintf(out, " fill-opacity=\"%.4f\" ", alpha);
 
+    dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
+                   (size_t)pEmr->cbBitsSrc);
     fprintf(out, "/>\n");
 }
 void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
@@ -122,6 +124,21 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
             size.x, size.y, position.x, position.y);
 
+    dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
+                   (size_t)pEmr->cbBitsSrc);
+    fprintf(out, "/>\n");
+}
+void U_EMRTRANSPARENTBLT_draw(const char *contents, FILE *out,
+                              drawingStates *states) {
+    FLAG_IGNORED;
+    if (states->verbose) {
+        U_EMRTRANSPARENTBLT_print(contents, states);
+    }
+}
+
+void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
+                    PU_BITMAPINFOHEADER BmiSrc, const unsigned char *BmpSrc,
+                    size_t size) {
     char *b64Bmp = NULL;
     size_t b64s;
     char *tmp = NULL;
@@ -129,23 +146,23 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     // Handle simple cases first, no treatment needed for them
     switch (BmiSrc->biCompression) {
     case U_BI_JPEG:
-        b64Bmp = base64_encode(BmpSrc, pEmr->cbBitsSrc, &b64s);
+        b64Bmp = base64_encode(BmpSrc, size, &b64s);
         fprintf(out, "xlink:href=\"data:image/jpg;base64,");
         break;
     case U_BI_PNG:
-        b64Bmp = base64_encode(BmpSrc, pEmr->cbBitsSrc, &b64s);
+        b64Bmp = base64_encode(BmpSrc, size, &b64s);
         fprintf(out, "xlink:href=\"data:image/png;base64,");
         break;
     }
     if (b64Bmp != NULL) {
-        fprintf(out, "%s\" />\n", b64Bmp);
+        fprintf(out, "%s\" ", b64Bmp);
         free(b64Bmp);
         return;
     }
 
     // more complexe treatment, with conversion to png
     RGBBitmap convert_in;
-    convert_in.size = pEmr->cbBitsSrc;
+    convert_in.size = size;
     convert_in.width = BmiSrc->biWidth;
     convert_in.height = BmiSrc->biHeight;
     convert_in.pixels = (RGBPixel *)BmpSrc;
@@ -157,7 +174,6 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     const U_RGBQUAD *ct = NULL;
     uint32_t width, height, colortype, numCt, invert;
     char *rgba_px = NULL;
-    const char *px = NULL;
     int dibparams;
     char *in;
     size_t img_size;
@@ -184,9 +200,9 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
         img_size = convert_in.size;
     }
 
-    dibparams = get_DIB_params(pEmr, pEmr->offBitsSrc, pEmr->offBmiSrc, &px,
-                               (const U_RGBQUAD **)&ct, &numCt, &width, &height,
-                               &colortype, &invert);
+    dibparams =
+        e2s_get_DIB_params((PU_BITMAPINFO)BmiSrc, (const U_RGBQUAD **)&ct,
+                           &numCt, &width, &height, &colortype, &invert);
     // if enable to read header, then exit
     if (dibparams) {
         free(convert_out.pixels);
@@ -220,7 +236,7 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     free(rgba_px);
 
     if (b64Bmp != NULL) {
-        fprintf(out, "%s\" />\n", b64Bmp);
+        fprintf(out, "%s\" ", b64Bmp);
         free(b64Bmp);
     } else {
         // transparent 5x5 px png
@@ -228,14 +244,7 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
                      "LGPC/xhBQAAAAZiS0dEAP8A/wD/"
                      "oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+"
                      "ABFREtOJX7FAkAAAAIdEVYdENvbW1lbnQA9syWvwAAAAxJREFUCNdjYKA"
-                     "TAAAAaQABwB3y+AAAAABJRU5ErkJggg==\" />\n");
-    }
-}
-void U_EMRTRANSPARENTBLT_draw(const char *contents, FILE *out,
-                              drawingStates *states) {
-    FLAG_IGNORED;
-    if (states->verbose) {
-        U_EMRTRANSPARENTBLT_print(contents, states);
+                     "TAAAAaQABwB3y+AAAAABJRU5ErkJggg==\" ");
     }
 }
 

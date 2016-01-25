@@ -584,6 +584,10 @@ void U_EMRCREATECOLORSPACEW_draw(const char *contents, FILE *out,
                                  drawingStates *states);
 int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
                       size_t off, FILE *out, drawingStates *states);
+void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
+                    PU_BITMAPINFOHEADER BmiSrc, const unsigned char *BmpSrc,
+                    size_t size);
+
 //! \endcond
 
 #ifdef __cplusplus

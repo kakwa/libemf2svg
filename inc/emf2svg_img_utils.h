@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include "uemf.h"
 
 #define RLE_MARK 0x00
 #define RLE_EOL 0x00
@@ -56,3 +57,6 @@ float get_pixel_size(uint32_t colortype);
 RGBBitmap rle4ToRGB8(RGBBitmap img);
 RGBBitmap RGB4ToRGB8(RGBBitmap img);
 RGBBitmap rle8ToRGB8(RGBBitmap img);
+int e2s_get_DIB_params(PU_BITMAPINFO Bmi, const U_RGBQUAD **ct, uint32_t *numCt,
+                       uint32_t *width, uint32_t *height, uint32_t *colortype,
+                       uint32_t *invert);
