@@ -25,6 +25,35 @@ void U_EMRALPHABLEND_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRALPHABLEND_print(contents, states);
     }
+
+    PU_EMRALPHABLEND pEmr = (PU_EMRALPHABLEND)(contents);
+
+    // check that the header is not outside of the emf file
+    returnOutOfEmf(contents + pEmr->offBmiSrc);
+    returnOutOfEmf(contents + pEmr->offBmiSrc + sizeof(U_BITMAPINFOHEADER));
+
+    // get the header
+    PU_BITMAPINFOHEADER BmiSrc =
+        (PU_BITMAPINFOHEADER)(contents + pEmr->offBmiSrc);
+
+    // check that the bitmap is not outside the emf file
+    returnOutOfEmf(contents + pEmr->offBitsSrc);
+    returnOutOfEmf(contents + pEmr->offBitsSrc + pEmr->cbBitsSrc);
+
+    const unsigned char *BmpSrc =
+        (const unsigned char *)(contents + pEmr->offBitsSrc);
+
+    POINT_D size =
+        point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
+    POINT_D position =
+        point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
+    fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
+            size.x, size.y, position.x, position.y);
+
+    float alpha = (float)pEmr->Blend.Global / (float)0xFF;
+    fprintf(out, " fill-opacity=\"%.4f\" ", alpha);
+
+    fprintf(out, "/>\n");
 }
 void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
     FLAG_IGNORED;
