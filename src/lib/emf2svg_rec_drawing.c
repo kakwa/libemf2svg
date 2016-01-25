@@ -542,12 +542,39 @@ void U_EMRSETPIXELV_draw(const char *contents, FILE *out,
 }
 void U_EMRSMALLTEXTOUT_draw(const char *contents, FILE *out,
                             drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMRSMALLTEXTOUT_print(contents, states);
     }
-    // PU_EMRSMALLTEXTOUT pEmr = (PU_EMRSMALLTEXTOUT)(contents);
-    // text_draw(contents, out, states, UTF_16);
+
+    PU_EMRSMALLTEXTOUT pEmr = (PU_EMRSMALLTEXTOUT)(contents);
+    fprintf(out, "<%stext ", states->nameSpaceString);
+    POINT_D Org = point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
+
+    size_t roff = sizeof(U_EMRSMALLTEXTOUT);
+    if (!(pEmr->fuOptions & U_ETO_NO_RECT)) {
+        roff += sizeof(U_RECTL);
+    }
+
+    returnOutOfEmf(pEmr + roff + pEmr->cChars);
+    // FIXME, I gave up, it's directly taken from libUEMF/emf-inout.cpp, without
+    // understanding it...
+    uint32_t *dup_wt = NULL;
+    if (pEmr->fuOptions & U_ETO_SMALL_CHARS) {
+        dup_wt = U_Utf8ToUtf32le((char *)pEmr + roff, pEmr->cChars, NULL);
+    } else {
+        dup_wt = U_Utf16leToUtf32le((uint16_t *)((char *)pEmr + roff),
+                                    pEmr->cChars, NULL);
+    }
+    char *ansi_text;
+    ansi_text = (char *)U_Utf32leToUtf8((uint32_t *)dup_wt, 0, NULL);
+
+    free(dup_wt);
+    text_style_draw(out, states, Org);
+    fprintf(out, ">");
+    fprintf(out, "<![CDATA[%s]]>", ansi_text);
+    fprintf(out, "</%stext>\n", states->nameSpaceString);
+    free(ansi_text);
 }
 void U_EMRSTROKEANDFILLPATH_draw(const char *contents, FILE *out,
                                  drawingStates *states) {

@@ -587,7 +587,12 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
 void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
                     PU_BITMAPINFOHEADER BmiSrc, const unsigned char *BmpSrc,
                     size_t size);
-
+void text_style_draw(FILE *out, drawingStates *states, POINT_D Org);
+void char_to_utf16(char *in, size_t size_in, char **out);
+void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
+                  uint8_t type, drawingStates *states);
+void text_draw(const char *contents, FILE *out, drawingStates *states,
+               uint8_t type);
 //! \endcond
 
 #ifdef __cplusplus

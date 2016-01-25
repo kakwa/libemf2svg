@@ -810,33 +810,18 @@ void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
     fprintf(out, "font-size=\"%.4f\" ", font_height);
 }
 
-void char_to_utf16(char *in, size_t size_in, char **out) {
-    *out = calloc(size_in, 2);
-    for (int i = 0; i < size_in; i++) {
-        *out[i * 2 + 1] = in[i];
-    }
-}
-
 void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
-                  uint8_t type, bool short_text, drawingStates *states) {
+                  uint8_t type, drawingStates *states) {
     uint8_t *string;
-    if (short_text && type == ASCII) {
-        char *tmp;
-        size_t tmps = 2 * size_in;
-        char_to_utf16(in, size_in, &tmp);
-        string = (uint8_t *)U_Utf16leToUtf8((uint16_t *)tmp, tmps, size_out);
-        free(tmp);
+
+    if (type == UTF_16) {
+        returnOutOfEmf((uint64_t)in + 2 * (uint64_t)size_in);
+        string = (uint8_t *)U_Utf16leToUtf8((uint16_t *)in, size_in, size_out);
     } else {
-        if (type == UTF_16) {
-            returnOutOfEmf((uint64_t)in + 2 * (uint64_t)size_in);
-            string =
-                (uint8_t *)U_Utf16leToUtf8((uint16_t *)in, size_in, size_out);
-        } else {
-            returnOutOfEmf((uint64_t)in + (uint64_t)size_in);
-            string = (uint8_t *)calloc(1, (size_in + 1));
-            strncpy(in, (char *)string, size_in);
-            *size_out = size_in;
-        }
+        returnOutOfEmf((uint64_t)in + (uint64_t)size_in);
+        string = (uint8_t *)calloc(1, (size_in + 1));
+        strncpy((char *)string, in, size_in);
+        *size_out = size_in;
     }
 
     int i = 0;
@@ -865,7 +850,7 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
     char *string;
     size_t string_size;
     text_convert((char *)(contents + pemt->offString), pemt->nChars, &string,
-                 &string_size, type, false, states);
+                 &string_size, type, states);
     fprintf(out, "<%stext ", states->nameSpaceString);
     POINT_D Org = point_cal(states, (double)pemt->ptlReference.x,
                             (double)pemt->ptlReference.y);
