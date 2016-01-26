@@ -28,14 +28,6 @@ void U_EMRBEGINPATH_draw(const char *contents, FILE *out,
         states->Error = true;
         return;
     }
-    uint32_t clipOffset = stack->pathStruct.clipOffset;
-    if (clipOffset != 0) {
-        // int id = get_id(states);
-        // fprintf(out, "<%sclipPath id=\"clip-%d\">\n",
-        // states->nameSpaceString, id);
-        // states->clipId = id;
-        states->inClip = true;
-    }
     if (stack->pathStruct.wtBeforeSet) {
         if (stack->pathStruct.wtBeforeiMode) {
             bool draw = transform_set(states, stack->pathStruct.wtBeforexForm,
@@ -69,7 +61,6 @@ void U_EMRENDPATH_draw(const char *contents, FILE *out, drawingStates *states) {
     uint32_t fillOffset = stack->pathStruct.fillOffset;
     uint32_t strokeOffset = stack->pathStruct.strokeOffset;
     uint32_t strokeFillOffset = stack->pathStruct.strokeFillOffset;
-    uint32_t clipOffset = stack->pathStruct.clipOffset;
     if (fillOffset != 0)
         fill_draw(states, out, &filled, &stroked);
     if (strokeOffset != 0)
@@ -95,10 +86,6 @@ void U_EMRENDPATH_draw(const char *contents, FILE *out, drawingStates *states) {
                 stack->pathStruct.wtAfterxForm;
             transform_draw(states, out);
         }
-    }
-    if (clipOffset != 0) {
-        // fprintf(out, "</%sclipPath>\n", states->nameSpaceString);
-        states->clipSet = true;
     }
     states->emfStructure.pathStack = stack->next;
     free(stack);

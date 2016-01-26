@@ -52,6 +52,7 @@ void U_EMRALPHABLEND_draw(const char *contents, FILE *out,
 
     float alpha = (float)pEmr->Blend.Global / 255.0;
     fprintf(out, " fill-opacity=\"%.4f\" ", alpha);
+    clipset_draw(states, out);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
                    (size_t)pEmr->cbBitsSrc);
@@ -95,6 +96,7 @@ void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
         point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
     fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
             size.x, size.y, position.x, position.y);
+    clipset_draw(states, out);
 
     // float alpha = (float)pEmr->Blend.Global / 255.0;
     // fprintf(out, " fill-opacity=\"%.4f\" ", alpha);
@@ -153,6 +155,7 @@ void U_EMRSTRETCHBLT_draw(const char *contents, FILE *out,
         point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
     fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
             size.x, size.y, position.x, position.y);
+    clipset_draw(states, out);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
                    (size_t)pEmr->cbBitsSrc);
@@ -187,6 +190,7 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
         point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
     fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
             size.x, size.y, position.x, position.y);
+    clipset_draw(states, out);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
                    (size_t)pEmr->cbBitsSrc);

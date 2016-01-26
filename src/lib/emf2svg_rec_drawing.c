@@ -77,6 +77,7 @@ void U_EMRELLIPSE_draw(const char *contents, FILE *out, drawingStates *states) {
     bool stroked = false;
     fill_draw(states, out, &filled, &stroked);
     stroke_draw(states, out, &filled, &stroked);
+    clipset_draw(states, out);
     if (!filled)
         fprintf(out, "fill=\"none\" ");
     if (!stroked)
@@ -217,8 +218,7 @@ void U_EMRPOLYGON_draw(const char *contents, FILE *out, drawingStates *states) {
         localPath = true;
         states->inPath = true;
         fprintf(out, "<%spath ", states->nameSpaceString);
-        if (states->clipSet)
-            fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+        clipset_draw(states, out);
         fprintf(out, "d=\"");
     }
     bool ispolygon = true;
@@ -250,8 +250,7 @@ void U_EMRPOLYGON16_draw(const char *contents, FILE *out,
         localPath = true;
         states->inPath = true;
         fprintf(out, "<%spath ", states->nameSpaceString);
-        if (states->clipSet)
-            fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+        clipset_draw(states, out);
         fprintf(out, "d=\"");
     }
     bool ispolygon = true;
@@ -283,8 +282,7 @@ void U_EMRPOLYLINE_draw(const char *contents, FILE *out,
         localPath = true;
         states->inPath = true;
         fprintf(out, "<%spath ", states->nameSpaceString);
-        if (states->clipSet)
-            fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+        clipset_draw(states, out);
         fprintf(out, "d=\"");
     }
     bool ispolygon = true;
@@ -311,8 +309,7 @@ void U_EMRPOLYLINE16_draw(const char *contents, FILE *out,
         localPath = true;
         states->inPath = true;
         fprintf(out, "<%spath ", states->nameSpaceString);
-        if (states->clipSet)
-            fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+        clipset_draw(states, out);
         fprintf(out, "d=\"");
     }
     bool ispolygon = true;
@@ -362,7 +359,9 @@ void U_EMRPOLYPOLYGON_draw(const char *contents, FILE *out,
     if (!states->inPath) {
         localPath = true;
         states->inPath = true;
-        fprintf(out, "<%spath d=\"", states->nameSpaceString);
+        fprintf(out, "<%spath ", states->nameSpaceString);
+        clipset_draw(states, out);
+        fprintf(out, "d=\"");
     }
     bool ispolygon = true;
     polypolygon_draw("U_EMRPOLYPOLYGON", contents, out, states, ispolygon);
@@ -392,7 +391,9 @@ void U_EMRPOLYPOLYGON16_draw(const char *contents, FILE *out,
     if (!states->inPath) {
         localPath = true;
         states->inPath = true;
-        fprintf(out, "<%spath d=\"", states->nameSpaceString);
+        fprintf(out, "<%spath ", states->nameSpaceString);
+        clipset_draw(states, out);
+        fprintf(out, "d=\"");
     }
     bool ispolygon = true;
     polypolygon16_draw("U_EMRPOLYPOLYGON16", contents, out, states, ispolygon);
@@ -423,8 +424,7 @@ void U_EMRPOLYPOLYLINE_draw(const char *contents, FILE *out,
         localPath = true;
         states->inPath = true;
         fprintf(out, "<%spath ", states->nameSpaceString);
-        if (states->clipSet)
-            fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+        clipset_draw(states, out);
         fprintf(out, "d=\"");
     }
     polypolygon_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
@@ -454,8 +454,7 @@ void U_EMRPOLYPOLYLINE16_draw(const char *contents, FILE *out,
         localPath = true;
         states->inPath = true;
         fprintf(out, "<%spath ", states->nameSpaceString);
-        if (states->clipSet)
-            fprintf(out, " clip-path=\"url(#clip-%d)\" ", states->clipId);
+        clipset_draw(states, out);
         fprintf(out, "d=\"");
     }
     polypolygon16_draw("U_EMRPOLYPOLYGON16", contents, out, states, false);
@@ -495,6 +494,7 @@ void U_EMRRECTANGLE_draw(const char *contents, FILE *out,
     bool stroked = false;
     fill_draw(states, out, &filled, &stroked);
     stroke_draw(states, out, &filled, &stroked);
+    clipset_draw(states, out);
     if (!filled)
         fprintf(out, "fill=\"none\" ");
     if (!stroked)
@@ -526,6 +526,7 @@ void U_EMRROUNDRECT_draw(const char *contents, FILE *out,
     bool stroked = false;
     fill_draw(states, out, &filled, &stroked);
     stroke_draw(states, out, &filled, &stroked);
+    clipset_draw(states, out);
     if (!filled)
         fprintf(out, "fill=\"none\" ");
     if (!stroked)
@@ -549,6 +550,7 @@ void U_EMRSMALLTEXTOUT_draw(const char *contents, FILE *out,
 
     PU_EMRSMALLTEXTOUT pEmr = (PU_EMRSMALLTEXTOUT)(contents);
     fprintf(out, "<%stext ", states->nameSpaceString);
+    clipset_draw(states, out);
     POINT_D Org = point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
 
     size_t roff = sizeof(U_EMRSMALLTEXTOUT);

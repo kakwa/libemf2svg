@@ -228,6 +228,7 @@ void endFormDraw(drawingStates *states, FILE *out) {
         bool stroked;
         stroke_draw(states, out, &filled, &stroked);
         fill_draw(states, out, &filled, &stroked);
+        clipset_draw(states, out);
         if (!filled)
             fprintf(out, "fill=\"none\" ");
         if (!stroked)
@@ -241,6 +242,7 @@ void endPathDraw(drawingStates *states, FILE *out) {
         bool filled;
         bool stroked;
         stroke_draw(states, out, &filled, &stroked);
+        clipset_draw(states, out);
         fprintf(out, " fill=\"none\" />\n");
     }
 }
@@ -603,7 +605,9 @@ void setTransformIdentity(drawingStates *states) {
 }
 void startPathDraw(drawingStates *states, FILE *out) {
     if (!(states->inPath)) {
-        fprintf(out, "<%spath d=\"M ", states->nameSpaceString);
+        fprintf(out, "<%spath ", states->nameSpaceString);
+        clipset_draw(states, out);
+        fprintf(out, "d=\"M ");
         U_POINT pt;
         pt.x = states->cur_x;
         pt.y = states->cur_y;
@@ -801,6 +805,7 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
     returnOutOfEmf(pemt);
 
     fprintf(out, "<%stext ", states->nameSpaceString);
+    clipset_draw(states, out);
     POINT_D Org = point_cal(states, (double)pemt->ptlReference.x,
                             (double)pemt->ptlReference.y);
 
@@ -994,6 +999,12 @@ char *base64_encode(const unsigned char *data, size_t input_length,
         encoded_data[*output_length - 1 - i] = '=';
 
     return encoded_data;
+}
+
+void clipset_draw(drawingStates *states, FILE *out) {
+    int clipID = states->currentDeviceContext.clipID;
+    if (clipID)
+        fprintf(out, " clip-path=\"url(#clip-%d)\" ", clipID);
 }
 
 #ifdef __cplusplus

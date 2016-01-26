@@ -23,7 +23,7 @@ void U_EMREXCLUDECLIPRECT_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMREXCLUDECLIPRECT_print(contents, states);
     }
-    //PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
+    // PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
 }
 void U_EMREXTSELECTCLIPRGN_draw(const char *contents, FILE *out,
                                 drawingStates *states) {

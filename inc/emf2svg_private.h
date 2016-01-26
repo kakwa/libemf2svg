@@ -186,8 +186,8 @@ typedef struct emf_device_context {
 
     // clipping structures
     PATH *clipRGN;
-    int  currentClipID;
-    PATH *currentPath;
+    // if set to zero, clip is not set
+    int clipID;
 } EMF_DEVICE_CONTEXT, *PEMF_DEVICE_CONTEXT;
 
 // Stack of EMF Device Contexts
@@ -285,9 +285,7 @@ typedef struct {
     // used to associate records together
     // for example, associate path and pathfill/pathstroke/clipping
     emfStruct emfStructure;
-    bool clipSet;
-    bool inClip;
-    int clipId;
+    PATH *currentPath;
 } drawingStates;
 
 #define U_MWT_SET 4 //!< Transform is basic SET
@@ -594,6 +592,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
                   uint8_t type, drawingStates *states);
 void text_draw(const char *contents, FILE *out, drawingStates *states,
                uint8_t type);
+void clipset_draw(drawingStates *states, FILE *out);
 //! \endcond
 
 #ifdef __cplusplus
