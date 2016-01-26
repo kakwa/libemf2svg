@@ -236,7 +236,7 @@ void U_EMRPOLYGON_draw(const char *contents, FILE *out, drawingStates *states) {
         if (!stroked)
             fprintf(out, "stroke=\"none\" ");
 
-        fprintf(out, "/><!-- shit -->\n");
+        fprintf(out, "/>\n");
     }
 }
 void U_EMRPOLYGON16_draw(const char *contents, FILE *out,
@@ -269,7 +269,7 @@ void U_EMRPOLYGON16_draw(const char *contents, FILE *out,
         if (!stroked)
             fprintf(out, "stroke=\"none\" ");
 
-        fprintf(out, "/><!-- shit -->\n");
+        fprintf(out, "/>\n");
     }
 }
 void U_EMRPOLYLINE_draw(const char *contents, FILE *out,
