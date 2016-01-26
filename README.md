@@ -140,9 +140,9 @@ EMF RECORDS:
 |   Status  | Count | Percent |
 |:---------:|:-----:|:-------:|
 | Supported |   30  | [  28%] |
-| Partial   |   26  | [  24%] |
+| Partial   |   31  | [  29%] |
 | Unused    |    2  | [   1%] |
-| Ignored   |   47  | [  44%] |
+| Ignored   |   42  | [  40%] |
 | Total     |  105  |         |
 
 EMF+ RECORDS:
@@ -154,7 +154,6 @@ EMF+ RECORDS:
 | Unused    |    0  | [   0%] |
 | Ignored   |   85  | [ 100%] |
 | Total     |   85  |         |
-
 
 Development
 -----------
@@ -228,4 +227,10 @@ $ cmake -DDEBUG=ON . &&\
     make &&\
     "./tests/resources/check_correctness.sh" -sxN \
     -e "./tests/resources/emf-corrupted/"
+```
+
+To print records index in svg as comments:
+
+```bash
+$ cmake -DINDEX=ON . && make
 ```
