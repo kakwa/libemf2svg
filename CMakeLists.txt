@@ -183,13 +183,20 @@ set_target_properties(emf2svg
 
 # Compile the executable
 add_executable(emf2svg-conv src/conv/emf2svg.cpp)
-target_link_libraries(emf2svg-conv 
-    emf2svg 
+target_link_libraries(emf2svg
     png
     ${LIBICONVLIB}
     ${MEMSTREAMLIB}
     ${ARGPLIB}
 ) 
+
+
+target_link_libraries(emf2svg-conv
+    emf2svg
+    ${LIBICONVLIB}
+    ${MEMSTREAMLIB}
+    ${ARGPLIB}
+)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
