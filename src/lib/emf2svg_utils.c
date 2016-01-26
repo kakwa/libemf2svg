@@ -37,16 +37,7 @@ double _dsign(double v) {
     else
         return -1;
 }
-void addFormToStack(drawingStates *states) {
-    formStack *newForm = calloc(1, sizeof(formStack));
-    FILE *NewFormStream = open_memstream(&newForm->form, &newForm->len);
-    if (NewFormStream == NULL) {
-        return;
-    }
-    newForm->formStream = NewFormStream;
-    newForm->prev = states->currentDeviceContext.clipStack;
-    states->currentDeviceContext.clipStack = newForm;
-}
+
 void arc_circle_draw(const char *contents, FILE *out, drawingStates *states) {
     PU_EMRANGLEARC pEmr = (PU_EMRANGLEARC)(contents);
     startPathDraw(states, out);
@@ -175,34 +166,6 @@ void copyDeviceContext(EMF_DEVICE_CONTEXT *dest, EMF_DEVICE_CONTEXT *src) {
             (char *)calloc(strlen(src->font_family) + 1, sizeof(char));
         strcpy(dest->font_family, src->font_family);
     }
-    dest->clipStack = cpFormStack(src->clipStack);
-}
-formStack *cpFormStack(formStack *stack) {
-    if (stack == NULL)
-        return NULL;
-    formStack *ret = calloc(1, sizeof(formStack));
-    FILE *NewFormStream = open_memstream(&ret->form, &ret->len);
-    ret->formStream = NewFormStream;
-    ret->drawn = stack->drawn;
-    ret->id = stack->id;
-    if (stack->len != 0)
-        fprintf(ret->formStream, "%s", stack->form);
-
-    formStack *cur = ret;
-    stack = stack->prev;
-    while (stack != NULL) {
-        formStack *new = calloc(1, sizeof(formStack));
-        FILE *NewFormStream = open_memstream(&new->form, &new->len);
-        new->formStream = NewFormStream;
-        new->drawn = stack->drawn;
-        new->id = stack->id;
-        if (stack->len != 0)
-            fprintf(new->formStream, "%s", stack->form);
-        stack = stack->prev;
-        cur->prev = new;
-        cur = new;
-    }
-    return ret;
 }
 void cubic_bezier16_draw(const char *name, const char *contents, FILE *out,
                          drawingStates *states, int startingPoint) {
@@ -336,7 +299,6 @@ void freeDeviceContext(EMF_DEVICE_CONTEXT *dc) {
             free(dc->font_name);
         if (dc->font_family != NULL)
             free(dc->font_family);
-        freeFormStack(dc->clipStack);
     }
 }
 void freeDeviceContextStack(drawingStates *states) {
@@ -347,16 +309,6 @@ void freeDeviceContextStack(drawingStates *states) {
         free(stack_entry);
         stack_entry = next_entry;
     }
-}
-void freeFormStack(formStack *stack) {
-    while (stack != NULL) {
-        fclose(stack->formStream);
-        free(stack->form);
-        formStack *tmp = stack;
-        stack = stack->prev;
-        free(tmp);
-    }
-    return;
 }
 void freeObject(drawingStates *states, uint16_t index) {
     if (states->objectTable[index].font_name != NULL)

@@ -23,12 +23,7 @@ void U_EMREXCLUDECLIPRECT_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMREXCLUDECLIPRECT_print(contents, states);
     }
-    addFormToStack(states);
-    PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
-    FILE *stream = states->currentDeviceContext.clipStack->formStream;
-    fprintf(stream, "<%spath d\"", states->nameSpaceString);
-    rectl_draw(states, stream, pEmr->rclBox);
-    fprintf(stream, "fill=\"none\" draw=\"none\" />\n");
+    //PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
 }
 void U_EMREXTSELECTCLIPRGN_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
@@ -44,13 +39,6 @@ void U_EMRINTERSECTCLIPRECT_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRINTERSECTCLIPRECT_print(contents, states);
     }
-    addFormToStack(states);
-    PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
-    FILE *stream = states->currentDeviceContext.clipStack->formStream;
-    fprintf(stream, "<%spath d\"", states->nameSpaceString);
-
-    rectl_draw(states, stream, pEmr->rclBox);
-    fprintf(stream, "fill=\"none\" draw=\"none\" fill-rule=\"evenodd\" />\n");
 }
 void U_EMROFFSETCLIPRGN_draw(const char *contents, FILE *out,
                              drawingStates *states) {

@@ -56,6 +56,21 @@ extern "C" {
 #define ARC_PIE 1
 #define ARC_CHORD 2
 
+typedef struct {
+    double x;
+    double y;
+} POINT_D;
+
+typedef struct _PATH_SECTION {
+    uint8_t type;
+    POINT_D *points;
+} PATH_SECTION;
+
+typedef struct _PATH {
+    PATH_SECTION section;
+    struct _PATH *next;
+} PATH;
+
 typedef struct emf_graph_object {
     bool font_set;
     char *font_name;
@@ -108,15 +123,6 @@ typedef struct emf_graph_object {
     uint16_t bk_mode;
 
 } emfGraphObject;
-
-typedef struct formstack {
-    FILE *formStream;
-    size_t len;
-    char *form;
-    struct formstack *prev;
-    bool drawn;
-    uint32_t id;
-} formStack;
 
 // EMF Device Context structure
 typedef struct emf_device_context {
@@ -179,7 +185,9 @@ typedef struct emf_device_context {
     U_XFORM worldTransform;
 
     // clipping structures
-    formStack *clipStack;
+    PATH *clipRGN;
+    int  currentClipID;
+    PATH *currentPath;
 } EMF_DEVICE_CONTEXT, *PEMF_DEVICE_CONTEXT;
 
 // Stack of EMF Device Contexts
@@ -213,11 +221,6 @@ typedef struct {
     pathStack *pathStack;
     struct pathstack *pathStackLast;
 } emfStruct;
-
-typedef struct {
-    double x;
-    double y;
-} POINT_D;
 
 // structure recording drawing states
 typedef struct {
@@ -374,8 +377,6 @@ void endFormDraw(drawingStates *states, FILE *out);
 void color_stroke(drawingStates *states, FILE *out);
 void width_stroke(drawingStates *states, FILE *out, double width);
 void freeObject(drawingStates *states, uint16_t index);
-formStack *cpFormStack(formStack *stack);
-void freeFormStack(formStack *stack);
 void cubic_bezier16_draw(const char *name, const char *contents, FILE *out,
                          drawingStates *states, int startingPoint);
 void polyline_draw(const char *name, const char *contents, FILE *out,
