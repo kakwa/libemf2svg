@@ -1002,10 +1002,10 @@ char *base64_encode(const unsigned char *data, size_t input_length,
     return encoded_data;
 }
 
-void free_path(PATH *path){
+void free_path(PATH *path) {
     PATH *tmp1 = path;
     PATH *tmp2 = path;
-    while(tmp1 != NULL){
+    while (tmp1 != NULL) {
         tmp1 = tmp1->next;
         free(tmp2->section.points);
         free(tmp2);
@@ -1013,10 +1013,10 @@ void free_path(PATH *path){
     }
 }
 
-void add_new_seg(PATH **path, uint8_t type){
-    PATH * new_path = calloc(1, sizeof(PATH));
+void add_new_seg(PATH **path, uint8_t type) {
+    PATH *new_path = calloc(1, sizeof(PATH));
     POINT_D *new_seg;
-    switch(type){
+    switch (type) {
     case SEG_MOVE:
         new_seg = calloc(1, sizeof(POINT_D));
         break;
@@ -1032,7 +1032,11 @@ void add_new_seg(PATH **path, uint8_t type){
     }
     new_path->section.points = new_seg;
     new_path->section.type = type;
-    new_path->first = (*path)->first;
+    if ((*path)->first != NULL) {
+        new_path->first = (*path)->first;
+    } else {
+        new_path->first = new_path;
+    }
     path = &new_path;
 }
 

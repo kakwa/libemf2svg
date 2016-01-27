@@ -56,9 +56,9 @@ extern "C" {
 #define ARC_PIE 1
 #define ARC_CHORD 2
 
-#define SEG_MOVE   0
-#define SEG_LINE   1
-#define SEG_ARC    2
+#define SEG_MOVE 0
+#define SEG_LINE 1
+#define SEG_ARC 2
 #define SEG_BEZIER 3
 
 typedef struct {
@@ -600,6 +600,7 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
                uint8_t type);
 void clipset_draw(drawingStates *states, FILE *out);
 void free_path(PATH *path);
+void add_new_seg(PATH **path, uint8_t type);
 //! \endcond
 
 #ifdef __cplusplus
