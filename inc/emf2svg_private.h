@@ -598,6 +598,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
 void text_draw(const char *contents, FILE *out, drawingStates *states,
                uint8_t type);
 void clipset_draw(drawingStates *states, FILE *out);
+void free_path(PATH *path);
 //! \endcond
 
 #ifdef __cplusplus

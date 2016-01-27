@@ -1001,6 +1001,17 @@ char *base64_encode(const unsigned char *data, size_t input_length,
     return encoded_data;
 }
 
+void free_path(PATH *path){
+    PATH *tmp1 = path;
+    PATH *tmp2 = path;
+    while(tmp1 != NULL){
+        tmp1 = tmp1->next;
+        free(tmp2->section.points);
+        free(tmp2);
+        tmp2 = tmp1;
+    }
+}
+
 void clipset_draw(drawingStates *states, FILE *out) {
     int clipID = states->currentDeviceContext.clipID;
     if (clipID)
