@@ -301,6 +301,7 @@ void freeDeviceContext(EMF_DEVICE_CONTEXT *dc) {
             free(dc->font_name);
         if (dc->font_family != NULL)
             free(dc->font_family);
+        free_path(dc->clipRGN);
     }
 }
 void freeDeviceContextStack(drawingStates *states) {
