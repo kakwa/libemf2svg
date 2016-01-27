@@ -73,6 +73,12 @@ void arc_circle_draw(const char *contents, FILE *out, drawingStates *states) {
     end.x = pEmr->nRadius * cos(angle) + pEmr->ptlCenter.x;
     end.y = pEmr->nRadius * sin(angle) + pEmr->ptlCenter.y;
     point_draw_d(states, end, out);
+    if ( states->inPath ) {
+        add_new_seg(&(states->currentPath), SEG_ARC);
+        states->currentPath->section.points[0] = start;
+        states->currentPath->section.points[1] = point_s(states, radii);
+        states->currentPath->section.points[2] = end;
+    }
     endPathDraw(states, out);
 }
 void arc_draw(const char *contents, FILE *out, drawingStates *states,
@@ -123,6 +129,12 @@ void arc_draw(const char *contents, FILE *out, drawingStates *states,
     default:
         endPathDraw(states, out);
         break;
+    }
+    if ( states->inPath ) {
+        add_new_seg(&(states->currentPath), SEG_ARC);
+        states->currentPath->section.points[0] = start;
+        states->currentPath->section.points[1] = point_s(states, radii);
+        states->currentPath->section.points[2] = end;
     }
 }
 void basic_stroke(drawingStates *states, FILE *out) {
@@ -436,6 +448,21 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
     ret.y = states->offsetY + ((double)y * (double)states->scalingY);
     return ret;
 }
+
+POINT_D point_s(drawingStates *states, U_POINT pt){
+    POINT_D ret;
+    ret.x = states->offsetX + ((double)pt.x * (double)states->scalingX);
+    ret.y = states->offsetY + ((double)pt.y * (double)states->scalingY);
+    return ret;
+}
+
+POINT_D point_s16(drawingStates *states, U_POINT16 pt){
+    POINT_D ret;
+    ret.x = states->offsetX + ((double)pt.x * (double)states->scalingX);
+    ret.y = states->offsetY + ((double)pt.y * (double)states->scalingY);
+    return ret;
+}
+
 void point_draw(drawingStates *states, U_POINT pt, FILE *out) {
     POINT_D ptd = point_cal(states, (double)pt.x, (double)pt.y);
     states->cur_x = pt.x;

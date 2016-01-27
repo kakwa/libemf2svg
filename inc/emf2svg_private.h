@@ -601,6 +601,8 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
 void clipset_draw(drawingStates *states, FILE *out);
 void free_path(PATH *path);
 void add_new_seg(PATH **path, uint8_t type);
+POINT_D point_s(drawingStates *states, U_POINT pt);
+POINT_D point_s16(drawingStates *states, U_POINT16 pt);
 //! \endcond
 
 #ifdef __cplusplus
