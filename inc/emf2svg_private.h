@@ -73,6 +73,7 @@ typedef struct _PATH_SECTION {
 
 typedef struct _PATH {
     PATH_SECTION section;
+    struct _PATH *first;
     struct _PATH *next;
 } PATH;
 
