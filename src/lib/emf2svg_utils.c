@@ -1012,6 +1012,29 @@ void free_path(PATH *path){
     }
 }
 
+void add_new_seg(PATH **path, uint8_t type){
+    PATH * new_path = calloc(1, sizeof(PATH));
+    POINT_D *new_seg;
+    switch(type){
+    case SEG_MOVE:
+        new_seg = calloc(1, sizeof(POINT_D));
+        break;
+    case SEG_LINE:
+        new_seg = calloc(2, sizeof(POINT_D));
+        break;
+    case SEG_ARC:
+        new_seg = calloc(3, sizeof(POINT_D));
+        break;
+    case SEG_BEZIER:
+        new_seg = calloc(4, sizeof(POINT_D));
+        break;
+    }
+    new_path->section.points = new_seg;
+    new_path->section.type = type;
+    new_path->first = (*path)->first;
+    path = &new_path;
+}
+
 void clipset_draw(drawingStates *states, FILE *out) {
     int clipID = states->currentDeviceContext.clipID;
     if (clipID)
