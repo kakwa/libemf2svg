@@ -73,12 +73,11 @@ void arc_circle_draw(const char *contents, FILE *out, drawingStates *states) {
     end.x = pEmr->nRadius * cos(angle) + pEmr->ptlCenter.x;
     end.y = pEmr->nRadius * sin(angle) + pEmr->ptlCenter.y;
     point_draw_d(states, end, out);
-    if ( states->inPath ) {
-        add_new_seg(&(states->currentPath), SEG_ARC);
-        states->currentPath->section.points[0] = start;
-        states->currentPath->section.points[1] = point_s(states, radii);
-        states->currentPath->section.points[2] = end;
-    }
+
+    addNewSegPath(states, SEG_ARC);
+    pointCurrPathAddD(states, start, 0);
+    pointCurrPathAdd(states, radii, 1);
+    pointCurrPathAddD(states, end, 2);
     endPathDraw(states, out);
 }
 void arc_draw(const char *contents, FILE *out, drawingStates *states,
@@ -130,12 +129,10 @@ void arc_draw(const char *contents, FILE *out, drawingStates *states,
         endPathDraw(states, out);
         break;
     }
-    if ( states->inPath ) {
-        add_new_seg(&(states->currentPath), SEG_ARC);
-        states->currentPath->section.points[0] = start;
-        states->currentPath->section.points[1] = point_s(states, radii);
-        states->currentPath->section.points[2] = end;
-    }
+    addNewSegPath(states, SEG_ARC);
+    pointCurrPathAddD(states, start, 0);
+    pointCurrPathAdd(states, radii, 1);
+    pointCurrPathAddD(states, end, 2);
 }
 void basic_stroke(drawingStates *states, FILE *out) {
     color_stroke(states, out);
@@ -190,18 +187,29 @@ void cubic_bezier16_draw(const char *name, const char *contents, FILE *out,
     if (startingPoint == 1) {
         fprintf(out, "M ");
         point16_draw(states, papts[0], out);
+        addNewSegPath(states, SEG_MOVE);
+        pointCurrPathAdd16(states, papts[0], 0);
     }
     const int ctrl1 = (0 + startingPoint) % 3;
     const int ctrl2 = (1 + startingPoint) % 3;
     const int to = (2 + startingPoint) % 3;
+    int index = 0;
     for (i = startingPoint; i < pEmr->cpts; i++) {
         if ((i % 3) == ctrl1) {
+            index = 0;
+            addNewSegPath(states, SEG_BEZIER);
+            pointCurrPathAdd16(states, papts[i], index);
+            index++;
             fprintf(out, "C ");
             point16_draw(states, papts[i], out);
         } else if ((i % 3) == ctrl2) {
             point16_draw(states, papts[i], out);
+            pointCurrPathAdd16(states, papts[i], index);
+            index++;
         } else if ((i % 3) == to) {
             point16_draw(states, papts[i], out);
+            pointCurrPathAdd16(states, papts[i], index);
+            index++;
         }
     }
     endPathDraw(states, out);
@@ -217,18 +225,29 @@ void cubic_bezier_draw(const char *name, const char *contents, FILE *out,
     if (startingPoint == 1) {
         fprintf(out, "M ");
         point_draw(states, papts[0], out);
+        addNewSegPath(states, SEG_MOVE);
+        pointCurrPathAdd(states, papts[0], 0);
     }
     const int ctrl1 = (0 + startingPoint) % 3;
     const int ctrl2 = (1 + startingPoint) % 3;
     const int to = (2 + startingPoint) % 3;
+    int index = 0;
     for (i = startingPoint; i < pEmr->cptl; i++) {
         if ((i % 3) == ctrl1) {
+            index = 0;
+            addNewSegPath(states, SEG_BEZIER);
+            pointCurrPathAdd(states, papts[i], index);
+            index++;
             fprintf(out, "C ");
             point_draw(states, papts[i], out);
         } else if ((i % 3) == ctrl2) {
             point_draw(states, papts[i], out);
+            pointCurrPathAdd(states, papts[i], index);
+            index++;
         } else if ((i % 3) == to) {
             point_draw(states, papts[i], out);
+            pointCurrPathAdd(states, papts[i], index);
+            index++;
         }
     }
     endPathDraw(states, out);
@@ -313,7 +332,7 @@ void freeDeviceContext(EMF_DEVICE_CONTEXT *dc) {
             free(dc->font_name);
         if (dc->font_family != NULL)
             free(dc->font_family);
-        free_path(dc->clipRGN);
+        // free_path(dc->clipRGN);
     }
 }
 void freeDeviceContextStack(drawingStates *states) {
@@ -449,14 +468,14 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
     return ret;
 }
 
-POINT_D point_s(drawingStates *states, U_POINT pt){
+POINT_D point_s(drawingStates *states, U_POINT pt) {
     POINT_D ret;
     ret.x = states->offsetX + ((double)pt.x * (double)states->scalingX);
     ret.y = states->offsetY + ((double)pt.y * (double)states->scalingY);
     return ret;
 }
 
-POINT_D point_s16(drawingStates *states, U_POINT16 pt){
+POINT_D point_s16(drawingStates *states, U_POINT16 pt) {
     POINT_D ret;
     ret.x = states->offsetX + ((double)pt.x * (double)states->scalingX);
     ret.y = states->offsetY + ((double)pt.y * (double)states->scalingY);
@@ -1029,9 +1048,41 @@ char *base64_encode(const unsigned char *data, size_t input_length,
     return encoded_data;
 }
 
+void pointCurrPathAdd16(drawingStates *states, U_POINT16 pt, int index) {
+    if (states->inPath) {
+        states->currentPath->section.points[index] = point_s16(states, pt);
+    }
+}
+
+void pointCurrPathAdd(drawingStates *states, U_POINT pt, int index) {
+    if (states->inPath) {
+        states->currentPath->section.points[index] = point_s(states, pt);
+    }
+}
+
+void pointCurrPathAddD(drawingStates *states, POINT_D pt, int index) {
+    if (states->inPath) {
+        states->currentPath->section.points[index] = pt;
+    }
+}
+
+void addNewSegPath(drawingStates *states, uint8_t type) {
+    if (states->inPath) {
+        PATH **path = &(states->currentPath);
+        add_new_seg(path, type);
+    }
+    PATH *tmp = states->currentPath->first;
+    while (tmp != NULL) {
+        tmp = tmp->next;
+    }
+}
+
 void free_path(PATH *path) {
-    PATH *tmp1 = path;
-    PATH *tmp2 = path;
+    if (path == NULL || path->first == NULL) {
+        return;
+    }
+    PATH *tmp1 = path->first;
+    PATH *tmp2 = path->first;
     while (tmp1 != NULL) {
         tmp1 = tmp1->next;
         free(tmp2->section.points);
@@ -1059,12 +1110,14 @@ void add_new_seg(PATH **path, uint8_t type) {
     }
     new_path->section.points = new_seg;
     new_path->section.type = type;
-    if ((*path)->first != NULL) {
-        new_path->first = (*path)->first;
-    } else {
+    if (*path == NULL || (*path)->first == NULL) {
+        *path = new_path;
         new_path->first = new_path;
+    } else {
+        new_path->first = (*path)->first;
+        (*path)->next = new_path;
+        *path = new_path;
     }
-    path = &new_path;
 }
 
 void clipset_draw(drawingStates *states, FILE *out) {

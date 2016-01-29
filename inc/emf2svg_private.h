@@ -603,6 +603,10 @@ void free_path(PATH *path);
 void add_new_seg(PATH **path, uint8_t type);
 POINT_D point_s(drawingStates *states, U_POINT pt);
 POINT_D point_s16(drawingStates *states, U_POINT16 pt);
+void addNewSegPath(drawingStates *states, uint8_t type);
+void pointCurrPathAddD(drawingStates *states, POINT_D pt, int index);
+void pointCurrPathAdd(drawingStates *states, U_POINT pt, int index);
+void pointCurrPathAdd16(drawingStates *states, U_POINT16 pt, int index);
 //! \endcond
 
 #ifdef __cplusplus
