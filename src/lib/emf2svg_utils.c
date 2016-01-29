@@ -225,7 +225,7 @@ void cubic_bezier_draw(const char *name, const char *contents, FILE *out,
     if (startingPoint == 1) {
         fprintf(out, "M ");
         point_draw(states, papts[0], out);
-        addNewSegPath(states, SEG_MOVE);
+        addNewSegPath(states, SEG_BEZIER);
         pointCurrPathAdd(states, papts[0], 0);
     }
     const int ctrl1 = (0 + startingPoint) % 3;
@@ -1071,24 +1071,21 @@ void addNewSegPath(drawingStates *states, uint8_t type) {
         PATH **path = &(states->currentPath);
         add_new_seg(path, type);
     }
-    PATH *tmp = states->currentPath->first;
-    while (tmp != NULL) {
-        tmp = tmp->next;
-    }
 }
 
-void free_path(PATH *path) {
-    if (path == NULL || path->first == NULL) {
+void free_path(PATH **path) {
+    if (path == NULL) {
         return;
     }
-    PATH *tmp1 = path->first;
-    PATH *tmp2 = path->first;
+    PATH *tmp1 = *path;
+    PATH *tmp2 = *path;
     while (tmp1 != NULL) {
         tmp1 = tmp1->next;
         free(tmp2->section.points);
         free(tmp2);
         tmp2 = tmp1;
     }
+    *path = NULL;
 }
 
 void add_new_seg(PATH **path, uint8_t type) {
@@ -1110,13 +1107,12 @@ void add_new_seg(PATH **path, uint8_t type) {
     }
     new_path->section.points = new_seg;
     new_path->section.type = type;
-    if (*path == NULL || (*path)->first == NULL) {
+    if (*path == NULL || (*path)->last == NULL) {
         *path = new_path;
-        new_path->first = new_path;
+        new_path->last = new_path;
     } else {
-        new_path->first = (*path)->first;
-        (*path)->next = new_path;
-        *path = new_path;
+        (*path)->last->next = new_path;
+        (*path)->last = new_path;
     }
 }
 

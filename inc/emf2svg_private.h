@@ -73,7 +73,7 @@ typedef struct _PATH_SECTION {
 
 typedef struct _PATH {
     PATH_SECTION section;
-    struct _PATH *first;
+    struct _PATH *last;
     struct _PATH *next;
 } PATH;
 
@@ -599,7 +599,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
 void text_draw(const char *contents, FILE *out, drawingStates *states,
                uint8_t type);
 void clipset_draw(drawingStates *states, FILE *out);
-void free_path(PATH *path);
+void free_path(PATH **path);
 void add_new_seg(PATH **path, uint8_t type);
 POINT_D point_s(drawingStates *states, U_POINT pt);
 POINT_D point_s16(drawingStates *states, U_POINT16 pt);

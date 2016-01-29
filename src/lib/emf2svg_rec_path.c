@@ -41,6 +41,8 @@ void U_EMRBEGINPATH_draw(const char *contents, FILE *out,
         }
     }
     fprintf(out, "<%spath d=\"", states->nameSpaceString);
+    // free previously recorded path
+    free_path(&(states->currentPath));
     states->inPath = true;
     UNUSED(contents);
 }
@@ -105,6 +107,8 @@ void U_EMRABORTPATH_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRABORTPATH_print(contents, states);
     }
+    // free previously recorded path
+    free_path(&(states->currentPath));
     UNUSED(contents);
 }
 void U_EMRWIDENPATH_draw(const char *contents, FILE *out,

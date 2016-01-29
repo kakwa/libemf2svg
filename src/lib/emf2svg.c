@@ -762,7 +762,7 @@ int emf2svg(char *contents, size_t length, char **out,
     FLAG_RESET;
     freeObjectTable(states);
     freePathStack(states->emfStructure.pathStack);
-    free_path(states->currentPath);
+    free_path(&(states->currentPath));
     free(states->objectTable);
     freeDeviceContext(&(states->currentDeviceContext));
     freeDeviceContextStack(states);
