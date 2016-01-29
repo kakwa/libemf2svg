@@ -1050,19 +1050,19 @@ char *base64_encode(const unsigned char *data, size_t input_length,
 
 void pointCurrPathAdd16(drawingStates *states, U_POINT16 pt, int index) {
     if (states->inPath) {
-        states->currentPath->section.points[index] = point_s16(states, pt);
+        states->currentPath->last->section.points[index] = point_s16(states, pt);
     }
 }
 
 void pointCurrPathAdd(drawingStates *states, U_POINT pt, int index) {
     if (states->inPath) {
-        states->currentPath->section.points[index] = point_s(states, pt);
+        states->currentPath->last->section.points[index] = point_s(states, pt);
     }
 }
 
 void pointCurrPathAddD(drawingStates *states, POINT_D pt, int index) {
     if (states->inPath) {
-        states->currentPath->section.points[index] = pt;
+        states->currentPath->last->section.points[index] = pt;
     }
 }
 
@@ -1074,18 +1074,18 @@ void addNewSegPath(drawingStates *states, uint8_t type) {
 }
 
 void free_path(PATH **path) {
-    if (path == NULL) {
+    if ((*path) == NULL) {
         return;
     }
-    PATH *tmp1 = *path;
-    PATH *tmp2 = *path;
+    PATH *tmp1 = (*path);
+    PATH *tmp2 = (*path);
     while (tmp1 != NULL) {
         tmp1 = tmp1->next;
         free(tmp2->section.points);
         free(tmp2);
         tmp2 = tmp1;
     }
-    *path = NULL;
+    (*path) = NULL;
 }
 
 void add_new_seg(PATH **path, uint8_t type) {
