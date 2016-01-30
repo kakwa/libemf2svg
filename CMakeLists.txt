@@ -149,6 +149,7 @@ add_library(emf2svg
     src/lib/upmf.c
     src/lib/emf2svg_utils.c
     src/lib/emf2svg_img_utils.c
+    src/lib/emf2svg_clip_utils.c
     src/lib/emf2svg_rec_control.c
     src/lib/emf2svg_rec_object_creation.c
     src/lib/emf2svg_rec_opengl.c
