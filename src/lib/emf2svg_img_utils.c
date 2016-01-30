@@ -471,7 +471,7 @@ RGBBitmap rle4ToRGB8(RGBBitmap img) {
     out_img.width = img.width;
     out_img.height = img.height;
     // convert it to 24 bits/pixel bitmap
-    out_img = RGB4ToRGB8(out_img);
+    // out_img = RGB4ToRGB8(out_img);
     free(out);
     return out_img;
 }
