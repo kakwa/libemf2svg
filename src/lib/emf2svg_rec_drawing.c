@@ -182,7 +182,7 @@ void U_EMRPOLYBEZIERTO_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRPOLYBEZIERTO_print(contents, states);
     }
-    cubic_bezier_draw("U_EMRPOLYBEZIER", contents, out, states, false);
+    cubic_bezier_draw("U_EMRPOLYBEZIER", contents, out, states, 0);
 }
 void U_EMRPOLYBEZIERTO16_draw(const char *contents, FILE *out,
                               drawingStates *states) {
@@ -190,7 +190,7 @@ void U_EMRPOLYBEZIERTO16_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRPOLYBEZIERTO16_print(contents, states);
     }
-    cubic_bezier16_draw("U_EMRPOLYBEZIERTO16", contents, out, states, false);
+    cubic_bezier16_draw("U_EMRPOLYBEZIERTO16", contents, out, states, 0);
 }
 void U_EMRPOLYDRAW_draw(const char *contents, FILE *out,
                         drawingStates *states) {
