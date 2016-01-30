@@ -58,12 +58,17 @@ void arc_circle_draw(const char *contents, FILE *out, drawingStates *states) {
     fprintf(out, "M ");
     POINT_D start;
     double angle = pEmr->eStartAngle * U_PI / 180;
+
+    addNewSegPath(states, SEG_LINE);
     start.x = pEmr->nRadius * cos(angle) + pEmr->ptlCenter.x;
     start.y = pEmr->nRadius * sin(angle) + pEmr->ptlCenter.y;
     point_draw_d(states, start, out);
+    pointCurrPathAddD(states, start, 0);
 
+    addNewSegPath(states, SEG_ARC);
     fprintf(out, "A ");
     point_draw(states, radii, out);
+    pointCurrPathAdd(states, radii, 0);
 
     fprintf(out, "0 ");
     fprintf(out, "%d %d ", large_arc_flag, sweep_flag);
@@ -73,11 +78,8 @@ void arc_circle_draw(const char *contents, FILE *out, drawingStates *states) {
     end.x = pEmr->nRadius * cos(angle) + pEmr->ptlCenter.x;
     end.y = pEmr->nRadius * sin(angle) + pEmr->ptlCenter.y;
     point_draw_d(states, end, out);
+    pointCurrPathAddD(states, end, 1);
 
-    addNewSegPath(states, SEG_ARC);
-    pointCurrPathAddD(states, start, 0);
-    pointCurrPathAdd(states, radii, 1);
-    pointCurrPathAddD(states, end, 2);
     endPathDraw(states, out);
 }
 void arc_draw(const char *contents, FILE *out, drawingStates *states,
@@ -98,18 +100,24 @@ void arc_draw(const char *contents, FILE *out, drawingStates *states,
     radii.x = (pEmr->rclBox.right - pEmr->rclBox.left) / 2;
     radii.y = (pEmr->rclBox.bottom - pEmr->rclBox.top) / 2;
 
+    addNewSegPath(states, SEG_LINE);
     fprintf(out, "M ");
     POINT_D start = int_el_rad(pEmr->ptlStart, pEmr->rclBox);
     point_draw_d(states, start, out);
+    pointCurrPathAddD(states, start, 0);
+
+    addNewSegPath(states, SEG_ARC);
 
     fprintf(out, "A ");
     point_draw(states, radii, out);
+    pointCurrPathAdd(states, radii, 0);
 
     fprintf(out, "0 ");
     fprintf(out, "%d %d ", large_arc_flag, sweep_flag);
 
     POINT_D end = int_el_rad(pEmr->ptlEnd, pEmr->rclBox);
     point_draw_d(states, end, out);
+    pointCurrPathAddD(states, end, 1);
 
     switch (type) {
     case ARC_PIE:
@@ -118,21 +126,21 @@ void arc_draw(const char *contents, FILE *out, drawingStates *states,
         center.x = (pEmr->rclBox.right + pEmr->rclBox.left) / 2;
         center.y = (pEmr->rclBox.bottom + pEmr->rclBox.top) / 2;
         point_draw(states, center, out);
+        addNewSegPath(states, SEG_LINE);
+        pointCurrPathAdd(states, center, 0);
         fprintf(out, "Z ");
+        addNewSegPath(states, SEG_END);
         endFormDraw(states, out);
         break;
     case ARC_CHORD:
         fprintf(out, "Z ");
+        addNewSegPath(states, SEG_END);
         endFormDraw(states, out);
         break;
     default:
         endPathDraw(states, out);
         break;
     }
-    addNewSegPath(states, SEG_ARC);
-    pointCurrPathAddD(states, start, 0);
-    pointCurrPathAdd(states, radii, 1);
-    pointCurrPathAddD(states, end, 2);
 }
 void basic_stroke(drawingStates *states, FILE *out) {
     color_stroke(states, out);
@@ -425,6 +433,8 @@ void lineto_draw(const char *name, const char *field1, const char *field2,
     startPathDraw(states, out);
     fprintf(out, "L ");
     point_draw(states, pEmr->pair, out);
+    addNewSegPath(states, SEG_LINE);
+    pointCurrPathAdd(states, pEmr->pair, 0);
     endPathDraw(states, out);
 }
 void moveto_draw(const char *name, const char *field1, const char *field2,
@@ -432,6 +442,8 @@ void moveto_draw(const char *name, const char *field1, const char *field2,
     UNUSED(name);
     PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR)(contents);
     point_draw(states, pEmr->pair, out);
+    addNewSegPath(states, SEG_MOVE);
+    pointCurrPathAdd(states, pEmr->pair, 0);
 }
 void newPathStruct(drawingStates *states) {
     pathStack *new_entry = calloc(1, sizeof(pathStack));
@@ -505,9 +517,12 @@ void polyline16_draw(const char *name, const char *contents, FILE *out,
     for (i = 0; i < pEmr->cpts; i++) {
         if (polygon && i == 0) {
             fprintf(out, "M ");
+            addNewSegPath(states, SEG_MOVE);
         } else {
             fprintf(out, "L ");
+            addNewSegPath(states, SEG_LINE);
         }
+        pointCurrPathAdd16(states, papts[i], 0);
         point16_draw(states, papts[i], out);
     }
     endPathDraw(states, out);
@@ -523,10 +538,13 @@ void polyline_draw(const char *name, const char *contents, FILE *out,
     for (i = 0; i < pEmr->cptl; i++) {
         if (polygon && i == 0) {
             fprintf(out, "M ");
+            addNewSegPath(states, SEG_MOVE);
         } else {
             fprintf(out, "L ");
+            addNewSegPath(states, SEG_LINE);
         }
         point_draw(states, pEmr->aptl[i], out);
+        pointCurrPathAdd(states, pEmr->aptl[i], 0);
     }
     endPathDraw(states, out);
 }
@@ -545,14 +563,20 @@ void polypolygon16_draw(const char *name, const char *contents, FILE *out,
         if (counter == 0) {
             fprintf(out, "M ");
             point16_draw(states, papts[i], out);
+            addNewSegPath(states, SEG_MOVE);
+            pointCurrPathAdd16(states, papts[i], 0);
         } else {
             fprintf(out, "L ");
             point16_draw(states, papts[i], out);
+            addNewSegPath(states, SEG_LINE);
+            pointCurrPathAdd16(states, papts[i], 0);
         }
         counter++;
         if (pEmr->aPolyCounts[polygon_index] == counter) {
-            if (polygon)
+            if (polygon) {
                 fprintf(out, "Z ");
+                addNewSegPath(states, SEG_END);
+            }
             counter = 0;
             polygon_index++;
         }
@@ -573,14 +597,20 @@ void polypolygon_draw(const char *name, const char *contents, FILE *out,
         if (counter == 0) {
             fprintf(out, "M ");
             point_draw(states, papts[i], out);
+            addNewSegPath(states, SEG_MOVE);
+            pointCurrPathAdd(states, papts[i], 0);
         } else {
             fprintf(out, "L ");
             point_draw(states, papts[i], out);
+            addNewSegPath(states, SEG_LINE);
+            pointCurrPathAdd(states, papts[i], 0);
         }
         counter++;
         if (pEmr->aPolyCounts[polygon_index] == counter) {
-            if (polygon)
+            if (polygon) {
                 fprintf(out, "Z ");
+                addNewSegPath(states, SEG_END);
+            }
             counter = 0;
             polygon_index++;
         }
@@ -591,24 +621,35 @@ void rectl_draw(drawingStates *states, FILE *out, U_RECTL rect) {
     fprintf(out, "M ");
     pt.x = rect.left;
     pt.y = rect.top;
+    addNewSegPath(states, SEG_MOVE);
+    pointCurrPathAdd(states, pt, 0);
     point_draw(states, pt, out);
     fprintf(out, "L ");
     pt.x = rect.right;
     pt.y = rect.top;
+    addNewSegPath(states, SEG_LINE);
+    pointCurrPathAdd(states, pt, 0);
     point_draw(states, pt, out);
     fprintf(out, "L ");
     pt.x = rect.right;
     pt.y = rect.bottom;
+    addNewSegPath(states, SEG_LINE);
+    pointCurrPathAdd(states, pt, 0);
     point_draw(states, pt, out);
     fprintf(out, "L ");
     pt.x = rect.left;
     pt.y = rect.bottom;
+    addNewSegPath(states, SEG_LINE);
+    pointCurrPathAdd(states, pt, 0);
     point_draw(states, pt, out);
     fprintf(out, "L ");
     pt.x = rect.left;
     pt.y = rect.top;
+    addNewSegPath(states, SEG_LINE);
+    pointCurrPathAdd(states, pt, 0);
     point_draw(states, pt, out);
     fprintf(out, "Z ");
+    addNewSegPath(states, SEG_END);
 }
 void restoreDeviceContext(drawingStates *states, int32_t index) {
     EMF_DEVICE_CONTEXT_STACK *stack_entry = states->DeviceContextStack;
@@ -659,6 +700,8 @@ void startPathDraw(drawingStates *states, FILE *out) {
         pt.x = states->cur_x;
         pt.y = states->cur_y;
         point_draw(states, pt, out);
+        addNewSegPath(states, SEG_MOVE);
+        pointCurrPathAdd(states, pt, 0);
     }
 }
 void stroke_draw(drawingStates *states, FILE *out, bool *filled,
@@ -1050,7 +1093,8 @@ char *base64_encode(const unsigned char *data, size_t input_length,
 
 void pointCurrPathAdd16(drawingStates *states, U_POINT16 pt, int index) {
     if (states->inPath) {
-        states->currentPath->last->section.points[index] = point_s16(states, pt);
+        states->currentPath->last->section.points[index] =
+            point_s16(states, pt);
     }
 }
 
@@ -1092,17 +1136,20 @@ void add_new_seg(PATH **path, uint8_t type) {
     PATH *new_path = calloc(1, sizeof(PATH));
     POINT_D *new_seg;
     switch (type) {
+    case SEG_END:
+        new_seg = NULL;
+        break;
     case SEG_MOVE:
         new_seg = calloc(1, sizeof(POINT_D));
         break;
     case SEG_LINE:
-        new_seg = calloc(2, sizeof(POINT_D));
+        new_seg = calloc(1, sizeof(POINT_D));
         break;
     case SEG_ARC:
-        new_seg = calloc(3, sizeof(POINT_D));
+        new_seg = calloc(2, sizeof(POINT_D));
         break;
     case SEG_BEZIER:
-        new_seg = calloc(4, sizeof(POINT_D));
+        new_seg = calloc(3, sizeof(POINT_D));
         break;
     }
     new_path->section.points = new_seg;
