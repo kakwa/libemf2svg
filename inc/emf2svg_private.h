@@ -56,10 +56,11 @@ extern "C" {
 #define ARC_PIE 1
 #define ARC_CHORD 2
 
-#define SEG_MOVE 0
-#define SEG_LINE 1
-#define SEG_ARC 2
-#define SEG_BEZIER 3
+#define SEG_END 0
+#define SEG_MOVE 1
+#define SEG_LINE 2
+#define SEG_ARC 3
+#define SEG_BEZIER 4
 
 typedef struct {
     double x;
