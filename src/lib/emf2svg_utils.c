@@ -183,6 +183,7 @@ void copyDeviceContext(EMF_DEVICE_CONTEXT *dest, EMF_DEVICE_CONTEXT *src) {
             (char *)calloc(strlen(src->font_family) + 1, sizeof(char));
         strcpy(dest->font_family, src->font_family);
     }
+    copy_path(src->clipRGN, &(dest->clipRGN));
 }
 void cubic_bezier16_draw(const char *name, const char *contents, FILE *out,
                          drawingStates *states, int startingPoint) {
@@ -340,7 +341,7 @@ void freeDeviceContext(EMF_DEVICE_CONTEXT *dc) {
             free(dc->font_name);
         if (dc->font_family != NULL)
             free(dc->font_family);
-        // free_path(dc->clipRGN);
+        free_path(&(dc->clipRGN));
     }
 }
 void freeDeviceContextStack(drawingStates *states) {
@@ -1130,6 +1131,37 @@ void free_path(PATH **path) {
         tmp2 = tmp1;
     }
     (*path) = NULL;
+}
+
+void copy_path(PATH *in, PATH **out) {
+    PATH *tmp = in;
+    PATH *out_current = NULL;
+    while (tmp != NULL) {
+        uint8_t type = tmp->section.type;
+        POINT_D *pt = tmp->section.points;
+        add_new_seg(&out_current, type);
+        switch (type) {
+        case SEG_END:
+            break;
+        case SEG_MOVE:
+            out_current->last->section.points[0] = pt[0];
+            break;
+        case SEG_LINE:
+            out_current->last->section.points[0] = pt[0];
+            break;
+        case SEG_ARC:
+            out_current->last->section.points[0] = pt[0];
+            out_current->last->section.points[1] = pt[1];
+            break;
+        case SEG_BEZIER:
+            out_current->last->section.points[0] = pt[0];
+            out_current->last->section.points[1] = pt[1];
+            out_current->last->section.points[2] = pt[2];
+            break;
+        }
+        tmp = tmp->next;
+    }
+    (*out) = out_current;
 }
 
 void add_new_seg(PATH **path, uint8_t type) {

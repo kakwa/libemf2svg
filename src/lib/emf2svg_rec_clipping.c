@@ -24,6 +24,7 @@ void U_EMREXCLUDECLIPRECT_draw(const char *contents, FILE *out,
         U_EMREXCLUDECLIPRECT_print(contents, states);
     }
     // PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
+    // clip_rgn_mix(states, new_path, U_RGN_DIFF);
 }
 void U_EMREXTSELECTCLIPRGN_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
@@ -39,6 +40,7 @@ void U_EMRINTERSECTCLIPRECT_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRINTERSECTCLIPRECT_print(contents, states);
     }
+    // PU_EMRINTERSECTCLIPRECT pEmr = (PU_EMRINTERSECTCLIPRECT) (contents);
 }
 void U_EMROFFSETCLIPRGN_draw(const char *contents, FILE *out,
                              drawingStates *states) {
@@ -54,6 +56,7 @@ void U_EMRSELECTCLIPPATH_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRSELECTCLIPPATH_print(contents, states);
     }
+    // PU_EMRSELECTCLIPPATH pEmr = (PU_EMRSELECTCLIPPATH) (contents);
 }
 
 #ifdef __cplusplus

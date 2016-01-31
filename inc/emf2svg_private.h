@@ -609,6 +609,7 @@ void pointCurrPathAddD(drawingStates *states, POINT_D pt, int index);
 void pointCurrPathAdd(drawingStates *states, U_POINT pt, int index);
 void pointCurrPathAdd16(drawingStates *states, U_POINT16 pt, int index);
 void clip_rgn_mix(drawingStates *states, PATH *path, uint32_t mode);
+void copy_path(PATH *in, PATH **out);
 //! \endcond
 
 #ifdef __cplusplus
