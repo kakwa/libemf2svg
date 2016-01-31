@@ -374,7 +374,7 @@ void freePathStack(pathStack *stack) {
     return;
 }
 int get_id(drawingStates *states) {
-    states->uniqId++;
+    states->uniqId = rand();
     return states->uniqId;
 }
 POINT_D int_el_rad(U_POINTL pt, U_RECTL rect) {
