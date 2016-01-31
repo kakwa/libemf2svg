@@ -57,6 +57,7 @@ void U_EMREXCLUDECLIPRECT_draw(const char *contents, FILE *out,
 
     clip_rgn_mix(states, new_path, U_RGN_DIFF);
     free_path(&new_path);
+    clip_rgn_draw(states, out);
 }
 void U_EMREXTSELECTCLIPRGN_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
@@ -64,7 +65,12 @@ void U_EMREXTSELECTCLIPRGN_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMREXTSELECTCLIPRGN_print(contents, states);
     }
-    // PU_EMREXTSELECTCLIPRGN pEmr = (PU_EMREXTSELECTCLIPRGN) (contents);
+    PU_EMREXTSELECTCLIPRGN pEmr = (PU_EMREXTSELECTCLIPRGN)(contents);
+    if (pEmr->iMode == U_RGN_COPY) {
+        free_path(&(states->currentDeviceContext.clipRGN));
+        states->currentDeviceContext.clipID = 0;
+        return;
+    }
 }
 void U_EMRINTERSECTCLIPRECT_draw(const char *contents, FILE *out,
                                  drawingStates *states) {
@@ -106,6 +112,7 @@ void U_EMRINTERSECTCLIPRECT_draw(const char *contents, FILE *out,
 
     clip_rgn_mix(states, new_path, U_RGN_AND);
     free_path(&new_path);
+    clip_rgn_draw(states, out);
 }
 void U_EMROFFSETCLIPRGN_draw(const char *contents, FILE *out,
                              drawingStates *states) {
@@ -116,6 +123,7 @@ void U_EMROFFSETCLIPRGN_draw(const char *contents, FILE *out,
     PU_EMROFFSETCLIPRGN pEmr = (PU_EMROFFSETCLIPRGN)(contents);
     offset_path(states->currentDeviceContext.clipRGN,
                 point_s(states, pEmr->ptlOffset));
+    clip_rgn_draw(states, out);
 }
 void U_EMRSELECTCLIPPATH_draw(const char *contents, FILE *out,
                               drawingStates *states) {
@@ -125,6 +133,7 @@ void U_EMRSELECTCLIPPATH_draw(const char *contents, FILE *out,
     }
     PU_EMRSELECTCLIPPATH pEmr = (PU_EMRSELECTCLIPPATH)(contents);
     clip_rgn_mix(states, states->currentPath, pEmr->iMode);
+    clip_rgn_draw(states, out);
 }
 
 #ifdef __cplusplus

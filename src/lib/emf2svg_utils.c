@@ -507,6 +507,10 @@ void point_draw_d(drawingStates *states, POINT_D pt, FILE *out) {
     states->cur_y = pt.y;
     fprintf(out, "%.4f,%.4f ", ptd.x, ptd.y);
 }
+
+void point_draw_raw_d(POINT_D pt, FILE *out) {
+    fprintf(out, "%.4f,%.4f ", pt.x, pt.y);
+}
 void polyline16_draw(const char *name, const char *contents, FILE *out,
                      drawingStates *states, bool polygon) {
     UNUSED(name);
@@ -1131,6 +1135,39 @@ void free_path(PATH **path) {
         tmp2 = tmp1;
     }
     (*path) = NULL;
+}
+
+void draw_path(PATH *in, FILE *out) {
+    PATH *tmp = in;
+    while (tmp != NULL) {
+        uint8_t type = tmp->section.type;
+        POINT_D *pt = tmp->section.points;
+        switch (type) {
+        case SEG_END:
+            fprintf(out, "Z ");
+            break;
+        case SEG_MOVE:
+            fprintf(out, "M ");
+            point_draw_raw_d(pt[0], out);
+            break;
+        case SEG_LINE:
+            fprintf(out, "L ");
+            point_draw_raw_d(pt[0], out);
+            break;
+        case SEG_ARC:
+            fprintf(out, "A ");
+            point_draw_raw_d(pt[0], out);
+            point_draw_raw_d(pt[1], out);
+            break;
+        case SEG_BEZIER:
+            fprintf(out, "C ");
+            point_draw_raw_d(pt[0], out);
+            point_draw_raw_d(pt[1], out);
+            point_draw_raw_d(pt[2], out);
+            break;
+        }
+        tmp = tmp->next;
+    }
 }
 
 void copy_path(PATH *in, PATH **out) {

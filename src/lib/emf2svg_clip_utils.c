@@ -39,6 +39,19 @@ void clip_rgn_mix(drawingStates *states, PATH *path, uint32_t mode) {
     }
 }
 
+void clip_rgn_draw(drawingStates *states, FILE *out) {
+    if (!(states->inPath) && states->currentDeviceContext.clipRGN != NULL) {
+        states->currentDeviceContext.clipID = get_id(states);
+        fprintf(out, "<%sdefs> <%sclipPath id=\"clip-%d\">",
+                states->nameSpaceString, states->nameSpaceString,
+                states->currentDeviceContext.clipID);
+        fprintf("<%spath d=\"", states->nameSpaceString);
+        draw_path(states->currentDeviceContext.clipRGN, out);
+        fprintf(out, "\" />");
+        fprintf(out, "</clipPath></defs>\n");
+    }
+}
+
 #ifdef __cplusplus
 }
 #endif
