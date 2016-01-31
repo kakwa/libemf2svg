@@ -23,8 +23,40 @@ void U_EMREXCLUDECLIPRECT_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMREXCLUDECLIPRECT_print(contents, states);
     }
-    // PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
-    // clip_rgn_mix(states, new_path, U_RGN_DIFF);
+    PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
+    U_RECTL rect = pEmr->rclBox;
+    U_POINT pt;
+    PATH *new_path = NULL;
+
+    add_new_seg(&new_path, SEG_MOVE);
+    pt.x = rect.left;
+    pt.y = rect.top;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_LINE);
+    pt.x = rect.right;
+    pt.y = rect.top;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_LINE);
+    pt.x = rect.right;
+    pt.y = rect.bottom;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_LINE);
+    pt.x = rect.left;
+    pt.y = rect.bottom;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_LINE);
+    pt.x = rect.left;
+    pt.y = rect.top;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_END);
+
+    clip_rgn_mix(states, new_path, U_RGN_DIFF);
+    free_path(&new_path);
 }
 void U_EMREXTSELECTCLIPRGN_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
@@ -40,7 +72,40 @@ void U_EMRINTERSECTCLIPRECT_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRINTERSECTCLIPRECT_print(contents, states);
     }
-    // PU_EMRINTERSECTCLIPRECT pEmr = (PU_EMRINTERSECTCLIPRECT) (contents);
+    PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
+    U_RECTL rect = pEmr->rclBox;
+    U_POINT pt;
+    PATH *new_path = NULL;
+
+    add_new_seg(&new_path, SEG_MOVE);
+    pt.x = rect.left;
+    pt.y = rect.top;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_LINE);
+    pt.x = rect.right;
+    pt.y = rect.top;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_LINE);
+    pt.x = rect.right;
+    pt.y = rect.bottom;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_LINE);
+    pt.x = rect.left;
+    pt.y = rect.bottom;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_LINE);
+    pt.x = rect.left;
+    pt.y = rect.top;
+    new_path->section.points[0] = point_s(states, pt);
+
+    add_new_seg(&new_path, SEG_END);
+
+    clip_rgn_mix(states, new_path, U_RGN_AND);
+    free_path(&new_path);
 }
 void U_EMROFFSETCLIPRGN_draw(const char *contents, FILE *out,
                              drawingStates *states) {
@@ -56,7 +121,8 @@ void U_EMRSELECTCLIPPATH_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRSELECTCLIPPATH_print(contents, states);
     }
-    // PU_EMRSELECTCLIPPATH pEmr = (PU_EMRSELECTCLIPPATH) (contents);
+    PU_EMRSELECTCLIPPATH pEmr = (PU_EMRSELECTCLIPPATH) (contents);
+    clip_rgn_mix(states, states->currentPath, pEmr->iMode);
 }
 
 #ifdef __cplusplus
