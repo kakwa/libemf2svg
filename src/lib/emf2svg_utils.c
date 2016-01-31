@@ -1164,6 +1164,34 @@ void copy_path(PATH *in, PATH **out) {
     (*out) = out_current;
 }
 
+void offset_path(PATH *in, POINT_D pt) {
+    PATH *tmp = in;
+    while (tmp != NULL) {
+        uint8_t type = tmp->section.type;
+        switch (type) {
+        case SEG_END:
+            break;
+        case SEG_MOVE:
+            tmp->last->section.points[0].x += pt.x;
+            tmp->last->section.points[0].y += pt.y;
+            break;
+        case SEG_LINE:
+            tmp->last->section.points[0].x += pt.x;
+            tmp->last->section.points[0].y += pt.y;
+            break;
+        case SEG_ARC:
+            tmp->last->section.points[1].x += pt.x;
+            tmp->last->section.points[1].y += pt.y;
+            break;
+        case SEG_BEZIER:
+            tmp->last->section.points[2].x += pt.x;
+            tmp->last->section.points[2].y += pt.y;
+            break;
+        }
+        tmp = tmp->next;
+    }
+}
+
 void add_new_seg(PATH **path, uint8_t type) {
     PATH *new_path = calloc(1, sizeof(PATH));
     POINT_D *new_seg;
