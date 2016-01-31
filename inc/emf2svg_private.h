@@ -614,6 +614,7 @@ void copy_path(PATH *in, PATH **out);
 void offset_path(PATH *in, POINT_D pt);
 void draw_path(PATH *in, FILE *out);
 void point_draw_raw_d(POINT_D pt, FILE *out);
+int  get_id(drawingStates *states);
 //! \endcond
 
 #ifdef __cplusplus

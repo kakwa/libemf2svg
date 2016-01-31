@@ -23,18 +23,14 @@ extern "C" {
 void clip_rgn_mix(drawingStates *states, PATH *path, uint32_t mode) {
     switch (mode) {
     case U_RGN_NONE:
-        break;
     case U_RGN_AND:
-        break;
     case U_RGN_OR:
-        break;
     case U_RGN_XOR:
-        break;
     case U_RGN_DIFF:
-        break;
     case U_RGN_COPY:
-        break;
     default:
+        free_path(&(states->currentDeviceContext.clipRGN));
+        copy_path(path, &(states->currentDeviceContext.clipRGN));
         break;
     }
 }
@@ -42,10 +38,10 @@ void clip_rgn_mix(drawingStates *states, PATH *path, uint32_t mode) {
 void clip_rgn_draw(drawingStates *states, FILE *out) {
     if (!(states->inPath) && states->currentDeviceContext.clipRGN != NULL) {
         states->currentDeviceContext.clipID = get_id(states);
-        fprintf(out, "<%sdefs> <%sclipPath id=\"clip-%d\">",
+        fprintf(out, "<%sdefs><%sclipPath id=\"clip-%d\">",
                 states->nameSpaceString, states->nameSpaceString,
                 states->currentDeviceContext.clipID);
-        fprintf("<%spath d=\"", states->nameSpaceString);
+        fprintf(out, "<%spath d=\"", states->nameSpaceString);
         draw_path(states->currentDeviceContext.clipRGN, out);
         fprintf(out, "\" />");
         fprintf(out, "</clipPath></defs>\n");

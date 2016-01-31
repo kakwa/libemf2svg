@@ -31,27 +31,27 @@ void U_EMREXCLUDECLIPRECT_draw(const char *contents, FILE *out,
     add_new_seg(&new_path, SEG_MOVE);
     pt.x = rect.left;
     pt.y = rect.top;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_LINE);
     pt.x = rect.right;
     pt.y = rect.top;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_LINE);
     pt.x = rect.right;
     pt.y = rect.bottom;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_LINE);
     pt.x = rect.left;
     pt.y = rect.bottom;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_LINE);
     pt.x = rect.left;
     pt.y = rect.top;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_END);
 
@@ -86,27 +86,27 @@ void U_EMRINTERSECTCLIPRECT_draw(const char *contents, FILE *out,
     add_new_seg(&new_path, SEG_MOVE);
     pt.x = rect.left;
     pt.y = rect.top;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_LINE);
     pt.x = rect.right;
     pt.y = rect.top;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_LINE);
     pt.x = rect.right;
     pt.y = rect.bottom;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_LINE);
     pt.x = rect.left;
     pt.y = rect.bottom;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_LINE);
     pt.x = rect.left;
     pt.y = rect.top;
-    new_path->section.points[0] = point_s(states, pt);
+    new_path->last->section.points[0] = point_s(states, pt);
 
     add_new_seg(&new_path, SEG_END);
 

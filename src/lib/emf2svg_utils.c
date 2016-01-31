@@ -282,7 +282,6 @@ void endPathDraw(drawingStates *states, FILE *out) {
         bool filled;
         bool stroked;
         stroke_draw(states, out, &filled, &stroked);
-        clipset_draw(states, out);
         fprintf(out, " fill=\"none\" />\n");
     }
 }
@@ -1209,20 +1208,20 @@ void offset_path(PATH *in, POINT_D pt) {
         case SEG_END:
             break;
         case SEG_MOVE:
-            tmp->last->section.points[0].x += pt.x;
-            tmp->last->section.points[0].y += pt.y;
+            tmp->section.points[0].x += pt.x;
+            tmp->section.points[0].y += pt.y;
             break;
         case SEG_LINE:
-            tmp->last->section.points[0].x += pt.x;
-            tmp->last->section.points[0].y += pt.y;
+            tmp->section.points[0].x += pt.x;
+            tmp->section.points[0].y += pt.y;
             break;
         case SEG_ARC:
-            tmp->last->section.points[1].x += pt.x;
-            tmp->last->section.points[1].y += pt.y;
+            tmp->section.points[1].x += pt.x;
+            tmp->section.points[1].y += pt.y;
             break;
         case SEG_BEZIER:
-            tmp->last->section.points[2].x += pt.x;
-            tmp->last->section.points[2].y += pt.y;
+            tmp->section.points[2].x += pt.x;
+            tmp->section.points[2].y += pt.y;
             break;
         }
         tmp = tmp->next;
