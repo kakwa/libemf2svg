@@ -719,6 +719,7 @@ int emf2svg(char *contents, size_t length, char **out,
         }
     } // end of while
     FLAG_RESET;
+    setTransformIdentity(states);
 
     // continu only if no previous errors
     if (err == 0) {
