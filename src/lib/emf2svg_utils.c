@@ -971,31 +971,22 @@ bool transform_set(drawingStates *states, U_XFORM xform, uint32_t iMode) {
         // float b33 = 1.0;
 
         float c11 = a11 * b11 + a12 * b21 + a13 * b31;
-        ;
         float c12 = a11 * b12 + a12 * b22 + a13 * b32;
-        ;
         // float c13 = a11*b13 + a12*b23 + a13*b33;;
         float c21 = a21 * b11 + a22 * b21 + a23 * b31;
-        ;
         float c22 = a21 * b12 + a22 * b22 + a23 * b32;
-        ;
         // float c23 = a21*b13 + a22*b23 + a23*b33;;
         float c31 = a31 * b11 + a32 * b21 + a33 * b31;
-        ;
         float c32 = a31 * b12 + a32 * b22 + a33 * b32;
-        ;
         // float c33 = a31*b13 + a32*b23 + a33*b33;;
 
         states->currentDeviceContext.worldTransform.eM11 = c11;
-        ;
         states->currentDeviceContext.worldTransform.eM12 = c12;
-        ;
         states->currentDeviceContext.worldTransform.eM21 = c21;
-        ;
         states->currentDeviceContext.worldTransform.eM22 = c22;
-        ;
         states->currentDeviceContext.worldTransform.eDx = c31;
         states->currentDeviceContext.worldTransform.eDy = c32;
+
         return true;
     }
     case U_MWT_RIGHTMULTIPLY: {
@@ -1020,35 +1011,27 @@ bool transform_set(drawingStates *states, U_XFORM xform, uint32_t iMode) {
         // float b33 = 1.0;
 
         float c11 = a11 * b11 + a12 * b21 + a13 * b31;
-        ;
         float c12 = a11 * b12 + a12 * b22 + a13 * b32;
-        ;
         // float c13 = a11*b13 + a12*b23 + a13*b33;;
         float c21 = a21 * b11 + a22 * b21 + a23 * b31;
-        ;
         float c22 = a21 * b12 + a22 * b22 + a23 * b32;
-        ;
         // float c23 = a21*b13 + a22*b23 + a23*b33;;
         float c31 = a31 * b11 + a32 * b21 + a33 * b31;
-        ;
         float c32 = a31 * b12 + a32 * b22 + a33 * b32;
-        ;
         // float c33 = a31*b13 + a32*b23 + a33*b33;;
 
         states->currentDeviceContext.worldTransform.eM11 = c11;
-        ;
         states->currentDeviceContext.worldTransform.eM12 = c12;
-        ;
         states->currentDeviceContext.worldTransform.eM21 = c21;
-        ;
         states->currentDeviceContext.worldTransform.eM22 = c22;
-        ;
         states->currentDeviceContext.worldTransform.eDx = c31;
         states->currentDeviceContext.worldTransform.eDy = c32;
+
         return true;
     }
     case U_MWT_SET: {
         states->currentDeviceContext.worldTransform = xform;
+
         return true;
     }
     default:
