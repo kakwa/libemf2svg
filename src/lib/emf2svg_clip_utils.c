@@ -43,7 +43,7 @@ void clip_rgn_draw(drawingStates *states, FILE *out) {
                 states->currentDeviceContext.clipID);
         fprintf(out, "<%spath d=\"", states->nameSpaceString);
         draw_path(states->currentDeviceContext.clipRGN, out);
-        fprintf(out, "\" />");
+        fprintf(out, "Z\" />");
         fprintf(out, "</clipPath></defs>\n");
     }
 }
