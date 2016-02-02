@@ -289,19 +289,21 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
     DIB_to_RGBA(in, ct, numCt, &rgba_px, width, height, colortype, numCt,
                 invert);
 
-    convert_inpng.size = width * 4 * height;
-    convert_inpng.width = width;
-    convert_inpng.height = height;
-    convert_inpng.pixels = (RGBAPixel *)rgba_px;
-    convert_inpng.bytewidth = BmiSrc->biWidth * 3;
-    convert_inpng.bytes_per_pixel = 3;
+    if ( rgba_px != NULL) {
+        convert_inpng.size = width * 4 * height;
+        convert_inpng.width = width;
+        convert_inpng.height = height;
+        convert_inpng.pixels = (RGBAPixel *)rgba_px;
+        convert_inpng.bytewidth = BmiSrc->biWidth * 3;
+        convert_inpng.bytes_per_pixel = 3;
 
-    rgb2png(&convert_inpng, &b64Bmp, &b64s);
-    tmp = (char *)b64Bmp;
-    b64Bmp = base64_encode((unsigned char *)b64Bmp, b64s, &b64s);
-    free(convert_out.pixels);
-    free(tmp);
-    free(rgba_px);
+        rgb2png(&convert_inpng, &b64Bmp, &b64s);
+        tmp = (char *)b64Bmp;
+        b64Bmp = base64_encode((unsigned char *)b64Bmp, b64s, &b64s);
+        free(convert_out.pixels);
+        free(tmp);
+        free(rgba_px);
+    }
 
     if (b64Bmp != NULL) {
         fprintf(out, "%s\" ", b64Bmp);

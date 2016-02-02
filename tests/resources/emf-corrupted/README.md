@@ -18,3 +18,4 @@
 | bad_corrupted_2014-12-13-133727.emf | corrupted EMR_CREATEPEN (wrong ihPen)                      |
 | bad_corrupted_2014-12-14-080539.emf | corrupted EMF_HEADER (bad nDescription)                    |
 | bad_corrupted_2016-02-02-210039.emf | corrupted U_EMR_EXTTEXTOUTW (null string)                  |
+| bad_corrupted_2016-02-02-220639.emf | null bitmap object                                         |
