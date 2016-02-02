@@ -874,8 +874,12 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         *size_out = size_in;
     }
 
+    if (string == NULL) {
+    	return;
+    }
+
     int i = 0;
-    while (string[i] != 0x0) {
+    while (i < (*size_out) && string[i] != 0x0) {
         // Clean-up not printable ascii char like bells \r etc...
         if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
             string[i] != 0x0B && string[i] != 0x09) {
