@@ -289,7 +289,7 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
     DIB_to_RGBA(in, ct, numCt, &rgba_px, width, height, colortype, numCt,
                 invert);
 
-    if ( rgba_px != NULL) {
+    if (rgba_px != NULL) {
         convert_inpng.size = width * 4 * height;
         convert_inpng.width = width;
         convert_inpng.height = height;

@@ -143,7 +143,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
     uint32_t y = img.height - 1;
     uint8_t *bm_next;
 
-    if ( img.width > MAX_BMP_WIDTH || img.height > MAX_BMP_HEIGHT ) {
+    if (img.width > MAX_BMP_WIDTH || img.height > MAX_BMP_HEIGHT) {
         return out_img;
     }
 
@@ -289,7 +289,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
     uint32_t y = img.height - 1;
     uint8_t *bm_next;
 
-    if ( img.width > MAX_BMP_WIDTH || img.height > MAX_BMP_HEIGHT ) {
+    if (img.width > MAX_BMP_WIDTH || img.height > MAX_BMP_HEIGHT) {
         return out_img;
     }
 
