@@ -155,7 +155,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
     uint8_t *end = bm + img.size;
     while (decode && (bm < end)) {
         // check against potential overflow
-        if ((bm + 2) > end) {
+        if ((bm + 2) > end || x > MAX_BMP_WIDTH || y > MAX_BMP_HEIGHT) {
             fclose(stream);
             free(out);
             return out_img;
@@ -219,7 +219,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
         }
     }
     // pad the rest of the bitmap
-    for (int i = 0; i < ((img.width - x) + img.width * y); i++)
+    for (int i = 0; i < (((int)img.width - x) + (int)img.width * y); i++)
         fputc(0x00, stream);
 
     fflush(stream);
@@ -313,7 +313,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
     uint8_t *end = bm + img.size;
     while (decode && (bm < end)) {
         // check against potential overflow
-        if ((bm + 2) > end) {
+        if ((bm + 2) > end || x > MAX_BMP_WIDTH || y > MAX_BMP_HEIGHT) {
             fclose(stream);
             free(out);
             return out_img;
@@ -432,7 +432,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
         lower = 0x00;
     }
     // end of line, pad the rest of the line with zeros
-    for (int i = 0; i < ((img.width - x + img.width * y) / 2); i++)
+    for (int i = 0; i < (((int)img.width - x + (int)img.width * y) / 2); i++)
         fputc(0x00, stream);
 
     fflush(stream);

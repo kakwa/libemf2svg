@@ -272,7 +272,7 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
         e2s_get_DIB_params((PU_BITMAPINFO)BmiSrc, (const U_RGBQUAD **)&ct,
                            &numCt, &width, &height, &colortype, &invert);
     // if enable to read header, then exit
-    if (dibparams) {
+    if (dibparams || width > MAX_BMP_WIDTH || height > MAX_BMP_HEIGHT) {
         free(convert_out.pixels);
         states->Error = true;
         return;
