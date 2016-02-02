@@ -1,1 +1,0 @@
-http://www.freelists.org/post/luajit/binding-for-clipper-polygon-clipping-library
