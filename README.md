@@ -140,9 +140,9 @@ EMF RECORDS:
 |   Status  | Count | Percent |
 |:---------:|:-----:|:-------:|
 | Supported |   30  | [  28%] |
-| Partial   |   31  | [  29%] |
+| Partial   |   36  | [  34%] |
 | Unused    |    2  | [   1%] |
-| Ignored   |   42  | [  40%] |
+| Ignored   |   37  | [  35%] |
 | Total     |  105  |         |
 
 EMF+ RECORDS:

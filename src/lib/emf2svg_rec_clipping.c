@@ -17,9 +17,11 @@ extern "C" {
 #include "pmf2svg.h"
 #include "pmf2svg_print.h"
 
+// FIXME see emf2svg_clip_utils.c (clipping region AND/OR/XOR... not handle)
+
 void U_EMREXCLUDECLIPRECT_draw(const char *contents, FILE *out,
                                drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMREXCLUDECLIPRECT_print(contents, states);
     }
@@ -61,7 +63,7 @@ void U_EMREXCLUDECLIPRECT_draw(const char *contents, FILE *out,
 }
 void U_EMREXTSELECTCLIPRGN_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMREXTSELECTCLIPRGN_print(contents, states);
     }
@@ -74,7 +76,7 @@ void U_EMREXTSELECTCLIPRGN_draw(const char *contents, FILE *out,
 }
 void U_EMRINTERSECTCLIPRECT_draw(const char *contents, FILE *out,
                                  drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMRINTERSECTCLIPRECT_print(contents, states);
     }
@@ -116,7 +118,7 @@ void U_EMRINTERSECTCLIPRECT_draw(const char *contents, FILE *out,
 }
 void U_EMROFFSETCLIPRGN_draw(const char *contents, FILE *out,
                              drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMROFFSETCLIPRGN_print(contents, states);
     }
@@ -127,7 +129,7 @@ void U_EMROFFSETCLIPRGN_draw(const char *contents, FILE *out,
 }
 void U_EMRSELECTCLIPPATH_draw(const char *contents, FILE *out,
                               drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     if (states->verbose) {
         U_EMRSELECTCLIPPATH_print(contents, states);
     }

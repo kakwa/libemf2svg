@@ -21,6 +21,10 @@ extern "C" {
 #include <stdint.h>
 
 void clip_rgn_mix(drawingStates *states, PATH *path, uint32_t mode) {
+    // FIXME need to handle clip region definition properly.
+    // Need to calculate new clipping form.
+    // it's not trivial, use a lib like polyclip (cpp) which in turn
+    // needs to convert Bezier/ARC curves in segment.
     switch (mode) {
     case U_RGN_NONE:
     case U_RGN_AND:
