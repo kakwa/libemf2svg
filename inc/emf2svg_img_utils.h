@@ -12,6 +12,9 @@
 #define RLE_EOB 0x01
 #define RLE_DELTA 0x02
 
+#define MAX_BMP_WIDTH 4096
+#define MAX_BMP_HEIGHT 4096
+
 /* Returns pixel of bitmap at given point. */
 #define RGBPixelAtPoint(image, x, y)                                           \
     *(((image)->pixels) +                                                      \

@@ -143,6 +143,10 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
     uint32_t y = img.height - 1;
     uint8_t *bm_next;
 
+    if ( img.width > MAX_BMP_WIDTH || img.height > MAX_BMP_HEIGHT ) {
+        return out_img;
+    }
+
     stream = open_memstream(&out, &size);
     if (stream == NULL) {
         return out_img;
@@ -150,13 +154,13 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
 
     uint8_t *end = bm + img.size;
     while (decode && (bm < end)) {
+        // check against potential overflow
+        if ((bm + 2) > end) {
+            fclose(stream);
+            free(out);
+            return out_img;
+        };
         switch (bm[0]) {
-            // check against potential overflow
-            if ((bm + 2) > end) {
-                fclose(stream);
-                free(out);
-                return out_img;
-            };
         case RLE_MARK:
             switch (bm[1]) {
             case RLE_EOL:
@@ -285,6 +289,10 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
     uint32_t y = img.height - 1;
     uint8_t *bm_next;
 
+    if ( img.width > MAX_BMP_WIDTH || img.height > MAX_BMP_HEIGHT ) {
+        return out_img;
+    }
+
     stream = open_memstream(&out, &size);
     if (stream == NULL) {
         return out_img;
@@ -304,13 +312,13 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
 
     uint8_t *end = bm + img.size;
     while (decode && (bm < end)) {
+        // check against potential overflow
+        if ((bm + 2) > end) {
+            fclose(stream);
+            free(out);
+            return out_img;
+        };
         switch (bm[0]) {
-            // check against potential overflow
-            if ((bm + 2) > end) {
-                fclose(stream);
-                free(out);
-                return out_img;
-            };
         case RLE_MARK:
             switch (bm[1]) {
             case RLE_EOL:
