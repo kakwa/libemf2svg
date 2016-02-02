@@ -265,46 +265,9 @@ int e2s_get_DIB_params(PU_BITMAPINFO Bmi, const U_RGBQUAD **ct, uint32_t *numCt,
     return (bic);
 }
 
-RGBBitmap RGB4ToRGB8(RGBBitmap img) {
-    FILE *stream;
-    char *out;
-    size_t size;
-
-    RGBBitmap out_img;
-    out_img.size = 0;
-    out_img.width = 0;
-    out_img.height = 0;
-    out_img.bytes_per_pixel = 3;
-    out_img.pixels = NULL;
-
-    uint8_t *bm = (uint8_t *)img.pixels;
-
-    stream = open_memstream(&out, &size);
-    if (stream == NULL) {
-        return out_img;
-    }
-
-    uint8_t tmp_u;
-    uint8_t tmp_l;
-
-    for (int i = 0; i < img.size; i++) {
-        tmp_u = bm[i] & 0xF0;
-        tmp_l = bm[i] & 0x0F << 4;
-        fputc(tmp_u, stream);
-        fputc(tmp_l, stream);
-    }
-    fflush(stream);
-    fclose(stream);
-    out_img.pixels = (RGBPixel *)out;
-    out_img.size = size;
-    out_img.width = img.width;
-    out_img.height = img.height;
-    return out_img;
-}
-
 // uncompress RLE4 to get bitmap (section 3.1.6.2 [MS-WMF].pdf)
 // FIXME (probably) (handling 4 bits stuff is kind of messy...)
-RGBBitmap rle4ToRGB8(RGBBitmap img) {
+RGBBitmap rle4ToRGB(RGBBitmap img) {
     FILE *stream;
     bool decode = true;
     char *out;
@@ -470,9 +433,6 @@ RGBBitmap rle4ToRGB8(RGBBitmap img) {
     out_img.size = size;
     out_img.width = img.width;
     out_img.height = img.height;
-    // convert it to 24 bits/pixel bitmap
-    // out_img = RGB4ToRGB8(out_img);
-    free(out);
     return out_img;
 }
 #ifdef __cplusplus

@@ -256,7 +256,7 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
         convert_out = rle8ToRGB8(convert_in);
         break;
     case U_BI_RLE4:
-        convert_out = rle4ToRGB8(convert_in);
+        convert_out = rle4ToRGB(convert_in);
         break;
     }
 
