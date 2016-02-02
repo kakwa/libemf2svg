@@ -165,7 +165,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
             switch (bm[1]) {
             case RLE_EOL:
                 // end of line, pad the rest of the line with zeros
-                for (int i = 0; i < (img.width - x); i++)
+                for (int i = 0; i < ((int)img.width - (int)x); i++)
                     fputc(0x00, stream);
                 bm += 2;
                 x = 0;
@@ -328,7 +328,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
                     lower = 0x00;
                 }
                 // end of line, pad the rest of the line with zeros
-                for (int i = 0; i < (((img.width - x) / 2) - 1); i++)
+                for (int i = 0; i < ((((int)img.width - (int)x) / 2) - 1); i++)
                     fputc(0x00, stream);
                 odd = img.width % 2;
                 bm += 2;
