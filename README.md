@@ -16,11 +16,6 @@ in other environments than MS Visio (like inkscape, dia, calligraflow, yED...).
 
 However this project could be use beyond its original motivations to handle emf blobs in any MS formats.
 
-Disclaimer
-----------
-
-**Work in progress.**
-
 Output example
 --------------
 
@@ -31,6 +26,21 @@ Dependencies
 
 * libiconv
 * libpng
+
+Installing the dependencies on Debian:
+
+```bash
+# compiler
+$ apt-get install gcc g++ 
+# or 
+$ apt-get install clang
+
+# build deps
+$ apt-get install cmake
+
+# library deps with their headers
+$ apt-get install libpng-dev libc6-dev
+```
 
 Building
 --------
