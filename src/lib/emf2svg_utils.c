@@ -827,6 +827,8 @@ void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
         fprintf(out, "font-style=\"italic\" ");
     }
 
+    fprintf(out, "style =\"white-space:pre;\" ");
+
     if (states->currentDeviceContext.font_underline &&
         states->currentDeviceContext.font_strikeout) {
         fprintf(out, "text-decoration=\"line-through,underline\" ");
