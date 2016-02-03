@@ -183,6 +183,7 @@ Useful links:
 * [MS-EMF](http://msdn.microsoft.com/en-us/library/cc230514.aspx): EMF specifications.
 * [MS-EMF+](http://msdn.microsoft.com/en-us/library/cc230724.aspx): EMF+ specifications.
 * [MS-WMF](http://msdn.microsoft.com/en-us/library/cc250370.aspx): WMF specifications.
+* [GDI](https://msdn.microsoft.com/fr-fr/library/windows/desktop/dd145203(v=vs.85).aspx): GDI specification (clearer than EMF in explaining how it works).
 * [SVG](http://www.w3.org/TR/SVG/Overview.html): SVG specifications.
 
 Testing
