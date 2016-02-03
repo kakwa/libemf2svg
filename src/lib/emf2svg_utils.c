@@ -265,8 +265,8 @@ void cubic_bezier_draw(const char *name, const char *contents, FILE *out,
 void endFormDraw(drawingStates *states, FILE *out) {
     if (!(states->inPath)) {
         fprintf(out, "\" ");
-        bool filled;
-        bool stroked;
+        bool filled = false;
+        bool stroked = false;
         stroke_draw(states, out, &filled, &stroked);
         fill_draw(states, out, &filled, &stroked);
         clipset_draw(states, out);
@@ -1238,6 +1238,9 @@ void add_new_seg(PATH **path, uint8_t type) {
         break;
     case SEG_BEZIER:
         new_seg = calloc(3, sizeof(POINT_D));
+        break;
+    default:
+        new_seg = NULL;
         break;
     }
     new_path->section.points = new_seg;

@@ -430,8 +430,6 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
     // pad the rest of the bitmap
     if (odd) {
         fputc(upper | 0x00, stream);
-        upper = 0x00;
-        lower = 0x00;
     }
     // end of line, pad the rest of the line with zeros
     for (int i = 0; i < (((int)img.width - x + (int)img.width * y) / 2); i++)
