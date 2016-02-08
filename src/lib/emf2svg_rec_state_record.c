@@ -323,9 +323,9 @@ void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out,
 
     PU_EMRSETWINDOWORGEX pEmr = (PU_EMRSETWINDOWORGEX)(contents);
     states->offsetX =
-        -1 * (double)pEmr->ptlOrigin.x * states->scalingX + states->offsetX;
+        -1.0 * (double)pEmr->ptlOrigin.x * states->scalingX + states->offsetX;
     states->offsetY =
-        -1 * (double)pEmr->ptlOrigin.y * states->scalingY + states->offsetY;
+        -1.0 * (double)pEmr->ptlOrigin.y * states->scalingY + states->offsetY;
 }
 
 #ifdef __cplusplus
