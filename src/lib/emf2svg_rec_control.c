@@ -105,8 +105,8 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
             fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ",
                     states->nameSpace);
         }
-        fprintf(out, "width=\"%d\" height=\"%d\">\n", (int)states->imgWidth,
-                (int)states->imgHeight);
+        fprintf(out, "width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
+                states->imgHeight);
     }
 
     double scaling_frame_bound =
