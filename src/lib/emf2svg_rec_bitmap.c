@@ -91,7 +91,7 @@ void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
         (const unsigned char *)(contents + pEmr->offBitsSrc);
 
     POINT_D size =
-        point_cal(states, (double)BmiSrc->biHeight, (double)BmiSrc->biWidth);
+        point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
     POINT_D position =
         point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
     fprintf(out, "<image width=\"%.4f\" height=\"%.4f\" x=\"%.4f\" y=\"%.4f\" ",
