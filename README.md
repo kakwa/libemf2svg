@@ -12,7 +12,7 @@ Motivation
 By themselves, EMF/EMF+ files are rare in the wild. However, they are frequently embedded inside other MS file formats.
 
 This project was started to properly convert Visio stencils (.VSS) to svg and be able to reuse public stencils 
-in other environments than MS Visio (like inkscape, dia, calligraflow, yED...).
+in other environments than MS Visio (see [libvisio2svg](https://github.com/kakwa/libvisio2svg)).
 
 However this project could be use beyond its original motivations to handle emf blobs in any MS formats.
 
