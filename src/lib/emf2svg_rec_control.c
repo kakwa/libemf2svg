@@ -113,12 +113,12 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
         (double)(pEmr->rclBounds.right - pEmr->rclBounds.left) /
         (double)(pEmr->rclFrame.right - pEmr->rclFrame.left);
     // set origin
-    states->originX = -1.0 * (double)pEmr->rclFrame.left * states->scalingX *
+    states->windowOrgX = -1.0 * (double)pEmr->rclFrame.left * states->scalingX *
                       scaling_frame_bound;
-    states->originY = -1.0 * (double)pEmr->rclFrame.top * states->scalingY *
+    states->windowOrgY = -1.0 * (double)pEmr->rclFrame.top * states->scalingY *
                       scaling_frame_bound;
-    states->offsetX = states->originX;
-    states->offsetY = states->originY;
+    states->viewPortOrgX = states->windowOrgX;
+    states->viewPortOrgY = states->windowOrgY;
 
     fprintf(out, "<%sg>\n", states->nameSpaceString);
 }
