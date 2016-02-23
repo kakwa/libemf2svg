@@ -7,17 +7,10 @@ extern "C" {
 #endif
 #include <stdlib.h>
 #include <stdio.h>
-#include <stddef.h> /* for offsetof() macro */
-#include <string.h>
 #include <stdint.h>
-#include <math.h>
 #include "emf2svg_img_utils.h"
-#include "uemf.h"
 
 #include <png.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 
 RGBAPixel *pixel_at(RGBABitmap *bitmap, int x, int y) {
     return bitmap->pixels + (bitmap->width * y + x);

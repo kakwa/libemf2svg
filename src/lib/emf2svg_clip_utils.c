@@ -5,20 +5,11 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include <stdlib.h>
+
 #include <stdio.h>
-#include <stddef.h> /* for offsetof() macro */
-#include <string.h>
 #include <stdint.h>
-#include <math.h>
 #include "emf2svg_img_utils.h"
 #include "emf2svg_private.h"
-#include "uemf.h"
-
-#include <png.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 
 void clip_rgn_mix(drawingStates *states, PATH *path, uint32_t mode) {
     // FIXME need to handle clip region definition properly.
