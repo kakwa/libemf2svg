@@ -18,14 +18,9 @@
 
 #include <iostream>
 #include <sstream>
-#include <stdio.h>
 #include <string.h>
 #include <fstream>
-#include <string>
-#include <stdlib.h>
 #include <argp.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "emf2svg.h"
 
 using namespace std;
