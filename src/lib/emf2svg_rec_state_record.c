@@ -279,8 +279,11 @@ void U_EMRSETVIEWPORTEXTEX_draw(const char *contents, FILE *out,
     }
     PU_EMRSETVIEWPORTEXTEX pEmr = (PU_EMRSETVIEWPORTEXTEX)(contents);
 
-    states->imgWidth = pEmr->szlExtent.cx * states->scaling;
-    states->imgHeight = pEmr->szlExtent.cy * states->scaling;
+    states->viewPortExX = (double)pEmr->szlExtent.cx;
+    states->viewPortExY = (double)pEmr->szlExtent.cy;
+
+    states->imgWidth = states->viewPortExX * states->scaling;
+    states->imgHeight = states->viewPortExY * states->scaling;
 }
 void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
@@ -288,7 +291,9 @@ void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out,
     if (states->verbose) {
         U_EMRSETVIEWPORTORGEX_print(contents, states);
     }
-    // PU_EMRSETVIEWPORTORGEX pEmr = (PU_EMRSETVIEWPORTORGEX)(contents);
+    PU_EMRSETVIEWPORTORGEX pEmr = (PU_EMRSETVIEWPORTORGEX)(contents);
+    states->viewPortOrgX = (double)pEmr->ptlOrigin.x;
+    states->viewPortOrgY = (double)pEmr->ptlOrigin.y;
     // states->OrgX =
     //    (double)pEmr->ptlOrigin.x * states->scalingX;
     // states->OrgY =
@@ -302,8 +307,11 @@ void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out,
     }
 
     PU_EMRSETWINDOWEXTEX pEmr = (PU_EMRSETVIEWPORTEXTEX)(contents);
-    states->scalingX = (double)states->imgWidth / (double)pEmr->szlExtent.cx;
-    states->scalingY = (double)states->imgHeight / (double)pEmr->szlExtent.cy;
+    states->windowExX = (double)pEmr->szlExtent.cx;
+    states->windowExY = (double)pEmr->szlExtent.cy;
+
+    states->scalingX = (double)states->imgWidth / states->windowExX;
+    states->scalingY = (double)states->imgHeight / states->windowExY;
     states->OrgX = states->windowOrgX;
     states->OrgY = states->windowOrgY;
 }
@@ -315,10 +323,11 @@ void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out,
     }
 
     PU_EMRSETWINDOWORGEX pEmr = (PU_EMRSETWINDOWORGEX)(contents);
-    states->OrgX =
-        -1.0 * (double)pEmr->ptlOrigin.x * states->scalingX + states->OrgX;
-    states->OrgY =
-        -1.0 * (double)pEmr->ptlOrigin.y * states->scalingY + states->OrgY;
+    states->windowOrgX = (double)pEmr->ptlOrigin.x;
+    states->windowOrgY = (double)pEmr->ptlOrigin.y;
+
+    states->OrgX = -1.0 * states->windowOrgX * states->scalingX + states->OrgX;
+    states->OrgY = -1.0 * states->windowOrgY * states->scalingY + states->OrgY;
 }
 
 #ifdef __cplusplus
