@@ -34,7 +34,7 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
 
     PU_EMRHEADER pEmr = (PU_EMRHEADER)(contents);
     if (pEmr->offDescription) {
-        returnOutOfEmf((uint16_t *)((char *)(uint64_t) pEmr +
+        returnOutOfEmf((uint16_t *)((char *)(uint64_t)pEmr +
                                     (uint64_t)pEmr->offDescription) +
                        2 * (uint64_t)pEmr->nDescription);
         string =
@@ -44,7 +44,7 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
         p1len =
             2 +
             2 * wchar16len((uint16_t *)((char *)pEmr + pEmr->offDescription));
-        returnOutOfEmf((uint16_t *)((char *)(uint64_t) pEmr +
+        returnOutOfEmf((uint16_t *)((char *)(uint64_t)pEmr +
                                     (uint64_t)pEmr->offDescription +
                                     (uint64_t)p1len) +
                        2 * (uint64_t)pEmr->nDescription);
@@ -109,9 +109,9 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
         (double)(pEmr->rclFrame.right - pEmr->rclFrame.left);
     // set origin
     states->windowOrgX = -1.0 * (double)pEmr->rclFrame.left * states->scalingX *
-                      scaling_frame_bound;
+                         scaling_frame_bound;
     states->windowOrgY = -1.0 * (double)pEmr->rclFrame.top * states->scalingY *
-                      scaling_frame_bound;
+                         scaling_frame_bound;
     states->viewPortOrgX = states->windowOrgX;
     states->viewPortOrgY = states->windowOrgY;
 
