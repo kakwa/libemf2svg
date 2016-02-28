@@ -274,8 +274,12 @@ typedef struct {
     double scalingY;
     double viewPortOrgX;
     double viewPortOrgY;
+    double viewPortExX;
+    double viewPortExY;
     double windowOrgX;
     double windowOrgY;
+    double windowExX;
+    double windowExY;
     double pxPerMm;
     uint16_t MapMode;
     // Text orientation
