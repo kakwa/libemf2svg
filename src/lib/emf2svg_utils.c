@@ -472,8 +472,8 @@ void point16_draw(drawingStates *states, U_POINT16 pt, FILE *out) {
 }
 POINT_D point_cal(drawingStates *states, double x, double y) {
     POINT_D ret;
-    ret.x = states->viewPortOrgX + ((double)x * (double)states->scalingX);
-    ret.y = states->viewPortOrgY + ((double)y * (double)states->scalingY);
+    ret.x = states->OrgX + ((double)x * (double)states->scalingX);
+    ret.y = states->OrgY + ((double)y * (double)states->scalingY);
     return ret;
 }
 

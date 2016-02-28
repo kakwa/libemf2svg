@@ -149,22 +149,22 @@ void U_EMRSETMAPMODE_draw(const char *contents, FILE *out,
     case U_MM_TEXT:
         states->scalingX = states->scaling * 1;
         states->scalingY = states->scaling * 1;
-        states->viewPortOrgX = 0;
-        states->viewPortOrgY = 0;
+        states->OrgX = 0;
+        states->OrgY = 0;
         break;
     case U_MM_LOMETRIC:
         // convert to 0.1 mm to pixel and invert Y
         states->scalingX = states->scaling * states->pxPerMm * 0.1 * 1;
         states->scalingY = states->scaling * states->pxPerMm * 0.1 * -1;
-        states->viewPortOrgX = 0;
-        states->viewPortOrgY = states->imgHeight;
+        states->OrgX = 0;
+        states->OrgY = states->imgHeight;
         break;
     case U_MM_HIMETRIC:
         // convert to 0.01 mm to pixel and invert Y
         states->scalingX = states->scaling * states->pxPerMm * 0.01 * 1;
         states->scalingY = states->scaling * states->pxPerMm * 0.01 * -1;
-        states->viewPortOrgX = 0;
-        states->viewPortOrgY = states->imgHeight;
+        states->OrgX = 0;
+        states->OrgY = states->imgHeight;
         break;
     case U_MM_LOENGLISH:
         // convert to 0.01 inch to pixel and invert Y
@@ -172,8 +172,8 @@ void U_EMRSETMAPMODE_draw(const char *contents, FILE *out,
             states->scaling * states->pxPerMm * 0.01 * mmPerInch * 1;
         states->scalingY =
             states->scaling * states->pxPerMm * 0.01 * mmPerInch * -1;
-        states->viewPortOrgX = 0;
-        states->viewPortOrgY = states->imgHeight;
+        states->OrgX = 0;
+        states->OrgY = states->imgHeight;
         break;
     case U_MM_HIENGLISH:
         // convert to 0.001 inch to pixel and invert Y
@@ -181,8 +181,8 @@ void U_EMRSETMAPMODE_draw(const char *contents, FILE *out,
             states->scaling * states->pxPerMm * 0.001 * mmPerInch * 1;
         states->scalingY =
             states->scaling * states->pxPerMm * 0.001 * mmPerInch * -1;
-        states->viewPortOrgX = 0;
-        states->viewPortOrgY = states->imgHeight;
+        states->OrgX = 0;
+        states->OrgY = states->imgHeight;
         break;
     case U_MM_TWIPS:
         // convert to 1 twips to pixel and invert Y
@@ -190,8 +190,8 @@ void U_EMRSETMAPMODE_draw(const char *contents, FILE *out,
             states->scaling * states->pxPerMm / 1440 * mmPerInch * 1;
         states->scalingY =
             states->scaling * states->pxPerMm / 1440 * mmPerInch * -1;
-        states->viewPortOrgX = 0;
-        states->viewPortOrgY = states->imgHeight;
+        states->OrgX = 0;
+        states->OrgY = states->imgHeight;
         break;
     case U_MM_ISOTROPIC:
         states->MapMode = U_MM_ISOTROPIC;
@@ -289,9 +289,9 @@ void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out,
         U_EMRSETVIEWPORTORGEX_print(contents, states);
     }
     // PU_EMRSETVIEWPORTORGEX pEmr = (PU_EMRSETVIEWPORTORGEX)(contents);
-    // states->viewPortOrgX =
+    // states->OrgX =
     //    (double)pEmr->ptlOrigin.x * states->scalingX;
-    // states->viewPortOrgY =
+    // states->OrgY =
     //    (double)pEmr->ptlOrigin.y * states->scalingY;
 }
 void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out,
@@ -304,8 +304,8 @@ void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out,
     PU_EMRSETWINDOWEXTEX pEmr = (PU_EMRSETVIEWPORTEXTEX)(contents);
     states->scalingX = (double)states->imgWidth / (double)pEmr->szlExtent.cx;
     states->scalingY = (double)states->imgHeight / (double)pEmr->szlExtent.cy;
-    states->viewPortOrgX = states->windowOrgX;
-    states->viewPortOrgY = states->windowOrgY;
+    states->OrgX = states->windowOrgX;
+    states->OrgY = states->windowOrgY;
 }
 void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out,
                               drawingStates *states) {
@@ -315,10 +315,10 @@ void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out,
     }
 
     PU_EMRSETWINDOWORGEX pEmr = (PU_EMRSETWINDOWORGEX)(contents);
-    states->viewPortOrgX = -1.0 * (double)pEmr->ptlOrigin.x * states->scalingX +
-                           states->viewPortOrgX;
-    states->viewPortOrgY = -1.0 * (double)pEmr->ptlOrigin.y * states->scalingY +
-                           states->viewPortOrgY;
+    states->OrgX = -1.0 * (double)pEmr->ptlOrigin.x * states->scalingX +
+                           states->OrgX;
+    states->OrgY = -1.0 * (double)pEmr->ptlOrigin.y * states->scalingY +
+                           states->OrgY;
 }
 
 #ifdef __cplusplus

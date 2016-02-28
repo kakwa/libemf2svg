@@ -112,8 +112,8 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
                          scaling_frame_bound;
     states->windowOrgY = -1.0 * (double)pEmr->rclFrame.top * states->scalingY *
                          scaling_frame_bound;
-    states->viewPortOrgX = states->windowOrgX;
-    states->viewPortOrgY = states->windowOrgY;
+    states->OrgX = states->windowOrgX;
+    states->OrgY = states->windowOrgY;
 
     fprintf(out, "<%sg>\n", states->nameSpaceString);
 }

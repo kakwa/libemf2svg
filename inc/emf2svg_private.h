@@ -272,6 +272,8 @@ typedef struct {
     double scaling;
     double scalingX;
     double scalingY;
+    double OrgX;
+    double OrgY;
     double viewPortOrgX;
     double viewPortOrgY;
     double viewPortExX;
