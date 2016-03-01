@@ -1320,7 +1320,39 @@ void U_EMRSETMAPPERFLAGS_print(const char *contents, drawingStates *states) {
   \param contents   pointer to a buffer holding all EMR records
   */
 void U_EMRSETMAPMODE_print(const char *contents, drawingStates *states) {
-    core3_print("U_EMRSETMAPMODE", "iMode:", contents, states);
+    char *name = "U_EMRSETMAPMODE";
+    char *label = "iMode:";
+    UNUSED(name);
+    PU_EMRSETMAPMODE pEmr = (PU_EMRSETMAPMODE)(contents);
+    switch (pEmr->iMode) {
+    case U_MM_TEXT:
+        verbose_printf("   %-15s TEXT\n", label);
+        break;
+    case U_MM_LOMETRIC:
+        verbose_printf("   %-15s LOMETRIC\n", label);
+        break;
+    case U_MM_HIMETRIC:
+        verbose_printf("   %-15s HIMETRIC\n", label);
+        break;
+    case U_MM_LOENGLISH:
+        verbose_printf("   %-15s LOENGLISH\n", label);
+        break;
+    case U_MM_HIENGLISH:
+        verbose_printf("   %-15s HIENGLISH\n", label);
+        break;
+    case U_MM_TWIPS:
+        verbose_printf("   %-15s TWIPS\n", label);
+        break;
+    case U_MM_ISOTROPIC:
+        verbose_printf("   %-15s ISOTROPIC\n", label);
+        break;
+    case U_MM_ANISOTROPIC:
+        verbose_printf("   %-15s ANISOTROPIC\n", label);
+        break;
+    default:
+        break;
+        verbose_printf("   %-15s 0x%8.8X\n", label, pEmr->iMode);
+    }
 }
 
 // U_EMRSETBKMODE            18

@@ -79,9 +79,9 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     }
 
     // set scaling for original resolution
-    // states->scaling = 1;
-    states->scaling = states->imgWidth /
-                      (double)(pEmr->rclBounds.right - pEmr->rclBounds.left);
+    states->scaling = 1;
+    // states->scaling = states->imgWidth /
+    //                  (double)(pEmr->rclBounds.right - pEmr->rclBounds.left);
 
     states->scalingX = states->scaling;
     states->scalingY = states->scaling;
