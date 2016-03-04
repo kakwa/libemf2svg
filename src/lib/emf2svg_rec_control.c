@@ -74,17 +74,20 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     } else if (states->imgWidth != 0) {
         states->imgHeight = states->imgWidth / ratioXY;
     } else {
-        states->imgWidth = pEmr->szlDevice.cx;
-        states->imgHeight = states->imgWidth / ratioXY;
+        states->imgWidth =
+            (double)abs(pEmr->rclBounds.right - pEmr->rclBounds.left);
+        states->imgHeight =
+            (double)abs(pEmr->rclBounds.bottom - pEmr->rclBounds.top);
     }
 
     // set scaling for original resolution
-    states->scaling = 1;
-    // states->scaling = states->imgWidth /
-    //                  (double)(pEmr->rclBounds.right - pEmr->rclBounds.left);
+    // states->scaling = 1;
+    states->scaling = states->imgWidth /
+                      (double)abs(pEmr->rclBounds.right - pEmr->rclBounds.left);
 
-    states->scalingX = states->scaling;
-    states->scalingY = states->scaling;
+    // remember reference point of the output DC
+    states->RefX = (double)pEmr->rclBounds.left;
+    states->RefY = (double)pEmr->rclBounds.top;
 
     states->pxPerMm =
         (double)pEmr->szlDevice.cx / (double)pEmr->szlMillimeters.cx;
@@ -103,17 +106,6 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
         fprintf(out, "width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
                 states->imgHeight);
     }
-
-    double scaling_frame_bound =
-        (double)(pEmr->rclBounds.right - pEmr->rclBounds.left) /
-        (double)(pEmr->rclFrame.right - pEmr->rclFrame.left);
-    // set origin
-    states->windowOrgX = -1.0 * (double)pEmr->rclFrame.left * states->scalingX *
-                         scaling_frame_bound;
-    states->windowOrgY = -1.0 * (double)pEmr->rclFrame.top * states->scalingY *
-                         scaling_frame_bound;
-    states->OrgX = states->windowOrgX;
-    states->OrgY = states->windowOrgY;
 
     fprintf(out, "<%sg>\n", states->nameSpaceString);
 }

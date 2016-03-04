@@ -145,61 +145,7 @@ void U_EMRSETMAPMODE_draw(const char *contents, FILE *out,
                           drawingStates *states) {
     FLAG_PARTIAL;
     PU_EMRSETMAPMODE pEmr = (PU_EMRSETMAPMODE)(contents);
-    switch (pEmr->iMode) {
-    case U_MM_TEXT:
-        states->scalingX = states->scaling * 1;
-        states->scalingY = states->scaling * 1;
-        states->OrgX = 0;
-        states->OrgY = 0;
-        break;
-    case U_MM_LOMETRIC:
-        // convert to 0.1 mm to pixel and invert Y
-        states->scalingX = states->scaling * states->pxPerMm * 0.1 * 1;
-        states->scalingY = states->scaling * states->pxPerMm * 0.1 * -1;
-        states->OrgX = 0;
-        states->OrgY = states->imgHeight;
-        break;
-    case U_MM_HIMETRIC:
-        // convert to 0.01 mm to pixel and invert Y
-        states->scalingX = states->scaling * states->pxPerMm * 0.01 * 1;
-        states->scalingY = states->scaling * states->pxPerMm * 0.01 * -1;
-        states->OrgX = 0;
-        states->OrgY = states->imgHeight;
-        break;
-    case U_MM_LOENGLISH:
-        // convert to 0.01 inch to pixel and invert Y
-        states->scalingX =
-            states->scaling * states->pxPerMm * 0.01 * mmPerInch * 1;
-        states->scalingY =
-            states->scaling * states->pxPerMm * 0.01 * mmPerInch * -1;
-        states->OrgX = 0;
-        states->OrgY = states->imgHeight;
-        break;
-    case U_MM_HIENGLISH:
-        // convert to 0.001 inch to pixel and invert Y
-        states->scalingX =
-            states->scaling * states->pxPerMm * 0.001 * mmPerInch * 1;
-        states->scalingY =
-            states->scaling * states->pxPerMm * 0.001 * mmPerInch * -1;
-        states->OrgX = 0;
-        states->OrgY = states->imgHeight;
-        break;
-    case U_MM_TWIPS:
-        // convert to 1 twips to pixel and invert Y
-        states->scalingX =
-            states->scaling * states->pxPerMm / 1440 * mmPerInch * 1;
-        states->scalingY =
-            states->scaling * states->pxPerMm / 1440 * mmPerInch * -1;
-        states->OrgX = 0;
-        states->OrgY = states->imgHeight;
-        break;
-    case U_MM_ISOTROPIC:
-        states->MapMode = U_MM_ISOTROPIC;
-        break;
-    case U_MM_ANISOTROPIC:
-        states->MapMode = U_MM_ANISOTROPIC;
-        break;
-    }
+    states->MapMode = pEmr->iMode;
     if (states->verbose) {
         U_EMRSETMAPMODE_print(contents, states);
     }
@@ -273,7 +219,7 @@ void U_EMRSETTEXTCOLOR_draw(const char *contents, FILE *out,
 }
 void U_EMRSETVIEWPORTEXTEX_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
-    FLAG_PARTIAL;
+    FLAG_SUPPORTED;
     if (states->verbose) {
         U_EMRSETVIEWPORTEXTEX_print(contents, states);
     }
@@ -287,21 +233,17 @@ void U_EMRSETVIEWPORTEXTEX_draw(const char *contents, FILE *out,
 }
 void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_SUPPORTED;
     if (states->verbose) {
         U_EMRSETVIEWPORTORGEX_print(contents, states);
     }
     PU_EMRSETVIEWPORTORGEX pEmr = (PU_EMRSETVIEWPORTORGEX)(contents);
     states->viewPortOrgX = (double)pEmr->ptlOrigin.x;
     states->viewPortOrgY = (double)pEmr->ptlOrigin.y;
-    // states->OrgX =
-    //    (double)pEmr->ptlOrigin.x * states->scalingX;
-    // states->OrgY =
-    //    (double)pEmr->ptlOrigin.y * states->scalingY;
 }
 void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out,
                               drawingStates *states) {
-    FLAG_PARTIAL;
+    FLAG_SUPPORTED;
     if (states->verbose) {
         U_EMRSETWINDOWEXTEX_print(contents, states);
     }
@@ -309,15 +251,10 @@ void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out,
     PU_EMRSETWINDOWEXTEX pEmr = (PU_EMRSETVIEWPORTEXTEX)(contents);
     states->windowExX = (double)pEmr->szlExtent.cx;
     states->windowExY = (double)pEmr->szlExtent.cy;
-
-    states->scalingX = (double)states->imgWidth / states->windowExX;
-    states->scalingY = (double)states->imgHeight / states->windowExY;
-    states->OrgX = states->windowOrgX;
-    states->OrgY = states->windowOrgY;
 }
 void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out,
                               drawingStates *states) {
-    FLAG_PARTIAL;
+    FLAG_SUPPORTED;
     if (states->verbose) {
         U_EMRSETWINDOWORGEX_print(contents, states);
     }
@@ -325,9 +262,6 @@ void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out,
     PU_EMRSETWINDOWORGEX pEmr = (PU_EMRSETWINDOWORGEX)(contents);
     states->windowOrgX = (double)pEmr->ptlOrigin.x;
     states->windowOrgY = (double)pEmr->ptlOrigin.y;
-
-    states->OrgX = -1.0 * states->windowOrgX * states->scalingX + states->OrgX;
-    states->OrgY = -1.0 * states->windowOrgY * states->scalingY + states->OrgY;
 }
 
 #ifdef __cplusplus

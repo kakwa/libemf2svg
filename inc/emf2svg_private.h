@@ -270,10 +270,8 @@ typedef struct {
     int64_t objectTableSize;
     // scaling ratio
     double scaling;
-    double scalingX;
-    double scalingY;
-    double OrgX;
-    double OrgY;
+    double RefX;
+    double RefY;
     double viewPortOrgX;
     double viewPortOrgY;
     double viewPortExX;
@@ -326,6 +324,8 @@ bool checkOutOfEMF(drawingStates *states, uint64_t address);
 // checks if index is greater than the object table size
 bool checkOutOfOTIndex(drawingStates *states, int64_t index);
 void fill_draw(drawingStates *states, FILE *out, bool *filled, bool *stroked);
+double scaleY(drawingStates *states, double y);
+double scaleX(drawingStates *states, double x);
 
 /* prototypes for objects used in EMR records */
 void hexbytes_draw(drawingStates *states, uint8_t *buf, unsigned int num);

@@ -470,10 +470,152 @@ void point16_draw(drawingStates *states, U_POINT16 pt, FILE *out) {
     states->cur_y = pt.y;
     fprintf(out, "%.4f,%.4f ", ptd.x, ptd.y);
 }
+
+double scaleX(drawingStates *states, double x) {
+    double ret;
+    double scalingX;
+
+    switch (states->MapMode) {
+    case U_MM_TEXT:
+        scalingX = 1.0;
+        break;
+    case U_MM_LOMETRIC:
+        // convert to 0.1 mm to pixel and invert Y
+        scalingX = states->pxPerMm * 0.1 * 1;
+        break;
+    case U_MM_HIMETRIC:
+        // convert to 0.01 mm to pixel and invert Y
+        scalingX = states->pxPerMm * 0.01 * 1;
+        break;
+    case U_MM_LOENGLISH:
+        // convert to 0.01 inch to pixel and invert Y
+        scalingX = states->pxPerMm * 0.01 * mmPerInch * 1;
+        break;
+    case U_MM_HIENGLISH:
+        // convert to 0.001 inch to pixel and invert Y
+        scalingX = states->pxPerMm * 0.001 * mmPerInch * 1;
+        break;
+    case U_MM_TWIPS:
+        // convert to 1 twips to pixel and invert Y
+        scalingX = states->pxPerMm / 1440 * mmPerInch * 1;
+        break;
+    case U_MM_ISOTROPIC:
+        scalingX = states->viewPortExX / states->windowExX;
+        break;
+    case U_MM_ANISOTROPIC:
+        scalingX = states->viewPortExX / states->windowExX;
+        break;
+    default:
+        scalingX = 1.0;
+    }
+    ret = x * scalingX * states->scaling;
+    return ret;
+}
+
+double scaleY(drawingStates *states, double y) {
+    double ret;
+    double scalingY;
+
+    switch (states->MapMode) {
+    case U_MM_TEXT:
+        scalingY = 1.0;
+        break;
+    case U_MM_LOMETRIC:
+        // convert to 0.1 mm to pixel and invert Y
+        scalingY = states->pxPerMm * 0.1 * 1;
+        break;
+    case U_MM_HIMETRIC:
+        // convert to 0.01 mm to pixel and invert Y
+        scalingY = states->pxPerMm * 0.01 * 1;
+        break;
+    case U_MM_LOENGLISH:
+        // convert to 0.01 inch to pixel and invert Y
+        scalingY = states->pxPerMm * 0.01 * mmPerInch * 1;
+        break;
+    case U_MM_HIENGLISH:
+        // convert to 0.001 inch to pixel and invert Y
+        scalingY = states->pxPerMm * 0.001 * mmPerInch * 1;
+        break;
+    case U_MM_TWIPS:
+        // convert to 1 twips to pixel and invert Y
+        scalingY = states->pxPerMm / 1440 * mmPerInch * 1;
+        break;
+    case U_MM_ISOTROPIC:
+        scalingY = states->viewPortExX / states->windowExX;
+        break;
+    case U_MM_ANISOTROPIC:
+        scalingY = states->viewPortExY / states->windowExY;
+        break;
+    default:
+        scalingY = 1.0;
+    }
+    ret = y * scalingY * states->scaling;
+    return ret;
+}
+
 POINT_D point_cal(drawingStates *states, double x, double y) {
     POINT_D ret;
-    ret.x = states->OrgX + ((double)x * (double)states->scalingX);
-    ret.y = states->OrgY + ((double)y * (double)states->scalingY);
+    double scalingX;
+    double scalingY;
+    double windowOrgX = 0.0;
+    double windowOrgY = 0.0;
+    double viewPortOrgX = 0.0;
+    double viewPortOrgY = 0.0;
+
+    switch (states->MapMode) {
+    case U_MM_TEXT:
+        scalingX = 1.0;
+        scalingY = 1.0;
+        break;
+    case U_MM_LOMETRIC:
+        // convert to 0.1 mm to pixel and invert Y
+        scalingX = states->pxPerMm * 0.1 * 1;
+        scalingY = states->pxPerMm * 0.1 * -1;
+        break;
+    case U_MM_HIMETRIC:
+        // convert to 0.01 mm to pixel and invert Y
+        scalingX = states->pxPerMm * 0.01 * 1;
+        scalingY = states->pxPerMm * 0.01 * -1;
+        break;
+    case U_MM_LOENGLISH:
+        // convert to 0.01 inch to pixel and invert Y
+        scalingX = states->pxPerMm * 0.01 * mmPerInch * 1;
+        scalingY = states->pxPerMm * 0.01 * mmPerInch * -1;
+        break;
+    case U_MM_HIENGLISH:
+        // convert to 0.001 inch to pixel and invert Y
+        scalingX = states->pxPerMm * 0.001 * mmPerInch * 1;
+        scalingY = states->pxPerMm * 0.001 * mmPerInch * -1;
+        break;
+    case U_MM_TWIPS:
+        // convert to 1 twips to pixel and invert Y
+        scalingX = states->pxPerMm / 1440 * mmPerInch * 1;
+        scalingY = states->pxPerMm / 1440 * mmPerInch * -1;
+        break;
+    case U_MM_ISOTROPIC:
+        scalingX = states->viewPortExX / states->windowExX;
+        scalingY = scalingX;
+        windowOrgX = states->windowOrgX;
+        windowOrgY = states->windowOrgY;
+        viewPortOrgX = states->viewPortOrgX;
+        viewPortOrgY = states->viewPortOrgY;
+        break;
+    case U_MM_ANISOTROPIC:
+        scalingX = states->viewPortExX / states->windowExX;
+        scalingY = states->viewPortExY / states->windowExY;
+        windowOrgX = states->windowOrgX;
+        windowOrgY = states->windowOrgY;
+        viewPortOrgX = states->viewPortOrgX;
+        viewPortOrgY = states->viewPortOrgY;
+        break;
+    default:
+        scalingX = 1.0;
+        scalingY = 1.0;
+    }
+    ret.x = ((x - windowOrgX) * scalingX - states->RefX + viewPortOrgX) *
+            states->scaling;
+    ret.y = ((y - windowOrgY) * scalingY - states->RefY + viewPortOrgY) *
+            states->scaling;
     return ret;
 }
 
@@ -786,8 +928,8 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
 }
 
 void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
-    double font_height = fabs((double)states->currentDeviceContext.font_height *
-                              states->scalingY);
+    double font_height =
+        fabs(scaleX(states, states->currentDeviceContext.font_height));
     if (states->currentDeviceContext.font_family != NULL)
         fprintf(out, "font-family=\"%s\" ",
                 states->currentDeviceContext.font_family);
@@ -795,12 +937,12 @@ void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
             states->currentDeviceContext.text_red,
             states->currentDeviceContext.text_green,
             states->currentDeviceContext.text_blue);
-    int orientation;
-    if (states->scalingY > 0) {
-        orientation = -1;
-    } else {
-        orientation = 1;
-    }
+    int orientation = 1;
+    // if (states->scalingY > 0) {
+    //    orientation = -1;
+    //} else {
+    //    orientation = 1;
+    //}
 
     if (states->currentDeviceContext.font_escapement != 0) {
         fprintf(out, "transform=\"rotate(%d, %.4f, %.4f) translate(0, %.4f)\" ",
@@ -930,16 +1072,16 @@ void transform_draw(drawingStates *states, FILE *out) {
     if (states->transform_open) {
         fprintf(out, "</%sg>\n", states->nameSpaceString);
     }
-    fprintf(out, "<%sg transform=\"matrix(%.4f %.4f %.4f %.4f %.4f %.4f)\">\n",
-            states->nameSpaceString,
-            (double)states->currentDeviceContext.worldTransform.eM11,
-            (double)states->currentDeviceContext.worldTransform.eM12,
-            (double)states->currentDeviceContext.worldTransform.eM21,
-            (double)states->currentDeviceContext.worldTransform.eM22,
-            (double)states->currentDeviceContext.worldTransform.eDx *
-                (double)states->scalingX,
-            (double)states->currentDeviceContext.worldTransform.eDy *
-                (double)states->scalingY);
+    fprintf(
+        out, "<%sg transform=\"matrix(%.4f %.4f %.4f %.4f %.4f %.4f)\">\n",
+        states->nameSpaceString,
+        (double)states->currentDeviceContext.worldTransform.eM11,
+        (double)states->currentDeviceContext.worldTransform.eM12,
+        (double)states->currentDeviceContext.worldTransform.eM21,
+        (double)states->currentDeviceContext.worldTransform.eM22,
+        (double)scaleX(states, states->currentDeviceContext.worldTransform.eDx),
+        (double)scaleY(states,
+                       states->currentDeviceContext.worldTransform.eDy));
     states->transform_open = true;
 }
 bool transform_set(drawingStates *states, U_XFORM xform, uint32_t iMode) {
