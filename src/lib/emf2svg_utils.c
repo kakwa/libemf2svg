@@ -612,10 +612,8 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
         scalingX = 1.0;
         scalingY = 1.0;
     }
-    ret.x = ((x - windowOrgX) * scalingX - states->RefX + viewPortOrgX) *
-            states->scaling;
-    ret.y = ((y - windowOrgY) * scalingY - states->RefY + viewPortOrgY) *
-            states->scaling;
+    ret.x = ((x - windowOrgX) * scalingX + viewPortOrgX) * states->scaling;
+    ret.y = ((y - windowOrgY) * scalingY + viewPortOrgY) * states->scaling;
     return ret;
 }
 
@@ -938,11 +936,11 @@ void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
             states->currentDeviceContext.text_green,
             states->currentDeviceContext.text_blue);
     int orientation = 1;
-    // if (states->scalingY > 0) {
-    //    orientation = -1;
-    //} else {
-    //    orientation = 1;
-    //}
+    if (scaleY(states, 1.0) > 0) {
+        orientation = -1;
+    } else {
+        orientation = 1;
+    }
 
     if (states->currentDeviceContext.font_escapement != 0) {
         fprintf(out, "transform=\"rotate(%d, %.4f, %.4f) translate(0, %.4f)\" ",
