@@ -227,9 +227,6 @@ void U_EMRSETVIEWPORTEXTEX_draw(const char *contents, FILE *out,
 
     states->viewPortExX = (double)pEmr->szlExtent.cx;
     states->viewPortExY = (double)pEmr->szlExtent.cy;
-
-    states->imgWidth = states->viewPortExX * states->scaling;
-    states->imgHeight = states->viewPortExY * states->scaling;
 }
 void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
