@@ -612,10 +612,8 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
         scalingX = 1.0;
         scalingY = 1.0;
     }
-    ret.x = ((x - windowOrgX) * scalingX - states->RefX + viewPortOrgX) *
-            states->scaling;
-    ret.y = ((y - windowOrgY) * scalingY - states->RefY + viewPortOrgY) *
-            states->scaling;
+    ret.x = ((x - windowOrgX) * scalingX + viewPortOrgX) * states->scaling;
+    ret.y = ((y - windowOrgY) * scalingY + viewPortOrgY) * states->scaling;
     return ret;
 }
 

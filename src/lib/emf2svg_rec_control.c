@@ -107,7 +107,9 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
                 states->imgHeight);
     }
 
-    fprintf(out, "<%sg>\n", states->nameSpaceString);
+    fprintf(out, "<%sg transform=\"translate(%.4f, %.4f)\">\n",
+            states->nameSpaceString, -1.0 * states->RefX * states->scaling,
+            -1.0 * states->RefY * states->scaling);
 }
 
 #ifdef __cplusplus
