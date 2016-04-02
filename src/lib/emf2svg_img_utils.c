@@ -44,8 +44,10 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     size_t x, y;
+    size_t width_by_height;
     // png_uint_32 bytes_per_row;
     png_byte **row_pointers = NULL;
+    bool alpha_channel_empty = true;
 
     if (fp == NULL)
         return -1;
@@ -80,22 +82,41 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
     /* Initialize rows of PNG. */
     // bytes_per_row = bitmap->width * bytes_per_pixel;
     row_pointers = png_malloc(png_ptr, bitmap->height * sizeof(png_byte *));
+    // Check to see if alpha channel is used (nonzero)
+    width_by_height = bitmap->width * bitmap->height;
+    for( x = 0 ; x < width_by_height ; ++x ) {
+        if( bitmap->pixels[x].alpha ) {
+           alpha_channel_empty = false;
+           break;
+        }
+    }
+
     for (y = 0; y < bitmap->height; ++y) {
         uint8_t *row = png_malloc(png_ptr, sizeof(uint8_t) * bitmap->width * 4);
         // row_pointers[y] = (png_byte *)row;
         row_pointers[bitmap->height - y - 1] = row;
-        for (x = 0; x < bitmap->width; ++x) {
-            // RGBPixel *color = pixel_at(bitmap, x, y);
-            RGBAPixel color = bitmap->pixels[((x + bitmap->width * y))];
-            // printf("(%d, %d)\n", bitmap->width, bitmap->height);
-            // printf("(%d, %d)\n", x, y);
-            // printf("color:0x%0X%0X%0x\n", color.red, color.green,
-            // color.blue);
-            *row++ = color.red;
-            *row++ = color.green;
-            *row++ = color.blue;
-            //*row++ = color.alpha;
-            *row++ = 0xFF;
+        if( alpha_channel_empty ) {
+            for (x = 0; x < bitmap->width; ++x) {
+                // RGBPixel *color = pixel_at(bitmap, x, y);
+                RGBAPixel color = bitmap->pixels[((x + bitmap->width * y))];
+                // printf("(%d, %d)\n", bitmap->width, bitmap->height);
+                // printf("(%d, %d)\n", x, y);
+                // printf("color:0x%0X%0X%0x\n", color.red, color.green,
+                // color.blue);
+                *row++ = color.red;
+                *row++ = color.green;
+                *row++ = color.blue;
+                //*row++ = color.alpha;
+                *row++ = 0xFF;
+            }
+        } else {
+            for(x = 0; x < bitmap->width ; ++x ) {
+                RGBAPixel color = bitmap->pixels[((x + bitmap->width * y))];
+                *row++ = color.red;
+                *row++ = color.green;
+                *row++ = color.blue;
+                *row++ = color.alpha;
+            }
         }
     }
 
