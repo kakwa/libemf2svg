@@ -608,7 +608,7 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
                       size_t off, FILE *out, drawingStates *states);
 void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
                     PU_BITMAPINFOHEADER BmiSrc, const unsigned char *BmpSrc,
-                    size_t size);
+                    size_t size, bool assign_mono_colors_from_dc);
 emfImageLibrary *image_library_writer(const char *contents,FILE *out, drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size,const unsigned char *BmpSrc);      
 emfImageLibrary *image_library_create(int id,PU_BITMAPINFOHEADER BmiSrc,size_t size);
 emfImageLibrary *image_library_add(drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size);

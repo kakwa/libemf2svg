@@ -72,19 +72,19 @@ void U_EMRCREATEDIBPATTERNBRUSHPT_draw(const char *contents, FILE *out,
     PU_BITMAPINFOHEADER BmiSrc = (PU_BITMAPINFOHEADER)(contents + pEmr->offBmi);
 
     // check that the bitmap is not outside the emf file
-    returnOutOfEmf(contents + pEmr->offBmi);
-    returnOutOfEmf(contents + pEmr->offBmi + pEmr->cbBits);
+    returnOutOfEmf(contents + pEmr->offBits);
+    returnOutOfEmf(contents + pEmr->offBits + pEmr->cbBits);
 
-    const unsigned char *BmpSrc = (const unsigned char *)(contents + pEmr->offBmi);
+    const unsigned char *BmpSrc = (const unsigned char *)(contents + pEmr->offBits);
     emfImageLibrary *image = image_library_writer(contents,out, states, BmiSrc,pEmr->cbBits,BmpSrc);
     if( image ) {
         // draw image;        
         uint16_t index = pEmr->ihBrush;
-        returnOutOfOTIndex(index);
+        returnOutOfOTIndex(index);        
         states->objectTable[index].fill_idx = image->id;
-        //states->objectTable[index].fill_red = pEmr->lb.lbColor.Red;
-        //states->objectTable[index].fill_green = pEmr->lb.lbColor.Green;
-        //states->objectTable[index].fill_blue = pEmr->lb.lbColor.Blue;
+        states->objectTable[index].fill_red = states->currentDeviceContext.fill_red;
+        states->objectTable[index].fill_green = states->currentDeviceContext.fill_green;
+        states->objectTable[index].fill_blue = states->currentDeviceContext.fill_blue;
         states->objectTable[index].fill_mode = U_BS_MONOPATTERN;
         states->objectTable[index].fill_set = true;        
     }      
@@ -105,19 +105,19 @@ void U_EMRCREATEMONOBRUSH_draw(const char *contents, FILE *out,
     PU_BITMAPINFOHEADER BmiSrc = (PU_BITMAPINFOHEADER)(contents + pEmr->offBmi);
 
     // check that the bitmap is not outside the emf file
-    returnOutOfEmf(contents + pEmr->offBmi);
-    returnOutOfEmf(contents + pEmr->offBmi + pEmr->cbBits);
+    returnOutOfEmf(contents + pEmr->offBits);
+    returnOutOfEmf(contents + pEmr->offBits + pEmr->cbBits);
 
-    const unsigned char *BmpSrc = (const unsigned char *)(contents + pEmr->offBmi);
+    const unsigned char *BmpSrc = (const unsigned char *)(contents + pEmr->offBits);
     emfImageLibrary *image = image_library_writer(contents,out, states, BmiSrc,pEmr->cbBits,BmpSrc);
     if( image ) {
         // draw image;
         uint16_t index = pEmr->ihBrush;
         returnOutOfOTIndex(index);
         states->objectTable[index].fill_idx = image->id;
-        //states->objectTable[index].fill_red = pEmr->lb.lbColor.Red;
-        //states->objectTable[index].fill_green = pEmr->lb.lbColor.Green;
-        //states->objectTable[index].fill_blue = pEmr->lb.lbColor.Blue;
+        states->objectTable[index].fill_red = states->currentDeviceContext.fill_red;
+        states->objectTable[index].fill_green = states->currentDeviceContext.fill_green;
+        states->objectTable[index].fill_blue = states->currentDeviceContext.fill_blue;
         states->objectTable[index].fill_mode = U_BS_MONOPATTERN;
         states->objectTable[index].fill_set = true;         
     }      

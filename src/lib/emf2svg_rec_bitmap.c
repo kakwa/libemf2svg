@@ -49,7 +49,7 @@ void U_EMRALPHABLEND_draw(const char *contents, FILE *out,
     clipset_draw(states, out);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
-                   (size_t)pEmr->cbBitsSrc);
+                   (size_t)pEmr->cbBitsSrc,false);
     fprintf(out, "/>\n");
 }
 void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
@@ -108,7 +108,7 @@ void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
     // fprintf(out, " fill-opacity=\"%.4f\" ", alpha);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
-                   (size_t)pEmr->cbBitsSrc);
+                   (size_t)pEmr->cbBitsSrc,false);
     fprintf(out, "/>\n");
 }
 void U_EMRMASKBLT_draw(const char *contents, FILE *out, drawingStates *states) {
@@ -164,7 +164,7 @@ void U_EMRSTRETCHBLT_draw(const char *contents, FILE *out,
     clipset_draw(states, out);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
-                   (size_t)pEmr->cbBitsSrc);
+                   (size_t)pEmr->cbBitsSrc,false);
     fprintf(out, "/>\n");
 }
 void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
@@ -199,7 +199,7 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     clipset_draw(states, out);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
-                   (size_t)pEmr->cbBitsSrc);
+                   (size_t)pEmr->cbBitsSrc,false);
     fprintf(out, "/>\n");
 }
 void U_EMRTRANSPARENTBLT_draw(const char *contents, FILE *out,
@@ -212,7 +212,7 @@ void U_EMRTRANSPARENTBLT_draw(const char *contents, FILE *out,
 
 void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
                     PU_BITMAPINFOHEADER BmiSrc, const unsigned char *BmpSrc,
-                    size_t size) {
+                    size_t size, bool assign_mono_colors_from_dc) {
     char *b64Bmp = NULL;
     size_t b64s;
     char *tmp = NULL;
@@ -246,6 +246,7 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
     RGBBitmap convert_out;
     convert_out.pixels = NULL;
     const U_RGBQUAD *ct = NULL;
+    U_RGBQUAD monoCt[2];
     uint32_t width, height, colortype, numCt, invert;
     char *rgba_px = NULL;
     int dibparams;
@@ -291,6 +292,19 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
         free(convert_out.pixels);
         states->Error = true;
         return;
+    }
+    if( colortype == U_BCBM_MONOCHROME ) {
+        if( assign_mono_colors_from_dc ) {
+            monoCt[0].Red = states->currentDeviceContext.text_red;
+            monoCt[0].Green = states->currentDeviceContext.text_green;
+            monoCt[0].Blue = states->currentDeviceContext.text_blue;
+            monoCt[0].Reserved = 0xff;
+            monoCt[1].Red = states->currentDeviceContext.bk_red;
+            monoCt[1].Green = states->currentDeviceContext.bk_green;
+            monoCt[1].Blue = states->currentDeviceContext.bk_blue;
+            monoCt[1].Reserved = 0xff; //states->currentDeviceContext.bk_mode ? 0xff : 0;
+            ct = monoCt;
+        }
     }
     DIB_to_RGBA(in, ct, numCt, &rgba_px, width, height, colortype, numCt,
                 invert);
@@ -385,7 +399,7 @@ emfImageLibrary *image_library_writer(const char *contents,FILE *out, drawingSta
                 fprintf(out, "<%sdefs><%simage id=\"img-%d\" x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" ",
                 states->nameSpaceString, states->nameSpaceString,
                 image->id , width , height );
-                dib_img_writer(contents, out, states, BmiSrc, BmpSrc, size );                
+                dib_img_writer(contents, out, states, BmiSrc, BmpSrc, size , true);                
                 fprintf(out, " preserveAspectRatio=\"none\" />" );
                 fprintf(out, "<%spattern id=\"img-%d-ref\" x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" patternUnits=\"userSpaceOnUse\" >\n",states->nameSpaceString , image->id, width , height);
                 fprintf(out, "<%suse id=\"img-%d-ign\" xlink:href=\"#img-%d\" />" , states->nameSpaceString ,image->id,image->id); 
