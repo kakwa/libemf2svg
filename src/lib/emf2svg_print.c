@@ -103,7 +103,7 @@ void fill_print(drawingStates *states) {
         break;
     case U_BS_MONOPATTERN:
         verbose_printf(
-            "   Fill Mode:      BS_MONOPATTERN    Status: %sUNSUPPORTED%s\n",
+            "   Fill Mode:      BS_MONOPATTERN    Status: %sSUPPORTED%s\n",
             KRED, KNRM);
         break;
     default:

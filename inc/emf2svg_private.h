@@ -229,6 +229,13 @@ typedef struct {
     struct pathstack *pathStackLast;
 } emfStruct;
 
+// Image library for images used as fill patterns
+typedef struct imageLibrary {
+   int id;
+   PU_BITMAPINFOHEADER content;
+   struct imageLibrary *next;
+} emfImageLibrary;
+
 // structure recording drawing states
 typedef struct {
     // unique ID (simple increment)
@@ -297,6 +304,9 @@ typedef struct {
     // for example, associate path and pathfill/pathstroke/clipping
     emfStruct emfStructure;
     PATH *currentPath;
+    // image library for pattern support
+    int count_images;
+    emfImageLibrary *library;
 } drawingStates;
 
 #define U_MWT_SET 4 //!< Transform is basic SET
@@ -599,6 +609,11 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
 void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
                     PU_BITMAPINFOHEADER BmiSrc, const unsigned char *BmpSrc,
                     size_t size);
+emfImageLibrary *image_library_writer(const char *contents,FILE *out, drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size,const unsigned char *BmpSrc);      
+emfImageLibrary *image_library_create(int id,PU_BITMAPINFOHEADER BmiSrc,size_t size);
+emfImageLibrary *image_library_add(drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size);
+emfImageLibrary *image_library_find(emfImageLibrary *lib,PU_BITMAPINFOHEADER BmiSrc,size_t size);
+void freeEmfImageLibrary(drawingStates *states);
 void text_style_draw(FILE *out, drawingStates *states, POINT_D Org);
 void char_to_utf16(char *in, size_t size_in, char **out);
 void text_convert(char *in, size_t size_in, char **out, size_t *size_out,

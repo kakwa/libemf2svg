@@ -62,14 +62,66 @@ void U_EMRCREATECOLORSPACEW_draw(const char *contents, FILE *out,
 }
 void U_EMRCREATEDIBPATTERNBRUSHPT_draw(const char *contents, FILE *out,
                                        drawingStates *states) {
-    FLAG_IGNORED;
+    PU_EMRCREATEMONOBRUSH pEmr = (PU_EMRCREATEMONOBRUSH)(contents);
+ 
+    // check that the header is not outside of the emf file
+    returnOutOfEmf(contents + pEmr->offBmi);
+    returnOutOfEmf(contents + pEmr->offBmi + sizeof(U_BITMAPINFOHEADER));
+ 
+    // get the header
+    PU_BITMAPINFOHEADER BmiSrc = (PU_BITMAPINFOHEADER)(contents + pEmr->offBmi);
+
+    // check that the bitmap is not outside the emf file
+    returnOutOfEmf(contents + pEmr->offBmi);
+    returnOutOfEmf(contents + pEmr->offBmi + pEmr->cbBits);
+
+    const unsigned char *BmpSrc = (const unsigned char *)(contents + pEmr->offBmi);
+    emfImageLibrary *image = image_library_writer(contents,out, states, BmiSrc,pEmr->cbBits,BmpSrc);
+    if( image ) {
+        // draw image;        
+        uint16_t index = pEmr->ihBrush;
+        returnOutOfOTIndex(index);
+        states->objectTable[index].fill_idx = image->id;
+        //states->objectTable[index].fill_red = pEmr->lb.lbColor.Red;
+        //states->objectTable[index].fill_green = pEmr->lb.lbColor.Green;
+        //states->objectTable[index].fill_blue = pEmr->lb.lbColor.Blue;
+        states->objectTable[index].fill_mode = U_BS_MONOPATTERN;
+        states->objectTable[index].fill_set = true;        
+    }      
+    FLAG_SUPPORTED;
     if (states->verbose) {
         U_EMRCREATEDIBPATTERNBRUSHPT_print(contents, states);
     }
 }
 void U_EMRCREATEMONOBRUSH_draw(const char *contents, FILE *out,
                                drawingStates *states) {
-    FLAG_IGNORED;
+    PU_EMRCREATEMONOBRUSH pEmr = (PU_EMRCREATEMONOBRUSH)(contents);
+ 
+    // check that the header is not outside of the emf file
+    returnOutOfEmf(contents + pEmr->offBmi);
+    returnOutOfEmf(contents + pEmr->offBmi + sizeof(U_BITMAPINFOHEADER));
+ 
+    // get the header
+    PU_BITMAPINFOHEADER BmiSrc = (PU_BITMAPINFOHEADER)(contents + pEmr->offBmi);
+
+    // check that the bitmap is not outside the emf file
+    returnOutOfEmf(contents + pEmr->offBmi);
+    returnOutOfEmf(contents + pEmr->offBmi + pEmr->cbBits);
+
+    const unsigned char *BmpSrc = (const unsigned char *)(contents + pEmr->offBmi);
+    emfImageLibrary *image = image_library_writer(contents,out, states, BmiSrc,pEmr->cbBits,BmpSrc);
+    if( image ) {
+        // draw image;
+        uint16_t index = pEmr->ihBrush;
+        returnOutOfOTIndex(index);
+        states->objectTable[index].fill_idx = image->id;
+        //states->objectTable[index].fill_red = pEmr->lb.lbColor.Red;
+        //states->objectTable[index].fill_green = pEmr->lb.lbColor.Green;
+        //states->objectTable[index].fill_blue = pEmr->lb.lbColor.Blue;
+        states->objectTable[index].fill_mode = U_BS_MONOPATTERN;
+        states->objectTable[index].fill_set = true;         
+    }      
+    FLAG_SUPPORTED;
     if (states->verbose) {
         U_EMRCREATEMONOBRUSH_print(contents, states);
     }

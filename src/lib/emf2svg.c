@@ -763,6 +763,7 @@ int emf2svg(char *contents, size_t length, char **out,
     free(states->objectTable);
     freeDeviceContext(&(states->currentDeviceContext));
     freeDeviceContextStack(states);
+    freeEmfImageLibrary(states);
     free(states);
 
     fflush(stream);

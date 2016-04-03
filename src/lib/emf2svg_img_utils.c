@@ -457,6 +457,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
     out_img.height = img.height;
     return out_img;
 }
+
 #ifdef __cplusplus
 }
 #endif

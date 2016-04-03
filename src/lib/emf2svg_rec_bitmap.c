@@ -59,11 +59,23 @@ void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
     }
     PU_EMRBITBLT pEmr = (PU_EMRBITBLT)(contents);
 
-    // FIXME
-    // if no bitmap, return now.
+    // if no bitmap, check for pattern brush
     // Should fill the output with the current brush and the raster operation
-    // specified
     if (pEmr->cbBitsSrc == 0) {
+        if( pEmr->dwRop == U_NOOP ) 
+            return;
+        if( states->currentDeviceContext.fill_mode == U_BS_MONOPATTERN ) { 
+            POINT_D size = point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
+            POINT_D position = point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
+            fprintf(out, "<%spath style=\"fill:url(#img-%d-ref);", states->nameSpaceString , states->currentDeviceContext.fill_idx );
+            fprintf(out, "\" d=\"M %.4f,%.4f L %.4f,%.4f L %.4f,%.4f L %.4f,%.4f Z\" />"
+            , position.x , position.y 
+            , position.x + size.x , position.y 
+            , position.x + size.x , position.y + size.y 
+            , position.x , position.y + size.y 
+            );
+        }        
+        // FIXME - non MONOBRUSH
         return;
     }
 
@@ -312,6 +324,77 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
     }
 }
 
+// Find an image that matches (otherwise return NULL)
+emfImageLibrary *image_library_find(emfImageLibrary *lib,PU_BITMAPINFOHEADER BmiSrc,size_t size) {
+    while( lib ) {
+        if( memcmp(BmiSrc,lib->content,size) == 0 )
+             return lib;
+        lib = lib->next;
+    }
+    return NULL;
+}
+
+
+// Create a new image
+emfImageLibrary *image_library_create(int id,PU_BITMAPINFOHEADER BmiSrc,size_t size) {
+   emfImageLibrary *image = (emfImageLibrary *)calloc(1, sizeof(emfImageLibrary)+size);
+   image->id = id;
+   image->content = (PU_BITMAPINFOHEADER)(image+1);
+   memcpy( image->content , BmiSrc , size );
+   return image; 
+}
+
+
+// Add an image to the states image 'library'
+emfImageLibrary *image_library_add(drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size) {
+    ++states->count_images;
+    emfImageLibrary *image = image_library_create(states->count_images,BmiSrc,size);
+    if( states->library ) {
+         emfImageLibrary *last = states->library;
+         while( last->next ) {
+             last = last->next;
+         }
+         last->next = image;
+    } else {
+        states->library = image;
+    }
+    return image;
+}
+
+// Release image library;
+void freeEmfImageLibrary(drawingStates *states) {
+     emfImageLibrary *last = states->library;
+     while( last ) {
+         emfImageLibrary *next = last->next;
+         free(last);
+         last = next;
+     }
+}
+
+// Lookup existing - or create and emit new image reference for use with image brush
+emfImageLibrary *image_library_writer(const char *contents,FILE *out, drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size,const unsigned char *BmpSrc)      
+{
+    emfImageLibrary *image = image_library_find(states->library, BmiSrc, size);
+    if( !image ) {
+        image = image_library_add( states , BmiSrc , size );
+        if( image ) {
+            const U_RGBQUAD *ct = NULL;
+            uint32_t width = 0, height = 0, colortype, numCt, invert;         
+            e2s_get_DIB_params((PU_BITMAPINFO)BmiSrc, (const U_RGBQUAD **)&ct, &numCt, &width, &height, &colortype, &invert);                     
+            if( width > 0 && height > 0 ) {
+                fprintf(out, "<%sdefs><%simage id=\"img-%d\" x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" ",
+                states->nameSpaceString, states->nameSpaceString,
+                image->id , width , height );
+                dib_img_writer(contents, out, states, BmiSrc, BmpSrc, size );                
+                fprintf(out, " preserveAspectRatio=\"none\" />" );
+                fprintf(out, "<%spattern id=\"img-%d-ref\" x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" patternUnits=\"userSpaceOnUse\" >\n",states->nameSpaceString , image->id, width , height);
+                fprintf(out, "<%suse id=\"img-%d-ign\" xlink:href=\"#img-%d\" />" , states->nameSpaceString ,image->id,image->id); 
+                fprintf(out, "</%spattern></%sdefs>\n",states->nameSpaceString,states->nameSpaceString);
+            };
+        }
+    }
+    return image;    
+}
 #ifdef __cplusplus
 }
 #endif
