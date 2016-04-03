@@ -62,19 +62,28 @@ void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
     // if no bitmap, check for pattern brush
     // Should fill the output with the current brush and the raster operation
     if (pEmr->cbBitsSrc == 0) {
+        char style[ 256 ];
         if( pEmr->dwRop == U_NOOP ) 
-            return;
-        if( states->currentDeviceContext.fill_mode == U_BS_MONOPATTERN ) { 
+            return;            
+        if( states->currentDeviceContext.fill_mode == U_BS_MONOPATTERN ) {
+            sprintf(style,"fill:url(#img-%d-ref);", states->currentDeviceContext.fill_idx ); 
+        } else if( states->currentDeviceContext.fill_mode == U_BS_SOLID ) {
+            sprintf(style,"fill:#%02x%02x%02x" , states->currentDeviceContext.fill_red , states->currentDeviceContext.fill_green , states->currentDeviceContext.fill_blue );    
+        } else {
+             style[0] = '\0';       
+        }   
+        if( style[0] ) {
             POINT_D size = point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
             POINT_D position = point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
-            fprintf(out, "<%spath style=\"fill:url(#img-%d-ref);", states->nameSpaceString , states->currentDeviceContext.fill_idx );
+            fprintf(out, "<%spath style=\"%s", states->nameSpaceString , style );
             fprintf(out, "\" d=\"M %.4f,%.4f L %.4f,%.4f L %.4f,%.4f L %.4f,%.4f Z\" />"
             , position.x , position.y 
             , position.x + size.x , position.y 
             , position.x + size.x , position.y + size.y 
             , position.x , position.y + size.y 
-            );
-        }        
+            );            
+        }
+        // else     
         // FIXME - non MONOBRUSH
         return;
     }
