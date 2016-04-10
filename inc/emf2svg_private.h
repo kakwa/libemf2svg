@@ -241,7 +241,7 @@ typedef struct {
     // unique ID (simple increment)
     int uniqId;
     // SVG namespace (the '<something>' before each fields)
-    char *nameSpace;
+    const char *nameSpace;
     // Same as previously, but with ':'
     char *nameSpaceString;
     // Verbose mode, output fields and fields values if True
