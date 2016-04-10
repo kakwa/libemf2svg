@@ -9,8 +9,10 @@ extern "C" {
 #include <stdio.h>
 #include <stdint.h>
 #include "emf2svg_img_utils.h"
-
 #include <png.h>
+#ifdef DARWIN
+#include <memstream.h>
+#endif
 
 RGBAPixel *pixel_at(RGBABitmap *bitmap, int x, int y) {
     return bitmap->pixels + (bitmap->width * y + x);
