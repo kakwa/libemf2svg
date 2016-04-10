@@ -11,7 +11,7 @@ extern "C" {
 // structure containing generator arguments
 typedef struct {
     // SVG namespace (the '<something>:' before each fields)
-    char *nameSpace;
+    const char *nameSpace;
     // Verbose mode, output fields and fields values if True
     bool verbose;
     // Handle emf+ records or not
