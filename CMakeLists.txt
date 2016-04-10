@@ -11,7 +11,7 @@ set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_
 
 # set version as a definition
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++ -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 
 # Options
 option(DEBUG     "compile with debug symbol"    OFF)
@@ -86,6 +86,7 @@ include_directories(
     ./inc/
     /usr/include/ 
     /sw/include/
+    /usr/local/include
 )
 
 # Compile the library
