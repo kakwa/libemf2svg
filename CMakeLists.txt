@@ -9,6 +9,12 @@ set(emf2svg_VERSION_PATCH 0)
 
 set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
+add_custom_target(tag
+    COMMAND git tag -a ${emf2svg_VERSION} -m "tagging version ${emf2svg_VERSION}"
+    COMMAND git push origin ${emf2svg_VERSION}
+)
+
+
 # set version as a definition
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
