@@ -42,6 +42,11 @@ $ apt-get install cmake
 $ apt-get install libpng-dev libc6-dev
 ```
 
+Installing the dependencies on OS X:
+```bash
+$ brew install argp-standalone
+```
+
 Building
 --------
 
@@ -149,10 +154,10 @@ EMF RECORDS:
 
 |   Status  | Count | Percent |
 |:---------:|:-----:|:-------:|
-| Supported |   34  | [  32%] |
+| Supported |   36  | [  34%] |
 | Partial   |   33  | [  31%] |
 | Unused    |    2  | [   1%] |
-| Ignored   |   36  | [  34%] |
+| Ignored   |   34  | [  32%] |
 | Total     |  105  |         |
 
 EMF+ RECORDS:
@@ -245,3 +250,16 @@ To print records index in svg as comments:
 ```bash
 $ cmake -DINDEX=ON . && make
 ```
+
+To reformat/reindent the code (clang-format):
+
+```bash
+$ ./goodies/format
+```
+
+Contributing
+------------
+
+Contribution are welcomed.
+Nothing special here, it's the usual "fork; commit(s); pull request".
+Only one thing however, run `./goodies/format` (clang-format) before the pull request.
