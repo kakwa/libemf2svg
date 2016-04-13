@@ -73,6 +73,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    set(EXTERNAL_MEMSTREAM "memstream")
    set(EXTERNAL_ICONV "iconv")
+   set(EXTERNAL_ARGP "argp")
    add_definitions(-DDARWIN)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
@@ -140,6 +141,7 @@ target_link_libraries(emf2svg
     png
     ${EXTERNAL_MEMSTREAM}
     ${EXTERNAL_ICONV}
+    ${EXTERNAL_ARGP}
 ) 
 
 
