@@ -6,7 +6,7 @@ matrix:
 
 sudo: false
 
-before install:
+before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update  ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install argp-standalone; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install valgrind; fi
