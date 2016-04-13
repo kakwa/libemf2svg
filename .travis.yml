@@ -1,3 +1,9 @@
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+    - os: osx
+
 sudo: false
 
 addons:
