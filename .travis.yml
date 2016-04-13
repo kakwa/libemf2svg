@@ -13,7 +13,6 @@ addons:
     - time
     - valgrind
     - libxml2-utils
-    - libpolyclipping-dev
     - libc6-dev
     - gcc
     - g++
