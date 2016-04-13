@@ -71,7 +71,8 @@ endif(NOT FORCELE)
 # Build external dependancies if we are on OSX
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
-   set(MEMSTREAMLIB "memstream")
+   set(EXTERNAL_MEMSTREAM "memstream")
+   set(EXTERNAL_ICONV "iconv")
    add_definitions(-DDARWIN)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
@@ -137,7 +138,8 @@ set_target_properties(emf2svg
 add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 target_link_libraries(emf2svg
     png
-    ${MEMSTREAMLIB}
+    ${EXTERNAL_MEMSTREAM}
+    ${EXTERNAL_ICONV}
 ) 
 
 
@@ -149,7 +151,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
 
 # install binaries and library
-INSTALL(TARGETS emf2svg emf2svg-conv ${MEMSTREAMLIB}
+INSTALL(TARGETS emf2svg emf2svg-conv ${EXTERNAL_MEMSTREAM}
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
