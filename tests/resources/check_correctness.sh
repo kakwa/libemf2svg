@@ -1,12 +1,19 @@
 #!/bin/sh
 
+if [ "`uname`" = "Darwin" ]
+then
+    RL=greadlink
+else
+    RL=readlink
+fi
+
 OUTDIR="../out"
 EMFDIR="./emf"
 ret=0
 VAGRIND_CMD="valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes --error-exitcode=42"
 
 VERBOSE=1
-ABSPATH=$(readlink -f "$(dirname $0)")
+ABSPATH=$($RL -f "$(dirname $0)")
 STOPONERROR="no"
 
 help(){
@@ -18,7 +25,7 @@ Script checking memleaks, segfault and svg correctness of emf2svg-conv
 arguments:
   -h: diplays this help
   -v: verbose mode, print emf records
-  -e: alternate emf dir (default '`readlink -f "$ABSPATH/$EMFDIR"`')
+  -e: alternate emf dir (default '`$RL -f "$ABSPATH/$EMFDIR"`')
   -s: stop on first error
   -r: resize to 800x600
   -x: disable xmllint check (svg integrity)
@@ -43,7 +50,7 @@ while getopts ":hnNxrvse:" opt; do
         VERBOSE_OPT='--verbose'
         ;;
     e)
-        EMFDIR=`readlink -f "$OPTARG" |sed "s%$ABSPATH%.%"`
+        EMFDIR=`$RL -f "$OPTARG" |sed "s%$ABSPATH%.%"`
         ;;
     s)
         STOPONERROR="yes"
@@ -82,12 +89,12 @@ cd $ABSPATH
 . ./colors.sh
 rm -rf $OUTDIR
 mkdir -p $OUTDIR
-CMD="`readlink -f ../../emf2svg-conv`"
-OUTDIR=`readlink -f $OUTDIR`
-DTD=`readlink -f ./svg11-flat.dtd`
+CMD="`$RL -f ../../emf2svg-conv`"
+OUTDIR=`$RL -f $OUTDIR`
+DTD=`$RL -f ./svg11-flat.dtd`
 for emf in `find $EMFDIR -type f -name "*.emf" |sort`
 do
-    EMF="`readlink -f $emf`"
+    EMF="`$RL -f $emf`"
     SVG="${OUTDIR}/`basename ${emf}`.svg"
     verbose_print "\n############## `basename "${emf}"` ####################"
     verbose_print "Command: $CMD $RESIZE_OPTS -p -i \"$EMF\" -o \"${SVG}\""

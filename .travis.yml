@@ -12,6 +12,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install argp-standalone; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install valgrind; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libxml2; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install coreutils; fi
 
 addons:
   apt:

@@ -10,6 +10,13 @@ help(){
   exit 1
 }
 
+if [ "`uname`" = "Darwin" ]
+then
+    RL=greadlink
+else
+    RL=readlink
+fi
+
 while getopts ":hi:s:" opt; do
   case $opt in
 
@@ -19,7 +26,7 @@ while getopts ":hi:s:" opt; do
         STATUS="$OPTARG"
         ;;
     i)
-        EMF="`readlink -f $OPTARG`"
+        EMF="`$RL -f $OPTARG`"
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
