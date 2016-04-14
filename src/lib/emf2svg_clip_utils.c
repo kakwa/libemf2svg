@@ -6,10 +6,10 @@ extern "C" {
 #define _POSIX_C_SOURCE 200809L
 #endif
 
+#include <stdio.h>
+#include <stdint.h>
 #include "emf2svg_img_utils.h"
 #include "emf2svg_private.h"
-#include <stdint.h>
-#include <stdio.h>
 
 void clip_rgn_mix(drawingStates *states, PATH *path, uint32_t mode) {
     // FIXME need to handle clip region definition properly.

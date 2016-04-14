@@ -1,8 +1,8 @@
-#include <stdbool.h>
-#include <stddef.h> /* for offsetof() macro */
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stddef.h> /* for offsetof() macro */
 #include <string.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,7 +11,7 @@ extern "C" {
 // structure containing generator arguments
 typedef struct {
     // SVG namespace (the '<something>:' before each fields)
-    const char *nameSpace;
+    char *nameSpace;
     // Verbose mode, output fields and fields values if True
     bool verbose;
     // Handle emf+ records or not

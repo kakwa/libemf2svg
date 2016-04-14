@@ -5,14 +5,16 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include "emf2svg_img_utils.h"
-#include <png.h>
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include "emf2svg_img_utils.h"
+
 #ifdef DARWIN
 #include <memstream.h>
 #endif
+
+#include <png.h>
 
 RGBAPixel *pixel_at(RGBABitmap *bitmap, int x, int y) {
     return bitmap->pixels + (bitmap->width * y + x);

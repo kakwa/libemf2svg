@@ -5,13 +5,13 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include "emf2svg_img_utils.h"
-#include "emf2svg_private.h"
-#include "emf2svg_print.h"
-#include "uemf.h"
-#include <png.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <png.h>
+#include "uemf.h"
+#include "emf2svg_private.h"
+#include "emf2svg_img_utils.h"
+#include "emf2svg_print.h"
 
 void U_EMRALPHABLEND_draw(const char *contents, FILE *out,
                           drawingStates *states) {

@@ -2,11 +2,11 @@
 extern "C" {
 #endif
 
-#include "uemf.h"
-#include <stddef.h> /* for offsetof() macro */
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stddef.h> /* for offsetof() macro */
 #include <string.h>
+#include "uemf.h"
 #ifdef DARWIN
 #include <memstream.h>
 #endif
@@ -241,7 +241,7 @@ typedef struct {
     // unique ID (simple increment)
     int uniqId;
     // SVG namespace (the '<something>' before each fields)
-    const char *nameSpace;
+    char *nameSpace;
     // Same as previously, but with ':'
     char *nameSpaceString;
     // Verbose mode, output fields and fields values if True

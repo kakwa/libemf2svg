@@ -1,5 +1,5 @@
-#include "clipperWrapper.h"
 #include "polyclipping/clipper.hpp"
+#include "clipperWrapper.h"
 
 using namespace ClipperLib;
 

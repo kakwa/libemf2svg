@@ -23,10 +23,6 @@ Copyright: 2014 David Mathog and California Institute of Technology (Caltech)
 extern "C" {
 #endif
 
-//#define iconv libiconv
-//#define iconv_close libiconv_close
-//#define iconv_open libiconv_open
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

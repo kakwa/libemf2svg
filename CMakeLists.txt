@@ -4,14 +4,20 @@ project (emf2svg)
 
 # Project version (sematic versionning)
 set(emf2svg_VERSION_MAJOR 0)
-set(emf2svg_VERSION_MINOR 4)
-set(emf2svg_VERSION_PATCH 0)
+set(emf2svg_VERSION_MINOR 5)
+set(emf2svg_VERSION_PATCH 1)
 
 set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
+add_custom_target(tag
+    COMMAND git tag -a ${emf2svg_VERSION} -m "tagging version ${emf2svg_VERSION}"
+    COMMAND git push origin ${emf2svg_VERSION}
+)
+
+
 # set version as a definition
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++ -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 
 # Options
 option(DEBUG     "compile with debug symbol"    OFF)
@@ -47,11 +53,7 @@ if(STATIC)
     set(BUILD_SHARED_LIBRARIES OFF)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
 else(STATIC)
-    IF(${CMAKE_SYSTEM_NAME}    MATCHES "Darwin")
-        set(SHARED "")
-    ELSE(${CMAKE_SYSTEM_NAME}  MATCHES "Darwin")
-        set(SHARED "SHARED")
-    ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(SHARED "SHARED")
 endif(STATIC)
 
 if(UNIX)
@@ -69,7 +71,9 @@ endif(NOT FORCELE)
 # Build external dependancies if we are on OSX
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
-   set(MEMSTREAMLIB "memstream")
+   set(EXTERNAL_MEMSTREAM "memstream")
+   set(EXTERNAL_ICONV "iconv")
+   set(EXTERNAL_ARGP "argp")
    add_definitions(-DDARWIN)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
@@ -86,7 +90,6 @@ include_directories(
     ./inc/
     /usr/include/ 
     /sw/include/
-    /usr/local/include
 )
 
 # Compile the library
@@ -136,7 +139,9 @@ set_target_properties(emf2svg
 add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 target_link_libraries(emf2svg
     png
-    ${MEMSTREAMLIB}
+    ${EXTERNAL_MEMSTREAM}
+    ${EXTERNAL_ICONV}
+    ${EXTERNAL_ARGP}
 ) 
 
 
@@ -148,7 +153,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
 
 # install binaries and library
-INSTALL(TARGETS emf2svg emf2svg-conv ${MEMSTREAMLIB}
+INSTALL(TARGETS emf2svg emf2svg-conv ${EXTERNAL_MEMSTREAM}
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

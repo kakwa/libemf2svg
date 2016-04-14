@@ -26,12 +26,13 @@ Copyright: 2014 David Mathog and California Institute of Technology (Caltech)
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <stdlib.h>
+#include <stdio.h>
 #include "emf2svg_private.h"
-#include "pmf2svg_print.h"
 #include "emf2svg_print.h"
 #include "pmf2svg.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "pmf2svg_print.h"
 
 //! \cond
 
