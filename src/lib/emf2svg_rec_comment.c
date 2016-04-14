@@ -5,7 +5,6 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include "emf2svg_print.h"
 #include "emf2svg_private.h"
 #include "pmf2svg.h"
 #include "pmf2svg_print.h"

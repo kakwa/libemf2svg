@@ -6,8 +6,8 @@ extern "C" {
 #define _POSIX_C_SOURCE 200809L
 #endif
 
-#include "emf2svg_print.h"
 #include "emf2svg_private.h"
+#include "emf2svg_print.h"
 #include "uemf.h"
 #include <stdio.h>
 
