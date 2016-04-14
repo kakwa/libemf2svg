@@ -5,11 +5,11 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include "uemf.h"
-#include "emf2svg_private.h"
 #include "emf2svg_print.h"
+#include "emf2svg_private.h"
+#include "uemf.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 void U_EMRCREATEBRUSHINDIRECT_draw(const char *contents, FILE *out,
                                    drawingStates *states) {
@@ -63,11 +63,11 @@ void U_EMRCREATECOLORSPACEW_draw(const char *contents, FILE *out,
 void U_EMRCREATEDIBPATTERNBRUSHPT_draw(const char *contents, FILE *out,
                                        drawingStates *states) {
     PU_EMRCREATEMONOBRUSH pEmr = (PU_EMRCREATEMONOBRUSH)(contents);
- 
+
     // check that the header is not outside of the emf file
     returnOutOfEmf(contents + pEmr->offBmi);
     returnOutOfEmf(contents + pEmr->offBmi + sizeof(U_BITMAPINFOHEADER));
- 
+
     // get the header
     PU_BITMAPINFOHEADER BmiSrc = (PU_BITMAPINFOHEADER)(contents + pEmr->offBmi);
 
@@ -75,19 +75,24 @@ void U_EMRCREATEDIBPATTERNBRUSHPT_draw(const char *contents, FILE *out,
     returnOutOfEmf(contents + pEmr->offBits);
     returnOutOfEmf(contents + pEmr->offBits + pEmr->cbBits);
 
-    const unsigned char *BmpSrc = (const unsigned char *)(contents + pEmr->offBits);
-    emfImageLibrary *image = image_library_writer(contents,out, states, BmiSrc,pEmr->cbBits,BmpSrc);
-    if( image ) {
-        // draw image;        
+    const unsigned char *BmpSrc =
+        (const unsigned char *)(contents + pEmr->offBits);
+    emfImageLibrary *image = image_library_writer(contents, out, states, BmiSrc,
+                                                  pEmr->cbBits, BmpSrc);
+    if (image) {
+        // draw image;
         uint16_t index = pEmr->ihBrush;
-        returnOutOfOTIndex(index);        
+        returnOutOfOTIndex(index);
         states->objectTable[index].fill_idx = image->id;
-        states->objectTable[index].fill_red = states->currentDeviceContext.fill_red;
-        states->objectTable[index].fill_green = states->currentDeviceContext.fill_green;
-        states->objectTable[index].fill_blue = states->currentDeviceContext.fill_blue;
+        states->objectTable[index].fill_red =
+            states->currentDeviceContext.fill_red;
+        states->objectTable[index].fill_green =
+            states->currentDeviceContext.fill_green;
+        states->objectTable[index].fill_blue =
+            states->currentDeviceContext.fill_blue;
         states->objectTable[index].fill_mode = U_BS_MONOPATTERN;
-        states->objectTable[index].fill_set = true;        
-    }      
+        states->objectTable[index].fill_set = true;
+    }
     FLAG_SUPPORTED;
     if (states->verbose) {
         U_EMRCREATEDIBPATTERNBRUSHPT_print(contents, states);
@@ -96,11 +101,11 @@ void U_EMRCREATEDIBPATTERNBRUSHPT_draw(const char *contents, FILE *out,
 void U_EMRCREATEMONOBRUSH_draw(const char *contents, FILE *out,
                                drawingStates *states) {
     PU_EMRCREATEMONOBRUSH pEmr = (PU_EMRCREATEMONOBRUSH)(contents);
- 
+
     // check that the header is not outside of the emf file
     returnOutOfEmf(contents + pEmr->offBmi);
     returnOutOfEmf(contents + pEmr->offBmi + sizeof(U_BITMAPINFOHEADER));
- 
+
     // get the header
     PU_BITMAPINFOHEADER BmiSrc = (PU_BITMAPINFOHEADER)(contents + pEmr->offBmi);
 
@@ -108,19 +113,24 @@ void U_EMRCREATEMONOBRUSH_draw(const char *contents, FILE *out,
     returnOutOfEmf(contents + pEmr->offBits);
     returnOutOfEmf(contents + pEmr->offBits + pEmr->cbBits);
 
-    const unsigned char *BmpSrc = (const unsigned char *)(contents + pEmr->offBits);
-    emfImageLibrary *image = image_library_writer(contents,out, states, BmiSrc,pEmr->cbBits,BmpSrc);
-    if( image ) {
+    const unsigned char *BmpSrc =
+        (const unsigned char *)(contents + pEmr->offBits);
+    emfImageLibrary *image = image_library_writer(contents, out, states, BmiSrc,
+                                                  pEmr->cbBits, BmpSrc);
+    if (image) {
         // draw image;
         uint16_t index = pEmr->ihBrush;
         returnOutOfOTIndex(index);
         states->objectTable[index].fill_idx = image->id;
-        states->objectTable[index].fill_red = states->currentDeviceContext.fill_red;
-        states->objectTable[index].fill_green = states->currentDeviceContext.fill_green;
-        states->objectTable[index].fill_blue = states->currentDeviceContext.fill_blue;
+        states->objectTable[index].fill_red =
+            states->currentDeviceContext.fill_red;
+        states->objectTable[index].fill_green =
+            states->currentDeviceContext.fill_green;
+        states->objectTable[index].fill_blue =
+            states->currentDeviceContext.fill_blue;
         states->objectTable[index].fill_mode = U_BS_MONOPATTERN;
-        states->objectTable[index].fill_set = true;         
-    }      
+        states->objectTable[index].fill_set = true;
+    }
     FLAG_SUPPORTED;
     if (states->verbose) {
         U_EMRCREATEMONOBRUSH_print(contents, states);

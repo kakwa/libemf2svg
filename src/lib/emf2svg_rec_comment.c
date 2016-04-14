@@ -5,13 +5,13 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include "uemf.h"
-#include "emf2svg_private.h"
 #include "emf2svg_print.h"
+#include "emf2svg_private.h"
 #include "pmf2svg.h"
 #include "pmf2svg_print.h"
+#include "uemf.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 void U_EMRCOMMENT_draw(const char *contents, FILE *out, drawingStates *states,
                        const char *blimit, size_t off) {

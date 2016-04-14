@@ -5,13 +5,13 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include "uemf.h"
-#include "emf2svg_private.h"
 #include "emf2svg_print.h"
+#include "emf2svg_private.h"
+#include "uemf.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void U_EMRNOTIMPLEMENTED_draw(const char *name, const char *contents, FILE *out,
                               drawingStates *states) {
@@ -311,10 +311,11 @@ void fill_draw(drawingStates *states, FILE *out, bool *filled, bool *stroked) {
         fprintf(out, "fill=\"none\" ");
         *filled = true;
         break;
-    case U_BS_MONOPATTERN:        
-        fprintf(out, "fill=\"#img-%d-ref\" ",states->currentDeviceContext.fill_idx);
+    case U_BS_MONOPATTERN:
+        fprintf(out, "fill=\"#img-%d-ref\" ",
+                states->currentDeviceContext.fill_idx);
         *filled = true;
-        break;    
+        break;
     case U_BS_HATCHED:
     case U_BS_PATTERN:
     case U_BS_INDEXED:

@@ -5,12 +5,12 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "uemf.h"
-#include "emf2svg_private.h"
 #include "emf2svg_print.h"
+#include "emf2svg_private.h"
+#include "uemf.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void U_EMRDELETECOLORSPACE_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
@@ -132,7 +132,7 @@ void U_EMRSELECTOBJECT_draw(const char *contents, FILE *out,
             states->currentDeviceContext.fill_green =
                 states->objectTable[index].fill_green;
             states->currentDeviceContext.fill_mode =
-                states->objectTable[index].fill_mode;                
+                states->objectTable[index].fill_mode;
             states->currentDeviceContext.fill_idx =
                 states->objectTable[index].fill_idx;
         } else if (states->objectTable[index].stroke_set) {
