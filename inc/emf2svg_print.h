@@ -52,7 +52,7 @@ extern "C" {
 
 #define BUFFERSIZE 1024
 //! \cond
-
+    
 /* manipulate device context */
 
 void stroke_print(drawingStates *states);
