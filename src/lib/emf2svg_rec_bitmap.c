@@ -49,7 +49,7 @@ void U_EMRALPHABLEND_draw(const char *contents, FILE *out,
     clipset_draw(states, out);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
-                   (size_t)pEmr->cbBitsSrc,false);
+                   (size_t)pEmr->cbBitsSrc, false);
     fprintf(out, "/>\n");
 }
 void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
@@ -62,28 +62,34 @@ void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
     // if no bitmap, check for pattern brush
     // Should fill the output with the current brush and the raster operation
     if (pEmr->cbBitsSrc == 0) {
-        char style[ 256 ];
-        if( pEmr->dwRop == U_NOOP ) 
-            return;            
-        if( states->currentDeviceContext.fill_mode == U_BS_MONOPATTERN ) {
-            sprintf(style,"fill:url(#img-%d-ref);", states->currentDeviceContext.fill_idx ); 
-        } else if( states->currentDeviceContext.fill_mode == U_BS_SOLID ) {
-            sprintf(style,"fill:#%02x%02x%02x" , states->currentDeviceContext.fill_red , states->currentDeviceContext.fill_green , states->currentDeviceContext.fill_blue );    
+        char style[256];
+        if (pEmr->dwRop == U_NOOP)
+            return;
+        if (states->currentDeviceContext.fill_mode == U_BS_MONOPATTERN) {
+            sprintf(style, "fill:url(#img-%d-ref);",
+                    states->currentDeviceContext.fill_idx);
+        } else if (states->currentDeviceContext.fill_mode == U_BS_SOLID) {
+            sprintf(style, "fill:#%02x%02x%02x",
+                    states->currentDeviceContext.fill_red,
+                    states->currentDeviceContext.fill_green,
+                    states->currentDeviceContext.fill_blue);
         } else {
-             style[0] = '\0';       
-        }   
-        if( style[0] ) {
-            POINT_D size = point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
-            POINT_D position = point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
-            fprintf(out, "<%spath style=\"%s", states->nameSpaceString , style );
-            fprintf(out, "\" d=\"M %.4f,%.4f L %.4f,%.4f L %.4f,%.4f L %.4f,%.4f Z\" />"
-            , position.x , position.y 
-            , position.x + size.x , position.y 
-            , position.x + size.x , position.y + size.y 
-            , position.x , position.y + size.y 
-            );            
+            style[0] = '\0';
         }
-        // else     
+        if (style[0]) {
+            POINT_D size =
+                point_cal(states, (double)pEmr->cDest.x, (double)pEmr->cDest.y);
+            POINT_D position =
+                point_cal(states, (double)pEmr->Dest.x, (double)pEmr->Dest.y);
+            fprintf(out, "<%spath style=\"%s", states->nameSpaceString, style);
+            fprintf(
+                out,
+                "\" d=\"M %.4f,%.4f L %.4f,%.4f L %.4f,%.4f L %.4f,%.4f Z\" />",
+                position.x, position.y, position.x + size.x, position.y,
+                position.x + size.x, position.y + size.y, position.x,
+                position.y + size.y);
+        }
+        // else
         // FIXME - non MONOBRUSH
         return;
     }
@@ -117,7 +123,7 @@ void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
     // fprintf(out, " fill-opacity=\"%.4f\" ", alpha);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
-                   (size_t)pEmr->cbBitsSrc,false);
+                   (size_t)pEmr->cbBitsSrc, false);
     fprintf(out, "/>\n");
 }
 void U_EMRMASKBLT_draw(const char *contents, FILE *out, drawingStates *states) {
@@ -173,7 +179,7 @@ void U_EMRSTRETCHBLT_draw(const char *contents, FILE *out,
     clipset_draw(states, out);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
-                   (size_t)pEmr->cbBitsSrc,false);
+                   (size_t)pEmr->cbBitsSrc, false);
     fprintf(out, "/>\n");
 }
 void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
@@ -208,7 +214,7 @@ void U_EMRSTRETCHDIBITS_draw(const char *contents, FILE *out,
     clipset_draw(states, out);
 
     dib_img_writer(contents, out, states, BmiSrc, BmpSrc,
-                   (size_t)pEmr->cbBitsSrc,false);
+                   (size_t)pEmr->cbBitsSrc, false);
     fprintf(out, "/>\n");
 }
 void U_EMRTRANSPARENTBLT_draw(const char *contents, FILE *out,
@@ -302,8 +308,8 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
         states->Error = true;
         return;
     }
-    if( colortype == U_BCBM_MONOCHROME ) {
-        if( assign_mono_colors_from_dc ) {
+    if (colortype == U_BCBM_MONOCHROME) {
+        if (assign_mono_colors_from_dc) {
             monoCt[0].Red = states->currentDeviceContext.text_red;
             monoCt[0].Green = states->currentDeviceContext.text_green;
             monoCt[0].Blue = states->currentDeviceContext.text_blue;
@@ -311,7 +317,8 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
             monoCt[1].Red = states->currentDeviceContext.bk_red;
             monoCt[1].Green = states->currentDeviceContext.bk_green;
             monoCt[1].Blue = states->currentDeviceContext.bk_blue;
-            monoCt[1].Reserved = 0xff; //states->currentDeviceContext.bk_mode ? 0xff : 0;
+            monoCt[1].Reserved =
+                0xff; // states->currentDeviceContext.bk_mode ? 0xff : 0;
             ct = monoCt;
         }
     }
@@ -348,36 +355,39 @@ void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
 }
 
 // Find an image that matches (otherwise return NULL)
-emfImageLibrary *image_library_find(emfImageLibrary *lib,PU_BITMAPINFOHEADER BmiSrc,size_t size) {
-    while( lib ) {
-        if( memcmp(BmiSrc,lib->content,size) == 0 )
-             return lib;
+emfImageLibrary *image_library_find(emfImageLibrary *lib,
+                                    PU_BITMAPINFOHEADER BmiSrc, size_t size) {
+    while (lib) {
+        if (memcmp(BmiSrc, lib->content, size) == 0)
+            return lib;
         lib = lib->next;
     }
     return NULL;
 }
 
-
 // Create a new image
-emfImageLibrary *image_library_create(int id,PU_BITMAPINFOHEADER BmiSrc,size_t size) {
-   emfImageLibrary *image = (emfImageLibrary *)calloc(1, sizeof(emfImageLibrary)+size);
-   image->id = id;
-   image->content = (PU_BITMAPINFOHEADER)(image+1);
-   memcpy( image->content , BmiSrc , size );
-   return image; 
+emfImageLibrary *image_library_create(int id, PU_BITMAPINFOHEADER BmiSrc,
+                                      size_t size) {
+    emfImageLibrary *image =
+        (emfImageLibrary *)calloc(1, sizeof(emfImageLibrary) + size);
+    image->id = id;
+    image->content = (PU_BITMAPINFOHEADER)(image + 1);
+    memcpy(image->content, BmiSrc, size);
+    return image;
 }
 
-
 // Add an image to the states image 'library'
-emfImageLibrary *image_library_add(drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size) {
+emfImageLibrary *image_library_add(drawingStates *states,
+                                   PU_BITMAPINFOHEADER BmiSrc, size_t size) {
     ++states->count_images;
-    emfImageLibrary *image = image_library_create(states->count_images,BmiSrc,size);
-    if( states->library ) {
-         emfImageLibrary *last = states->library;
-         while( last->next ) {
-             last = last->next;
-         }
-         last->next = image;
+    emfImageLibrary *image =
+        image_library_create(states->count_images, BmiSrc, size);
+    if (states->library) {
+        emfImageLibrary *last = states->library;
+        while (last->next) {
+            last = last->next;
+        }
+        last->next = image;
     } else {
         states->library = image;
     }
@@ -386,37 +396,49 @@ emfImageLibrary *image_library_add(drawingStates *states,PU_BITMAPINFOHEADER Bmi
 
 // Release image library;
 void freeEmfImageLibrary(drawingStates *states) {
-     emfImageLibrary *last = states->library;
-     while( last ) {
-         emfImageLibrary *next = last->next;
-         free(last);
-         last = next;
-     }
+    emfImageLibrary *last = states->library;
+    while (last) {
+        emfImageLibrary *next = last->next;
+        free(last);
+        last = next;
+    }
 }
 
-// Lookup existing - or create and emit new image reference for use with image brush
-emfImageLibrary *image_library_writer(const char *contents,FILE *out, drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size,const unsigned char *BmpSrc)      
-{
+// Lookup existing - or create and emit new image reference for use with image
+// brush
+emfImageLibrary *image_library_writer(const char *contents, FILE *out,
+                                      drawingStates *states,
+                                      PU_BITMAPINFOHEADER BmiSrc, size_t size,
+                                      const unsigned char *BmpSrc) {
     emfImageLibrary *image = image_library_find(states->library, BmiSrc, size);
-    if( !image ) {
-        image = image_library_add( states , BmiSrc , size );
-        if( image ) {
+    if (!image) {
+        image = image_library_add(states, BmiSrc, size);
+        if (image) {
             const U_RGBQUAD *ct = NULL;
-            uint32_t width = 0, height = 0, colortype, numCt, invert;         
-            e2s_get_DIB_params((PU_BITMAPINFO)BmiSrc, (const U_RGBQUAD **)&ct, &numCt, &width, &height, &colortype, &invert);                     
-            if( width > 0 && height > 0 ) {
-                fprintf(out, "<%sdefs><%simage id=\"img-%d\" x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" ",
-                states->nameSpaceString, states->nameSpaceString,
-                image->id , width , height );
-                dib_img_writer(contents, out, states, BmiSrc, BmpSrc, size , true);                
-                fprintf(out, " preserveAspectRatio=\"none\" />" );
-                fprintf(out, "<%spattern id=\"img-%d-ref\" x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" patternUnits=\"userSpaceOnUse\" >\n",states->nameSpaceString , image->id, width , height);
-                fprintf(out, "<%suse id=\"img-%d-ign\" xlink:href=\"#img-%d\" />" , states->nameSpaceString ,image->id,image->id); 
-                fprintf(out, "</%spattern></%sdefs>\n",states->nameSpaceString,states->nameSpaceString);
+            uint32_t width = 0, height = 0, colortype, numCt, invert;
+            e2s_get_DIB_params((PU_BITMAPINFO)BmiSrc, (const U_RGBQUAD **)&ct,
+                               &numCt, &width, &height, &colortype, &invert);
+            if (width > 0 && height > 0) {
+                fprintf(out, "<%sdefs><%simage id=\"img-%d\" x=\"0\" y=\"0\" "
+                             "width=\"%d\" height=\"%d\" ",
+                        states->nameSpaceString, states->nameSpaceString,
+                        image->id, width, height);
+                dib_img_writer(contents, out, states, BmiSrc, BmpSrc, size,
+                               true);
+                fprintf(out, " preserveAspectRatio=\"none\" />");
+                fprintf(out, "<%spattern id=\"img-%d-ref\" x=\"0\" y=\"0\" "
+                             "width=\"%d\" height=\"%d\" "
+                             "patternUnits=\"userSpaceOnUse\" >\n",
+                        states->nameSpaceString, image->id, width, height);
+                fprintf(out,
+                        "<%suse id=\"img-%d-ign\" xlink:href=\"#img-%d\" />",
+                        states->nameSpaceString, image->id, image->id);
+                fprintf(out, "</%spattern></%sdefs>\n", states->nameSpaceString,
+                        states->nameSpaceString);
             };
         }
     }
-    return image;    
+    return image;
 }
 #ifdef __cplusplus
 }

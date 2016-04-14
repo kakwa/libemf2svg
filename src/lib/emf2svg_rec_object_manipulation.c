@@ -132,7 +132,7 @@ void U_EMRSELECTOBJECT_draw(const char *contents, FILE *out,
             states->currentDeviceContext.fill_green =
                 states->objectTable[index].fill_green;
             states->currentDeviceContext.fill_mode =
-                states->objectTable[index].fill_mode;                
+                states->objectTable[index].fill_mode;
             states->currentDeviceContext.fill_idx =
                 states->objectTable[index].fill_idx;
         } else if (states->objectTable[index].stroke_set) {

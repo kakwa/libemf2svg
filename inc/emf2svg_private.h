@@ -231,9 +231,9 @@ typedef struct {
 
 // Image library for images used as fill patterns
 typedef struct imageLibrary {
-   int id;
-   PU_BITMAPINFOHEADER content;
-   struct imageLibrary *next;
+    int id;
+    PU_BITMAPINFOHEADER content;
+    struct imageLibrary *next;
 } emfImageLibrary;
 
 // structure recording drawing states
@@ -609,10 +609,16 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
 void dib_img_writer(const char *contents, FILE *out, drawingStates *states,
                     PU_BITMAPINFOHEADER BmiSrc, const unsigned char *BmpSrc,
                     size_t size, bool assign_mono_colors_from_dc);
-emfImageLibrary *image_library_writer(const char *contents,FILE *out, drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size,const unsigned char *BmpSrc);      
-emfImageLibrary *image_library_create(int id,PU_BITMAPINFOHEADER BmiSrc,size_t size);
-emfImageLibrary *image_library_add(drawingStates *states,PU_BITMAPINFOHEADER BmiSrc,size_t size);
-emfImageLibrary *image_library_find(emfImageLibrary *lib,PU_BITMAPINFOHEADER BmiSrc,size_t size);
+emfImageLibrary *image_library_writer(const char *contents, FILE *out,
+                                      drawingStates *states,
+                                      PU_BITMAPINFOHEADER BmiSrc, size_t size,
+                                      const unsigned char *BmpSrc);
+emfImageLibrary *image_library_create(int id, PU_BITMAPINFOHEADER BmiSrc,
+                                      size_t size);
+emfImageLibrary *image_library_add(drawingStates *states,
+                                   PU_BITMAPINFOHEADER BmiSrc, size_t size);
+emfImageLibrary *image_library_find(emfImageLibrary *lib,
+                                    PU_BITMAPINFOHEADER BmiSrc, size_t size);
 void freeEmfImageLibrary(drawingStates *states);
 void text_style_draw(FILE *out, drawingStates *states, POINT_D Org);
 void char_to_utf16(char *in, size_t size_in, char **out);

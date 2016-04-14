@@ -311,10 +311,11 @@ void fill_draw(drawingStates *states, FILE *out, bool *filled, bool *stroked) {
         fprintf(out, "fill=\"none\" ");
         *filled = true;
         break;
-    case U_BS_MONOPATTERN:        
-        fprintf(out, "fill=\"#img-%d-ref\" ",states->currentDeviceContext.fill_idx);
+    case U_BS_MONOPATTERN:
+        fprintf(out, "fill=\"#img-%d-ref\" ",
+                states->currentDeviceContext.fill_idx);
         *filled = true;
-        break;    
+        break;
     case U_BS_HATCHED:
     case U_BS_PATTERN:
     case U_BS_INDEXED:

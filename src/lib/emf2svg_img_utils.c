@@ -88,10 +88,10 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
     row_pointers = png_malloc(png_ptr, bitmap->height * sizeof(png_byte *));
     // Check to see if alpha channel is used (nonzero)
     width_by_height = bitmap->width * bitmap->height;
-    for( x = 0 ; x < width_by_height ; ++x ) {
-        if( bitmap->pixels[x].alpha ) {
-           alpha_channel_empty = false;
-           break;
+    for (x = 0; x < width_by_height; ++x) {
+        if (bitmap->pixels[x].alpha) {
+            alpha_channel_empty = false;
+            break;
         }
     }
 
@@ -99,7 +99,7 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
         uint8_t *row = png_malloc(png_ptr, sizeof(uint8_t) * bitmap->width * 4);
         // row_pointers[y] = (png_byte *)row;
         row_pointers[bitmap->height - y - 1] = row;
-        if( alpha_channel_empty ) {
+        if (alpha_channel_empty) {
             for (x = 0; x < bitmap->width; ++x) {
                 // RGBPixel *color = pixel_at(bitmap, x, y);
                 RGBAPixel color = bitmap->pixels[((x + bitmap->width * y))];
@@ -114,7 +114,7 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
                 *row++ = 0xFF;
             }
         } else {
-            for(x = 0; x < bitmap->width ; ++x ) {
+            for (x = 0; x < bitmap->width; ++x) {
                 RGBAPixel color = bitmap->pixels[((x + bitmap->width * y))];
                 *row++ = color.red;
                 *row++ = color.green;
