@@ -1,11 +1,11 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stddef.h> /* for offsetof() macro */
-#include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <unistd.h>
 #include "uemf.h"
+#include <stdbool.h>
+#include <stddef.h> /* for offsetof() macro */
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #define RLE_MARK 0x00
 #define RLE_EOL 0x00
