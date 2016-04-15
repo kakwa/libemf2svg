@@ -7,7 +7,6 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include "uemf.h"
 #include "emf2svg_private.h"
 #include "emf2svg_print.h"
 

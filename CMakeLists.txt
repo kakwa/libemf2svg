@@ -106,13 +106,10 @@ add_library(emf2svg
     src/lib/emf2svg_clip_utils.c
     src/lib/emf2svg_rec_control.c
     src/lib/emf2svg_rec_object_creation.c
-    src/lib/emf2svg_rec_opengl.c
     src/lib/emf2svg_rec_path.c
     src/lib/emf2svg_rec_clipping.c
-    src/lib/emf2svg_rec_path_bracket.c
     src/lib/emf2svg_rec_drawing.c
     src/lib/emf2svg_rec_bitmap.c
-    src/lib/emf2svg_rec_escape.c
     src/lib/emf2svg_rec_object_manipulation.c
     src/lib/emf2svg_rec_comment.c
     src/lib/emf2svg_rec_transform.c
