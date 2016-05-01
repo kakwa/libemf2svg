@@ -202,13 +202,23 @@ $ ./tests/resources/coverage.sh
 
 * Fuzzing on the library:
 
+Using American Fuzzy Lop:
+
+
 ```bash
-$ ./tests/resources/check_corrupted.sh
+# remove big files from test pool
+$ mkdir ./tmp
+$ find tests/resources/emf -size +1M -name "*.emf" -exec mv {} ./tmp \; 
 
-# generated corrupted files crashing the library are stored here:
-ls ./tests/out/bad*
-tests/out/bad_corrupted_2014-12-01-063258.emf
+# compile with afl compiler
+$ cmake -DCMAKE_CXX_COMPILER=afl-clang++ -DCMAKE_C_COMPILER=afl-clang .
+$ make
 
+# run afl (see man for more advanced usage)
+$ afl-fuzz -i tests/resources/emf -o out/ -t 10000 -- ./emf2svg-conv -i '@@' -o out/ 
+
+# restore the files
+mv ./tmp/* tests/resources/emf
 ```
 
 * Check correctness and memory leaks (xmllint and valgrind needed):
