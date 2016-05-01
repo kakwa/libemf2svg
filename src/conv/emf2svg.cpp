@@ -16,12 +16,12 @@
 
 // <<<<<<<<<<<<<<<<<<< END ORIGINAL HEADER >>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-#include "emf2svg.h"
-#include <argp.h>
-#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string.h>
+#include <fstream>
+#include <argp.h>
+#include "emf2svg.h"
 
 using namespace std;
 

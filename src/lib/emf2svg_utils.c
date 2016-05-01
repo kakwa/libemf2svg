@@ -9,7 +9,6 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "uemf.h"
 #include "emf2svg_private.h"
 #include "emf2svg_print.h"
 

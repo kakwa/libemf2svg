@@ -8,7 +8,6 @@ extern "C" {
 #include <stdlib.h>
 #include <stdio.h>
 #include <png.h>
-#include "uemf.h"
 #include "emf2svg_private.h"
 #include "emf2svg_img_utils.h"
 #include "emf2svg_print.h"
