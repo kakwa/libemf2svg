@@ -116,6 +116,9 @@ extern "C" {
 #include <stdbool.h>
 #include "uemf_utf.h"
 #include "uemf_endian.h"
+#ifdef MINGW
+#include "mingw_posix2.h"
+#endif
 
 
 /** \cond */

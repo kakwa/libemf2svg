@@ -298,7 +298,7 @@ int mingw_posix2_fprintf( struct mingw_posix2_file * stream , const char *fmt , 
     }
 
 	va_start(argptr, fmt);
-	cnt = sprintf(s_tempBuff, fmt, argptr);
+	cnt = vsprintf(s_tempBuff, fmt, argptr);
 	va_end(argptr);
     
     mingw_posix2_fputs(s_tempBuff,stream);
