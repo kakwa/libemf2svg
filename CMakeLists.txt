@@ -77,20 +77,40 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    add_definitions(-DDARWIN)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
+IF(${CMAKE_SYSTEM_NAME} MATCHES "MinGW")
+   # Mac OS X specific code
+   set(EXTERNAL_MEMSTREAM "memstream")
+   set(EXTERNAL_ICONV "iconv")
+   set(EXTERNAL_ARGP "argp")
+   add_definitions(-DMINGW)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "MinGW")
+
+
 # linking directories
 LINK_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/
     /usr/local/lib
     /sw/lib/
     /usr/lib/
+    c:/MinGW/lib
 )
 
 # headers directories
+
 include_directories(
     ./inc/
     /usr/include/ 
     /sw/include/
-)
+    ./deps/mingw
+    c:/MinGW/include
+)    
+#ELSE(${CMAKE_SYSTEM_NAME} MATCHES "MinGW Makefiles")
+#    include_directories(
+#        ./inc/
+#        /usr/include/ 
+#        /sw/include/
+#    )
+#ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "MinGW Makefiles")
 
 # Compile the library
 add_library(emf2svg
@@ -116,6 +136,7 @@ add_library(emf2svg
     src/lib/emf2svg_rec_state_record.c
     src/lib/emf2svg_print.c
     src/lib/emf2svg.c
+    deps/mingw/mingw_posix2.c
 )
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -146,8 +167,10 @@ target_link_libraries(emf2svg-conv
     emf2svg
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
 
 # install binaries and library
 INSTALL(TARGETS emf2svg emf2svg-conv ${EXTERNAL_MEMSTREAM}

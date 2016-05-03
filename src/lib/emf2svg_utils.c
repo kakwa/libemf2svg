@@ -360,7 +360,8 @@ void freeObject(drawingStates *states, uint16_t index) {
     states->objectTable[index] = (const emfGraphObject){0};
 }
 void freeObjectTable(drawingStates *states) {
-    for (int32_t i = 0; i < (states->objectTableSize + 1); i++) {
+    int32_t i = 0;
+    for ( i = 0; i < (states->objectTableSize + 1); i++) {
         freeObject(states, i);
     }
 }
@@ -1198,10 +1199,12 @@ char *base64_encode(const unsigned char *data, size_t input_length,
     *output_length = 4 * ((input_length + 2) / 3) + 3;
 
     char *encoded_data = calloc(*output_length, 1);
+    int i = 0 , j = 0;
+    
     if (encoded_data == NULL)
         return NULL;
 
-    for (int i = 0, j = 0; i < input_length;) {
+    for ( i = 0, j = 0; i < input_length;) {
         uint32_t octet_a = i < input_length ? (unsigned char)data[i++] : 0;
         uint32_t octet_b = i < input_length ? (unsigned char)data[i++] : 0;
         uint32_t octet_c = i < input_length ? (unsigned char)data[i++] : 0;
@@ -1214,7 +1217,7 @@ char *base64_encode(const unsigned char *data, size_t input_length,
         encoded_data[j++] = encoding_table[(triple >> 0 * 6) & 0x3F];
     }
 
-    for (int i = 0; i < mod_table[input_length % 3]; i++)
+    for ( i = 0; i < mod_table[input_length % 3]; i++)
         encoded_data[*output_length - 1 - i] = '=';
 
     return encoded_data;

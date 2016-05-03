@@ -14,6 +14,10 @@ extern "C" {
 #include <memstream.h>
 #endif
 
+#ifdef MINGW
+#include "mingw_posix2.h"
+#endif
+
 #include <png.h>
 
 RGBAPixel *pixel_at(RGBABitmap *bitmap, int x, int y) {
@@ -125,7 +129,13 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
     }
 
     /* Actually write the image data. */
+    
+    
+#ifdef  MINGW
+    //png_set_write_fn(png_structp png_ptr, png_voidp io_ptr, png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn);
+#else        
     png_init_io(png_ptr, fp);
+#endif    
     png_set_rows(png_ptr, info_ptr, row_pointers);
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
@@ -148,6 +158,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
     bool decode = true;
     char *out;
     size_t size;
+    int i = 0;
 
     RGBBitmap out_img;
     out_img.size = 0;
@@ -184,7 +195,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
             switch (bm[1]) {
             case RLE_EOL:
                 // end of line, pad the rest of the line with zeros
-                for (int i = 0; i < ((int)img.width - (int)x); i++)
+                for (i = 0; i < ((int)img.width - (int)x); i++)
                     fputc(0x00, stream);
                 bm += 2;
                 x = 0;
@@ -201,7 +212,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
                     free(out);
                     return out_img;
                 };
-                for (int i = 0; i < (bm[2] + img.width * bm[3]); i++)
+                for ( i = 0; i < (bm[2] + img.width * bm[3]); i++)
                     fputc(0x00, stream);
                 x += bm[2];
                 y -= bm[3];
@@ -218,7 +229,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
                     free(out);
                     return out_img;
                 };
-                for (int i = 2; i < bm[1] + 2; i++)
+                for ( i = 2; i < bm[1] + 2; i++)
                     fputc(bm[i], stream);
                 x += bm[1];
                 bm = bm_next + 1;
@@ -226,7 +237,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
             }
             break;
         default:
-            for (int i = 0; i < bm[0]; i++)
+            for ( i = 0; i < bm[0]; i++)
                 fputc(bm[1], stream);
             x += bm[0];
             bm += 2;
@@ -238,7 +249,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
         }
     }
     // pad the rest of the bitmap
-    for (int i = 0; i < (((int)img.width - x) + (int)img.width * y); i++)
+    for ( i = 0; i < (((int)img.width - x) + (int)img.width * y); i++)
         fputc(0x00, stream);
 
     fflush(stream);
@@ -295,6 +306,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
     bool decode = true;
     char *out;
     size_t size;
+    int i = 0;
 
     RGBBitmap out_img;
     out_img.size = 0;
@@ -348,7 +360,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
                     lower = 0x00;
                 }
                 // end of line, pad the rest of the line with zeros
-                for (int i = 0; i < ((((int)img.width - (int)x) / 2) - 1); i++)
+                for ( i = 0; i < ((((int)img.width - (int)x) / 2) - 1); i++)
                     fputc(0x00, stream);
                 odd = img.width % 2;
                 bm += 2;
@@ -375,7 +387,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
                 upper = tmp_u;
                 lower = tmp_l;
 
-                for (int i = 0; i < ((bm[2] + img.width * bm[3]) / 2); i++)
+                for ( i = 0; i < ((bm[2] + img.width * bm[3]) / 2); i++)
                     fputc(0x00, stream);
 
                 odd = ((bm[2] + img.width * bm[3]) + odd) % 2;
@@ -395,7 +407,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
                     free(out);
                     return out_img;
                 };
-                for (int i = 2; i < (bm[1] / 2) + 2; i++) {
+                for ( i = 2; i < (bm[1] / 2) + 2; i++) {
                     if (!odd) {
                         tmp_u = bm[i] & 0xF0;
                         tmp_l = bm[i] & 0x0F;
@@ -432,7 +444,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
             upper = tmp_u;
             lower = tmp_l;
 
-            for (int i = 0; i < (bm[0] / 2); i++) {
+            for ( i = 0; i < (bm[0] / 2); i++) {
                 fputc(upper | lower, stream);
             }
             odd = (bm[0] + odd) % 2;
@@ -450,7 +462,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
         fputc(upper | 0x00, stream);
     }
     // end of line, pad the rest of the line with zeros
-    for (int i = 0; i < (((int)img.width - x + (int)img.width * y) / 2); i++)
+    for ( i = 0; i < (((int)img.width - x + (int)img.width * y) / 2); i++)
         fputc(0x00, stream);
 
     fflush(stream);
