@@ -22,6 +22,7 @@
 #include <stdarg.h> 
 #include <assert.h>
 
+//#define DEBUG_POSIX2_LAYER 
 
 typedef int readfn_t (void *cookie, char *buf, int n);
 typedef int writefn_t (void *cookie, const char *buf, int n);
@@ -29,10 +30,12 @@ typedef fpos_t seekfn_t (void *cookie, fpos_t off, int whence);
 typedef int closefn_t (void *cookie,void *container);
 typedef int flushfn_t (void *cookie);
 
-struct FILE_driver {    
+struct FILE_driver {
+const char  *name;    
 readfn_t   *_read;
 writefn_t *_write;
 seekfn_t   *_seek;
+
 closefn_t *_close;
 flushfn_t *_flush;
 };
@@ -55,7 +58,7 @@ int std_writefn(void *cookie, const char *buf, int n) {
     return fwrite( (void *)buf , n , 1 , (FILE *)cookie );
 }
 
-int std_seekfn(void *cookie, int offset , int origin ) {
+fpos_t std_seekfn(void *cookie, fpos_t offset , int origin ) {
     return fseek( (FILE *)cookie , offset , origin);
 }
 
@@ -72,7 +75,8 @@ int std_fflush(void *cookie)
 }
 
 static struct FILE_driver std_impl = {
-  std_readfn
+  "std"  
+, std_readfn
 , std_writefn
 , std_seekfn
 , std_closefn
@@ -154,19 +158,24 @@ fpos_t memstream_seekfn(void *cookie, fpos_t offset, int whence) {
 
 int memstream_closefn(void *cookie,void *container) {
     struct FILE_posix2_memstream *ms= (struct FILE_posix2_memstream *)cookie; 
-    memstream_check(ms);
     if (!ms->contents) { free(ms); return -1; }
     ms->size= min(ms->size, ms->position);
+    puts(ms->contents);
     *ms->ptr= ms->contents;
     *ms->sizeloc= ms->size;
     assert(ms->size < ms->capacity);
     ms->contents[ms->size]= 0;
+#ifdef DEBUG_POSIX2_LAYER
+    printf("close memory %d bytes\r\n",ms->size);
+#endif    
+    
     free(ms);
     return 0;
 }    
 
 static struct FILE_driver memstream_impl = {
-  memstream_readfn
+  "memstream"
+, memstream_readfn
 , memstream_writefn
 , memstream_seekfn
 , memstream_closefn
@@ -174,10 +183,13 @@ static struct FILE_driver memstream_impl = {
 };
 
 struct mingw_posix2_file *mingw_posix2_fopen(const char *filename,const char *flags) {
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_fopen(\"%s\",\"%s\")\r\n",filename,flags);
+#endif    
     FILE *realFile = fopen(filename,flags);
     if( realFile ) {
         struct FILE_posix2 *stdfile = (struct FILE_posix2 *)calloc( sizeof(struct FILE_posix2) , 1 );
-        stdfile->driver = &std_impl;
+        stdfile->driver = &std_impl;        
         stdfile->cookie = realFile;
         return &stdfile->_file;
     }
@@ -186,71 +198,110 @@ struct mingw_posix2_file *mingw_posix2_fopen(const char *filename,const char *fl
 
 struct mingw_posix2_file *mingw_posix2_open_memstream(char **bufp, size_t *sizep) 
 {
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_open_memstream(...)\r\n");
+#endif    
     struct FILE_posix2_memstream *ms = (struct FILE_posix2_memstream *)calloc( sizeof(struct FILE_posix2_memstream) , 1 );
     ms->_file.driver = &memstream_impl;
     ms->_file.cookie = ms;
+	ms->position = ms->size = 0;
+	ms->capacity = 1024*16;
+	ms->contents = calloc(ms->capacity, 1);	
+    if (!ms->contents) { free(ms);  return 0; } /* errno == ENOMEM */
+	ms->ptr= bufp;
+	ms->sizeloc= sizep;    
+    memstream_seekfn(ms->_file.cookie,0,0);
+    memstream_impl._seek(ms->_file.cookie,0,0);
     return &ms->_file._file;
 }
 
 int mingw_posix2_fread ( void * ptr, size_t size, size_t count, struct mingw_posix2_file * stream )
 {
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
-    return p2s->driver->_read( p2s->cookie , ptr , size * count );    
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_fread(...%s)\r\n",p2s->driver->name);
+#endif    
+    return (*p2s->driver->_read)( p2s->cookie , ptr , size * count );    
 }
 
 int mingw_posix2_fwrite( const void * ptr, size_t size, size_t count, struct mingw_posix2_file *stream )
 {    
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
-    return p2s->driver->_write( p2s->cookie , ptr , size * count );    
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_fwrite(...%s)\r\n",p2s->driver->name);
+#endif    
+    return (*p2s->driver->_write)( p2s->cookie , ptr , size * count );    
 }
 
 int mingw_posix2_fseek( struct mingw_posix2_file *stream, long int offset, int origin )
 {
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
-    return p2s->driver->_seek( p2s->cookie , offset , origin );   
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_fseek(%s...)\r\n",p2s->driver->name);
+#endif    
+    return (*p2s->driver->_seek)( p2s->cookie , offset , origin );   
     
 }
 
 int mingw_posix2_fputc( int character, struct mingw_posix2_file * stream ) 
 {
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_fputc(...,%s)\r\n",p2s->driver->name);
+#endif    
     // First lets 
-    return p2s->driver->_write( p2s->cookie , (const char *)&character , 1);
+    return (*p2s->driver->_write)( p2s->cookie , (const char *)&character , 1);
 }
 
 int mingw_posix2_fputs( const char *str, struct mingw_posix2_file * stream )
 {
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
-    puts(str);
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_fputs(\"%s\",%s)\r\n",str,p2s->driver->name);
+#endif    
     // First lets 
-    return p2s->driver->_write( p2s->cookie , str , strlen(str));    
+    return (*p2s->driver->_write)( p2s->cookie , str , strlen(str));    
 }
 
 int mingw_posix2_fclose( struct mingw_posix2_file * stream ) 
 {
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_fclose(%s)\r\n",p2s->driver->name);
+#endif    
     void *cookie = p2s->cookie;
     p2s->cookie = NULL;
-    return p2s->driver->_close( cookie , stream );    
+    return (*p2s->driver->_close)( cookie , (void *)stream );    
 }
 
 int mingw_posix2_fflush( struct mingw_posix2_file * stream )
 {
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_fflush(...)\r\n");
+#endif    
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
-    return p2s->driver->_flush( p2s->cookie );    
+    return (*p2s->driver->_flush)( p2s->cookie );    
 }
+
+static char *s_tempBuff = NULL;
 
 int mingw_posix2_fprintf( struct mingw_posix2_file * stream , const char *fmt , ... )
 {
+#ifdef DEBUG_POSIX2_LAYER
+    printf("mingw_posix2_fprintf(\"%s\")\r\n",fmt);
+#endif    
 	int	cnt;
 	va_list argptr;
-    char buffer[ 1024 * 16 ];
+    
+    if( !s_tempBuff ) {
+        s_tempBuff = calloc(1,1024*1024*5);
+    }
 
 	va_start(argptr, fmt);
-	cnt = sprintf(buffer, fmt, argptr);
+	cnt = sprintf(s_tempBuff, fmt, argptr);
 	va_end(argptr);
     
-    mingw_posix2_fputs(buffer,stream);
+    mingw_posix2_fputs(s_tempBuff,stream);
 
 	return cnt;    
 } 

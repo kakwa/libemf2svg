@@ -1253,7 +1253,7 @@ FILE *emf_fopen(
       const int mode
    ){    
    FILE *fp = NULL;
-#ifdef WIN32
+#ifdef WIN32 
    uint16_t *fn16;
    uint16_t *md16;
    if(mode == U_READ){ md16 = U_Utf8ToUtf16le("rb", 0, NULL); }

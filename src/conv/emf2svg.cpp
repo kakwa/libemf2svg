@@ -23,6 +23,12 @@
 #include <argp.h>
 #include "emf2svg.h"
 
+#ifdef MINGW
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#endif
+
 using namespace std;
 
 const char *argp_program_version = E2S_VERSION;
@@ -118,6 +124,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    #ifdef MINGW
+    struct stat fst;
+    int fd = open(arguments.input, O_RDONLY);
+    if (fd < 0){fprintf(stderr, "file access failed\n"); exit(1);}
+    fstat (fd, &fst); 
+
+    /* emf content size */
+    size_t emf_size = fst.st_size;   
+    char * emf_content = (char *)calloc(1,emf_size);    
+    read( fd , emf_content , emf_size );
+    close(fd);
+    #else
     std::ifstream in(arguments.input);
     if (!in.is_open()) {
         std::cerr << "[ERROR] "
@@ -128,6 +146,8 @@ int main(int argc, char *argv[]) {
     std::string contents((std::istreambuf_iterator<char>(in)),
                          std::istreambuf_iterator<char>());
 
+    #endif
+    
     char *svg_out = NULL;
     generatorOptions *options =
         (generatorOptions *)calloc(1, sizeof(generatorOptions));
@@ -137,8 +157,15 @@ int main(int argc, char *argv[]) {
     options->svgDelimiter = true;
     options->imgWidth = arguments.width;
     options->imgHeight = arguments.height;
+    
+    #ifdef MINGW
+    int ret =
+        emf2svg(emf_content, emf_size, &svg_out, options);
+    free(emf_content);    
+    #else
     int ret =
         emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
+    #endif
     if (ret != 0) {
         std::ofstream out(arguments.output);
         if (!out.is_open()) {
@@ -153,7 +180,9 @@ int main(int argc, char *argv[]) {
     free(svg_out);
     free(options);
 
+    #ifndef MINGW
     in.close();
+    #endif
     if (ret == 0)
         return 1;
     return 0;

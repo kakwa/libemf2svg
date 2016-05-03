@@ -41,10 +41,11 @@ int mingw_posix2_fprintf( struct mingw_posix2_file * stream , const char *fmt , 
 #define fwrite( _ptr, _size, _count, _stream ) mingw_posix2_fwrite(_ptr,_size,_count,_stream)
 #define fseek(_stream,_offset,_origin) mingw_posix2_fseek(_stream,_offset,_origin)
 #define fputc(ch,stream)  mingw_posix2_fputc(ch,stream)
-#define fputs(_str,_stream)  mingw_posix2_fputs(_str,_stream);
+#define fputs(_str,_stream)  mingw_posix2_fputs(_str,_stream)
 #define fprintf  mingw_posix2_fprintf
-#define fclose(_stream)    mingw_posix2_fclose(_stream);
-#define fflush(_stream)    mingw_posix2_fflush(_stream);
+#define fclose(_stream)    mingw_posix2_fclose(_stream)
+#define fflush(_stream)    mingw_posix2_fflush(_stream)
+#define ftell(_stream) mingw_posix2_fseek(_stream,0,SEEK_CUR)
 #endif
 
 
