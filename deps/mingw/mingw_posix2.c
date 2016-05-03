@@ -35,7 +35,6 @@ const char  *name;
 readfn_t   *_read;
 writefn_t *_write;
 seekfn_t   *_seek;
-
 closefn_t *_close;
 flushfn_t *_flush;
 };
@@ -160,7 +159,6 @@ int memstream_closefn(void *cookie,void *container) {
     struct FILE_posix2_memstream *ms= (struct FILE_posix2_memstream *)cookie; 
     if (!ms->contents) { free(ms); return -1; }
     ms->size= min(ms->size, ms->position);
-    puts(ms->contents);
     *ms->ptr= ms->contents;
     *ms->sizeloc= ms->size;
     assert(ms->size < ms->capacity);
@@ -283,25 +281,39 @@ int mingw_posix2_fflush( struct mingw_posix2_file * stream )
     return (*p2s->driver->_flush)( p2s->cookie );    
 }
 
-static char *s_tempBuff = NULL;
-
 int mingw_posix2_fprintf( struct mingw_posix2_file * stream , const char *fmt , ... )
 {
 #ifdef DEBUG_POSIX2_LAYER
     printf("mingw_posix2_fprintf(\"%s\")\r\n",fmt);
 #endif    
-	int	cnt;
-	va_list argptr;
+    int	cnt = 0;
+    va_list argptr;
+    va_start(argptr, fmt);
     
-    if( !s_tempBuff ) {
-        s_tempBuff = calloc(1,1024*1024*5);
+    const char *singleFmt = strchr(fmt,'%');    
+    if( !singleFmt || (singleFmt[1] == 's' && !strchr(singleFmt+1,'%'))  )
+    {
+        if( singleFmt ) {
+            const char *txt = va_arg(argptr,const char *);
+            if( fmt < singleFmt ) {
+                cnt = mingw_posix2_fwrite(fmt,1,(int)(singleFmt-fmt),stream);
+            }
+            if( *txt )
+                cnt += mingw_posix2_fputs(txt,stream);
+            if( singleFmt[2] ) {
+                cnt += mingw_posix2_fputs(singleFmt+2,stream);    
+            }
+        } else {
+            cnt = mingw_posix2_fputs(fmt,stream);
+        }        
     }
-
-	va_start(argptr, fmt);
-	cnt = vsprintf(s_tempBuff, fmt, argptr);
-	va_end(argptr);
-    
-    mingw_posix2_fputs(s_tempBuff,stream);
+    else
+    {
+        char buffer[ 8*1024 ];
+        cnt = vsprintf(buffer, fmt, argptr);
+        va_end(argptr);
+        mingw_posix2_fputs(buffer,stream);
+    }
 
 	return cnt;    
 } 

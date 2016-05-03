@@ -20,6 +20,28 @@ extern "C" {
 
 #include <png.h>
 
+#ifdef MINGW
+static void io_png_flush(png_structp png_ptr)
+{
+    if( png_ptr->io_ptr ) {
+        png_FILE_p io_ptr;
+        io_ptr = (FILE *)png_ptr->io_ptr;
+        if (io_ptr != NULL)
+            fflush(io_ptr);
+    }
+}
+static void io_png_write_data(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+    if( png_ptr->io_ptr ) {
+        png_uint_32 check =  fwrite(data, 1, length, (FILE *)png_ptr->io_ptr);
+        if (check != length)
+            png_error(png_ptr, "Write Error");
+    }
+}  
+#endif
+
+
+
 RGBAPixel *pixel_at(RGBABitmap *bitmap, int x, int y) {
     return bitmap->pixels + (bitmap->width * y + x);
 }
@@ -132,7 +154,7 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
     
     
 #ifdef  MINGW
-    //png_set_write_fn(png_structp png_ptr, png_voidp io_ptr, png_rw_ptr write_data_fn, png_flush_ptr output_flush_fn);
+    png_set_write_fn(png_ptr, fp, io_png_write_data, io_png_flush);
 #else        
     png_init_io(png_ptr, fp);
 #endif    
