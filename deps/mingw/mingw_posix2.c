@@ -14,17 +14,19 @@
  * This file is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation. 
  */
+#define MINGW_POSIX2_IMPL 
 #include "stdio.h"
 #include "mingw_posix2.h"
 #include <stdlib.h> 
 #include <string.h>
+#include <stdarg.h> 
 #include <assert.h>
 
 
 typedef int readfn_t (void *cookie, char *buf, int n);
 typedef int writefn_t (void *cookie, const char *buf, int n);
 typedef fpos_t seekfn_t (void *cookie, fpos_t off, int whence);
-typedef int closefn_t (void *cookie);
+typedef int closefn_t (void *cookie,void *container);
 typedef int flushfn_t (void *cookie);
 
 struct FILE_driver {    
@@ -36,7 +38,7 @@ flushfn_t *_flush;
 };
 
 struct FILE_posix2 {
-FILE          _file; // look like a file... 
+struct mingw_posix2_file _file; 
 struct FILE_driver *driver;
 void        *cookie;
 };
@@ -44,6 +46,39 @@ void        *cookie;
 int null_flushfn(void *cookie) {
     return 0;
 }
+
+int std_readfn(void *cookie, char *buf, int n) {
+    return fread( (void *)buf , n , 1 , (FILE *)cookie );
+}
+
+int std_writefn(void *cookie, const char *buf, int n) {
+    return fwrite( (void *)buf , n , 1 , (FILE *)cookie );
+}
+
+int std_seekfn(void *cookie, int offset , int origin ) {
+    return fseek( (FILE *)cookie , offset , origin);
+}
+
+int std_closefn(void *cookie,void *container)
+{
+    int result = fclose( (FILE *)cookie );
+    free( container ); // container is a wrapper, free it
+    return result;
+}
+
+int std_fflush(void *cookie)
+{
+    return fflush( (FILE *)cookie );
+}
+
+static struct FILE_driver std_impl = {
+  std_readfn
+, std_writefn
+, std_seekfn
+, std_closefn
+, std_fflush
+};
+
 
 //------------------------ memstream
 struct FILE_posix2_memstream {
@@ -117,7 +152,7 @@ fpos_t memstream_seekfn(void *cookie, fpos_t offset, int whence) {
     return pos;
 }
 
-int memstream_closefn(void *cookie) {
+int memstream_closefn(void *cookie,void *container) {
     struct FILE_posix2_memstream *ms= (struct FILE_posix2_memstream *)cookie; 
     memstream_check(ms);
     if (!ms->contents) { free(ms); return -1; }
@@ -138,7 +173,18 @@ static struct FILE_driver memstream_impl = {
 , null_flushfn     
 };
 
-FILE *mingw_posix2_open_memstream(char **bufp, size_t *sizep) 
+struct mingw_posix2_file *mingw_posix2_fopen(const char *filename,const char *flags) {
+    FILE *realFile = fopen(filename,flags);
+    if( realFile ) {
+        struct FILE_posix2 *stdfile = (struct FILE_posix2 *)calloc( sizeof(struct FILE_posix2) , 1 );
+        stdfile->driver = &std_impl;
+        stdfile->cookie = realFile;
+        return &stdfile->_file;
+    }
+    return NULL;
+}
+
+struct mingw_posix2_file *mingw_posix2_open_memstream(char **bufp, size_t *sizep) 
 {
     struct FILE_posix2_memstream *ms = (struct FILE_posix2_memstream *)calloc( sizeof(struct FILE_posix2_memstream) , 1 );
     ms->_file.driver = &memstream_impl;
@@ -146,23 +192,65 @@ FILE *mingw_posix2_open_memstream(char **bufp, size_t *sizep)
     return &ms->_file._file;
 }
 
-int mingw_posix2_fputc( int character, FILE * stream ) 
+int mingw_posix2_fread ( void * ptr, size_t size, size_t count, struct mingw_posix2_file * stream )
+{
+    struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
+    return p2s->driver->_read( p2s->cookie , ptr , size * count );    
+}
+
+int mingw_posix2_fwrite( const void * ptr, size_t size, size_t count, struct mingw_posix2_file *stream )
+{    
+    struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
+    return p2s->driver->_write( p2s->cookie , ptr , size * count );    
+}
+
+int mingw_posix2_fseek( struct mingw_posix2_file *stream, long int offset, int origin )
+{
+    struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
+    return p2s->driver->_seek( p2s->cookie , offset , origin );   
+    
+}
+
+int mingw_posix2_fputc( int character, struct mingw_posix2_file * stream ) 
 {
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
     // First lets 
     return p2s->driver->_write( p2s->cookie , (const char *)&character , 1);
 }
 
-int mingw_posix2_fclose( FILE * stream ) 
+int mingw_posix2_fputs( const char *str, struct mingw_posix2_file * stream )
 {
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
-    return p2s->driver->_close( p2s->cookie );    
+    puts(str);
+    // First lets 
+    return p2s->driver->_write( p2s->cookie , str , strlen(str));    
 }
 
-int mingw_posix2_fflush( FILE * stream )
+int mingw_posix2_fclose( struct mingw_posix2_file * stream ) 
+{
+    struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
+    void *cookie = p2s->cookie;
+    p2s->cookie = NULL;
+    return p2s->driver->_close( cookie , stream );    
+}
+
+int mingw_posix2_fflush( struct mingw_posix2_file * stream )
 {
     struct FILE_posix2 *p2s = ((struct FILE_posix2 *)stream);
     return p2s->driver->_flush( p2s->cookie );    
 }
 
- 
+int mingw_posix2_fprintf( struct mingw_posix2_file * stream , const char *fmt , ... )
+{
+	int	cnt;
+	va_list argptr;
+    char buffer[ 1024 * 16 ];
+
+	va_start(argptr, fmt);
+	cnt = sprintf(buffer, fmt, argptr);
+	va_end(argptr);
+    
+    mingw_posix2_fputs(buffer,stream);
+
+	return cnt;    
+} 
