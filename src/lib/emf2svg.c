@@ -771,6 +771,30 @@ int emf2svg(char *contents, size_t length, char **out,
     return err;
 }
 
+#ifdef MINGW
+// External function
+int emf2svg_ext(char *contents, size_t length, char *nameSpace , bool emfplus , bool svgDelimiter , int width , int height , void *context , svg_get_t *getter )
+{
+    char *out = NULL;
+    
+    generatorOptions options;
+    options.nameSpace = nameSpace; 
+    options.verbose = false;
+    options.emfplus = emfplus;
+    options.svgDelimiter = svgDelimiter;
+    options.imgWidth = (double)width;
+    options.imgHeight = (double)height;
+    
+    int result = emf2svg(contents, length, &out, &options );
+    if( out ) {
+        getter(context,out);
+        free(out);
+    }
+    return result;    
+}
+#endif
+
+
 #ifdef __cplusplus
 }
 #endif
