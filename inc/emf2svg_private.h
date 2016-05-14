@@ -34,7 +34,7 @@ extern "C" {
 #define FLAG_RESET verbose_printf("%s", KNRM);
 
 #define returnOutOfEmf(a)                                                      \
-    if (checkOutOfEMF(states, (uint64_t)(a))) {                                \
+    if (checkOutOfEMF(states, (intptr_t)(a))) {                                \
         return;                                                                \
     }
 #define returnOutOfOTIndex(a)                                                  \
@@ -330,7 +330,7 @@ void point16_draw(drawingStates *states, U_POINT16 pt, FILE *out);
 void point_draw(drawingStates *states, U_POINT pt, FILE *out);
 void freePathStack(pathStack *stack);
 // checks if address is outside the memory containing the emf file
-bool checkOutOfEMF(drawingStates *states, uint64_t address);
+bool checkOutOfEMF(drawingStates *states, intptr_t address);
 // checks if index is greater than the object table size
 bool checkOutOfOTIndex(drawingStates *states, int64_t index);
 void fill_draw(drawingStates *states, FILE *out, bool *filled, bool *stroked);

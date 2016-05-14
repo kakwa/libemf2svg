@@ -636,7 +636,7 @@ int emf2svg(char *contents, size_t length, char **out,
     states->emfplus = options->emfplus;
     states->imgWidth = options->imgWidth;
     states->imgHeight = options->imgHeight;
-    states->endAddress = (uint64_t)contents + (uint64_t)length;
+    states->endAddress = (intptr_t)contents + (intptr_t)length;
     if ((options->nameSpace != NULL) && (strlen(options->nameSpace) != 0)) {
         states->nameSpace = options->nameSpace;
         states->nameSpaceString =
