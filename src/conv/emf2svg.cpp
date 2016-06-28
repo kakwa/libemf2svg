@@ -73,10 +73,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         arguments->input = arg;
         break;
     case 'w':
-        arguments->width = std::atoi(arg);
+        arguments->width = atoi(arg);
         break;
     case 'h':
-        arguments->height = std::atoi(arg);
+        arguments->height = atoi(arg);
         break;
     case 'V':
         arguments->version = 1;
