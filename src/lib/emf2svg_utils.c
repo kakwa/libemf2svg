@@ -141,7 +141,7 @@ void basic_stroke(drawingStates *states, FILE *out) {
     color_stroke(states, out);
     width_stroke(states, out, states->currentDeviceContext.stroke_width);
 }
-bool checkOutOfEMF(drawingStates *states, uint64_t address) {
+bool checkOutOfEMF(drawingStates *states, intptr_t address) {
     if (address > states->endAddress) {
         states->Error = true;
         return true;
@@ -187,8 +187,8 @@ void cubic_bezier16_draw(const char *name, const char *contents, FILE *out,
     PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16)(contents);
     startPathDraw(states, out);
     PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
-    returnOutOfEmf((uint64_t)papts +
-                   (uint64_t)(pEmr->cpts) * sizeof(U_POINT16));
+    returnOutOfEmf((intptr_t)papts +
+                   (intptr_t)(pEmr->cpts) * sizeof(U_POINT16));
     if (startingPoint == 1) {
         fprintf(out, "M ");
         point16_draw(states, papts[0], out);
@@ -226,7 +226,7 @@ void cubic_bezier_draw(const char *name, const char *contents, FILE *out,
     PU_EMRPOLYBEZIER pEmr = (PU_EMRPOLYBEZIER)(contents);
     startPathDraw(states, out);
     PU_POINT papts = (PU_POINT)(&(pEmr->aptl));
-    returnOutOfEmf((uint64_t)papts + (uint64_t)pEmr->cptl * sizeof(U_POINT));
+    returnOutOfEmf((intptr_t)papts + (intptr_t)pEmr->cptl * sizeof(U_POINT));
     if (startingPoint == 1) {
         fprintf(out, "M ");
         point_draw(states, papts[0], out);
@@ -650,8 +650,8 @@ void polyline16_draw(const char *name, const char *contents, FILE *out,
     unsigned int i;
     PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16)(contents);
     PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
-    returnOutOfEmf((uint64_t)papts +
-                   (uint64_t)(pEmr->cpts) * sizeof(U_POINT16));
+    returnOutOfEmf((intptr_t)papts +
+                   (intptr_t)(pEmr->cpts) * sizeof(U_POINT16));
     startPathDraw(states, out);
     for (i = 0; i < pEmr->cpts; i++) {
         if (polygon && i == 0) {
@@ -673,7 +673,7 @@ void polyline_draw(const char *name, const char *contents, FILE *out,
     PU_EMRPOLYLINETO pEmr = (PU_EMRPOLYLINETO)(contents);
     startPathDraw(states, out);
     PU_POINT papts = (PU_POINT)(&(pEmr->aptl));
-    returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cptl) * sizeof(U_POINT));
+    returnOutOfEmf((intptr_t)papts + (intptr_t)(pEmr->cptl) * sizeof(U_POINT));
     for (i = 0; i < pEmr->cptl; i++) {
         if (polygon && i == 0) {
             fprintf(out, "M ");
@@ -694,8 +694,8 @@ void polypolygon16_draw(const char *name, const char *contents, FILE *out,
     PU_EMRPOLYPOLYLINE16 pEmr = (PU_EMRPOLYPOLYLINE16)(contents);
     PU_POINT16 papts = (PU_POINT16)((char *)pEmr->aPolyCounts +
                                     sizeof(uint32_t) * pEmr->nPolys);
-    returnOutOfEmf((uint64_t)papts +
-                   (uint64_t)(pEmr->cpts) * sizeof(U_POINT16));
+    returnOutOfEmf((intptr_t)papts +
+                   (intptr_t)(pEmr->cpts) * sizeof(U_POINT16));
 
     int counter = 0;
     int polygon_index = 0;
@@ -732,7 +732,7 @@ void polypolygon_draw(const char *name, const char *contents, FILE *out,
 
     int counter = 0;
     int polygon_index = 0;
-    returnOutOfEmf((uint64_t)papts + (uint64_t)(pEmr->cpts) * sizeof(U_POINT));
+    returnOutOfEmf((intptr_t)papts + (intptr_t)(pEmr->cpts) * sizeof(U_POINT));
     for (i = 0; i < pEmr->cpts; i++) {
         if (counter == 0) {
             fprintf(out, "M ");
@@ -1003,10 +1003,10 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
     uint8_t *string;
 
     if (type == UTF_16) {
-        returnOutOfEmf((uint64_t)in + 2 * (uint64_t)size_in);
+        returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
         string = (uint8_t *)U_Utf16leToUtf8((uint16_t *)in, size_in, size_out);
     } else {
-        returnOutOfEmf((uint64_t)in + (uint64_t)size_in);
+        returnOutOfEmf((intptr_t)in + (intptr_t)size_in);
         string = (uint8_t *)calloc((size_in + 1), 1);
         strncpy((char *)string, in, size_in);
         *size_out = size_in;
