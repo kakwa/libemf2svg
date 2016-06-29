@@ -6,11 +6,10 @@ platform:
   - x64
 
 configuration:
-  - Debug
   - Release
 
 build:
-  project: C:/projects/appveyor/build/app.sln
+  project: C:/projects/libemf2svg/build/app.sln
 
 before_build:
   - mkdir build
