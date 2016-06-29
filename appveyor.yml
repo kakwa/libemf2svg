@@ -9,7 +9,7 @@ configuration:
   - Release
 
 build:
-  project: C:/projects/libemf2svg/build/app.sln
+  project: C:/projects/libemf2svg/build/emf2svg.sln
 
 before_build:
   - mkdir build
