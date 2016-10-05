@@ -205,6 +205,7 @@ void U_EMREXTCREATEFONTINDIRECTW_draw(const char *contents, FILE *out,
         (logfont.lfOrientation % 3600);
     states->objectTable[index].font_family = family;
     states->objectTable[index].font_set = true;
+    states->objectTable[index].text_charset = logfont.lfCharSet;
 }
 void U_EMREXTCREATEPEN_draw(const char *contents, FILE *out,
                             drawingStates *states) {

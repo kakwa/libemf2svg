@@ -122,6 +122,7 @@ typedef struct emf_graph_object {
     uint8_t text_blue;
     uint8_t text_green;
     uint16_t text_align;
+    uint8_t text_charset;
 
     // bk propertier
     uint8_t bk_red;
