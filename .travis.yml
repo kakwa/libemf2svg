@@ -4,7 +4,7 @@ matrix:
       dist: trusty
     - os: osx
 
-sudo: false
+sudo: required
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then xcode-select --install;true; fi
