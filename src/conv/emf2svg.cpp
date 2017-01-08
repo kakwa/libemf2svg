@@ -129,6 +129,7 @@ int main(int argc, char *argv[]) {
                          std::istreambuf_iterator<char>());
 
     char *svg_out = NULL;
+    size_t svg_len;
     generatorOptions *options =
         (generatorOptions *)calloc(1, sizeof(generatorOptions));
     options->verbose = arguments.verbose;
@@ -138,7 +139,7 @@ int main(int argc, char *argv[]) {
     options->imgWidth = arguments.width;
     options->imgHeight = arguments.height;
     int ret =
-        emf2svg((char *)contents.c_str(), contents.size(), &svg_out, options);
+        emf2svg((char *)contents.c_str(), contents.size(), &svg_out, &svg_len, options);
     if (ret != 0) {
         std::ofstream out(arguments.output);
         if (!out.is_open()) {

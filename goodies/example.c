@@ -22,6 +22,8 @@ int main(int argc, char *argv[]){
     char * emf_content = mmap(0, emf_size, PROT_READ, MAP_PRIVATE, fd, 0);
     /* svg output string */
     char *svg_out = NULL;
+    /* svg output length */
+    size_t svg_out_len;
 
     /*************************** options settings **************************/
 
@@ -44,7 +46,7 @@ int main(int argc, char *argv[]){
 
     /***************************** conversion ******************************/
 
-    int ret = emf2svg(emf_content, emf_size, &svg_out, options);
+    int ret = emf2svg(emf_content, emf_size, &svg_out, &svg_out_len, options);
 
     /***********************************************************************/
 

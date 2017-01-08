@@ -615,7 +615,7 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
     } // end of switch
     return (size);
 }
-int emf2svg(char *contents, size_t length, char **out,
+int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
             generatorOptions *options) {
     size_t off = 0;
     size_t result;
@@ -624,7 +624,6 @@ int emf2svg(char *contents, size_t length, char **out,
     PU_ENHMETARECORD pEmr;
     char *blimit;
     FILE *stream;
-    size_t len;
 
 #if U_BYTE_SWAP
     // This is a Big Endian machine, EMF data is Little Endian
@@ -657,7 +656,7 @@ int emf2svg(char *contents, size_t length, char **out,
     blimit = contents + length;
     int err = 1;
 
-    stream = open_memstream(out, &len);
+    stream = open_memstream(out, out_length);
     if (stream == NULL) {
         if (states->verbose) {
             printf("Failed to allocate output stream\n");

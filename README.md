@@ -113,6 +113,8 @@ int main(int argc, char *argv[]){
     char * emf_content;
     /* svg output string */
     char *svg_out = NULL;
+    /* svg output length */
+    size_t svg_out_len = 0;
 
     //[...]
 
@@ -137,7 +139,7 @@ int main(int argc, char *argv[]){
 
     /***************************** conversion ******************************/
 
-    int ret = emf2svg(emf_content, emf_size, &svg_out, options);
+    int ret = emf2svg(emf_content, emf_size, &svg_out, &svg_out_len, options);
 
     /***********************************************************************/
 
@@ -169,6 +171,46 @@ EMF+ RECORDS:
 | Unused    |    0  | [   0%] |
 | Ignored   |   85  | [ 100%] |
 | Total     |   85  |         |
+
+ChangeLogs
+----------
+
+Dev:
+
+* /!\ API break, must pass an additionnal argument to emf2svg function:
+```diff
+--- a/goodies/old.c
++++ b/goodies/new.c
+@@ -22,6 +22,8 @@ int main(int argc, char *argv[]){
+     char * emf_content = mmap(0, emf_size, PROT_READ, MAP_PRIVATE, fd, 0);
+     /* svg output string */
+     char *svg_out = NULL;
++    /* svg output length */
++    size_t svg_out_len;
+ 
+     /*************************** options settings **************************/
+ 
+@@ -44,7 +46,7 @@ int main(int argc, char *argv[]){
+ 
+     /***************************** conversion ******************************/
+ 
+-    int ret = emf2svg(emf_content, emf_size, &svg_out, options);
++    int ret = emf2svg(emf_content, emf_size, &svg_out, &svg_out_len, options);
+ 
+     /***********************************************************************/
+```
+
+0.5.1:
+
+0.5.0:
+
+0.4.0:
+
+0.3.0:
+
+0.2.0:
+
+0.1.0:
 
 Development
 -----------

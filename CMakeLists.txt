@@ -3,9 +3,9 @@ cmake_minimum_required (VERSION 2.6)
 project (emf2svg)
 
 # Project version (sematic versionning)
-set(emf2svg_VERSION_MAJOR 0)
-set(emf2svg_VERSION_MINOR 5)
-set(emf2svg_VERSION_PATCH 1)
+set(emf2svg_VERSION_MAJOR 1)
+set(emf2svg_VERSION_MINOR 0)
+set(emf2svg_VERSION_PATCH 0)
 
 set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
