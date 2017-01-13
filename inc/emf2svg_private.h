@@ -2,11 +2,11 @@
 extern "C" {
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stddef.h> /* for offsetof() macro */
-#include <string.h>
 #include "uemf.h"
+#include <stddef.h> /* for offsetof() macro */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #ifdef DARWIN
 #include <memstream.h>
 #endif

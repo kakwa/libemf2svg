@@ -5,10 +5,10 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
 #include "emf2svg_img_utils.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef DARWIN
 #include <memstream.h>

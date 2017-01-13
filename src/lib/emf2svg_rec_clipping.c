@@ -6,9 +6,9 @@ extern "C" {
 #define _POSIX_C_SOURCE 200809L
 #endif
 
-#include <stdio.h>
 #include "emf2svg_private.h"
 #include "emf2svg_print.h"
+#include <stdio.h>
 
 // FIXME see emf2svg_clip_utils.c (clipping region AND/OR/XOR... not handle)
 

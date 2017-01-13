@@ -1,8 +1,8 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stddef.h> /* for offsetof() macro */
-#include <string.h>
 #include <stdbool.h>
+#include <stddef.h> /* for offsetof() macro */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {

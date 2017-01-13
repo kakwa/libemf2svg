@@ -27,12 +27,12 @@ Copyright: 2014 David Mathog and California Institute of Technology (Caltech)
 extern "C" {
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
 #include "emf2svg_private.h"
 #include "emf2svg_print.h"
 #include "pmf2svg.h"
 #include "pmf2svg_print.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 //! \cond
 

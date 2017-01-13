@@ -5,9 +5,9 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include <stdio.h>
 #include "emf2svg_private.h"
 #include "emf2svg_print.h"
+#include <stdio.h>
 
 void U_EMRINVERTRGN_draw(const char *contents, FILE *out,
                          drawingStates *states) {

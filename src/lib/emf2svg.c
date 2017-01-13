@@ -5,12 +5,12 @@ extern "C" {
 #ifndef DARWIN
 #define _POSIX_C_SOURCE 200809L
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include "emf2svg.h"
 #include "emf2svg_private.h"
 #include "emf2svg_print.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum,
                          size_t off, drawingStates *states) {
