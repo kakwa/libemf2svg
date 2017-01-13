@@ -199,18 +199,37 @@ Dev:
  
      /***********************************************************************/
 ```
+* general cleanup of the project (remove external files not needed)
 
 0.5.1:
 
+* fix build on OS X
+
 0.5.0:
+
+* add alpha layer handling in bitmap blobs conversion
+* add brush patterns
 
 0.4.0:
 
+* fix text orientation
+* fix origin handling in special case
+
 0.3.0:
+
+* completly rework how the origin is calculated, it now takes correctly into account both viewport and window orgs
 
 0.2.0:
 
+* code reorganization
+* add support for ANGLEARC, EMRSTRETCHBLT, EMRBITBLT and more
+* add handling of bitmap, RLE4 and RLE8 image blobs
+* add some rough handling of clipping forms
+* fix text rendering to not collapse spaces
+
 0.1.0:
+
+* first version
 
 Development
 -----------
