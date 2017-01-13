@@ -7,6 +7,8 @@ set(emf2svg_VERSION_MAJOR 1)
 set(emf2svg_VERSION_MINOR 0)
 set(emf2svg_VERSION_PATCH 0)
 
+find_package(PNG REQUIRED)
+
 set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
 add_custom_target(tag
@@ -88,6 +90,7 @@ LINK_DIRECTORIES(
 # headers directories
 include_directories(
     ./inc/
+    ${PNG_INCLUDE_DIRS}
     /usr/include/ 
     /sw/include/
 )
@@ -135,7 +138,7 @@ set_target_properties(emf2svg
 # Compile the executable
 add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 target_link_libraries(emf2svg
-    png
+    ${PNG_LIBRARIES}
     ${EXTERNAL_MEMSTREAM}
     ${EXTERNAL_ICONV}
     ${EXTERNAL_ARGP}
