@@ -175,7 +175,7 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
-Dev:
+1.0.0:
 
 * better cmake regarding finding dependency libraries (libpng)
 * /!\ API break, must pass an additionnal argument to emf2svg function:
