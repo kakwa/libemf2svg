@@ -175,6 +175,10 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.0.1:
+
+* cleaner handling of memstream on OSX (don't install libmemstream, just embed it)
+
 1.0.0:
 
 * better cmake regarding finding dependency libraries (libpng)
