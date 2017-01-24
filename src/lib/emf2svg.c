@@ -11,6 +11,9 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef DARWIN
+#include "memstream.c"
+#endif
 
 int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum,
                          size_t off, drawingStates *states) {
