@@ -24,8 +24,8 @@ extern "C" {
 #include "upmf.h" /* includes uemf.h */
 
 /* prototypes for simple types and enums used in PMR records */
-int U_PMF_CMN_HDR_print(U_PMF_CMN_HDR Header, int precnum, int off, FILE *out,
-                        drawingStates *states);
+int U_PMF_CMN_HDR_print(const char *contents, U_PMF_CMN_HDR Header, int precnum,
+                        int off, FILE *out, drawingStates *states);
 int U_PMF_UINT8_ARRAY_print(const char *Start, const uint8_t *Array,
                             int Elements, char *End, FILE *out,
                             drawingStates *states);
@@ -39,131 +39,159 @@ int U_PMF_PATHPOINTTYPE_ENUM_print(int Type, FILE *out, drawingStates *states);
 int U_PMF_PX_FMT_ENUM_print(int pfe, FILE *out, drawingStates *states);
 int U_PMF_NODETYPE_print(int Type, FILE *out, drawingStates *states);
 
+int U_PMF_GRAPHICSVERSION_memsafe_print(const char *contents, FILE *out,
+                                        drawingStates *states);
+
 /* prototypes for objects used in PMR records */
-int U_PMF_BRUSH_print(const char *contents, FILE *out, drawingStates *states);
+int U_PMF_BRUSH_print(const char *contents, const char *blimit, FILE *out,
+                      drawingStates *states);
 int U_PMF_CUSTOMLINECAP_print(const char *contents, const char *Which,
-                              FILE *out, drawingStates *states);
-int U_PMF_FONT_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_IMAGE_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_IMAGEATTRIBUTES_print(const char *contents, FILE *out,
-                                drawingStates *states);
-int U_PMF_PATH_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_PEN_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_REGION_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_STRINGFORMAT_print(const char *contents, FILE *out,
-                             drawingStates *states);
+                              const char *blimit, FILE *out,
+                              drawingStates *states);
+int U_PMF_FONT_print(const char *contents, const char *blimit, FILE *out,
+                     drawingStates *states);
+int U_PMF_IMAGE_print(const char *contents, const char *blimit, FILE *out,
+                      drawingStates *states);
+int U_PMF_IMAGEATTRIBUTES_print(const char *contents, const char *blimit,
+                                FILE *out, drawingStates *states);
+int U_PMF_PATH_print(const char *contents, const char *blimit, FILE *out,
+                     drawingStates *states);
+int U_PMF_PEN_print(const char *contents, const char *blimit, FILE *out,
+                    drawingStates *states);
+int U_PMF_REGION_print(const char *contents, const char *blimit, FILE *out,
+                       drawingStates *states);
+int U_PMF_STRINGFORMAT_print(const char *contents, const char *blimit,
+                             FILE *out, drawingStates *states);
 int U_PMF_ARGB_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_BITMAP_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_BITMAPDATA_print(const char *contents, FILE *out,
+int U_PMF_BITMAP_print(const char *contents, const char *blimit, FILE *out,
+                       drawingStates *states);
+int U_PMF_BITMAPDATA_print(const char *contents, const char *blimit, FILE *out,
                            drawingStates *states);
-int U_PMF_BLENDCOLORS_print(const char *contents, FILE *out,
+int U_PMF_BLENDCOLORS_print(const char *contents, const char *blimit, FILE *out,
                             drawingStates *states);
-int U_PMF_BLENDFACTORS_print(const char *contents, const char *type, FILE *out,
+int U_PMF_BLENDFACTORS_print(const char *contents, const char *type,
+                             const char *blimit, FILE *out,
                              drawingStates *states);
-int U_PMF_BOUNDARYPATHDATA_print(const char *contents, FILE *out,
-                                 drawingStates *states);
-int U_PMF_BOUNDARYPOINTDATA_print(const char *contents, FILE *out,
-                                  drawingStates *states);
-int U_PMF_CHARACTERRANGE_print(const char *contents, FILE *out,
-                               drawingStates *states);
-int U_PMF_COMPOUNDLINEDATA_print(const char *contents, FILE *out,
-                                 drawingStates *states);
-int U_PMF_COMPRESSEDIMAGE_print(const char *contents, FILE *out,
-                                drawingStates *states);
-int U_PMF_CUSTOMENDCAPDATA_print(const char *contents, FILE *out,
-                                 drawingStates *states);
-int U_PMF_CUSTOMLINECAPARROWDATA_print(const char *contents, FILE *out,
-                                       drawingStates *states);
-int U_PMF_CUSTOMLINECAPDATA_print(const char *contents, FILE *out,
-                                  drawingStates *states);
+int U_PMF_BOUNDARYPATHDATA_print(const char *contents, const char *blimit,
+                                 FILE *out, drawingStates *states);
+int U_PMF_BOUNDARYPOINTDATA_print(const char *contents, const char *blimit,
+                                  FILE *out, drawingStates *states);
+int U_PMF_CHARACTERRANGE_print(const char *contents, const char *blimit,
+                               FILE *out, drawingStates *states);
+int U_PMF_COMPOUNDLINEDATA_print(const char *contents, const char *blimit,
+                                 FILE *out, drawingStates *states);
+int U_PMF_COMPRESSEDIMAGE_print(const char *contents, const char *blimit,
+                                FILE *out, drawingStates *states);
+int U_PMF_CUSTOMENDCAPDATA_print(const char *contents, const char *blimit,
+                                 FILE *out, drawingStates *states);
+int U_PMF_CUSTOMLINECAPARROWDATA_print(const char *contents, const char *blimit,
+                                       FILE *out, drawingStates *states);
+int U_PMF_CUSTOMLINECAPDATA_print(const char *contents, const char *blimit,
+                                  FILE *out, drawingStates *states);
 int U_PMF_CUSTOMLINECAPOPTIONALDATA_print(const char *contents, uint32_t Flags,
-                                          FILE *out, drawingStates *states);
-int U_PMF_CUSTOMSTARTCAPDATA_print(const char *contents, FILE *out,
-                                   drawingStates *states);
-int U_PMF_DASHEDLINEDATA_print(const char *contents, FILE *out,
-                               drawingStates *states);
-int U_PMF_FILLPATHOBJ_print(const char *contents, FILE *out,
+                                          const char *blimit, FILE *out,
+                                          drawingStates *states);
+int U_PMF_CUSTOMSTARTCAPDATA_print(const char *contents, const char *blimit,
+                                   FILE *out, drawingStates *states);
+int U_PMF_DASHEDLINEDATA_print(const char *contents, const char *blimit,
+                               FILE *out, drawingStates *states);
+int U_PMF_FILLPATHOBJ_print(const char *contents, const char *blimit, FILE *out,
                             drawingStates *states);
-int U_PMF_FOCUSSCALEDATA_print(const char *contents, FILE *out,
-                               drawingStates *states);
-int U_PMF_GRAPHICSVERSION_print(const char *contents, FILE *out,
-                                drawingStates *states);
-int U_PMF_HATCHBRUSHDATA_print(const char *contents, FILE *out,
-                               drawingStates *states);
+int U_PMF_FOCUSSCALEDATA_print(const char *contents, const char *blimit,
+                               FILE *out, drawingStates *states);
+int U_PMF_GRAPHICSVERSION_print(const char *contents, const char *blimit,
+                                FILE *out, drawingStates *states);
+int U_PMF_HATCHBRUSHDATA_print(const char *contents, const char *blimit,
+                               FILE *out, drawingStates *states);
 int U_PMF_LANGUAGEIDENTIFIER_print(U_PMF_LANGUAGEIDENTIFIER LId, FILE *out,
                                    drawingStates *states);
-int U_PMF_LINEARGRADIENTBRUSHDATA_print(const char *contents, FILE *out,
+int U_PMF_LINEARGRADIENTBRUSHDATA_print(const char *contents,
+                                        const char *blimit, FILE *out,
                                         drawingStates *states);
 int U_PMF_LINEARGRADIENTBRUSHOPTIONALDATA_print(const char *contents,
-                                                int BDFlag, FILE *out,
+                                                int BDFlag, const char *blimit,
+                                                FILE *out,
                                                 drawingStates *states);
-int U_PMF_LINEPATH_print(const char *contents, FILE *out,
+int U_PMF_LINEPATH_print(const char *contents, const char *blimit, FILE *out,
                          drawingStates *states);
-int U_PMF_METAFILE_print(const char *contents, FILE *out,
+int U_PMF_METAFILE_print(const char *contents, const char *blimit, FILE *out,
                          drawingStates *states);
-int U_PMF_PALETTE_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_PATHGRADIENTBRUSHDATA_print(const char *contents, FILE *out,
-                                      drawingStates *states);
+int U_PMF_PALETTE_print(const char *contents, const char *blimit, FILE *out,
+                        drawingStates *states);
+int U_PMF_PATHGRADIENTBRUSHDATA_print(const char *contents, const char *blimit,
+                                      FILE *out, drawingStates *states);
 int U_PMF_PATHGRADIENTBRUSHOPTIONALDATA_print(const char *contents, int BDFlag,
-                                              FILE *out, drawingStates *states);
-int U_PMF_PATHPOINTTYPE_print(const char *contents, FILE *out,
-                              drawingStates *states);
-int U_PMF_PATHPOINTTYPERLE_print(const char *contents, FILE *out,
-                                 drawingStates *states);
-int U_PMF_PENDATA_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_PENOPTIONALDATA_print(const char *contents, int Flags, FILE *out,
+                                              const char *blimit, FILE *out,
+                                              drawingStates *states);
+int U_PMF_PATHPOINTTYPE_print(const char *contents, const char *blimit,
+                              FILE *out, drawingStates *states);
+int U_PMF_PATHPOINTTYPERLE_print(const char *contents, const char *blimit,
+                                 FILE *out, drawingStates *states);
+int U_PMF_PENDATA_print(const char *contents, const char *blimit, FILE *out,
+                        drawingStates *states);
+int U_PMF_PENOPTIONALDATA_print(const char *contents, int Flags,
+                                const char *blimit, FILE *out,
                                 drawingStates *states);
-int U_PMF_POINT_print(const char **contents, FILE *out, drawingStates *states);
-int U_PMF_POINTF_print(const char **contents, FILE *out, drawingStates *states);
+int U_PMF_POINT_print(const char **contents, const char *blimit, FILE *out,
+                      drawingStates *states);
+int U_PMF_POINTF_print(const char **contents, const char *blimit, FILE *out,
+                       drawingStates *states);
 int U_PMF_POINTR_print(const char **contents, U_FLOAT *Xpos, U_FLOAT *Ypos,
-                       FILE *out, drawingStates *states);
+                       const char *blimit, FILE *out, drawingStates *states);
 int U_PMF_POINT_S_print(U_PMF_POINT *Point, FILE *out, drawingStates *states);
 int U_PMF_POINTF_S_print(U_PMF_POINTF *Point, FILE *out, drawingStates *states);
-int U_PMF_RECT_print(const char **contents, FILE *out, drawingStates *states);
-int U_PMF_RECTF_print(const char **contents, FILE *out, drawingStates *states);
+int U_PMF_RECT_print(const char **contents, const char *blimit, FILE *out,
+                     drawingStates *states);
+int U_PMF_RECTF_print(const char **contents, const char *blimit, FILE *out,
+                      drawingStates *states);
 int U_PMF_RECT_S_print(U_PMF_RECT *Rect, FILE *out, drawingStates *states);
 int U_PMF_RECTF_S_print(U_PMF_RECTF *Rect, FILE *out, drawingStates *states);
-int U_PMF_REGIONNODE_print(const char *contents, int Level, FILE *out,
-                           drawingStates *states);
-int U_PMF_REGIONNODECHILDNODES_print(const char *contents, int Level, FILE *out,
+int U_PMF_REGIONNODE_print(const char *contents, int Level, const char *blimit,
+                           FILE *out, drawingStates *states);
+int U_PMF_REGIONNODECHILDNODES_print(const char *contents, int Level,
+                                     const char *blimit, FILE *out,
                                      drawingStates *states);
-int U_PMF_REGIONNODEPATH_print(const char *contents, FILE *out,
-                               drawingStates *states);
-int U_PMF_SOLIDBRUSHDATA_print(const char *contents, FILE *out,
-                               drawingStates *states);
+int U_PMF_REGIONNODEPATH_print(const char *contents, const char *blimit,
+                               FILE *out, drawingStates *states);
+int U_PMF_SOLIDBRUSHDATA_print(const char *contents, const char *blimit,
+                               FILE *out, drawingStates *states);
 int U_PMF_STRINGFORMATDATA_print(const char *contents, uint32_t TabStopCount,
-                                 uint32_t RangeCount, FILE *out,
-                                 drawingStates *states);
-int U_PMF_TEXTUREBRUSHDATA_print(const char *contents, FILE *out,
-                                 drawingStates *states);
-int U_PMF_TEXTUREBRUSHOPTIONALDATA_print(const char *contents, int HasImage,
+                                 uint32_t RangeCount, const char *blimit,
+                                 FILE *out, drawingStates *states);
+int U_PMF_TEXTUREBRUSHDATA_print(const char *contents, const char *blimit,
+                                 FILE *out, drawingStates *states);
+int U_PMF_TEXTUREBRUSHOPTIONALDATA_print(const char *contents, int HasMatrix,
+                                         int HasImage, const char *blimit,
                                          FILE *out, drawingStates *states);
-int U_PMF_TRANSFORMMATRIX_print(const char *contents, FILE *out,
-                                drawingStates *states);
+int U_PMF_TRANSFORMMATRIX_print(const char *contents, const char *blimit,
+                                FILE *out, drawingStates *states);
 int U_PMF_TRANSFORMMATRIX2_print(U_PMF_TRANSFORMMATRIX *Matrix, FILE *out,
                                  drawingStates *states);
 int U_PMF_ROTMATRIX2_print(U_PMF_ROTMATRIX *Matrix, FILE *out,
                            drawingStates *states);
-int U_PMF_IE_BLUR_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMF_IE_BRIGHTNESSCONTRAST_print(const char *contents, FILE *out,
-                                      drawingStates *states);
-int U_PMF_IE_COLORBALANCE_print(const char *contents, FILE *out,
-                                drawingStates *states);
-int U_PMF_IE_COLORCURVE_print(const char *contents, FILE *out,
-                              drawingStates *states);
-int U_PMF_IE_COLORLOOKUPTABLE_print(const char *contents, FILE *out,
-                                    drawingStates *states);
-int U_PMF_IE_COLORMATRIX_print(const char *contents, FILE *out,
-                               drawingStates *states);
-int U_PMF_IE_HUESATURATIONLIGHTNESS_print(const char *contents, FILE *out,
+int U_PMF_IE_BLUR_print(const char *contents, const char *blimit, FILE *out,
+                        drawingStates *states);
+int U_PMF_IE_BRIGHTNESSCONTRAST_print(const char *contents, const char *blimit,
+                                      FILE *out, drawingStates *states);
+int U_PMF_IE_COLORBALANCE_print(const char *contents, const char *blimit,
+                                FILE *out, drawingStates *states);
+int U_PMF_IE_COLORCURVE_print(const char *contents, const char *blimit,
+                              FILE *out, drawingStates *states);
+int U_PMF_IE_COLORLOOKUPTABLE_print(const char *contents, const char *blimit,
+                                    FILE *out, drawingStates *states);
+int U_PMF_IE_COLORMATRIX_print(const char *contents, const char *blimit,
+                               FILE *out, drawingStates *states);
+int U_PMF_IE_HUESATURATIONLIGHTNESS_print(const char *contents,
+                                          const char *blimit, FILE *out,
                                           drawingStates *states);
-int U_PMF_IE_LEVELS_print(const char *contents, FILE *out,
+int U_PMF_IE_LEVELS_print(const char *contents, const char *blimit, FILE *out,
                           drawingStates *states);
-int U_PMF_IE_REDEYECORRECTION_print(const char *contents, FILE *out,
-                                    drawingStates *states);
-int U_PMF_IE_SHARPEN_print(const char *contents, FILE *out,
+int U_PMF_IE_REDEYECORRECTION_print(const char *contents, const char *blimit,
+                                    FILE *out, drawingStates *states);
+int U_PMF_IE_SHARPEN_print(const char *contents, const char *blimit, FILE *out,
                            drawingStates *states);
-int U_PMF_IE_TINT_print(const char *contents, FILE *out, drawingStates *states);
+int U_PMF_IE_TINT_print(const char *contents, const char *blimit, FILE *out,
+                        drawingStates *states);
 
 /* prototypes for PMR records */
 int U_PMR_OFFSETCLIP_print(const char *contents, FILE *out,
@@ -202,7 +230,7 @@ int U_PMR_DRAWLINES_print(const char *contents, FILE *out,
 int U_PMR_DRAWPATH_print(const char *contents, FILE *out,
                          drawingStates *states);
 int U_PMR_DRAWPIE_print(const char *contents, FILE *out, drawingStates *states);
-int U_PMR_DRAWRECTS_print(const char *contents, const char *blimit, FILE *out,
+int U_PMR_DRAWRECTS_print(const char *contents, FILE *out,
                           drawingStates *states);
 int U_PMR_DRAWSTRING_print(const char *contents, FILE *out,
                            drawingStates *states);
@@ -215,7 +243,7 @@ int U_PMR_FILLPATH_print(const char *contents, FILE *out,
 int U_PMR_FILLPIE_print(const char *contents, FILE *out, drawingStates *states);
 int U_PMR_FILLPOLYGON_print(const char *contents, FILE *out,
                             drawingStates *states);
-int U_PMR_FILLRECTS_print(const char *contents, const char *blimit, FILE *out,
+int U_PMR_FILLRECTS_print(const char *contents, FILE *out,
                           drawingStates *states);
 int U_PMR_FILLREGION_print(const char *contents, FILE *out,
                            drawingStates *states);
