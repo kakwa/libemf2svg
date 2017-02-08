@@ -82,19 +82,21 @@ void panose_print(drawingStates *states, U_PANOSE panose);
 void logfont_print(drawingStates *states, U_LOGFONT lf);
 void logfont_panose_print(drawingStates *states, U_LOGFONT_PANOSE lfp);
 int bitmapinfoheader_print(drawingStates *states, const char *Bmih);
-void bitmapinfo_print(drawingStates *states, const char *Bmi);
+void bitmapinfo_print(drawingStates *states, const char *Bmi,
+                      const char *blimit);
 void blend_print(drawingStates *states, U_BLEND blend);
 void extlogpen_print(drawingStates *states, const PU_EXTLOGPEN elp);
 void logpen_print(drawingStates *states, U_LOGPEN lp);
 void logpltntry_print(drawingStates *states, U_LOGPLTNTRY lpny);
 void logpalette_print(drawingStates *states, const PU_LOGPALETTE lp);
 void rgndataheader_print(drawingStates *states, U_RGNDATAHEADER rdh);
-void rgndata_print(drawingStates *states, const PU_RGNDATA rd);
+void rgndata_print(drawingStates *states, const PU_RGNDATA rd,
+                   const char *blimit);
 void coloradjustment_print(drawingStates *states, U_COLORADJUSTMENT ca);
 void pixelformatdescriptor_print(drawingStates *states,
                                  U_PIXELFORMATDESCRIPTOR pfd);
 void emrtext_print(drawingStates *states, const char *emt, const char *record,
-                   int type);
+                   const char *blimit, int type);
 
 /* prototypes for EMR records */
 void U_EMRNOTIMPLEMENTED_print(const char *name, const char *contents,

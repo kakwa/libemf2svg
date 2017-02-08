@@ -30,6 +30,12 @@ extern "C" {
 //! \cond
 #define UNUSED(x) (void)(x)
 
+#define IF_MEM_UNSAFE_PRINT_AND_RETURN(A, B, C)                                \
+    if (IS_MEM_UNSAFE(A, B, C)) {                                              \
+        verbose_printf("   record corruption HERE\n");                         \
+        return;                                                                \
+    }
+
 /**
   \brief save the current device context on the stack.
   \param states drawingStates object
@@ -579,15 +585,22 @@ int bitmapinfoheader_print(drawingStates *states, const char *Bmih) {
   may not
   be aligned in memory.
   */
-void bitmapinfo_print(drawingStates *states, const char *Bmi) {
+void bitmapinfo_print(drawingStates *states, const char *Bmi,
+                      const char *blimit) {
     int i, k;
     int ClrUsed;
     U_RGBQUAD BmiColor;
     verbose_printf("BmiHeader: ");
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(Bmi, offsetof(U_BITMAPINFO, bmiHeader) +
+                                            sizeof(U_BITMAPINFOHEADER),
+                                   blimit);
     ClrUsed =
         bitmapinfoheader_print(states, Bmi + offsetof(U_BITMAPINFO, bmiHeader));
     if (ClrUsed) {
         k = offsetof(U_BITMAPINFO, bmiColors);
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(Bmi, offsetof(U_BITMAPINFO, bmiColors) +
+                                                ClrUsed * sizeof(U_RGBQUAD),
+                                       blimit);
         for (i = 0; i < ClrUsed; i++, k += sizeof(U_RGBQUAD)) {
             memcpy(&BmiColor, Bmi + k, sizeof(U_RGBQUAD));
             verbose_printf("%d:", i);
@@ -688,14 +701,19 @@ void rgndataheader_print(drawingStates *states, U_RGNDATAHEADER rdh) {
 /**
   \brief Print a pointer to a U_RGNDATA object.
   \param rd  pointer to a U_RGNDATA object.
+
   */
-void rgndata_print(drawingStates *states, PU_RGNDATA rd) {
+void rgndata_print(drawingStates *states, PU_RGNDATA rd, const char *blimit) {
     unsigned int i;
     PU_RECTL rects;
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(rd, sizeof(U_RGNDATAHEADER), blimit);
     verbose_printf("rdh:");
     rgndataheader_print(states, rd->rdh);
+    verbose_printf(" rects: ");
     if (rd->rdh.nCount) {
         rects = (PU_RECTL) & (rd->Buffer);
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(rects, rd->rdh.nCount * sizeof(U_RECTL),
+                                       blimit);
         for (i = 0; i < rd->rdh.nCount; i++) {
             verbose_printf("%d:", i);
             rectl_print(states, rects[i]);
@@ -763,8 +781,9 @@ void pixelformatdescriptor_print(drawingStates *states,
   U_ERMTEXT
   \param type     0 for 8 bit character, anything else for 16
   */
+
 void emrtext_print(drawingStates *states, const char *emt, const char *record,
-                   int type) {
+                   const char *blimit, int type) {
     unsigned int i, off;
     char *string;
     PU_EMRTEXT pemt = (PU_EMRTEXT)emt;
@@ -775,8 +794,13 @@ void emrtext_print(drawingStates *states, const char *emt, const char *record,
     verbose_printf("offString:%u ", pemt->offString);
     if (pemt->offString) {
         if (!type) {
+            IF_MEM_UNSAFE_PRINT_AND_RETURN(
+                record, pemt->offString + pemt->nChars * sizeof(char), blimit);
             verbose_printf("string8:<%s> ", record + pemt->offString);
         } else {
+            IF_MEM_UNSAFE_PRINT_AND_RETURN(
+                record, pemt->offString + pemt->nChars * 2 * sizeof(char),
+                blimit);
             string = U_Utf16leToUtf8((uint16_t *)(record + pemt->offString),
                                      pemt->nChars, NULL);
             verbose_printf("string16:<%s> ", string);
@@ -827,11 +851,18 @@ void core1_print(const char *name, const char *contents,
     unsigned int i;
     UNUSED(name);
     PU_EMRPOLYLINETO pEmr = (PU_EMRPOLYLINETO)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRPOLYBEZIER)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   cptl:           %d\n", pEmr->cptl);
     verbose_printf("   Points:         ");
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(pEmr->aptl, pEmr->cptl * sizeof(U_POINTL),
+                                   blimit);
     for (i = 0; i < pEmr->cptl; i++) {
         verbose_printf("[%d]:", i);
         pointl_print(states, pEmr->aptl[i]);
@@ -845,12 +876,19 @@ void core2_print(const char *name, const char *contents,
     unsigned int i;
     UNUSED(name);
     PU_EMRPOLYPOLYGON pEmr = (PU_EMRPOLYPOLYGON)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRPOLYPOLYGON)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   nPolys:         %d\n", pEmr->nPolys);
     verbose_printf("   cptl:           %d\n", pEmr->cptl);
     verbose_printf("   Counts:         ");
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(pEmr->aPolyCounts,
+                                   pEmr->nPolys * sizeof(U_POLYCOUNTS), blimit);
     for (i = 0; i < pEmr->nPolys; i++) {
         verbose_printf(" [%d]:%d ", i, pEmr->aPolyCounts[i]);
     }
@@ -858,6 +896,8 @@ void core2_print(const char *name, const char *contents,
     PU_POINTL paptl = (PU_POINTL)((char *)pEmr->aPolyCounts +
                                   sizeof(uint32_t) * pEmr->nPolys);
     verbose_printf("   Points:         ");
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(paptl, pEmr->cptl * sizeof(U_POINTL),
+                                   blimit);
     for (i = 0; i < pEmr->cptl; i++) {
         verbose_printf("[%d]:", i);
         pointl_print(states, paptl[i]);
@@ -869,7 +909,13 @@ void core2_print(const char *name, const char *contents,
 void core3_print(const char *name, const char *label, const char *contents,
                  drawingStates *states) {
     UNUSED(name);
+    /* access violation is impossible for these because there are no counts or
+     * offsets */
     PU_EMRSETMAPMODE pEmr = (PU_EMRSETMAPMODE)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSETMAPMODE)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     if (!strcmp(label, "crColor:")) {
         verbose_printf("   %-15s ", label);
         colorref_print(states, *(U_COLORREF *)&(pEmr->iMode));
@@ -887,6 +933,10 @@ void core4_print(const char *name, const char *contents,
                  drawingStates *states) {
     UNUSED(name);
     PU_EMRELLIPSE pEmr = (PU_EMRELLIPSE)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRELLIPSE)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   rclBox:         ");
     rectl_print(states, pEmr->rclBox);
     verbose_printf("\n");
@@ -898,12 +948,19 @@ void core6_print(const char *name, const char *contents,
     UNUSED(name);
     unsigned int i;
     PU_EMRPOLYBEZIER16 pEmr = (PU_EMRPOLYBEZIER16)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRPOLYBEZIER16)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   cpts:           %d\n", pEmr->cpts);
     verbose_printf("   Points:         ");
     PU_POINT16 papts = (PU_POINT16)(&(pEmr->apts));
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(papts, pEmr->cpts * sizeof(U_POINT16),
+                                   blimit);
     for (i = 0; i < pEmr->cpts; i++) {
         verbose_printf("[%d]:", i);
         point16_print(states, papts[i]);
@@ -922,6 +979,10 @@ void core7_print(const char *name, const char *field1, const char *field2,
                  const char *contents, drawingStates *states) {
     UNUSED(name);
     PU_EMRGENERICPAIR pEmr = (PU_EMRGENERICPAIR)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRGENERICPAIR)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     if (*field2) {
         verbose_printf("   %-15s %d\n", field1, pEmr->pair.x);
         verbose_printf("   %-15s %d\n", field2, pEmr->pair.y);
@@ -936,6 +997,7 @@ void core8_print(const char *name, const char *contents, drawingStates *states,
                  int type) {
     UNUSED(name);
     PU_EMREXTTEXTOUTA pEmr = (PU_EMREXTTEXTOUTA)(contents);
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   iGraphicsMode:  %u\n", pEmr->iGraphicsMode);
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
@@ -945,7 +1007,7 @@ void core8_print(const char *name, const char *contents, drawingStates *states,
     verbose_printf("   emrtext:        ");
     emrtext_print(states,
                   contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT),
-                  contents, type);
+                  contents, blimit, type);
     verbose_printf("\n");
 }
 
@@ -971,12 +1033,19 @@ void core10_print(const char *name, const char *contents,
     UNUSED(name);
     unsigned int i;
     PU_EMRPOLYPOLYLINE16 pEmr = (PU_EMRPOLYPOLYLINE16)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRPOLYPOLYLINE16)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   nPolys:         %d\n", pEmr->nPolys);
     verbose_printf("   cpts:           %d\n", pEmr->cpts);
     verbose_printf("   Counts:         ");
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(&(pEmr->aPolyCounts),
+                                   pEmr->nPolys * sizeof(U_POLYCOUNTS), blimit);
     for (i = 0; i < pEmr->nPolys; i++) {
         verbose_printf(" [%d]:%d ", i, pEmr->aPolyCounts[i]);
     }
@@ -984,6 +1053,8 @@ void core10_print(const char *name, const char *contents,
     verbose_printf("   Points:         ");
     PU_POINT16 papts = (PU_POINT16)((char *)pEmr->aPolyCounts +
                                     sizeof(uint32_t) * pEmr->nPolys);
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(papts, pEmr->cpts * sizeof(U_POINT16),
+                                   blimit);
     for (i = 0; i < pEmr->cpts; i++) {
         verbose_printf("[%d]:", i);
         point16_print(states, papts[i]);
@@ -996,26 +1067,21 @@ void core10_print(const char *name, const char *contents,
 void core11_print(const char *name, const char *contents,
                   drawingStates *states) {
     UNUSED(name);
-    unsigned int i, roff;
     PU_EMRINVERTRGN pEmr = (PU_EMRINVERTRGN)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRINVERTRGN)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   cbRgnData:      %d\n", pEmr->cbRgnData);
-    // This one is a pain since each RGNDATA may be a different size, so it
-    // isn't possible to index through them.
-    roff = 0;
-    i = 1;
-    char *prd = (char *)&(pEmr->RgnData);
-    while (
-        roff + sizeof(U_RGNDATAHEADER) <
-        pEmr->cbRgnData) { // stop at end of the record 4*4 = header + 4*4=rect
-        verbose_printf("   RegionData:%d", i);
-        rgndata_print(states, (PU_RGNDATA)(prd + roff));
-        roff += (((PU_RGNDATA)prd)->rdh.dwSize +
-                 ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-        verbose_printf("\n");
-    }
+    verbose_printf("   RegionData:");
+    const char *minptr =
+        MAKE_MIN_PTR(((const char *)&pEmr->RgnData + pEmr->cbRgnData), blimit);
+    rgndata_print(states, pEmr->RgnData, minptr);
+    verbose_printf("\n");
 }
 
 // common code for U_EMRCREATEMONOBRUSH_print and
@@ -1024,13 +1090,18 @@ void core12_print(const char *name, const char *contents,
                   drawingStates *states) {
     UNUSED(name);
     PU_EMRCREATEMONOBRUSH pEmr = (PU_EMRCREATEMONOBRUSH)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRCREATEMONOBRUSH)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   ihBrush:      %u\n", pEmr->ihBrush);
     verbose_printf("   iUsage :      %u\n", pEmr->iUsage);
     verbose_printf("   offBmi :      %u\n", pEmr->offBmi);
     verbose_printf("   cbBmi  :      %u\n", pEmr->cbBmi);
     if (pEmr->cbBmi) {
         verbose_printf("      bitmap:");
-        bitmapinfo_print(states, contents + pEmr->offBmi);
+        bitmapinfo_print(states, contents + pEmr->offBmi, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBits:      %u\n", pEmr->offBits);
@@ -1042,6 +1113,11 @@ void core13_print(const char *name, const char *contents,
                   drawingStates *states) {
     UNUSED(name);
     PU_EMRALPHABLEND pEmr = (PU_EMRALPHABLEND)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRALPHABLEND)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -1068,7 +1144,7 @@ void core13_print(const char *name, const char *contents,
     verbose_printf("   cbBmiSrc:       %u\n", pEmr->cbBmiSrc);
     if (pEmr->cbBmiSrc) {
         verbose_printf("      bitmap:");
-        bitmapinfo_print(states, contents + pEmr->offBmiSrc);
+        bitmapinfo_print(states, contents + pEmr->offBmiSrc, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBitsSrc:     %u\n", pEmr->offBitsSrc);
@@ -1107,6 +1183,11 @@ void U_EMRHEADER_print(const char *contents, drawingStates *states) {
     int p1len;
 
     PU_EMRHEADER pEmr = (PU_EMRHEADER)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRHEADER)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -1122,6 +1203,10 @@ void U_EMRHEADER_print(const char *contents, drawingStates *states) {
     verbose_printf("   nDescription:   %d\n", pEmr->nDescription);
     verbose_printf("   offDescription: %d\n", pEmr->offDescription);
     if (pEmr->offDescription) {
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(
+            contents,
+            pEmr->offDescription + pEmr->nDescription * 2 * sizeof(char),
+            blimit);
         string =
             U_Utf16leToUtf8((uint16_t *)((char *)pEmr + pEmr->offDescription),
                             pEmr->nDescription, NULL);
@@ -1147,6 +1232,9 @@ void U_EMRHEADER_print(const char *contents, drawingStates *states) {
         verbose_printf("   offPixelFormat: %d\n", pEmr->offPixelFormat);
         if (pEmr->cbPixelFormat) {
             verbose_printf("      PFD:");
+            IF_MEM_UNSAFE_PRINT_AND_RETURN(
+                contents,
+                pEmr->offPixelFormat + sizeof(U_PIXELFORMATDESCRIPTOR), blimit);
             pixelformatdescriptor_print(
                 states,
                 *(PU_PIXELFORMATDESCRIPTOR)(contents + pEmr->offPixelFormat));
@@ -1278,6 +1366,10 @@ void U_EMRSETBRUSHORGEX_print(const char *contents, drawingStates *states) {
   */
 void U_EMREOF_print(const char *contents, drawingStates *states) {
     PU_EMREOF pEmr = (PU_EMREOF)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMREOF)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   cbPalEntries:   %u\n", pEmr->cbPalEntries);
     verbose_printf("   offPalEntries:  %u\n", pEmr->offPalEntries);
     if (pEmr->cbPalEntries) {
@@ -1295,6 +1387,10 @@ void U_EMREOF_print(const char *contents, drawingStates *states) {
   */
 void U_EMRSETPIXELV_print(const char *contents, drawingStates *states) {
     PU_EMRSETPIXELV pEmr = (PU_EMRSETPIXELV)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSETPIXELV)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   ptlPixel:       ");
     pointl_print(states, pEmr->ptlPixel);
     verbose_printf("\n");
@@ -1310,6 +1406,10 @@ void U_EMRSETPIXELV_print(const char *contents, drawingStates *states) {
   */
 void U_EMRSETMAPPERFLAGS_print(const char *contents, drawingStates *states) {
     PU_EMRSETMAPPERFLAGS pEmr = (PU_EMRSETMAPPERFLAGS)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSETMAPPERFLAGS)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   dwFlags:        0x%8.8X\n", pEmr->dwFlags);
 }
 
@@ -1407,6 +1507,10 @@ void U_EMRSETTEXTALIGN_print(const char *contents, drawingStates *states) {
 void U_EMRSETCOLORADJUSTMENT_print(const char *contents,
                                    drawingStates *states) {
     PU_EMRSETCOLORADJUSTMENT pEmr = (PU_EMRSETCOLORADJUSTMENT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSETCOLORADJUSTMENT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   ColorAdjustment:");
     coloradjustment_print(states, pEmr->ColorAdjustment);
     verbose_printf("\n");
@@ -1522,6 +1626,10 @@ void U_EMRRESTOREDC_print(const char *contents, drawingStates *states) {
   */
 void U_EMRSETWORLDTRANSFORM_print(const char *contents, drawingStates *states) {
     PU_EMRSETWORLDTRANSFORM pEmr = (PU_EMRSETWORLDTRANSFORM)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSETWORLDTRANSFORM)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   xform:");
     xform_print(states, pEmr->xform);
     verbose_printf("\n");
@@ -1535,6 +1643,10 @@ void U_EMRSETWORLDTRANSFORM_print(const char *contents, drawingStates *states) {
 void U_EMRMODIFYWORLDTRANSFORM_print(const char *contents,
                                      drawingStates *states) {
     PU_EMRMODIFYWORLDTRANSFORM pEmr = (PU_EMRMODIFYWORLDTRANSFORM)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRMODIFYWORLDTRANSFORM)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   xform:          ");
     xform_print(states, pEmr->xform);
     verbose_printf("\n");
@@ -1568,6 +1680,10 @@ void U_EMRMODIFYWORLDTRANSFORM_print(const char *contents,
   */
 void U_EMRSELECTOBJECT_print(const char *contents, drawingStates *states) {
     PU_EMRSELECTOBJECT pEmr = (PU_EMRSELECTOBJECT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSELECTOBJECT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     uint32_t index = pEmr->ihObject;
     if (index & U_STOCK_OBJECT) {
         switch (index) {
@@ -1638,6 +1754,10 @@ void U_EMRSELECTOBJECT_print(const char *contents, drawingStates *states) {
   */
 void U_EMRCREATEPEN_print(const char *contents, drawingStates *states) {
     PU_EMRCREATEPEN pEmr = (PU_EMRCREATEPEN)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRCREATEPEN)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   ihPen:          %u\n", pEmr->ihPen);
     verbose_printf("   lopn:           ");
     logpen_print(states, pEmr->lopn);
@@ -1652,6 +1772,10 @@ void U_EMRCREATEPEN_print(const char *contents, drawingStates *states) {
 void U_EMRCREATEBRUSHINDIRECT_print(const char *contents,
                                     drawingStates *states) {
     PU_EMRCREATEBRUSHINDIRECT pEmr = (PU_EMRCREATEBRUSHINDIRECT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRCREATEBRUSHINDIRECT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   ihBrush:        %u\n", pEmr->ihBrush);
     verbose_printf("   lb:             ");
     logbrush_print(states, pEmr->lb);
@@ -1669,6 +1793,10 @@ void U_EMRCREATEBRUSHINDIRECT_print(const char *contents,
   */
 void U_EMRDELETEOBJECT_print(const char *contents, drawingStates *states) {
     PU_EMRDELETEOBJECT pEmr = (PU_EMRDELETEOBJECT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRDELETEOBJECT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   ihObject:       %u\n", pEmr->ihObject);
 }
 
@@ -1679,6 +1807,10 @@ void U_EMRDELETEOBJECT_print(const char *contents, drawingStates *states) {
   */
 void U_EMRANGLEARC_print(const char *contents, drawingStates *states) {
     PU_EMRANGLEARC pEmr = (PU_EMRANGLEARC)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRANGLEARC)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   ptlCenter:      ");
     pointl_print(states, pEmr->ptlCenter);
     verbose_printf("\n");
@@ -1712,6 +1844,10 @@ void U_EMRRECTANGLE_print(const char *contents, drawingStates *states) {
   */
 void U_EMRROUNDRECT_print(const char *contents, drawingStates *states) {
     PU_EMRROUNDRECT pEmr = (PU_EMRROUNDRECT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRROUNDRECT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   rclBox:         ");
     rectl_print(states, pEmr->rclBox);
     verbose_printf("\n");
@@ -1763,6 +1899,10 @@ void U_EMRSELECTPALETTE_print(const char *contents, drawingStates *states) {
   */
 void U_EMRCREATEPALETTE_print(const char *contents, drawingStates *states) {
     PU_EMRCREATEPALETTE pEmr = (PU_EMRCREATEPALETTE)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRCREATEPALETTE)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   ihPal:          %u\n", pEmr->ihPal);
     verbose_printf("   lgpl:           ");
     logpalette_print(states, (PU_LOGPALETTE) & (pEmr->lgpl));
@@ -1777,12 +1917,19 @@ void U_EMRCREATEPALETTE_print(const char *contents, drawingStates *states) {
 void U_EMRSETPALETTEENTRIES_print(const char *contents, drawingStates *states) {
     unsigned int i;
     PU_EMRSETPALETTEENTRIES pEmr = (PU_EMRSETPALETTEENTRIES)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSETPALETTEENTRIES)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   ihPal:          %u\n", pEmr->ihPal);
     verbose_printf("   iStart:         %u\n", pEmr->iStart);
     verbose_printf("   cEntries:       %u\n", pEmr->cEntries);
     if (pEmr->cEntries) {
         verbose_printf("      PLTEntries:");
         PU_LOGPLTNTRY aPalEntries = (PU_LOGPLTNTRY) & (pEmr->aPalEntries);
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(
+            aPalEntries, pEmr->cEntries * sizeof(U_LOGPLTNTRY), blimit);
         for (i = 0; i < pEmr->cEntries; i++) {
             verbose_printf("%d:", i);
             logpltntry_print(states, aPalEntries[i]);
@@ -1816,6 +1963,10 @@ void U_EMRREALIZEPALETTE_print(const char *contents, drawingStates *states) {
   */
 void U_EMREXTFLOODFILL_print(const char *contents, drawingStates *states) {
     PU_EMREXTFLOODFILL pEmr = (PU_EMREXTFLOODFILL)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMREXTFLOODFILL)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   ptlStart:       ");
     pointl_print(states, pEmr->ptlStart);
     verbose_printf("\n");
@@ -1851,19 +2002,29 @@ void U_EMRARCTO_print(const char *contents, drawingStates *states) {
 void U_EMRPOLYDRAW_print(const char *contents, drawingStates *states) {
     unsigned int i;
     PU_EMRPOLYDRAW pEmr = (PU_EMRPOLYDRAW)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRPOLYDRAW)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   cptl:           %d\n", pEmr->cptl);
     verbose_printf("   Points:         ");
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(pEmr->aptl, pEmr->cptl * sizeof(U_POINTL),
+                                   blimit);
     for (i = 0; i < pEmr->cptl; i++) {
         verbose_printf("[%d]:", i);
         pointl_print(states, pEmr->aptl[i]);
     }
     verbose_printf("\n");
     verbose_printf("   Types:          ");
+    const char *abTypes =
+        (const char *)pEmr->aptl + pEmr->cptl * sizeof(U_POINTL);
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(abTypes, pEmr->cptl, blimit);
     for (i = 0; i < pEmr->cptl; i++) {
-        verbose_printf(" [%d]:%u ", i, pEmr->abTypes[i]);
+        verbose_printf(" [%d]:%u ", i, ((uint8_t *)abTypes)[i]);
     }
     verbose_printf("\n");
 }
@@ -2000,11 +2161,19 @@ void U_EMRCOMMENT_print(const char *contents, drawingStates *states,
     uint32_t cIdent, cIdent2, cbData;
 
     PU_EMRCOMMENT pEmr = (PU_EMRCOMMENT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRCOMMENT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    //    const char *blimit = contents + pEmr->emr.nSize;
 
     /* There are several different types of comments */
 
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(contents, sizeof(U_EMRCOMMENT), blimit);
     cbData = pEmr->cbData;
     verbose_printf("   cbData:         %d\n", cbData);
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(
+        contents, sizeof(U_EMR) + sizeof(U_CBDATA) + cbData, blimit);
     src = (char *)&(pEmr->Data); // default
     if (cbData >= 4) {
         /* Since the comment is just a big bag of bytes the emf endian code
@@ -2019,6 +2188,8 @@ void U_EMRCOMMENT_print(const char *contents, drawingStates *states,
         if (cIdent == U_EMR_COMMENT_PUBLIC) {
             verbose_printf("   cIdent:         Public\n");
             PU_EMRCOMMENT_PUBLIC pEmrp = (PU_EMRCOMMENT_PUBLIC)pEmr;
+            IF_MEM_UNSAFE_PRINT_AND_RETURN(contents,
+                                           sizeof(U_EMRCOMMENT_PUBLIC), blimit);
             cIdent2 = pEmrp->pcIdent;
             if (U_BYTE_SWAP) {
                 U_swap4(&(cIdent2), 1);
@@ -2029,6 +2200,8 @@ void U_EMRCOMMENT_print(const char *contents, drawingStates *states,
         } else if (cIdent == U_EMR_COMMENT_SPOOL) {
             verbose_printf("   cIdent:         Spool\n");
             PU_EMRCOMMENT_SPOOL pEmrs = (PU_EMRCOMMENT_SPOOL)pEmr;
+            IF_MEM_UNSAFE_PRINT_AND_RETURN(contents, sizeof(U_EMRCOMMENT_SPOOL),
+                                           blimit);
             cIdent2 = pEmrs->esrIdent;
             if (U_BYTE_SWAP) {
                 U_swap4(&(cIdent2), 1);
@@ -2039,8 +2212,11 @@ void U_EMRCOMMENT_print(const char *contents, drawingStates *states,
         } else if (cIdent == U_EMR_COMMENT_EMFPLUSRECORD) {
             verbose_printf("   cIdent:         EMF+\n");
             PU_EMRCOMMENT_EMFPLUS pEmrpl = (PU_EMRCOMMENT_EMFPLUS)pEmr;
+            IF_MEM_UNSAFE_PRINT_AND_RETURN(
+                contents, sizeof(U_EMRCOMMENT_EMFPLUS), blimit);
             src = (char *)&(pEmrpl->Data);
-            // return;
+            return;
+
         } else {
             verbose_printf(
                 "   cIdent:         not (Public or Spool or EMF+)\n");
@@ -2062,26 +2238,24 @@ void U_EMRCOMMENT_print(const char *contents, drawingStates *states,
   \param contents   pointer to a buffer holding all EMR records
   */
 void U_EMRFILLRGN_print(const char *contents, drawingStates *states) {
-    int i, roff;
     PU_EMRFILLRGN pEmr = (PU_EMRFILLRGN)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRFILLRGN)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   cbRgnData:      %u\n", pEmr->cbRgnData);
     verbose_printf("   ihBrush:        %u\n", pEmr->ihBrush);
-    // This one is a pain since each RGNDATA may be a different size, so it
-    // isn't possible to index through them.
-    roff = 0;
-    i = 1;
-    char *prd = (char *)&(pEmr->RgnData);
-    while (roff + sizeof(U_RGNDATAHEADER) <
-           pEmr->emr.nSize) { // up to the end of the record
-        verbose_printf("   RegionData[%d]: ", i);
-        rgndata_print(states, (PU_RGNDATA)(prd + roff));
-        verbose_printf("\n");
-        roff += (((PU_RGNDATA)prd)->rdh.dwSize +
-                 ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-    }
+    const char *minptr =
+        MAKE_MIN_PTR(((const char *)&pEmr->RgnData + pEmr->cbRgnData +
+                      sizeof(U_RGNDATAHEADER)),
+                     blimit);
+    verbose_printf("   RegionData: ");
+    rgndata_print(states, pEmr->RgnData, minptr);
+    verbose_printf("\n");
 }
 
 // U_EMRFRAMERGN             72
@@ -2090,8 +2264,12 @@ void U_EMRFILLRGN_print(const char *contents, drawingStates *states) {
   \param contents   pointer to a buffer holding all EMR records
   */
 void U_EMRFRAMERGN_print(const char *contents, drawingStates *states) {
-    int i, roff;
     PU_EMRFRAMERGN pEmr = (PU_EMRFRAMERGN)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRFRAMERGN)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -2100,19 +2278,11 @@ void U_EMRFRAMERGN_print(const char *contents, drawingStates *states) {
     verbose_printf("   szlStroke:      ");
     sizel_print(states, pEmr->szlStroke);
     verbose_printf("\n");
-    // This one is a pain since each RGNDATA may be a different size, so it
-    // isn't possible to index through them.
-    roff = 0;
-    i = 1;
-    char *prd = (char *)&(pEmr->RgnData);
-    while (roff + sizeof(U_RGNDATAHEADER) <
-           pEmr->emr.nSize) { // up to the end of the record
-        verbose_printf("   RegionData[%d]: ", i);
-        rgndata_print(states, (PU_RGNDATA)(prd + roff));
-        verbose_printf("\n");
-        roff += (((PU_RGNDATA)prd)->rdh.dwSize +
-                 ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
-    }
+    const char *minptr =
+        MAKE_MIN_PTR(((const char *)&pEmr->RgnData + pEmr->cbRgnData), blimit);
+    verbose_printf("   RegionData: ");
+    rgndata_print(states, pEmr->RgnData, minptr);
+    verbose_printf("\n");
 }
 
 // U_EMRINVERTRGN            73
@@ -2139,22 +2309,22 @@ void U_EMRPAINTRGN_print(const char *contents, drawingStates *states) {
   \param contents   pointer to a buffer holding all EMR records
   */
 void U_EMREXTSELECTCLIPRGN_print(const char *contents, drawingStates *states) {
-    int i, roff;
     PU_EMREXTSELECTCLIPRGN pEmr = (PU_EMREXTSELECTCLIPRGN)(contents);
+    if (pEmr->emr.nSize < U_SIZE_EMREXTSELECTCLIPRGN) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   cbRgnData:      %u\n", pEmr->cbRgnData);
     verbose_printf("   iMode:          %u\n", pEmr->iMode);
-    // This one is a pain since each RGNDATA may be a different size, so it
-    // isn't possible to index through them.
-    char *prd = (char *)&(pEmr->RgnData);
-    i = roff = 0;
-    while (
-        roff + sizeof(U_RGNDATAHEADER) <
-        pEmr->cbRgnData) { // stop at end of the record 4*4 = header + 4*4=rect
-        verbose_printf("   RegionData[%d]: ", i++);
-        rgndata_print(states, (PU_RGNDATA)(prd + roff));
+    if (pEmr->iMode == U_RGN_COPY && !pEmr->cbRgnData) {
+        verbose_printf("   RegionData: none (Clip region becomes NULL)\n");
+    } else {
+        const char *minptr = MAKE_MIN_PTR(
+            ((const char *)&pEmr->RgnData + pEmr->cbRgnData), blimit);
+        verbose_printf("   RegionData: ");
+        rgndata_print(states, pEmr->RgnData, minptr);
         verbose_printf("\n");
-        roff += (((PU_RGNDATA)prd)->rdh.dwSize +
-                 ((PU_RGNDATA)prd)->rdh.nRgnSize - 16);
     }
 }
 
@@ -2165,6 +2335,11 @@ void U_EMREXTSELECTCLIPRGN_print(const char *contents, drawingStates *states) {
   */
 void U_EMRBITBLT_print(const char *contents, drawingStates *states) {
     PU_EMRBITBLT pEmr = (PU_EMRBITBLT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRBITBLT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -2189,7 +2364,7 @@ void U_EMRBITBLT_print(const char *contents, drawingStates *states) {
     verbose_printf("   cbBmiSrc:       %u\n", pEmr->cbBmiSrc);
     if (pEmr->cbBmiSrc) {
         verbose_printf("      bitmap:      ");
-        bitmapinfo_print(states, contents + pEmr->offBmiSrc);
+        bitmapinfo_print(states, contents + pEmr->offBmiSrc, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBitsSrc:     %u\n", pEmr->offBitsSrc);
@@ -2203,6 +2378,11 @@ void U_EMRBITBLT_print(const char *contents, drawingStates *states) {
   */
 void U_EMRSTRETCHBLT_print(const char *contents, drawingStates *states) {
     PU_EMRSTRETCHBLT pEmr = (PU_EMRSTRETCHBLT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSTRETCHBLT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -2227,7 +2407,7 @@ void U_EMRSTRETCHBLT_print(const char *contents, drawingStates *states) {
     verbose_printf("   cbBmiSrc:       %u\n", pEmr->cbBmiSrc);
     if (pEmr->cbBmiSrc) {
         verbose_printf("      bitmap:      ");
-        bitmapinfo_print(states, contents + pEmr->offBmiSrc);
+        bitmapinfo_print(states, contents + pEmr->offBmiSrc, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBitsSrc:     %u\n", pEmr->offBitsSrc);
@@ -2244,6 +2424,11 @@ void U_EMRSTRETCHBLT_print(const char *contents, drawingStates *states) {
   */
 void U_EMRMASKBLT_print(const char *contents, drawingStates *states) {
     PU_EMRMASKBLT pEmr = (PU_EMRMASKBLT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRMASKBLT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -2268,7 +2453,7 @@ void U_EMRMASKBLT_print(const char *contents, drawingStates *states) {
     verbose_printf("   cbBmiSrc:       %u\n", pEmr->cbBmiSrc);
     if (pEmr->cbBmiSrc) {
         verbose_printf("      Src bitmap:  ");
-        bitmapinfo_print(states, contents + pEmr->offBmiSrc);
+        bitmapinfo_print(states, contents + pEmr->offBmiSrc, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBitsSrc:     %u\n", pEmr->offBitsSrc);
@@ -2281,7 +2466,7 @@ void U_EMRMASKBLT_print(const char *contents, drawingStates *states) {
     verbose_printf("   cbBmiMask:      %u\n", pEmr->cbBmiMask);
     if (pEmr->cbBmiMask) {
         verbose_printf("      Mask bitmap: ");
-        bitmapinfo_print(states, contents + pEmr->offBmiMask);
+        bitmapinfo_print(states, contents + pEmr->offBmiMask, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBitsMask:    %u\n", pEmr->offBitsMask);
@@ -2295,6 +2480,11 @@ void U_EMRMASKBLT_print(const char *contents, drawingStates *states) {
   */
 void U_EMRPLGBLT_print(const char *contents, drawingStates *states) {
     PU_EMRPLGBLT pEmr = (PU_EMRPLGBLT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRPLGBLT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -2324,7 +2514,7 @@ void U_EMRPLGBLT_print(const char *contents, drawingStates *states) {
     verbose_printf("   cbBmiSrc:       %u\n", pEmr->cbBmiSrc);
     if (pEmr->cbBmiSrc) {
         verbose_printf("      Src bitmap:  ");
-        bitmapinfo_print(states, contents + pEmr->offBmiSrc);
+        bitmapinfo_print(states, contents + pEmr->offBmiSrc, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBitsSrc:     %u\n", pEmr->offBitsSrc);
@@ -2337,7 +2527,7 @@ void U_EMRPLGBLT_print(const char *contents, drawingStates *states) {
     verbose_printf("   cbBmiMask:      %u\n", pEmr->cbBmiMask);
     if (pEmr->cbBmiMask) {
         verbose_printf("      Mask bitmap: ");
-        bitmapinfo_print(states, contents + pEmr->offBmiMask);
+        bitmapinfo_print(states, contents + pEmr->offBmiMask, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBitsMask:    %u\n", pEmr->offBitsMask);
@@ -2351,6 +2541,11 @@ void U_EMRPLGBLT_print(const char *contents, drawingStates *states) {
   */
 void U_EMRSETDIBITSTODEVICE_print(const char *contents, drawingStates *states) {
     PU_EMRSETDIBITSTODEVICE pEmr = (PU_EMRSETDIBITSTODEVICE)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSETDIBITSTODEVICE)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -2367,7 +2562,7 @@ void U_EMRSETDIBITSTODEVICE_print(const char *contents, drawingStates *states) {
     verbose_printf("   cbBmiSrc:       %u\n", pEmr->cbBmiSrc);
     if (pEmr->cbBmiSrc) {
         verbose_printf("      Src bitmap:  ");
-        bitmapinfo_print(states, contents + pEmr->offBmiSrc);
+        bitmapinfo_print(states, contents + pEmr->offBmiSrc, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBitsSrc:     %u\n", pEmr->offBitsSrc);
@@ -2384,6 +2579,11 @@ void U_EMRSETDIBITSTODEVICE_print(const char *contents, drawingStates *states) {
   */
 void U_EMRSTRETCHDIBITS_print(const char *contents, drawingStates *states) {
     PU_EMRSTRETCHDIBITS pEmr = (PU_EMRSTRETCHDIBITS)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSTRETCHDIBITS)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -2400,7 +2600,7 @@ void U_EMRSTRETCHDIBITS_print(const char *contents, drawingStates *states) {
     verbose_printf("   cbBmiSrc:       %u\n", pEmr->cbBmiSrc);
     if (pEmr->cbBmiSrc) {
         verbose_printf("      Src bitmap:  ");
-        bitmapinfo_print(states, contents + pEmr->offBmiSrc);
+        bitmapinfo_print(states, contents + pEmr->offBmiSrc, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBitsSrc:     %u\n", pEmr->offBitsSrc);
@@ -2421,12 +2621,23 @@ void U_EMREXTCREATEFONTINDIRECTW_print(const char *contents,
                                        drawingStates *states) {
     PU_EMREXTCREATEFONTINDIRECTW pEmr =
         (PU_EMREXTCREATEFONTINDIRECTW)(contents);
+    if (pEmr->emr.nSize <
+        U_SIZE_EMREXTCREATEFONTINDIRECTW_LOGFONT) { // smallest variant
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   ihFont:         %u\n", pEmr->ihFont);
     verbose_printf("   Font:           ");
     if (pEmr->emr.nSize ==
-        sizeof(U_EMREXTCREATEFONTINDIRECTW)) { // holds logfont_panose
+        U_SIZE_EMREXTCREATEFONTINDIRECTW_LOGFONT_PANOSE) { // holds
+                                                           // logfont_panose
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(&(pEmr->elfw), sizeof(U_PANOSE), blimit);
         logfont_panose_print(states, pEmr->elfw);
-    } else { // holds logfont
+    } else { // holds logfont or logfontExDv.  The latter isn't supported but it
+             // starts with logfont, so use that
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(&(pEmr->elfw), sizeof(U_LOGFONT),
+                                       blimit);
         logfont_print(states, *(PU_LOGFONT) & (pEmr->elfw));
     }
     verbose_printf("\n");
@@ -2521,19 +2732,29 @@ void U_EMRPOLYPOLYGON16_print(const char *contents, drawingStates *states) {
 void U_EMRPOLYDRAW16_print(const char *contents, drawingStates *states) {
     unsigned int i;
     PU_EMRPOLYDRAW16 pEmr = (PU_EMRPOLYDRAW16)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRPOLYDRAW16)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
     verbose_printf("   cpts:           %d\n", pEmr->cpts);
     verbose_printf("   Points:         ");
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(pEmr->apts, pEmr->cpts * sizeof(U_POINT16),
+                                   blimit);
     for (i = 0; i < pEmr->cpts; i++) {
         verbose_printf("[%d]:", i);
         point16_print(states, pEmr->apts[i]);
     }
     verbose_printf("\n");
     verbose_printf("   Types:          ");
+    const char *abTypes =
+        (const char *)pEmr->apts + pEmr->cpts * sizeof(U_POINT16);
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(abTypes, pEmr->cpts, blimit);
     for (i = 0; i < pEmr->cpts; i++) {
-        verbose_printf(" [%d]:%u ", i, pEmr->abTypes[i]);
+        verbose_printf(" [%d]:%u ", i, ((uint8_t *)abTypes)[i]);
     }
     verbose_printf("\n");
 }
@@ -2564,12 +2785,17 @@ void U_EMRCREATEDIBPATTERNBRUSHPT_print(const char *contents,
   */
 void U_EMREXTCREATEPEN_print(const char *contents, drawingStates *states) {
     PU_EMREXTCREATEPEN pEmr = (PU_EMREXTCREATEPEN)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMREXTCREATEPEN)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   ihPen:          %u\n", pEmr->ihPen);
     verbose_printf("   offBmi:         %u\n", pEmr->offBmi);
     verbose_printf("   cbBmi:          %u\n", pEmr->cbBmi);
     if (pEmr->cbBmi) {
         verbose_printf("      bitmap:      ");
-        bitmapinfo_print(states, contents + pEmr->offBmi);
+        bitmapinfo_print(states, contents + pEmr->offBmi, blimit);
         verbose_printf("\n");
     }
     verbose_printf("   offBits:        %u\n", pEmr->offBits);
@@ -2602,6 +2828,10 @@ void U_EMRSETICMMODE_print(const char *contents, drawingStates *states) {
   */
 void U_EMRCREATECOLORSPACE_print(const char *contents, drawingStates *states) {
     PU_EMRCREATECOLORSPACE pEmr = (PU_EMRCREATECOLORSPACE)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRCREATECOLORSPACE)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
     verbose_printf("   ihCS:           %u\n", pEmr->ihCS);
     verbose_printf("   ColorSpace:     ");
     logcolorspacea_print(states, pEmr->lcs);
@@ -2640,6 +2870,13 @@ void U_EMRDELETECOLORSPACE_print(const char *contents, drawingStates *states) {
   */
 void U_EMRPIXELFORMAT_print(const char *contents, drawingStates *states) {
     PU_EMRPIXELFORMAT pEmr = (PU_EMRPIXELFORMAT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRPIXELFORMAT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(&(pEmr->pfd),
+                                   sizeof(U_PIXELFORMATDESCRIPTOR), blimit);
     verbose_printf("   Pfd:            ");
     pixelformatdescriptor_print(states, pEmr->pfd);
     verbose_printf("\n");
@@ -2664,6 +2901,11 @@ void U_EMRSMALLTEXTOUT_print(const char *contents, drawingStates *states) {
     int roff;
     char *string;
     PU_EMRSMALLTEXTOUT pEmr = (PU_EMRSMALLTEXTOUT)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRSMALLTEXTOUT)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   Dest:           ");
     pointl_print(states, pEmr->Dest);
     verbose_printf("\n");
@@ -2675,17 +2917,22 @@ void U_EMRSMALLTEXTOUT_print(const char *contents, drawingStates *states) {
     roff =
         sizeof(U_EMRSMALLTEXTOUT); // offset to the start of the variable fields
     if (!(pEmr->fuOptions & U_ETO_NO_RECT)) {
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(contents, roff, blimit);
         verbose_printf("   rclBounds:      ");
         rectl_print(states, *(PU_RECTL)(contents + roff));
         verbose_printf("\n");
         roff += sizeof(U_RECTL);
     }
     if (pEmr->fuOptions & U_ETO_SMALL_CHARS) {
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(
+            contents, roff + pEmr->cChars * sizeof(char), blimit);
         verbose_printf("   Text8:          <%.*s>\n", pEmr->cChars,
                        contents + roff); /* May not be null terminated */
     } else {
         string =
             U_Utf16leToUtf8((uint16_t *)(contents + roff), pEmr->cChars, NULL);
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(
+            contents, roff + pEmr->cChars * 2 * sizeof(char), blimit);
         verbose_printf("   Text16:         <%s>\n", contents + roff);
         free(string);
     }
@@ -2746,6 +2993,11 @@ void U_EMRTRANSPARENTBLT_print(const char *contents, drawingStates *states) {
 void U_EMRGRADIENTFILL_print(const char *contents, drawingStates *states) {
     unsigned int i;
     PU_EMRGRADIENTFILL pEmr = (PU_EMRGRADIENTFILL)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRGRADIENTFILL)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   rclBounds:      ");
     rectl_print(states, pEmr->rclBounds);
     verbose_printf("\n");
@@ -2754,6 +3006,8 @@ void U_EMRGRADIENTFILL_print(const char *contents, drawingStates *states) {
     verbose_printf("   ulMode:         %u\n", pEmr->ulMode);
     contents += sizeof(U_EMRGRADIENTFILL);
     if (pEmr->nTriVert) {
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(
+            contents, pEmr->nTriVert * sizeof(U_TRIVERTEX), blimit);
         verbose_printf("   TriVert:        ");
         for (i = 0; i < pEmr->nTriVert; i++, contents += sizeof(U_TRIVERTEX)) {
             trivertex_print(states, *(PU_TRIVERTEX)(contents));
@@ -2763,12 +3017,16 @@ void U_EMRGRADIENTFILL_print(const char *contents, drawingStates *states) {
     if (pEmr->nGradObj) {
         verbose_printf("   GradObj:        ");
         if (pEmr->ulMode == U_GRADIENT_FILL_TRIANGLE) {
+            IF_MEM_UNSAFE_PRINT_AND_RETURN(
+                contents, pEmr->nGradObj * sizeof(U_GRADIENT3), blimit);
             for (i = 0; i < pEmr->nGradObj;
                  i++, contents += sizeof(U_GRADIENT3)) {
                 gradient3_print(states, *(PU_GRADIENT3)(contents));
             }
         } else if (pEmr->ulMode == U_GRADIENT_FILL_RECT_H ||
                    pEmr->ulMode == U_GRADIENT_FILL_RECT_V) {
+            IF_MEM_UNSAFE_PRINT_AND_RETURN(
+                contents, pEmr->nGradObj * sizeof(U_GRADIENT4), blimit);
             for (i = 0; i < pEmr->nGradObj;
                  i++, contents += sizeof(U_GRADIENT4)) {
                 gradient4_print(states, *(PU_GRADIENT4)(contents));
@@ -2800,6 +3058,11 @@ void U_EMRGRADIENTFILL_print(const char *contents, drawingStates *states) {
 void U_EMRCREATECOLORSPACEW_print(const char *contents, drawingStates *states) {
     unsigned int i;
     PU_EMRCREATECOLORSPACEW pEmr = (PU_EMRCREATECOLORSPACEW)(contents);
+    if (pEmr->emr.nSize < sizeof(U_EMRCREATECOLORSPACEW)) {
+        verbose_printf("   record corruption HERE\n");
+        return;
+    }
+    const char *blimit = contents + pEmr->emr.nSize;
     verbose_printf("   ihCS:           %u\n", pEmr->ihCS);
     verbose_printf("   ColorSpace:     ");
     logcolorspacew_print(states, pEmr->lcs);
@@ -2808,6 +3071,7 @@ void U_EMRCREATECOLORSPACEW_print(const char *contents, drawingStates *states) {
     verbose_printf("   cbData:         %u\n", pEmr->cbData);
     verbose_printf("   Data(hexvalues):");
     if (pEmr->dwFlags & 1) {
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(contents, pEmr->cbData, blimit);
         for (i = 0; i < pEmr->cbData; i++) {
             verbose_printf("[%d]:%2.2X ", i, pEmr->Data[i]);
         }

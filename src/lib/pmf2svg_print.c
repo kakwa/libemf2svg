@@ -2981,7 +2981,7 @@ int U_PMR_DRAWDRIVERSTRING_print(const char *contents, FILE *out,
             verbose_printf("\n");
         }
     } else {
-        printf("   corrupt record\n");
+        verbose_printf("   corrupt record\n");
     }
     return (status);
 }
@@ -3468,10 +3468,12 @@ int U_PMR_OBJECT_print(const char *contents, const char *blimit,
             (void)U_PMF_STRINGFORMAT_print(ObjCont->accum, blimit, out, states);
             break;
         case U_OT_ImageAttributes:
-            (void)U_PMF_IMAGEATTRIBUTES_print(ObjCont->accum, blimit, out, states);
+            (void)U_PMF_IMAGEATTRIBUTES_print(ObjCont->accum, blimit, out,
+                                              states);
             break;
         case U_OT_CustomLineCap:
-            (void)U_PMF_CUSTOMLINECAP_print(ObjCont->accum, "", blimit, out, states);
+            (void)U_PMF_CUSTOMLINECAP_print(ObjCont->accum, "", blimit, out,
+                                            states);
             break;
         case U_OT_Invalid:
         default:
@@ -3516,37 +3518,52 @@ int U_PMR_SERIALIZABLEOBJECT_print(const char *contents, FILE *out,
                 verbose_printf("(undefined)\n");
                 break;
             case U_IEE_BlurEffectGuid:
-                U_PMF_IE_BLUR_print(Data, Data + sizeof(U_PMF_IE_BLUR), out, states);
+                U_PMF_IE_BLUR_print(Data, Data + sizeof(U_PMF_IE_BLUR), out,
+                                    states);
                 break;
             case U_IEE_BrightnessContrastEffectGuid:
-                U_PMF_IE_BRIGHTNESSCONTRAST_print(Data, Data + sizeof(U_PMF_IE_BRIGHTNESSCONTRAST), out, states);
+                U_PMF_IE_BRIGHTNESSCONTRAST_print(
+                    Data, Data + sizeof(U_PMF_IE_BRIGHTNESSCONTRAST), out,
+                    states);
                 break;
             case U_IEE_ColorBalanceEffectGuid:
-                U_PMF_IE_COLORBALANCE_print(Data, Data + sizeof(U_PMF_IE_COLORBALANCE), out, states);
+                U_PMF_IE_COLORBALANCE_print(
+                    Data, Data + sizeof(U_PMF_IE_COLORBALANCE), out, states);
                 break;
             case U_IEE_ColorCurveEffectGuid:
-                U_PMF_IE_COLORCURVE_print(Data, Data + sizeof(U_PMF_IE_COLORCURVE), out, states);
+                U_PMF_IE_COLORCURVE_print(
+                    Data, Data + sizeof(U_PMF_IE_COLORCURVE), out, states);
                 break;
             case U_IEE_ColorLookupTableEffectGuid:
-                U_PMF_IE_COLORLOOKUPTABLE_print(Data, Data + sizeof(U_PMF_IE_COLORLOOKUPTABLE), out, states);
+                U_PMF_IE_COLORLOOKUPTABLE_print(
+                    Data, Data + sizeof(U_PMF_IE_COLORLOOKUPTABLE), out,
+                    states);
                 break;
             case U_IEE_ColorMatrixEffectGuid:
-                U_PMF_IE_COLORMATRIX_print(Data, Data + sizeof(U_PMF_IE_COLORMATRIX), out, states);
+                U_PMF_IE_COLORMATRIX_print(
+                    Data, Data + sizeof(U_PMF_IE_COLORMATRIX), out, states);
                 break;
             case U_IEE_HueSaturationLightnessEffectGuid:
-                U_PMF_IE_HUESATURATIONLIGHTNESS_print(Data, Data + sizeof(U_PMF_IE_HUESATURATIONLIGHTNESS), out, states);
+                U_PMF_IE_HUESATURATIONLIGHTNESS_print(
+                    Data, Data + sizeof(U_PMF_IE_HUESATURATIONLIGHTNESS), out,
+                    states);
                 break;
             case U_IEE_LevelsEffectGuid:
-                U_PMF_IE_LEVELS_print(Data, Data + sizeof(U_PMF_IE_LEVELS), out, states);
+                U_PMF_IE_LEVELS_print(Data, Data + sizeof(U_PMF_IE_LEVELS), out,
+                                      states);
                 break;
             case U_IEE_RedEyeCorrectionEffectGuid:
-                U_PMF_IE_REDEYECORRECTION_print(Data, Data + sizeof(U_PMF_IE_REDEYECORRECTION), out, states);
+                U_PMF_IE_REDEYECORRECTION_print(
+                    Data, Data + sizeof(U_PMF_IE_REDEYECORRECTION), out,
+                    states);
                 break;
             case U_IEE_SharpenEffectGuid:
-                U_PMF_IE_SHARPEN_print(Data, Data + sizeof(U_PMF_IE_SHARPEN), out, states);
+                U_PMF_IE_SHARPEN_print(Data, Data + sizeof(U_PMF_IE_SHARPEN),
+                                       out, states);
                 break;
             case U_IEE_TintEffectGuid:
-                U_PMF_IE_TINT_print(Data, Data + sizeof(U_PMF_IE_TINT), out, states);
+                U_PMF_IE_TINT_print(Data, Data + sizeof(U_PMF_IE_TINT), out,
+                                    states);
                 break;
             }
         } else {
@@ -3838,7 +3855,7 @@ int U_PMR_SETTSGRAPHICS_print(const char *contents, FILE *out,
         &CompositingMode, &CompositingQuality, &RenderOriginX, &RenderOriginY,
         &TextContrast, &FilterType, &PixelOffset, &WorldToDevice, &Data);
     if (status) {
-	const char *blimit = contents + status;
+        const char *blimit = contents + status;
         verbose_printf("   +  vgatype:%d pptype:%u", vgatype, pptype);
         verbose_printf(" AntiAliasMode:%u TextRenderHint:%u CompositingMode:%u "
                        "CompositingQuality:%u",
@@ -3992,7 +4009,7 @@ int U_PMR_TRANSLATEWORLDTRANSFORM_print(const char *contents, FILE *out,
             "   +  xmtype:%d Multiply:%s TranslateX:%f TranlateY:%f\n", xmtype,
             (xmtype ? "Post" : "Pre"), Dx, Dy);
     } else {
-	    verbose_printf("   corrupt record\n");
+        verbose_printf("   corrupt record\n");
     }
     return (status);
 }
