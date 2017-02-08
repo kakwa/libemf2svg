@@ -2517,7 +2517,7 @@ int U_PMF_IE_COLORMATRIX_print(const char *contents, const char *blimit,
         verbose_printf("ColorMatrixEffect\n");
         for (i = 0; i < 5; i++) {
             verbose_printf(" {");
-            for (j = 0; j < 4; i++) {
+            for (j = 0; j < 4; j++) {
                 verbose_printf("%f,", Matrix.M[i][j]);
             }
             verbose_printf("%f}", Matrix.M[i][j]);

@@ -5,7 +5,7 @@ project (emf2svg)
 # Project version (sematic versionning)
 set(emf2svg_VERSION_MAJOR 1)
 set(emf2svg_VERSION_MINOR 0)
-set(emf2svg_VERSION_PATCH 0)
+set(emf2svg_VERSION_PATCH 1)
 
 find_package(PNG REQUIRED)
 
@@ -73,7 +73,6 @@ endif(NOT FORCELE)
 # Build external dependancies if we are on OSX
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
-   set(EXTERNAL_MEMSTREAM "memstream")
    set(EXTERNAL_ICONV "iconv")
    set(EXTERNAL_ARGP "argp")
    add_definitions(-DDARWIN)
@@ -83,7 +82,6 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 LINK_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/
     /usr/local/lib
-    /sw/lib/
     /usr/lib/
 )
 
@@ -121,14 +119,6 @@ add_library(emf2svg
     src/lib/emf2svg.c
 )
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-   # Mac OS X specific code
-   add_library(memstream 
-       ${SHARED} 
-       src/lib/memstream.c
-)
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
 set_target_properties(emf2svg 
     PROPERTIES 
     VERSION ${emf2svg_VERSION} 
@@ -139,7 +129,6 @@ set_target_properties(emf2svg
 add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 target_link_libraries(emf2svg
     ${PNG_LIBRARIES}
-    ${EXTERNAL_MEMSTREAM}
     ${EXTERNAL_ICONV}
     ${EXTERNAL_ARGP}
 ) 
@@ -153,7 +142,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
 
 # install binaries and library
-INSTALL(TARGETS emf2svg emf2svg-conv ${EXTERNAL_MEMSTREAM}
+INSTALL(TARGETS emf2svg emf2svg-conv
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
