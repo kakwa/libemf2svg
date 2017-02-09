@@ -71,6 +71,7 @@ void U_EMRCOMMENT_draw(const char *contents, FILE *out, drawingStates *states,
                                              // entire comment, cbData value
                                              // includes cIdent, but not U_EMR
                                              // or cbData
+                    returnOutOfEmf(src);
                     recsize = U_pmf_onerec_draw(src, blimit, recnum, loff + off,
                                                 out, states);
                     if (states->verbose) {
