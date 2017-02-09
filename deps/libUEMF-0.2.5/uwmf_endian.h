@@ -1,7 +1,8 @@
 /**
   @file uwmf_endian.h
-  
-  @brief Prototypes for functions for converting WMF records between Big Endian and Little Endian
+
+  @brief Prototypes for functions for converting WMF records between Big Endian
+  and Little Endian
 */
 
 /*

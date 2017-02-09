@@ -1,6 +1,6 @@
 /**
   @file uemf_print.h
-  
+
   @brief Prototypes for functions for printing records from EMF files.
 */
 
@@ -25,7 +25,7 @@ extern "C" {
 uint32_t lu_crc32(const char *record, uint32_t Size);
 
 /* prototypes for objects used in EMR records */
-void hexbytes_print(uint8_t *buf,unsigned int num);
+void hexbytes_print(uint8_t *buf, unsigned int num);
 void colorref_print(U_COLORREF color);
 void rgbquad_print(U_RGBQUAD color);
 void rectl_print(U_RECTL rect);
@@ -45,7 +45,7 @@ void logcolorspacea_print(U_LOGCOLORSPACEA lcsa);
 void logcolorspacew_print(U_LOGCOLORSPACEW lcsa);
 void panose_print(U_PANOSE panose);
 void logfont_print(U_LOGFONT lf);
-void logfont_panose_print(U_LOGFONT_PANOSE lfp); 
+void logfont_panose_print(U_LOGFONT_PANOSE lfp);
 void bitmapinfoheader_print(const char *Bmih);
 void bitmapinfo_print(const char *Bmi, const char *blimit);
 void blend_print(U_BLEND blend);
@@ -57,10 +57,12 @@ void rgndataheader_print(U_RGNDATAHEADER rdh);
 void rgndata_print(const PU_RGNDATA rd, const char *blimit);
 void coloradjustment_print(U_COLORADJUSTMENT ca);
 void pixelformatdescriptor_print(U_PIXELFORMATDESCRIPTOR pfd);
-void emrtext_print(const char *emt, const char *record, const char *blimit, int type);
+void emrtext_print(const char *emt, const char *record, const char *blimit,
+                   int type);
 
 /* prototypes for EMR records */
-void U_EMRNOTIMPLEMENTED_print(const char *name, const char *contents, int recnum, int off);
+void U_EMRNOTIMPLEMENTED_print(const char *name, const char *contents,
+                               int recnum, int off);
 void U_EMRHEADER_print(const char *contents);
 void U_EMRPOLYBEZIER_print(const char *contents);
 void U_EMRPOLYGON_print(const char *contents);
@@ -166,9 +168,8 @@ void U_EMRSETLAYOUT_print(const char *contents);
 void U_EMRTRANSPARENTBLT_print(const char *contents);
 void U_EMRGRADIENTFILL_print(const char *contents);
 void U_EMRCREATECOLORSPACEW_print(const char *contents);
-int  U_emf_onerec_print(const char *contents, char *blimit, int recnum, int off);
+int U_emf_onerec_print(const char *contents, char *blimit, int recnum, int off);
 //! \endcond
-
 
 #ifdef __cplusplus
 }

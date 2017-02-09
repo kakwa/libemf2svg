@@ -1,7 +1,8 @@
 /**
   @file uemf_safe.h
-  
-  @brief Defintions and prototype for function for converting EMF records between Big Endian and Little Endian byte orders.
+
+  @brief Defintions and prototype for function for converting EMF records
+  between Big Endian and Little Endian byte orders.
 */
 
 /*
