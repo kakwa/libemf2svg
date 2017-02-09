@@ -3414,10 +3414,12 @@ int U_PMR_OBJECT_print(const char *contents, const char *blimit,
            expected have been found.  If that happens terminate whatever we have
            accumulated so far, and then go on
            to emit the new (unexpected) record. */
-        if (contents + Header.Size >= blimit)
+        if (IS_MEM_UNSAFE(contents, Header.Size, blimit))
             return (0);
-        if (!status)
+        if (!status) {
+            verbose_printf("   corrupt record\n");
             return (status);
+        }
         if ((ObjCont->used > 0) &&
             (U_OA_append(ObjCont, NULL, 0, otype, ObjID) < 0)) {
             U_PMR_OBJECT_print(contents, blimit, ObjCont, 1, out, states);
@@ -3428,15 +3430,28 @@ int U_PMR_OBJECT_print(const char *contents, const char *blimit,
         verbose_printf(" ContinueD:%c", (ObjCont->used ? 'Y' : 'N'));
         verbose_printf(" ContinueB:%c", (ntype ? 'Y' : 'N'));
         if (ntype) {
-            U_OA_append(
-                ObjCont, Data, Header.DataSize - 4, otype,
-                ObjID); // The total byte count is not added to the object
-            verbose_printf(" TotalSize:%u", TSize);
-            verbose_printf(" Accumulated:%u", ObjCont->used);
+            if (checkOutOfEMF(states,
+                              (intptr_t)((intptr_t)Data +
+                                         (intptr_t)Header.DataSize - 4))) {
+                status = 0;
+                verbose_printf("   corrupt record\n");
+            } else {
+                U_OA_append(ObjCont, Data, Header.DataSize - 4, otype,
+                            ObjID); // The total byte count is not added to
+                                    // the object
+                verbose_printf(" TotalSize:%u", TSize);
+                verbose_printf(" Accumulated:%u", ObjCont->used);
+            }
         } else {
-            U_OA_append(
-                ObjCont, Data, Header.DataSize, otype,
-                ObjID); // The total byte count is not added to the object
+            if (checkOutOfEMF(states,
+                              (intptr_t)Data + (intptr_t)Header.DataSize)) {
+                status = 0;
+                verbose_printf("   corrupt record\n");
+            } else {
+                U_OA_append(
+                    ObjCont, Data, Header.DataSize, otype,
+                    ObjID); // The total byte count is not added to the object
+            }
         }
         verbose_printf("\n");
         if (ntype && ObjCont->used < TSize)
@@ -3445,6 +3460,9 @@ int U_PMR_OBJECT_print(const char *contents, const char *blimit,
         ttype = otype;
     }
     if (status) {
+        blimit =
+            ObjCont->accum +
+            ObjCont->used; /* more restrictive blimit, just to end of object */
         switch (ttype) {
         case U_OT_Brush:
             (void)U_PMF_BRUSH_print(ObjCont->accum, blimit, out, states);
