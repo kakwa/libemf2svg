@@ -20,3 +20,4 @@
 | bad_corrupted_2016-02-02-210039.emf | corrupted U_EMR_EXTTEXTOUTW (null string)                  |
 | bad_corrupted_2016-02-02-220639.emf | null bitmap object                                         |
 | bad_corrupted_2016-02-02-225639.emf | large width rel4 bitmap (cause hangs on EOL)               |
+| bad_corrupted_2017-02-11-230400.emf | corruption of EMF+ Size field in HEADER                    |
