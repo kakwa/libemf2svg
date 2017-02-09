@@ -794,10 +794,14 @@ void emrtext_print(drawingStates *states, const char *emt, const char *record,
     verbose_printf("offString:%u ", pemt->offString);
     if (pemt->offString) {
         if (!type) {
+            returnOutOfEmf((intptr_t)(record + pemt->offString) +
+                           (intptr_t)pemt->nChars);
             IF_MEM_UNSAFE_PRINT_AND_RETURN(
                 record, pemt->offString + pemt->nChars * sizeof(char), blimit);
             verbose_printf("string8:<%s> ", record + pemt->offString);
         } else {
+            returnOutOfEmf((intptr_t)(record + pemt->offString) +
+                           2 * (intptr_t)pemt->nChars);
             IF_MEM_UNSAFE_PRINT_AND_RETURN(
                 record, pemt->offString + pemt->nChars * 2 * sizeof(char),
                 blimit);
