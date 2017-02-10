@@ -1692,7 +1692,7 @@ int U_PMR_OBJECT_draw(const char *contents, const char *blimit,
         if (ntype) {
             if (checkOutOfEMF(states,
                               (intptr_t)((intptr_t)Data +
-                                         (intptr_t)Header.DataSize - 4))) {
+                                         (intptr_t)Header.DataSize - 4)) || ((int64_t)Header.DataSize - 4) < 0) {
                 status = 0;
             } else {
                 U_OA_append(
