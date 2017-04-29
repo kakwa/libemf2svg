@@ -397,7 +397,7 @@ enum U_WMR_TYPES {
 */
 #define U_DIB_PAL_INDICES                                                      \
     2 //!< No color table, pixels are logical palette indices.
-      /** @} */
+/** @} */
 
 /** Compression Enumeration                WMF manual 2.1.1.7
   Same as "EMF BI_Compression Enumeration" in uemf.h with these additions

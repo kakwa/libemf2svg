@@ -162,6 +162,9 @@ void U_EMRSELECTOBJECT_draw(const char *contents, FILE *out,
                 states->objectTable[index].font_escapement;
             states->currentDeviceContext.font_orientation =
                 states->objectTable[index].font_orientation;
+            states->currentDeviceContext.font_charset =
+                states->objectTable[index].font_charset;
+
             if (states->currentDeviceContext.font_name != NULL) {
                 free(states->currentDeviceContext.font_name);
                 states->currentDeviceContext.font_name = NULL;

@@ -3432,7 +3432,8 @@ int U_PMR_OBJECT_print(const char *contents, const char *blimit,
         if (ntype) {
             if (checkOutOfEMF(states,
                               (intptr_t)((intptr_t)Data +
-                                         (intptr_t)Header.DataSize - 4)) || ((int64_t)Header.DataSize - 4) < 0) {
+                                         (intptr_t)Header.DataSize - 4)) ||
+                ((int64_t)Header.DataSize - 4) < 0) {
                 status = 0;
                 verbose_printf("   corrupt record\n");
             } else {

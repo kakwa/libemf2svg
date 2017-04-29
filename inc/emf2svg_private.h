@@ -90,6 +90,7 @@ typedef struct emf_graph_object {
     uint32_t font_weight;
     uint32_t font_escapement;
     uint32_t font_orientation;
+    uint8_t font_charset;
 
     bool stroke_set;
     int stroke_mode;   // enumeration from drawmode, not used if fill_set is not
@@ -122,7 +123,6 @@ typedef struct emf_graph_object {
     uint8_t text_blue;
     uint8_t text_green;
     uint16_t text_align;
-    uint8_t text_charset;
 
     // bk propertier
     uint8_t bk_red;
@@ -145,6 +145,7 @@ typedef struct emf_device_context {
     uint32_t font_weight;
     uint32_t font_escapement;
     uint32_t font_orientation;
+    uint8_t font_charset;
 
     uint32_t stretchMode;
 

@@ -986,7 +986,7 @@ typedef struct {
     0 //!< Color match profile is not embedded in metafile
 #define U_COLORMATCHTOTARGET_EMBEDDED                                          \
     1 //!< Color match profile is  embedded in metafile
-      /** @} */
+/** @} */
 
 /** \defgroup U_EMF_EMRCOLORMATCHTOTARGETW_dwAction_Qualifiers EMF ColorSpace
   Enumeration
@@ -999,7 +999,7 @@ typedef struct {
 #define U_CS_DISABLE 2 //!< Disable color proofing.
 #define U_CS_DELETE_TRANSFORM                                                  \
     3 //!< Disable proofing and delete color transform.
-      /** @} */
+/** @} */
 
 /** \defgroup U_EMF_PANOSE_common_Qualifiers EMF PanoseCommon Enumeration
   Used by all PAN_* enumerations, but only defined once here.
@@ -1037,7 +1037,7 @@ typedef struct {
     1 //!< color table contains 16 bit indices into logical palette
 #define U_DIB_PAL_INDICES                                                      \
     2 //!< no color table, pixel values are indices into logical palette
-      /** @} */
+/** @} */
 
 /** \defgroup U_EMF_EMR_COMMENT_PUBLIC EMF EMRComment Enumeration
   For U_EMRCOMMENT_PUBLIC pcIdent fields
@@ -1469,8 +1469,8 @@ typedef struct {
     3 //!< Replace the destination pixels with the source pixels.
 #define U_STRETCH_HALFTONE                                                     \
     4 //!< Replace a block of destination pixels with a half-tone representation
-      //! of the source pixel.
-      /** @} */
+//! of the source pixel.
+/** @} */
 
 /** \defgroup U_EMF_PANOSE_bStrokeVariation_Qualifiers EMF StrokeVariation
   Enumeration
@@ -1729,7 +1729,7 @@ typedef struct {
 #define U_PFD_TYPE_RGBA 0 //!< Pixel contains an RGBA value.
 #define U_PFD_TYPE_COLORINDEX                                                  \
     1 //!< Pixel contains an index into the color table.
-      /** @} */
+/** @} */
 
 /** \defgroup U_EMF_PIXELFORMATDESCRIPTOR_dwFlags_Qualifiers EMF PFD_dwFlags
   Enumeration
