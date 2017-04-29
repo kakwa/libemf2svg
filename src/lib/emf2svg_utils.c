@@ -1003,8 +1003,37 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
     uint8_t *string;
 
     if (type == UTF_16) {
-        returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
-        string = (uint8_t *)U_Utf16leToUtf8((uint16_t *)in, size_in, size_out);
+        switch (states->currentDeviceContext.font_charset) {
+        case U_ANSI_CHARSET:
+        case U_DEFAULT_CHARSET:
+        case U_SYMBOL_CHARSET:
+        case U_SHIFTJIS_CHARSET:
+        case U_HANGUL_CHARSET:
+        case U_GB2312_CHARSET:
+        case U_CHINESEBIG5_CHARSET:
+        case U_GREEK_CHARSET:
+        case U_TURKISH_CHARSET:
+        case U_HEBREW_CHARSET:
+        case U_ARABIC_CHARSET:
+        case U_BALTIC_CHARSET:
+        case U_RUSSIAN_CHARSET:
+        case U_EASTEUROPE_CHARSET:
+        case U_THAI_CHARSET:
+        case U_JOHAB_CHARSET:
+        case U_MAC_CHARSET:
+        case U_OEM_CHARSET:
+        case U_VISCII_CHARSET:
+        case U_TCVN_CHARSET:
+        case U_KOI8_CHARSET:
+        case U_ISO3_CHARSET:
+        case U_ISO4_CHARSET:
+        case U_ISO10_CHARSET:
+        case U_CELTIC_CHARSET:
+        default:
+            returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
+            string =
+                (uint8_t *)U_Utf16leToUtf8((uint16_t *)in, size_in, size_out);
+        }
     } else {
         returnOutOfEmf((intptr_t)in + (intptr_t)size_in);
         string = (uint8_t *)calloc((size_in + 1), 1);
