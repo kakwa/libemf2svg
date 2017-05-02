@@ -11,6 +11,8 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iconv.h>
+#include <errno.h>
 
 void U_EMRNOTIMPLEMENTED_draw(const char *name, const char *contents, FILE *out,
                               drawingStates *states) {
@@ -998,13 +1000,81 @@ void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
     fprintf(out, "font-size=\"%.4f\" ", font_height);
 }
 
+static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len, char *from_enc)
+{
+    iconv_t cd;
+    char *inbuf, *outbuf;
+    size_t inbytesleft, outbytesleft, nchars, out_buf_len;
+
+    cd = iconv_open("UTF-8", from_enc);
+    if (cd == (iconv_t)-1) {
+        return -1;
+    }
+
+    inbytesleft = size_in;
+    if (inbytesleft == 0) {
+        iconv_close(cd);
+        return -1;
+    }
+    inbuf = in;
+    out_buf_len = inbytesleft;
+    *out = calloc(out_buf_len, 1);
+    if (!*out) {
+        iconv_close(cd);
+        return -1;
+    }
+    outbytesleft = out_buf_len;
+    outbuf = *out;
+
+    nchars = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+    while (nchars == (size_t)-1 && errno == E2BIG) {
+        char *ptr;
+        size_t increase = 10;
+        size_t len;
+        out_buf_len += increase;
+        outbytesleft += increase;
+        ptr = realloc(*out, out_buf_len);
+        if (!ptr) {
+            free(*out);
+            iconv_close(cd);
+            return -1;
+        }
+        len = outbuf - *out;
+        *out = ptr;
+        outbuf = *out + len;
+        nchars = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+    }
+    if (nchars == (size_t)-1) {
+        free(*out);
+        iconv_close(cd);
+        return -1;
+    }
+    if (outbytesleft == 0) {
+        char *ptr;
+        ptr = realloc(*out, out_buf_len + 1);
+        if (!ptr) {
+            free(*out);
+            return -1;
+        }
+        *out = ptr;
+    }
+
+    iconv_close(cd);
+    *out_len = out_buf_len - outbytesleft;
+    *out[*out_len] = 0;
+    return 0;
+}
+
 void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
                   uint8_t type, drawingStates *states) {
     uint8_t *string;
 
     if (type == UTF_16) {
+        returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
         switch (states->currentDeviceContext.font_charset) {
         case U_ANSI_CHARSET:
+            enc_to_utf8(in, 2 * size_in, (char **)&string, size_out, "UTF-16LE");
+            break;
         case U_DEFAULT_CHARSET:
         case U_SYMBOL_CHARSET:
         case U_SHIFTJIS_CHARSET:
@@ -1014,6 +1084,10 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_GREEK_CHARSET:
         case U_TURKISH_CHARSET:
         case U_HEBREW_CHARSET:
+            enc_to_utf8(in, size_in, (char **)&string, size_out, "CP1255");
+            //printf("%d %u %u %u\n", (uint8_t)in[0], (uint8_t)in[1], (uint8_t)in[2], (uint8_t)in[3]);
+            //printf("%s\n", in);
+            break;
         case U_ARABIC_CHARSET:
         case U_BALTIC_CHARSET:
         case U_RUSSIAN_CHARSET:
@@ -1030,9 +1104,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_ISO10_CHARSET:
         case U_CELTIC_CHARSET:
         default:
-            returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
-            string =
-                (uint8_t *)U_Utf16leToUtf8((uint16_t *)in, size_in, size_out);
+            enc_to_utf8(in, 2 * size_in, (char **)&string, size_out, "UTF-16LE");
         }
     } else {
         returnOutOfEmf((intptr_t)in + (intptr_t)size_in);
@@ -1045,20 +1117,20 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         return;
     }
 
-    int i = 0;
-    while (i < (*size_out) && string[i] != 0x0) {
-        // Clean-up not printable ascii char like bells \r etc...
-        if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
-            string[i] != 0x0B && string[i] != 0x09) {
-            string[i] = 0x20;
-        }
-        // If it's specified as ascii, it must be ascii,
-        // so, replace any char > 127 with 0x20 (space)
-        if (type == ASCII && string[i] > 0x7F) {
-            string[i] = 0x20;
-        }
-        i++;
-    }
+    //int i = 0;
+    //while (i < (*size_out) && string[i] != 0x0) {
+    //    // Clean-up not printable ascii char like bells \r etc...
+    //    if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
+    //        string[i] != 0x0B && string[i] != 0x09) {
+    //        string[i] = 0x20;
+    //    }
+    //    // If it's specified as ascii, it must be ascii,
+    //    // so, replace any char > 127 with 0x20 (space)
+    //    if (type == ASCII && string[i] > 0x7F) {
+    //        string[i] = 0x20;
+    //    }
+    //    i++;
+    //}
     *out = (char *)string;
 }
 
