@@ -1049,19 +1049,9 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len, ch
         iconv_close(cd);
         return -1;
     }
-    if (outbytesleft == 0) {
-        char *ptr;
-        ptr = realloc(*out, out_buf_len + 1);
-        if (!ptr) {
-            free(*out);
-            return -1;
-        }
-        *out = ptr;
-    }
 
     iconv_close(cd);
     *out_len = out_buf_len - outbytesleft;
-    *out[*out_len] = 0;
     return 0;
 }
 
@@ -1105,6 +1095,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_CELTIC_CHARSET:
         default:
             enc_to_utf8(in, 2 * size_in, (char **)&string, size_out, "UTF-16LE");
+            break;
         }
     } else {
         returnOutOfEmf((intptr_t)in + (intptr_t)size_in);
@@ -1117,20 +1108,20 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         return;
     }
 
-    //int i = 0;
-    //while (i < (*size_out) && string[i] != 0x0) {
-    //    // Clean-up not printable ascii char like bells \r etc...
-    //    if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
-    //        string[i] != 0x0B && string[i] != 0x09) {
-    //        string[i] = 0x20;
-    //    }
-    //    // If it's specified as ascii, it must be ascii,
-    //    // so, replace any char > 127 with 0x20 (space)
-    //    if (type == ASCII && string[i] > 0x7F) {
-    //        string[i] = 0x20;
-    //    }
-    //    i++;
-    //}
+//    int i = 0;
+//    while (i < (*size_out) && string[i] != 0x0) {
+//        // Clean-up not printable ascii char like bells \r etc...
+//        if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
+//            string[i] != 0x0B && string[i] != 0x09) {
+//            string[i] = 0x20;
+//        }
+//        // If it's specified as ascii, it must be ascii,
+//        // so, replace any char > 127 with 0x20 (space)
+//        if (type == ASCII && string[i] > 0x7F) {
+//            string[i] = 0x20;
+//        }
+//        i++;
+//    }
     *out = (char *)string;
 }
 
