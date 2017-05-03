@@ -799,6 +799,9 @@ void emrtext_print(drawingStates *states, const char *emt, const char *record,
             IF_MEM_UNSAFE_PRINT_AND_RETURN(
                 record, pemt->offString + pemt->nChars * sizeof(char), blimit);
             verbose_printf("string8:<%s> ", record + pemt->offString);
+            verbose_printf("hexa:<");
+            hexbytes_print(states, (uint8_t *)(record + pemt->offString), pemt->nChars * sizeof(char));
+            verbose_printf("> ");
         } else {
             returnOutOfEmf((intptr_t)(record + pemt->offString) +
                            2 * (intptr_t)pemt->nChars);
@@ -808,6 +811,9 @@ void emrtext_print(drawingStates *states, const char *emt, const char *record,
             string = U_Utf16leToUtf8((uint16_t *)(record + pemt->offString),
                                      pemt->nChars, NULL);
             verbose_printf("string16:<%s> ", string);
+            verbose_printf("hexa:<");
+            hexbytes_print(states, (uint8_t *)(record + pemt->offString), pemt->nChars * 2 * sizeof(char));
+            verbose_printf("> ");
             free(string);
         }
     }
