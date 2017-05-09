@@ -1002,52 +1002,70 @@ void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
     fprintf(out, "font-size=\"%.4f\" ", font_height);
 }
 
-static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out, size_t *out_len, char *font_name){
+static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
+                             size_t *out_len, char *font_name) {
     uint16_t *map_table = NULL;
     size_t max_index = 0;
     *out_len = 0;
-    for(int i = 0; i < FONT_MAPS_COL_SIZE; i++){
-        if(strcasecmp(font_maps[i].font_name, font_name) == 0){
+    for (int i = 0; i < FONT_MAPS_COL_SIZE; i++) {
+        if (strcasecmp(font_maps[i].font_name, font_name) == 0) {
             map_table = font_maps[i].uni;
             max_index = font_maps[i].size;
             break;
         }
     }
-    if(map_table == NULL){
+    if (map_table == NULL) {
         map_table = font_maps[0].uni;
         max_index = font_maps[0].size;
     }
 
     size_t buf_size_left = size_in;
-    char * buf = calloc(size_in, 1);
+    char *buf = calloc(size_in, 1);
     if (!buf) {
         return -1;
     }
-	
-    for(int i = 0; i < size_in; i++){
+
+    for (int i = 0; i < size_in; i++) {
         uint16_t index = in[i];
-		uint32_t codepoint = map_table[index];
-        if(index < max_index) {
+        uint32_t codepoint = map_table[index];
+        if (index < max_index) {
             if (codepoint <= 0x7f) {
-				buf[*out_len] = (codepoint & 0x7f); (*out_len)++; buf_size_left--;
-            }
-            else if (codepoint <= 0x7ff) {
-				buf[*out_len] = (0xc0 | (codepoint >> 6)); (*out_len)++; buf_size_left--;
-				buf[*out_len] = (0x80 | (codepoint & 0x3f)); (*out_len)++; buf_size_left--;
-            }
-            else if (codepoint <= 0xffff) {
-				buf[*out_len] = (0xe0 | (codepoint >> 12)); (*out_len)++; buf_size_left--;
-				buf[*out_len] = (0x80 | ((codepoint >> 6) & 0x3f)); (*out_len)++; buf_size_left--;
-				buf[*out_len] = (0x80 | (codepoint & 0x3f)); (*out_len)++; buf_size_left--;
-            }
-            else if (codepoint <= 0x1fffff) {
-				buf[*out_len] = (0xf0 | (codepoint >> 18)); (*out_len)++; buf_size_left--;
-				buf[*out_len] = (0x80 | ((codepoint >> 12) & 0x3f)); (*out_len)++; buf_size_left--;
-				buf[*out_len] = (0x80 | ((codepoint >> 6) & 0x3f)); (*out_len)++; buf_size_left--;
-				buf[*out_len] = (0x80 | (codepoint & 0x3f)); (*out_len)++; buf_size_left--;
+                buf[*out_len] = (codepoint & 0x7f);
+                (*out_len)++;
+                buf_size_left--;
+            } else if (codepoint <= 0x7ff) {
+                buf[*out_len] = (0xc0 | (codepoint >> 6));
+                (*out_len)++;
+                buf_size_left--;
+                buf[*out_len] = (0x80 | (codepoint & 0x3f));
+                (*out_len)++;
+                buf_size_left--;
+            } else if (codepoint <= 0xffff) {
+                buf[*out_len] = (0xe0 | (codepoint >> 12));
+                (*out_len)++;
+                buf_size_left--;
+                buf[*out_len] = (0x80 | ((codepoint >> 6) & 0x3f));
+                (*out_len)++;
+                buf_size_left--;
+                buf[*out_len] = (0x80 | (codepoint & 0x3f));
+                (*out_len)++;
+                buf_size_left--;
+            } else if (codepoint <= 0x1fffff) {
+                buf[*out_len] = (0xf0 | (codepoint >> 18));
+                (*out_len)++;
+                buf_size_left--;
+                buf[*out_len] = (0x80 | ((codepoint >> 12) & 0x3f));
+                (*out_len)++;
+                buf_size_left--;
+                buf[*out_len] = (0x80 | ((codepoint >> 6) & 0x3f));
+                (*out_len)++;
+                buf_size_left--;
+                buf[*out_len] = (0x80 | (codepoint & 0x3f));
+                (*out_len)++;
+                buf_size_left--;
             }
         }
-        if(buf_size_left <= 4){
+        if (buf_size_left <= 4) {
             char *ptr;
             size_t increase = 20;
             ptr = realloc(buf, *out_len + increase);
@@ -1059,17 +1077,17 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out, size_t *o
             buf = ptr;
         }
     }
-    //printf("%d\n", *out_len);
-    //for(int i = 0; i < *out_len; i++){
+    // printf("%d\n", *out_len);
+    // for(int i = 0; i < *out_len; i++){
     //    printf("%X", buf[i]);
     //}
-    //printf("%s\n", buf);
+    // printf("%s\n", buf);
     *out = buf;
     return 0;
 }
 
-static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len, char *from_enc)
-{
+static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
+                       char *from_enc) {
     iconv_t cd;
     char *inbuf, *outbuf;
     size_t inbytesleft, outbytesleft, nchars, out_buf_len;
@@ -1131,7 +1149,8 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
         switch (states->currentDeviceContext.font_charset) {
         case U_ANSI_CHARSET:
-            enc_to_utf8(in, 2 * size_in, (char **)&string, size_out, "UTF-16LE");
+            enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
+                        "UTF-16LE");
             break;
         case U_DEFAULT_CHARSET:
         case U_SYMBOL_CHARSET:
@@ -1143,8 +1162,9 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_TURKISH_CHARSET:
         case U_HEBREW_CHARSET:
             enc_to_utf8(in, size_in, (char **)&string, size_out, "CP1255");
-            //printf("%d %u %u %u\n", (uint8_t)in[0], (uint8_t)in[1], (uint8_t)in[2], (uint8_t)in[3]);
-            //printf("%s\n", in);
+            // printf("%d %u %u %u\n", (uint8_t)in[0], (uint8_t)in[1],
+            // (uint8_t)in[2], (uint8_t)in[3]);
+            // printf("%s\n", in);
             break;
         case U_ARABIC_CHARSET:
         case U_BALTIC_CHARSET:
@@ -1162,7 +1182,8 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_ISO10_CHARSET:
         case U_CELTIC_CHARSET:
         default:
-            enc_to_utf8(in, 2 * size_in, (char **)&string, size_out, "UTF-16LE");
+            enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
+                        "UTF-16LE");
             break;
         }
     } else {
@@ -1176,20 +1197,20 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         return;
     }
 
-//    int i = 0;
-//    while (i < (*size_out) && string[i] != 0x0) {
-//        // Clean-up not printable ascii char like bells \r etc...
-//        if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
-//            string[i] != 0x0B && string[i] != 0x09) {
-//            string[i] = 0x20;
-//        }
-//        // If it's specified as ascii, it must be ascii,
-//        // so, replace any char > 127 with 0x20 (space)
-//        if (type == ASCII && string[i] > 0x7F) {
-//            string[i] = 0x20;
-//        }
-//        i++;
-//    }
+    //    int i = 0;
+    //    while (i < (*size_out) && string[i] != 0x0) {
+    //        // Clean-up not printable ascii char like bells \r etc...
+    //        if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
+    //            string[i] != 0x0B && string[i] != 0x09) {
+    //            string[i] = 0x20;
+    //        }
+    //        // If it's specified as ascii, it must be ascii,
+    //        // so, replace any char > 127 with 0x20 (space)
+    //        if (type == ASCII && string[i] > 0x7F) {
+    //            string[i] = 0x20;
+    //        }
+    //        i++;
+    //    }
     *out = (char *)string;
 }
 
@@ -1210,11 +1231,13 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
 
     char *string = NULL;
     size_t string_size;
-    if(pemt->fOptions & U_ETO_GLYPH_INDEX){
-        fontindex_to_utf8((uint16_t *)(contents + pemt->offString), pemt->nChars, &string, &string_size, states->currentDeviceContext.font_family);
+    if (pemt->fOptions & U_ETO_GLYPH_INDEX) {
+        fontindex_to_utf8((uint16_t *)(contents + pemt->offString),
+                          pemt->nChars, &string, &string_size,
+                          states->currentDeviceContext.font_family);
     } else {
-        text_convert((char *)(contents + pemt->offString), pemt->nChars, &string,
-                 &string_size, type, states);
+        text_convert((char *)(contents + pemt->offString), pemt->nChars,
+                     &string, &string_size, type, states);
     }
     if (string != NULL) {
         fprintf(out, "<![CDATA[%s]]>", string);

@@ -6,5 +6,5 @@ clang-format -style="{BasedOnStyle: llvm, IndentWidth: 4, AllowShortFunctionsOnA
     `find ./deps ./src/ ./inc/ -type f -name "*.cpp" -o \
                         -type f -name "*.c" -o \
                         -type f -name "*.h" -o \
-                        -type f -name "*.hpp"`
+                        -type f -name "*.hpp"|grep -v font_map`
 
