@@ -12,6 +12,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <iconv.h>
 #include <errno.h>
 
@@ -1001,6 +1002,72 @@ void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
     fprintf(out, "font-size=\"%.4f\" ", font_height);
 }
 
+static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out, size_t *out_len, char *font_name){
+    uint16_t *map_table = NULL;
+    size_t max_index = 0;
+    *out_len = 0;
+    for(int i = 0; i < FONT_MAPS_COL_SIZE; i++){
+        if(strcasecmp(font_maps[i].font_name, font_name) == 0){
+            map_table = font_maps[i].uni;
+            max_index = font_maps[i].size;
+            break;
+        }
+    }
+    if(map_table == NULL){
+        map_table = font_maps[0].uni;
+        max_index = font_maps[0].size;
+    }
+
+    size_t buf_size_left = size_in;
+    char * buf = calloc(size_in, 1);
+    if (!buf) {
+        return -1;
+    }
+	
+    for(int i = 0; i < size_in; i++){
+        uint16_t index = in[i];
+		uint32_t codepoint = map_table[index];
+        if(index < max_index) {
+            if (codepoint <= 0x7f) {
+				buf[*out_len] = (codepoint & 0x7f); (*out_len)++; buf_size_left--;
+            }
+            else if (codepoint <= 0x7ff) {
+				buf[*out_len] = (0xc0 | (codepoint >> 6)); (*out_len)++; buf_size_left--;
+				buf[*out_len] = (0x80 | (codepoint & 0x3f)); (*out_len)++; buf_size_left--;
+            }
+            else if (codepoint <= 0xffff) {
+				buf[*out_len] = (0xe0 | (codepoint >> 12)); (*out_len)++; buf_size_left--;
+				buf[*out_len] = (0x80 | ((codepoint >> 6) & 0x3f)); (*out_len)++; buf_size_left--;
+				buf[*out_len] = (0x80 | (codepoint & 0x3f)); (*out_len)++; buf_size_left--;
+            }
+            else if (codepoint <= 0x1fffff) {
+				buf[*out_len] = (0xf0 | (codepoint >> 18)); (*out_len)++; buf_size_left--;
+				buf[*out_len] = (0x80 | ((codepoint >> 12) & 0x3f)); (*out_len)++; buf_size_left--;
+				buf[*out_len] = (0x80 | ((codepoint >> 6) & 0x3f)); (*out_len)++; buf_size_left--;
+				buf[*out_len] = (0x80 | (codepoint & 0x3f)); (*out_len)++; buf_size_left--;
+            }
+        }
+        if(buf_size_left <= 4){
+            char *ptr;
+            size_t increase = 20;
+            ptr = realloc(buf, *out_len + increase);
+            if (!ptr) {
+                free(buf);
+                return -1;
+            }
+            buf_size_left += increase;
+            buf = ptr;
+        }
+    }
+    //printf("%d\n", *out_len);
+    //for(int i = 0; i < *out_len; i++){
+    //    printf("%X", buf[i]);
+    //}
+    //printf("%s\n", buf);
+    *out = buf;
+    return 0;
+}
+
 static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len, char *from_enc)
 {
     iconv_t cd;
@@ -1143,8 +1210,12 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
 
     char *string = NULL;
     size_t string_size;
-    text_convert((char *)(contents + pemt->offString), pemt->nChars, &string,
+    if(pemt->fOptions & U_ETO_GLYPH_INDEX){
+        fontindex_to_utf8((uint16_t *)(contents + pemt->offString), pemt->nChars, &string, &string_size, states->currentDeviceContext.font_family);
+    } else {
+        text_convert((char *)(contents + pemt->offString), pemt->nChars, &string,
                  &string_size, type, states);
+    }
     if (string != NULL) {
         fprintf(out, "<![CDATA[%s]]>", string);
         free(string);

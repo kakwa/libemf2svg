@@ -17,6 +17,7 @@
  */
 
 #define MAX_GLYPH 1500
+#define FONT_MAPS_COL_SIZE sizeof(font_maps) / sizeof(struct cmap_collection) 
 
 struct cmap_collection {
     char *font_name;
