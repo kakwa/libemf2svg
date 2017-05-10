@@ -1022,6 +1022,7 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
     size_t buf_size_left = size_in;
     char *buf = calloc(size_in, 1);
     if (!buf) {
+        *out = NULL;
         return -1;
     }
 
@@ -1071,6 +1072,7 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
             ptr = realloc(buf, *out_len + increase);
             if (!ptr) {
                 free(buf);
+                *out = NULL;
                 return -1;
             }
             buf_size_left += increase;
@@ -1090,12 +1092,14 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
 
     cd = iconv_open("UTF-8", from_enc);
     if (cd == (iconv_t)-1) {
+        *out = NULL;
         return -1;
     }
 
     inbytesleft = size_in;
     if (inbytesleft == 0) {
         iconv_close(cd);
+        *out = NULL;
         return -1;
     }
     inbuf = in;
@@ -1103,6 +1107,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
     *out = calloc(out_buf_len, 1);
     if (!*out) {
         iconv_close(cd);
+        *out = NULL;
         return -1;
     }
     outbytesleft = out_buf_len;
@@ -1119,6 +1124,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
         if (!ptr) {
             free(*out);
             iconv_close(cd);
+            *out = NULL;
             return -1;
         }
         len = outbuf - *out;
@@ -1135,6 +1141,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
         if (!ptr) {
             free(*out);
             iconv_close(cd);
+            *out = NULL;
             return -1;
         }
         *out = ptr;
@@ -1142,6 +1149,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
     if (nchars == (size_t)-1) {
         free(*out);
         iconv_close(cd);
+        *out = NULL;
         return -1;
     }
 
@@ -1154,12 +1162,13 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
 void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
                   uint8_t type, drawingStates *states) {
     uint8_t *string;
+    int ret = 0;
 
     if (type == UTF_16) {
         returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
         switch (states->currentDeviceContext.font_charset) {
         case U_ANSI_CHARSET:
-            enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
+            ret = enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
                         "UTF-16LE");
             break;
         case U_DEFAULT_CHARSET:
@@ -1187,7 +1196,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_ISO10_CHARSET:
         case U_CELTIC_CHARSET:
         default:
-            enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
+            ret = enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
                         "UTF-16LE");
             break;
         }
@@ -1197,6 +1206,8 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         strncpy((char *)string, in, size_in);
         *size_out = size_in;
     }
+    if(ret != 0)
+        string = NULL;
 
     if (string == NULL) {
         return;
@@ -1237,6 +1248,7 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
     char *string = NULL;
     size_t string_size;
     if (pemt->fOptions & U_ETO_GLYPH_INDEX) {
+        returnOutOfEmf((intptr_t)(contents + pemt->offString) + 2 * (intptr_t)pemt->nChars);
         fontindex_to_utf8((uint16_t *)(contents + pemt->offString),
                           pemt->nChars, &string, &string_size,
                           states->currentDeviceContext.font_family);
