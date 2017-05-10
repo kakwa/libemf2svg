@@ -1130,6 +1130,19 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
         outbuf = *out + len;
         nchars = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
     }
+    if (outbytesleft == 0) {
+        char *ptr;
+        size_t increase = 10;
+        out_buf_len += increase;
+        outbytesleft += increase;
+        ptr = realloc(*out, out_buf_len);
+        if (!ptr) {
+            free(*out);
+            iconv_close(cd);
+            return -1;
+        }
+        *out = ptr;
+    }
     if (nchars == (size_t)-1) {
         free(*out);
         iconv_close(cd);
@@ -1138,6 +1151,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
 
     iconv_close(cd);
     *out_len = out_buf_len - outbytesleft;
+    (*out)[(*out_len)] = '\0';
     return 0;
 }
 
