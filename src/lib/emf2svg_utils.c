@@ -1161,11 +1161,6 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_GREEK_CHARSET:
         case U_TURKISH_CHARSET:
         case U_HEBREW_CHARSET:
-            enc_to_utf8(in, size_in, (char **)&string, size_out, "CP1255");
-            // printf("%d %u %u %u\n", (uint8_t)in[0], (uint8_t)in[1],
-            // (uint8_t)in[2], (uint8_t)in[3]);
-            // printf("%s\n", in);
-            break;
         case U_ARABIC_CHARSET:
         case U_BALTIC_CHARSET:
         case U_RUSSIAN_CHARSET:
