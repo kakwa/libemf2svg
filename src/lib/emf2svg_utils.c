@@ -1192,20 +1192,20 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         return;
     }
 
-    //    int i = 0;
-    //    while (i < (*size_out) && string[i] != 0x0) {
-    //        // Clean-up not printable ascii char like bells \r etc...
-    //        if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
-    //            string[i] != 0x0B && string[i] != 0x09) {
-    //            string[i] = 0x20;
-    //        }
-    //        // If it's specified as ascii, it must be ascii,
-    //        // so, replace any char > 127 with 0x20 (space)
-    //        if (type == ASCII && string[i] > 0x7F) {
-    //            string[i] = 0x20;
-    //        }
-    //        i++;
-    //    }
+    int i = 0;
+    while (i < (*size_out) && string[i] != 0x0) {
+        // Clean-up not printable ascii char like bells \r etc...
+        if (string[i] < 0x20 && string[i] != 0x09 && string[i] != 0x0A &&
+            string[i] != 0x0B && string[i] != 0x09) {
+            string[i] = 0x20;
+        }
+        // If it's specified as ascii, it must be ascii,
+        // so, replace any char > 127 with 0x20 (space)
+        if (type == ASCII && string[i] > 0x7F) {
+            string[i] = 0x20;
+        }
+        i++;
+    }
     *out = (char *)string;
 }
 
