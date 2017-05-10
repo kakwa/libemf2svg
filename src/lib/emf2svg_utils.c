@@ -1065,7 +1065,7 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
                 buf_size_left--;
             }
         }
-        if (buf_size_left <= 4) {
+        if (buf_size_left <= 5) {
             char *ptr;
             size_t increase = 20;
             ptr = realloc(buf, *out_len + increase);
@@ -1077,11 +1077,7 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
             buf = ptr;
         }
     }
-    // printf("%d\n", *out_len);
-    // for(int i = 0; i < *out_len; i++){
-    //    printf("%X", buf[i]);
-    //}
-    // printf("%s\n", buf);
+    buf[*out_len] = '\0';
     *out = buf;
     return 0;
 }
