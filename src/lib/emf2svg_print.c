@@ -489,7 +489,87 @@ void logfont_print(drawingStates *states, U_LOGFONT lf) {
     verbose_printf("lfItalic:0x%2.2X ", lf.lfItalic);
     verbose_printf("lfUnderline:0x%2.2X ", lf.lfUnderline);
     verbose_printf("lfStrikeOut:0x%2.2X ", lf.lfStrikeOut);
-    verbose_printf("lfCharSet:0x%2.2X ", lf.lfCharSet);
+    switch (lf.lfCharSet) {
+    case U_ANSI_CHARSET:
+        verbose_printf("lfCharSet:ANSI_CHARSET ");
+        break;
+    case U_DEFAULT_CHARSET:
+        verbose_printf("lfCharSet:DEFAULT_CHARSET ");
+        break;
+    case U_SYMBOL_CHARSET:
+        verbose_printf("lfCharSet:SYMBOL_CHARSET ");
+        break;
+    case U_SHIFTJIS_CHARSET:
+        verbose_printf("lfCharSet:SHIFTJIS_CHARSET ");
+        break;
+    case U_HANGUL_CHARSET:
+        verbose_printf("lfCharSet:HANGUL_CHARSET ");
+        break;
+    case U_GB2312_CHARSET:
+        verbose_printf("lfCharSet:GB2312_CHARSET ");
+        break;
+    case U_CHINESEBIG5_CHARSET:
+        verbose_printf("lfCharSet:CHINESEBIG5_CHARSET ");
+        break;
+    case U_GREEK_CHARSET:
+        verbose_printf("lfCharSet:GREEK_CHARSET ");
+        break;
+    case U_TURKISH_CHARSET:
+        verbose_printf("lfCharSet:TURKISH_CHARSET ");
+        break;
+    case U_HEBREW_CHARSET:
+        verbose_printf("lfCharSet:HEBREW_CHARSET ");
+        break;
+    case U_ARABIC_CHARSET:
+        verbose_printf("lfCharSet:ARABIC_CHARSET ");
+        break;
+    case U_BALTIC_CHARSET:
+        verbose_printf("lfCharSet:BALTIC_CHARSET ");
+        break;
+    case U_RUSSIAN_CHARSET:
+        verbose_printf("lfCharSet:RUSSIAN_CHARSET ");
+        break;
+    case U_EASTEUROPE_CHARSET:
+        verbose_printf("lfCharSet:EASTEUROPE_CHARSET ");
+        break;
+    case U_THAI_CHARSET:
+        verbose_printf("lfCharSet:THAI_CHARSET ");
+        break;
+    case U_JOHAB_CHARSET:
+        verbose_printf("lfCharSet:JOHAB_CHARSET ");
+        break;
+    case U_MAC_CHARSET:
+        verbose_printf("lfCharSet:MAC_CHARSET ");
+        break;
+    case U_OEM_CHARSET:
+        verbose_printf("lfCharSet:OEM_CHARSET ");
+        break;
+    case U_VISCII_CHARSET:
+        verbose_printf("lfCharSet:VISCII_CHARSET ");
+        break;
+    case U_TCVN_CHARSET:
+        verbose_printf("lfCharSet:TCVN_CHARSET ");
+        break;
+    case U_KOI8_CHARSET:
+        verbose_printf("lfCharSet:KOI8_CHARSET ");
+        break;
+    case U_ISO3_CHARSET:
+        verbose_printf("lfCharSet:ISO3_CHARSET ");
+        break;
+    case U_ISO4_CHARSET:
+        verbose_printf("lfCharSet:ISO4_CHARSET ");
+        break;
+    case U_ISO10_CHARSET:
+        verbose_printf("lfCharSet:ISO10_CHARSET ");
+        break;
+    case U_CELTIC_CHARSET:
+        verbose_printf("lfCharSet:CELTIC_CHARSET ");
+        break;
+    default:
+        verbose_printf("lfCharSet:<Unknown charset [0x%X] >",
+                       states->currentDeviceContext.font_charset);
+        break;
+    }
     verbose_printf("lfOutPrecision:0x%2.2X ", lf.lfOutPrecision);
     verbose_printf("lfClipPrecision:0x%2.2X ", lf.lfClipPrecision);
     verbose_printf("lfQuality:0x%2.2X ", lf.lfQuality);
@@ -1016,87 +1096,6 @@ void core8_print(const char *name, const char *contents, drawingStates *states,
     verbose_printf("\n");
     verbose_printf("   exScale:        %f\n", pEmr->exScale);
     verbose_printf("   eyScale:        %f\n", pEmr->eyScale);
-    switch (states->currentDeviceContext.font_charset) {
-    case U_ANSI_CHARSET:
-        verbose_printf("   Charset:        ANSI_CHARSET\n");
-        break;
-    case U_DEFAULT_CHARSET:
-        verbose_printf("   Charset:        DEFAULT_CHARSET\n");
-        break;
-    case U_SYMBOL_CHARSET:
-        verbose_printf("   Charset:        SYMBOL_CHARSET\n");
-        break;
-    case U_SHIFTJIS_CHARSET:
-        verbose_printf("   Charset:        SHIFTJIS_CHARSET\n");
-        break;
-    case U_HANGUL_CHARSET:
-        verbose_printf("   Charset:        HANGUL_CHARSET\n");
-        break;
-    case U_GB2312_CHARSET:
-        verbose_printf("   Charset:        GB2312_CHARSET\n");
-        break;
-    case U_CHINESEBIG5_CHARSET:
-        verbose_printf("   Charset:        CHINESEBIG5_CHARSET\n");
-        break;
-    case U_GREEK_CHARSET:
-        verbose_printf("   Charset:        GREEK_CHARSET\n");
-        break;
-    case U_TURKISH_CHARSET:
-        verbose_printf("   Charset:        TURKISH_CHARSET\n");
-        break;
-    case U_HEBREW_CHARSET:
-        verbose_printf("   Charset:        HEBREW_CHARSET\n");
-        break;
-    case U_ARABIC_CHARSET:
-        verbose_printf("   Charset:        ARABIC_CHARSET\n");
-        break;
-    case U_BALTIC_CHARSET:
-        verbose_printf("   Charset:        BALTIC_CHARSET\n");
-        break;
-    case U_RUSSIAN_CHARSET:
-        verbose_printf("   Charset:        RUSSIAN_CHARSET\n");
-        break;
-    case U_EASTEUROPE_CHARSET:
-        verbose_printf("   Charset:        EASTEUROPE_CHARSET\n");
-        break;
-    case U_THAI_CHARSET:
-        verbose_printf("   Charset:        THAI_CHARSET\n");
-        break;
-    case U_JOHAB_CHARSET:
-        verbose_printf("   Charset:        JOHAB_CHARSET\n");
-        break;
-    case U_MAC_CHARSET:
-        verbose_printf("   Charset:        MAC_CHARSET\n");
-        break;
-    case U_OEM_CHARSET:
-        verbose_printf("   Charset:        OEM_CHARSET\n");
-        break;
-    case U_VISCII_CHARSET:
-        verbose_printf("   Charset:        VISCII_CHARSET\n");
-        break;
-    case U_TCVN_CHARSET:
-        verbose_printf("   Charset:        TCVN_CHARSET\n");
-        break;
-    case U_KOI8_CHARSET:
-        verbose_printf("   Charset:        KOI8_CHARSET\n");
-        break;
-    case U_ISO3_CHARSET:
-        verbose_printf("   Charset:        ISO3_CHARSET\n");
-        break;
-    case U_ISO4_CHARSET:
-        verbose_printf("   Charset:        ISO4_CHARSET\n");
-        break;
-    case U_ISO10_CHARSET:
-        verbose_printf("   Charset:        ISO10_CHARSET\n");
-        break;
-    case U_CELTIC_CHARSET:
-        verbose_printf("   Charset:        CELTIC_CHARSET\n");
-        break;
-    default:
-        verbose_printf("   Charset:        Unknown charse [0x%X]\n",
-                       states->currentDeviceContext.font_charset);
-        break;
-    }
     verbose_printf("   emrtext:        ");
     emrtext_print(states,
                   contents + sizeof(U_EMREXTTEXTOUTA) - sizeof(U_EMRTEXT),
