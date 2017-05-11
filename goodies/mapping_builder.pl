@@ -37,6 +37,29 @@ $table_var_name =~ s/[^\w]/_/g;
 $table_var_name = 'emf2svg_fm_' . lc($table_var_name);
 
 # Read the header file line by line, and rewrite those line in the temporary file
+my $in_map_col = 0;
+while(my $line = <$header>) {
+    if( $line eq "// Mappings Collection END\n"){
+	$in_map_col = 0;
+    }
+    if($in_map_col){
+	if($line =~ /{"(.*)", (.*), (emf2svg_fm_.*)},/){
+            my $tmp_name = $1;
+            my $tmp_size = $2;
+            my $tmp_var  = $3;
+	    if("$tmp_var" eq "$table_var_name"){
+                print "ERROR, font name collision (is it already declared?)\n";
+		print "New font: {name: $name, size: $num, var_name: $table_var_name}\n";
+		print "Old font: {name: $tmp_name, size: $tmp_size, var_name: $tmp_var}\n";
+		exit 1;
+	    }
+	}
+    }
+    if( $line eq "// Mappings Collection START\n"){
+	$in_map_col = 1;
+    }
+}
+
 while(my $line = <$header>) {
     # if we hit this marker, we add the new reverse mapping structure
     # corresponding to the font we just used
