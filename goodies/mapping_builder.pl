@@ -60,6 +60,9 @@ while(my $line = <$header>) {
     }
 }
 
+close $header;
+open my $header, $map_header or die "Could not open $map_header: $!";
+
 while(my $line = <$header>) {
     # if we hit this marker, we add the new reverse mapping structure
     # corresponding to the font we just used
@@ -78,7 +81,7 @@ while(my $line = <$header>) {
                 printf $tmp ("0x%04X,", 0);
             }
             if ($i % 10 == 9){
-                printf $tmp ("\n");
+                printf $tmp (" // %d\n", (int($i / 10) * 10));
             } else {
                 printf $tmp (" ");
             }
