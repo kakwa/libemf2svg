@@ -70,7 +70,7 @@ while(my $line = <$header>) {
         print $tmp "{\"$name\", $num, $table_var_name},\n";
     }
     if( $line eq "// Mappings Table END\n"){
-	print $tmp "\nuint32_t ${table_var_name}\[\] = {\n";
+	print $tmp "\nconst uint32_t ${table_var_name}\[\] = {\n";
         for (my $i = 0; $i < $num; $i++)
         {
             my ($pname) = $p->{'VAL'}[$i];
