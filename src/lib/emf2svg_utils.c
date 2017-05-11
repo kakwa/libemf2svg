@@ -7,7 +7,7 @@ extern "C" {
 #endif
 #include "emf2svg_private.h"
 #include "emf2svg_print.h"
-#include "font_mapping.h"
+#include "font_mapping.c"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
