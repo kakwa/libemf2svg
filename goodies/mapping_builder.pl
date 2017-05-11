@@ -5,6 +5,8 @@
 # It's meant to be lauched with a .ttf file as argument.
 # Reverse mapping will add the reverse mapping directly inside
 # the "inc/font_mapping.h" header.
+#
+# libfont-ttf-perl (Debian/Ubunutu package)
 
 use strict;
 use Font::TTF::Font;
@@ -24,26 +26,26 @@ my @rev = $f->{'cmap'}->reverse;
 my $num = $f->{'maxp'}->read->{'numGlyphs'};
 my $name = $f->{'name'}->read->find_name(4);
 
-# We have a limited number of glyphs, it may be needed to rework this for larger fonts
-my $MAX_GLYPH = 1500;
-if ($MAX_GLYPH < $num) {
-    print "ERROR, max number of glyphes exceeded";
-    exit(1);
-}
-
 # Open the header file
 open my $header, $map_header or die "Could not open $map_header: $!";
 
 # Create some temporary file
 my $tmp = new File::Temp( UNLINK => 0 );
 
+my $table_var_name = $name;
+$table_var_name =~ s/[^\w]/_/g;
+$table_var_name = 'emf2svg_fm_' . lc($table_var_name);
+
 # Read the header file line by line, and rewrite those line in the temporary file
 while(my $line = <$header>) {
     # if we hit this marker, we add the new reverse mapping structure
     # corresponding to the font we just used
-    if( $line eq "// Mappings END\n"){
-        print $tmp "{\"$name\", $num, {\n";
-        for (my $i = 0; $i < $MAX_GLYPH; $i++)
+    if( $line eq "// Mappings Collection END\n"){
+        print $tmp "{\"$name\", $num, $table_var_name},\n";
+    }
+    if( $line eq "// Mappings Table END\n"){
+	print $tmp "\nuint32_t ${table_var_name}\[\] = {\n";
+        for (my $i = 0; $i < $num; $i++)
         {
             my ($pname) = $p->{'VAL'}[$i];
             my ($uid) = $rev[$i];
@@ -58,7 +60,7 @@ while(my $line = <$header>) {
                 printf $tmp (" ");
             }
         }
-        print $tmp "},},\n"
+        print $tmp "};\n"
     }
     print $tmp "$line";
 }

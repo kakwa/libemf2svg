@@ -1004,7 +1004,7 @@ void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
 
 static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
                              size_t *out_len, char *font_name) {
-    uint16_t *map_table = NULL;
+    uint32_t *map_table = NULL;
     size_t max_index = 0;
     *out_len = 0;
     for (int i = 0; i < FONT_MAPS_COL_SIZE; i++) {
