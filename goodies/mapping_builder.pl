@@ -15,7 +15,7 @@ use File::Temp qw/ tempfile tempdir /;
 use File::Copy;
 
 # Recover the mapping header file
-my $map_header = dirname($0) . '/../inc/font_mapping.h';
+my $map_header = dirname($0) . '/../inc/font_mapping.c';
 
 # Open and parse the TTF font to recover cmap tables
 # and other information
