@@ -22,3 +22,4 @@
 | bad_corrupted_2016-02-02-225639.emf | large width rel4 bitmap (cause hangs on EOL)               |
 | bad_corrupted_2017-02-11-230400.emf | corruption of EMF+ Size field in HEADER                    |
 | bad_corrupted_2017-02-12-010400.emf | weird EMF+ record with funky type and datasize 0           |
+| bad_corrupted_2017-05-12-074000.emf | font index encoding with no font name set                  |

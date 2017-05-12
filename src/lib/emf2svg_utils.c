@@ -1007,11 +1007,13 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
     const uint32_t *map_table = NULL;
     size_t max_index = 0;
     *out_len = 0;
-    for (int i = 0; i < FONT_MAPS_COL_SIZE; i++) {
-        if (strcasecmp(font_maps[i].font_name, font_name) == 0) {
-            map_table = font_maps[i].uni;
-            max_index = font_maps[i].size;
-            break;
+    if (font_name) {
+        for (int i = 0; i < FONT_MAPS_COL_SIZE; i++) {
+            if (strcasecmp(font_maps[i].font_name, font_name) == 0) {
+                map_table = font_maps[i].uni;
+                max_index = font_maps[i].size;
+                break;
+            }
         }
     }
     if (map_table == NULL) {
@@ -1169,7 +1171,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         switch (states->currentDeviceContext.font_charset) {
         case U_ANSI_CHARSET:
             ret = enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
-                        "UTF-16LE");
+                              "UTF-16LE");
             break;
         case U_DEFAULT_CHARSET:
         case U_SYMBOL_CHARSET:
@@ -1197,7 +1199,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_CELTIC_CHARSET:
         default:
             ret = enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
-                        "UTF-16LE");
+                              "UTF-16LE");
             break;
         }
     } else {
@@ -1206,7 +1208,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         strncpy((char *)string, in, size_in);
         *size_out = size_in;
     }
-    if(ret != 0)
+    if (ret != 0)
         string = NULL;
 
     if (string == NULL) {
@@ -1248,7 +1250,8 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
     char *string = NULL;
     size_t string_size;
     if (pemt->fOptions & U_ETO_GLYPH_INDEX) {
-        returnOutOfEmf((intptr_t)(contents + pemt->offString) + 2 * (intptr_t)pemt->nChars);
+        returnOutOfEmf((intptr_t)(contents + pemt->offString) +
+                       2 * (intptr_t)pemt->nChars);
         fontindex_to_utf8((uint16_t *)(contents + pemt->offString),
                           pemt->nChars, &string, &string_size,
                           states->currentDeviceContext.font_family);
