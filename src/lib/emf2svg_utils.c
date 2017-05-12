@@ -1021,8 +1021,8 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
         max_index = font_maps[0].size;
     }
 
-    size_t buf_size_left = size_in;
-    char *buf = calloc(size_in, 1);
+    size_t buf_size_left = U_MAX(size_in, 5);
+    char *buf = calloc(buf_size_left, sizeof(char));
     if (!buf) {
         *out = NULL;
         return -1;
@@ -1068,10 +1068,10 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
                 buf_size_left--;
             }
         }
-        if (buf_size_left <= 5) {
+        if (buf_size_left <= 10) {
             char *ptr;
             size_t increase = 20;
-            ptr = realloc(buf, *out_len + increase);
+            ptr = realloc(buf, *out_len + increase + buf_size_left);
             if (!ptr) {
                 free(buf);
                 *out = NULL;
