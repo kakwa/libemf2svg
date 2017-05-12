@@ -1068,9 +1068,9 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
                 buf_size_left--;
             }
         }
-        if (buf_size_left <= 10) {
+        if (buf_size_left <= 5) {
             char *ptr;
-            size_t increase = 20;
+            size_t increase = 50;
             ptr = realloc(buf, *out_len + increase + buf_size_left);
             if (!ptr) {
                 free(buf);
@@ -1118,7 +1118,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
     nchars = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
     while (nchars == (size_t)-1 && errno == E2BIG) {
         char *ptr;
-        size_t increase = 10;
+        size_t increase = 50;
         size_t len;
         out_buf_len += increase;
         outbytesleft += increase;
@@ -1136,7 +1136,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
     }
     if (outbytesleft == 0) {
         char *ptr;
-        size_t increase = 10;
+        size_t increase = 50;
         out_buf_len += increase;
         outbytesleft += increase;
         ptr = realloc(*out, out_buf_len);
