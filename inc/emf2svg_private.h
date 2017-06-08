@@ -44,6 +44,7 @@ extern "C" {
 
 #define UNUSED(x) (void)(x)
 
+#define FONTINDEX 2
 #define UTF_16 1
 #define ASCII 0
 
