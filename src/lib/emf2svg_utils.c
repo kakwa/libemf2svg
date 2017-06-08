@@ -1161,18 +1161,58 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
     return 0;
 }
 
+void reverse_utf8(char *in, size_t size_in) {
+    /* this assumes that str is valid UTF-8 */
+    char *scanl, *scanr, *scanr2, c;
+
+    /* first reverse the string */
+    for ((scanl = in, scanr = in + size_in); scanl < scanr;) {
+        c = *scanl;
+        *scanl++ = *--scanr;
+        *scanr = c;
+    }
+
+    /* then scan all bytes and reverse each multibyte character */
+    scanl = scanr = in;
+    for (; (c = *scanr++);) {
+        if ((c & 0x80) == 0) // ASCII char
+            scanl = scanr;
+        else if ((c & 0xc0) == 0xc0) { // start of multibyte
+            scanr2 = scanr;
+            switch (scanr - scanl) {
+            case 4:
+                c = *scanl, *scanl++ = *--scanr, *scanr = c; // fallthrough
+            case 3:                                          // fallthrough
+            case 2:
+                c = *scanl, *scanl++ = *--scanr, *scanr = c;
+            }
+            scanr = scanl = scanr2;
+        }
+    }
+}
+
 void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
                   uint8_t type, drawingStates *states) {
     uint8_t *string;
     int ret = 0;
 
-    if (type == UTF_16) {
+    switch (type) {
+    case UTF_16:
         returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
+        ret = enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
+                          "UTF-16LE");
+
+        break;
+    case FONTINDEX:
+        returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
+        fontindex_to_utf8((uint16_t *)in, size_in, (char **)&string, size_out,
+                          states->currentDeviceContext.font_family);
         switch (states->currentDeviceContext.font_charset) {
-        case U_ANSI_CHARSET:
-            ret = enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
-                              "UTF-16LE");
+        case U_HEBREW_CHARSET:
+        case U_ARABIC_CHARSET:
+            reverse_utf8((char *)string, *size_out);
             break;
+        case U_ANSI_CHARSET:
         case U_DEFAULT_CHARSET:
         case U_SYMBOL_CHARSET:
         case U_SHIFTJIS_CHARSET:
@@ -1181,8 +1221,6 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_CHINESEBIG5_CHARSET:
         case U_GREEK_CHARSET:
         case U_TURKISH_CHARSET:
-        case U_HEBREW_CHARSET:
-        case U_ARABIC_CHARSET:
         case U_BALTIC_CHARSET:
         case U_RUSSIAN_CHARSET:
         case U_EASTEUROPE_CHARSET:
@@ -1198,11 +1236,10 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         case U_ISO10_CHARSET:
         case U_CELTIC_CHARSET:
         default:
-            ret = enc_to_utf8(in, 2 * size_in, (char **)&string, size_out,
-                              "UTF-16LE");
             break;
         }
-    } else {
+        break;
+    default:
         returnOutOfEmf((intptr_t)in + (intptr_t)size_in);
         string = (uint8_t *)calloc((size_in + 1), 1);
         strncpy((char *)string, in, size_in);
@@ -1250,15 +1287,11 @@ void text_draw(const char *contents, FILE *out, drawingStates *states,
     char *string = NULL;
     size_t string_size;
     if (pemt->fOptions & U_ETO_GLYPH_INDEX) {
-        returnOutOfEmf((intptr_t)(contents + pemt->offString) +
-                       2 * (intptr_t)pemt->nChars);
-        fontindex_to_utf8((uint16_t *)(contents + pemt->offString),
-                          pemt->nChars, &string, &string_size,
-                          states->currentDeviceContext.font_family);
-    } else {
-        text_convert((char *)(contents + pemt->offString), pemt->nChars,
-                     &string, &string_size, type, states);
+        type = FONTINDEX;
     }
+    text_convert((char *)(contents + pemt->offString), pemt->nChars, &string,
+                 &string_size, type, states);
+
     if (string != NULL) {
         fprintf(out, "<![CDATA[%s]]>", string);
         free(string);
