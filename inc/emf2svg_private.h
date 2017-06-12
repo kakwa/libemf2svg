@@ -539,6 +539,7 @@ void U_EMRSELECTCLIPPATH_draw(const char *contents, FILE *out,
                               drawingStates *states);
 void U_EMRABORTPATH_draw(const char *contents, FILE *out,
                          drawingStates *states);
+bool U_EMRCOMMENT_is_emfplus(const char *contents, const char *blimit);
 void U_EMRCOMMENT_draw(const char *contents, FILE *out, drawingStates *states,
                        const char *blimit, size_t off);
 void U_EMRFILLRGN_draw(const char *contents, FILE *out, drawingStates *states);

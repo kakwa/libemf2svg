@@ -12,6 +12,21 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
+bool U_EMRCOMMENT_is_emfplus(const char *contents, const char *blimit) {
+    char *src;
+    uint32_t cIdent, cbData;
+    bool ret = false;
+    PU_EMRCOMMENT pEmr = (PU_EMRCOMMENT)(contents);
+    cbData = pEmr->cbData;
+    src = (char *)&(pEmr->Data); // default
+    if (cbData >= 4) {
+        cIdent = *(uint32_t *)(src);
+        if (cIdent == U_EMR_COMMENT_EMFPLUSRECORD)
+            ret = true;
+    }
+    return ret;
+}
+
 void U_EMRCOMMENT_draw(const char *contents, FILE *out, drawingStates *states,
                        const char *blimit, size_t off) {
     FLAG_IGNORED;

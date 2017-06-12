@@ -27,6 +27,8 @@ typedef struct {
 // covert function
 int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
             generatorOptions *options);
+
+int emf2svg_is_emfplus(char *contents, size_t length, bool *is_emfp);
 //! \endcond
 
 #ifdef __cplusplus

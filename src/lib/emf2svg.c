@@ -15,6 +15,33 @@ extern "C" {
 #include "memstream.c"
 #endif
 
+int U_emf_onerec_is_emfp(const char *contents, const char *blimit, int recnum,
+                         size_t off, bool *ret) {
+    PU_ENHMETARECORD lpEMFR = (PU_ENHMETARECORD)(contents + off);
+    unsigned int size;
+
+    size = lpEMFR->nSize;
+    contents += off;
+
+    /* Check that the record size is OK, abort if not.
+       Pointer math might wrap, so check both sides of the range */
+    if (size < sizeof(U_EMR) || contents + size - 1 >= blimit ||
+        contents + size - 1 < contents)
+        return (-1);
+
+    switch (lpEMFR->iType) {
+    case U_EMR_COMMENT:
+        *ret |= U_EMRCOMMENT_is_emfplus(contents, blimit);
+        break;
+    case U_EMR_EOF:
+        size = 0;
+        break;
+    default:
+        break;
+    }
+    return (size);
+}
+
 int U_emf_onerec_analyse(const char *contents, const char *blimit, int recnum,
                          size_t off, drawingStates *states) {
     PU_ENHMETARECORD lpEMFR = (PU_ENHMETARECORD)(contents + off);
@@ -618,6 +645,7 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
     } // end of switch
     return (size);
 }
+
 int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
             generatorOptions *options) {
     size_t off = 0;
@@ -770,6 +798,56 @@ int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
     fflush(stream);
     fclose(stream);
 
+    return err;
+}
+
+int emf2svg_is_emfplus(char *contents, size_t length, bool *is_emfp) {
+    size_t off = 0;
+    size_t result;
+    int OK = 1;
+    int recnum = 0;
+    PU_ENHMETARECORD pEmr;
+    char *blimit;
+    *is_emfp = false;
+
+#if U_BYTE_SWAP
+    // This is a Big Endian machine, EMF data is Little Endian
+    U_emf_endian(contents, length, 0); // LE to BE
+#endif
+
+    blimit = contents + length;
+    int err = 1;
+
+    // analyze emf structure
+    while (OK) {
+        if (off >= length) { // normally should exit from while after EMREOF
+                             // sets OK to false, this is most likely a corrupt
+                             // EMF
+            OK = 0;
+            err = 0;
+        }
+
+        pEmr = (PU_ENHMETARECORD)(contents + off);
+
+        if (!recnum && (pEmr->iType != U_EMR_HEADER)) {
+            OK = 0;
+            err = 0;
+        }
+        if (recnum && (pEmr->iType == U_EMR_HEADER)) {
+            OK = 0;
+            err = 0;
+        }
+
+        result = U_emf_onerec_is_emfp(contents, blimit, recnum, off, is_emfp);
+        if (result == (size_t)-1) {
+            OK = 0;
+        } else if (!result) {
+            OK = 0;
+        } else {
+            off += result;
+            recnum++;
+        }
+    } // end of while
     return err;
 }
 

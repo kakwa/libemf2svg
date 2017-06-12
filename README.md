@@ -100,8 +100,10 @@ $ ./emf2svg-conv -i ./tests/resources/emf/test-037.emf -o example.svg -v
 Library
 -------
 
-Shorten example ([complete example here](https://github.com/kakwa/libemf2svg/blob/master/goodies/example.c)):
+Shorten examples ([complete example here](https://github.com/kakwa/libemf2svg/blob/master/goodies/example.c)):
 
+
+Conversion from EMF to SVG:
 ```C
 #include <emf2svg.h>
 //[...]
@@ -144,6 +146,26 @@ int main(int argc, char *argv[]){
     /***********************************************************************/
 
     //[...]
+}
+```
+
+Check document for EMF+ presence:
+```C
+int main(int argc, char *argv[]){
+
+    /* emf content size */
+    size_t emf_size;
+    /* emf content */
+    char * emf_content;
+    /* svg output string */
+    char *svg_out = NULL;
+    /* svg output length */
+    size_t svg_out_len = 0;
+
+    bool emfplus;
+    int ret = emf2svg_is_emfplus(emf_content, emf_size, &emfplus);
+    if(emfplus)
+        fprintf(stdout,"%s contains EMF+ records\n", file_name);
 }
 ```
 
