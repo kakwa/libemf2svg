@@ -1210,17 +1210,17 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         switch (states->currentDeviceContext.font_charset) {
         case U_HEBREW_CHARSET:
         case U_ARABIC_CHARSET:
-	    /* with Utf-8 strings, the strings must always be
-	     * stored in logical order, not visual order.
-	     * Unicode Bidirectional (bidi) Algorithm does the work
-	     * of rendering the text properly.
-	     * So we reverse the text to be in logical order.
-	     * However, this seems imcomplete,
-	     * Right to Left ordering can also be set in
-	     * ExtTextOutOptions (EMR_*TEXTOUT* records) and EMR_SETLAYOUT
-	     * records, and it's completely ignored here.
-	     * FIXME this is probably to simplistic.
-	     */
+            /* with Utf-8 strings, the strings must always be
+             * stored in logical order, not visual order.
+             * Unicode Bidirectional (bidi) Algorithm does the work
+             * of rendering the text properly.
+             * So we reverse the text to be in logical order.
+             * However, this seems imcomplete,
+             * Right to Left ordering can also be set in
+             * ExtTextOutOptions (EMR_*TEXTOUT* records) and EMR_SETLAYOUT
+             * records, and it's completely ignored here.
+             * FIXME this is probably to simplistic.
+             */
             reverse_utf8((char *)string, *size_out);
             break;
         case U_ANSI_CHARSET:

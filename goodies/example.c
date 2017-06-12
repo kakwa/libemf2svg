@@ -16,10 +16,23 @@ int main(int argc, char *argv[]){
     if (fd < 0){fprintf(stderr, "file access failed\n"); exit(1);}
     fstat (fd, &s); 
 
+    /* return code for check and conversion */
+    int ret;
+
     /* emf content size */
     size_t emf_size = s.st_size;
     /* emf content */
     char * emf_content = mmap(0, emf_size, PROT_READ, MAP_PRIVATE, fd, 0);
+
+    /************************** check if emf+ records in emf file **********/
+
+    bool emfplus;
+    ret = emf2svg_is_emfplus(emf_content, emf_size, &emfplus);
+    if(emfplus)
+        fprintf(stdout,"%s contains EMF+ records\n", file_name);
+
+    /***********************************************************************/
+
     /* svg output string */
     char *svg_out = NULL;
     /* svg output length */
@@ -46,7 +59,7 @@ int main(int argc, char *argv[]){
 
     /***************************** conversion ******************************/
 
-    int ret = emf2svg(emf_content, emf_size, &svg_out, &svg_out_len, options);
+    ret = emf2svg(emf_content, emf_size, &svg_out, &svg_out_len, options);
 
     /***********************************************************************/
 
