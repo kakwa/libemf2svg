@@ -149,7 +149,7 @@ int main(int argc, char *argv[]){
 }
 ```
 
-Check document for EMF+ presence:
+Check document for EMF+ record presence:
 ```C
 int main(int argc, char *argv[]){
 
