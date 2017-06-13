@@ -24,13 +24,6 @@ int main(int argc, char *argv[]){
     /* emf content */
     char * emf_content = mmap(0, emf_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-    /************************** check if emf+ records in emf file **********/
-
-    bool emfplus;
-    ret = emf2svg_is_emfplus(emf_content, emf_size, &emfplus);
-    if(emfplus)
-        fprintf(stdout,"%s contains EMF+ records\n", file_name);
-
     /***********************************************************************/
 
     /* svg output string */
