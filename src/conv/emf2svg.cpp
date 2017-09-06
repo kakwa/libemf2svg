@@ -17,12 +17,12 @@
 // <<<<<<<<<<<<<<<<<<< END ORIGINAL HEADER >>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 #include "emf2svg.h"
-#include <argp.h>
-#undef __attributes__
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string.h>
+// needs to be at the end #define in argp.h messing with other includes
+#include <argp.h>
 
 using namespace std;
 
