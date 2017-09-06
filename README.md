@@ -175,6 +175,10 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.0.2:
+
+* Fixing compilation on CentOS 7 (work around argp bug)
+
 1.0.1:
 
 * cleaner handling of memstream on OSX (don't install libmemstream, just embed it)
