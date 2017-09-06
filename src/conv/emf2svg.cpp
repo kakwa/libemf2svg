@@ -18,6 +18,7 @@
 
 #include "emf2svg.h"
 #include <argp.h>
+#undef __attributes__
 #include <fstream>
 #include <iostream>
 #include <sstream>
