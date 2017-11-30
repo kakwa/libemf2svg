@@ -141,11 +141,19 @@ target_link_libraries(emf2svg-conv
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
 
+if (NOT LIB_INSTALL_DIR)
+    set(LIB_INSTALL_DIR lib)
+endif ()
+
+if (NOT BIN_INSTALL_DIR)
+    set(BIN_INSTALL_DIR bin)
+endif ()
+
 # install binaries and library
 INSTALL(TARGETS emf2svg emf2svg-conv
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+  LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+  ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
 )
 
 # install header file
