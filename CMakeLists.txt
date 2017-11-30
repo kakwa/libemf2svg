@@ -149,6 +149,11 @@ if (NOT BIN_INSTALL_DIR)
     set(BIN_INSTALL_DIR bin)
 endif ()
 
+if (NOT INCLUDE_INSTALL_DIR)
+    set(INCLUDE_INSTALL_DIR include)
+endif ()
+
+
 # install binaries and library
 INSTALL(TARGETS emf2svg emf2svg-conv
   RUNTIME DESTINATION ${BIN_INSTALL_DIR}
@@ -157,4 +162,4 @@ INSTALL(TARGETS emf2svg emf2svg-conv
 )
 
 # install header file
-INSTALL(FILES inc/emf2svg.h DESTINATION "include")
+INSTALL(FILES inc/emf2svg.h DESTINATION ${INCLUDE_INSTALL_DIR})
