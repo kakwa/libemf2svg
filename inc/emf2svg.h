@@ -22,13 +22,23 @@ typedef struct {
     double imgHeight;
     // width of the target image
     double imgWidth;
+    // font index, used to convert ETO_GLYPH_INDEX encoding
+    // (pseudo "encoding" based on ttf charmap indexes)
+    void *font_index;
 } generatorOptions;
 
-// covert function
+// convert function
 int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
             generatorOptions *options);
 
+// check if emf file contains emf+ records
 int emf2svg_is_emfplus(char *contents, size_t length, bool *is_emfp);
+
+// scan a list of directories to build a font index (index[<FONT_NAME>] = <FONT_PATH>)
+int emf2svg_gen_font_index(char **font_paths, void *font_index);
+
+// free the font index
+int emf2svg_free_font_index(void *font_index);
 //! \endcond
 
 #ifdef __cplusplus
