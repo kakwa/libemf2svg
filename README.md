@@ -197,6 +197,12 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.1.0:
+
+* add handling of font index encoding
+* add fontconfig dependency
+* add freetype dependency
+
 1.0.3:
 
 * Fixing compilation on CentOS 7 (work around argp bug)
