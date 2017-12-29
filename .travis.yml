@@ -3,6 +3,7 @@ matrix:
     - os: linux
       dist: trusty
     - os: osx
+      env: OPTS=-n
 
 sudo: required
 
@@ -28,4 +29,4 @@ language: cpp
 
 compiler: clang
 
-script: cmake . -DFORCELE=ON && make && ./tests/resources/check_correctness.sh  -r -s && ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
+script: cmake . -DFORCELE=ON && make && ./tests/resources/check_correctness.sh  -r -s $OPTS && ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN $OPTS
