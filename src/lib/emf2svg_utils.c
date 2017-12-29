@@ -7,7 +7,6 @@ extern "C" {
 #endif
 #include "emf2svg_private.h"
 #include "emf2svg_print.h"
-#include "font_mapping.c"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +14,9 @@ extern "C" {
 #include <strings.h>
 #include <iconv.h>
 #include <errno.h>
+#include <ft2build.h>
+#include <fontconfig/fontconfig.h>
+#include FT_FREETYPE_H
 
 void U_EMRNOTIMPLEMENTED_draw(const char *name, const char *contents, FILE *out,
                               drawingStates *states) {
@@ -1002,23 +1004,195 @@ void text_style_draw(FILE *out, drawingStates *states, POINT_D Org) {
     fprintf(out, "font-size=\"%.4f\" ", font_height);
 }
 
+// get the closest ttf file matching font_family, weight, italic
+static int get_fontpath(char *font_family, int weight, int italic,
+                        char **path) {
+    FcPattern *pat;
+    FcObjectSet *os = 0;
+    FcResult result;
+    FcPattern *match;
+    FcFontSet *fs;
+
+    pat = FcNameParse((FcChar8 *)font_family);
+    if (!pat) {
+        return 1;
+    }
+
+    FcConfigSubstitute(0, pat, FcMatchPattern);
+    // FcDefaultSubstitute(pat);
+    int fcweight;
+
+    if (italic)
+        FcPatternAddInteger(pat, FC_SLANT, FC_SLANT_ITALIC);
+    if (weight) {
+        switch (weight) {
+        case U_PAN_WEIGHT_VERY_LIGHT:
+            fcweight = FC_WEIGHT_EXTRALIGHT;
+            break;
+        case U_PAN_WEIGHT_LIGHT:
+            fcweight = FC_WEIGHT_LIGHT;
+            break;
+        case U_PAN_WEIGHT_THIN:
+            fcweight = FC_WEIGHT_THIN;
+            break;
+        case U_PAN_WEIGHT_BOOK:
+            fcweight = FC_WEIGHT_BOOK;
+            break;
+        case U_PAN_WEIGHT_MEDIUM:
+            fcweight = FC_WEIGHT_MEDIUM;
+            break;
+        case U_PAN_WEIGHT_DEMI:
+            fcweight = FC_WEIGHT_DEMIBOLD;
+            break;
+        case U_PAN_WEIGHT_BOLD:
+            fcweight = FC_WEIGHT_BOLD;
+            break;
+        case U_PAN_WEIGHT_HEAVY:
+            fcweight = FC_WEIGHT_HEAVY;
+            break;
+        case U_PAN_WEIGHT_BLACK:
+            fcweight = FC_WEIGHT_BLACK;
+            break;
+        case U_PAN_WEIGHT_NORD:
+            fcweight = FC_WEIGHT_BLACK;
+            break;
+        default:
+            fcweight = FC_WEIGHT_BOLD;
+        }
+        FcPatternAddInteger(pat, FC_WEIGHT, fcweight);
+    }
+
+    match = FcFontMatch(0, pat, &result);
+
+    fs = FcFontSetCreate();
+    if (match)
+        FcFontSetAdd(fs, match);
+    FcPatternDestroy(pat);
+
+    if (fs) {
+        int j;
+        for (j = 0; j < fs->nfont; j++) {
+            FcPattern *font;
+
+            font = FcPatternFilter(fs->fonts[j], os);
+            char *tmp;
+
+            // FcPatternPrint (font);
+            FcPatternGetString(font, FC_FILE, 0, (FcChar8 **)&tmp);
+            *path = (char *)calloc(strlen(tmp) + 1, sizeof(char));
+            strcpy(*path, tmp);
+            FcPatternDestroy(font);
+        }
+        FcFontSetDestroy(fs);
+    }
+
+    if (os)
+        FcObjectSetDestroy(os);
+
+    FcFini();
+
+    return 0;
+}
+
+// genrate the reverse cmap from the ttf file
+static int cmap_rev(const char *fpath, cmap_collection *rcmap) {
+    FT_Library library;
+
+    int error = FT_Init_FreeType(&library);
+    FT_Face face;
+    if (error) {
+        return 1;
+    }
+
+    error = FT_New_Face(library, fpath, 0, &face);
+    if (error == FT_Err_Unknown_File_Format) {
+        // printf("%s not a font\n", fpath);
+        return 1;
+    } else if (error) {
+        // printf("unknowm error %d\n", error);
+        return 1;
+    } else {
+        // printf("font %s | name %s | style %s\n", fpath, face->family_name,
+        // face->style_name);
+        // printf("%d\n", face->num_charmaps);
+        int rmap_s = 1000;
+        rcmap->uni = malloc(rmap_s * sizeof(uint32_t));
+        FT_Select_Charmap(face, FT_ENCODING_UNICODE);
+        FT_UInt gindex = 0;
+        FT_ULong charcode = FT_Get_First_Char(face, &gindex);
+        while (gindex != 0) {
+            if (gindex >= rmap_s) {
+                rmap_s += 1000;
+                uint32_t *tmp = realloc(rcmap->uni, sizeof(uint32_t) * rmap_s);
+                // free(rcmap->uni);
+                rcmap->uni = tmp;
+            }
+            // printf("index: %d | charcode %d\n", gindex, charcode);
+            rcmap->uni[gindex] = charcode;
+            charcode = FT_Get_Next_Char(face, charcode, &gindex);
+        }
+        rcmap->size = rmap_s;
+        FT_Done_Face(face);
+        FT_Done_FreeType(library);
+    }
+    return 0;
+}
+
+// generate the reverse cmap of a given font_family
+static int gen_reverse_map(char *font_family, int weight, bool italic,
+                           cmap_collection *rcmap) {
+    char *path = NULL;
+    int ret = 0;
+    ret = get_fontpath(font_family, weight, italic, &path);
+    if (ret) {
+        // printf("error while search font");
+        free(path);
+        return 1;
+    }
+    ret = cmap_rev(path, rcmap);
+    if (ret) {
+        // printf("error while generating reverse mapping");
+        free(path);
+        return 1;
+    }
+    free(path);
+    return 0;
+}
+
+/*
+ * EMF files can contain weird "encoding".
+ * This file handles one of those:
+ * if ETO_GLYPH_INDEX is set in *TEXTOUT options,
+ * the encoding of a char is basically the index
+ * of its corresponding glyph inside the font ttf file.
+ *
+ * That's great... Thanks a lot Microsoft for this crappy scheme.
+ *
+ * To handle this case, we define some reverse mapping tables
+ * (index of glyph -> unicode).
+ *
+ * Recovering the ttf file is done using fontconfig (function: get_fontpath).
+ * The reverse mapping is done with freetype (function: cmap_rev).
+ *
+ * The .ttf font must be present on your system and properly indexed by
+ * fontconfig
+ *
+ */
+
 static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
-                             size_t *out_len, char *font_name) {
+                             size_t *out_len, char *font_name, int weight,
+                             bool italic) {
     const uint32_t *map_table = NULL;
     size_t max_index = 0;
     *out_len = 0;
-    if (font_name) {
-        for (int i = 0; i < FONT_MAPS_COL_SIZE; i++) {
-            if (strcasecmp(font_maps[i].font_name, font_name) == 0) {
-                map_table = font_maps[i].uni;
-                max_index = font_maps[i].size;
-                break;
-            }
-        }
-    }
+    cmap_collection rcmap;
+    rcmap.uni = NULL;
+    gen_reverse_map(font_name, weight, italic, &rcmap);
+    map_table = rcmap.uni;
+    max_index = rcmap.size;
+
     if (map_table == NULL) {
-        map_table = font_maps[0].uni;
-        max_index = font_maps[0].size;
+        return 1;
     }
 
     size_t buf_size_left = U_MAX(size_in, 5);
@@ -1074,6 +1248,7 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
             ptr = realloc(buf, *out_len + increase + buf_size_left);
             if (!ptr) {
                 free(buf);
+                free(rcmap.uni);
                 *out = NULL;
                 return -1;
             }
@@ -1081,6 +1256,7 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
             buf = ptr;
         }
     }
+    free(rcmap.uni);
     buf[*out_len] = '\0';
     *out = buf;
     return 0;
@@ -1206,7 +1382,9 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
     case FONTINDEX:
         returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
         fontindex_to_utf8((uint16_t *)in, size_in, (char **)&string, size_out,
-                          states->currentDeviceContext.font_family);
+                          states->currentDeviceContext.font_family,
+                          states->currentDeviceContext.font_weight,
+                          states->currentDeviceContext.font_italic);
         switch (states->currentDeviceContext.font_charset) {
         case U_HEBREW_CHARSET:
         case U_ARABIC_CHARSET:
