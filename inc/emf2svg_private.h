@@ -312,6 +312,11 @@ typedef struct {
     emfImageLibrary *library;
 } drawingStates;
 
+typedef struct cmap_collection {
+    size_t size;
+    uint32_t *uni;
+} cmap_collection;
+
 #define U_MWT_SET 4 //!< Transform is basic SET
 
 #define BUFFERSIZE 1024
