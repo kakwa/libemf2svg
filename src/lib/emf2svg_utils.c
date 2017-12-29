@@ -1116,14 +1116,17 @@ static int cmap_rev(const char *fpath, cmap_collection *rcmap) {
         // face->style_name);
         // printf("%d\n", face->num_charmaps);
         int rmap_s = 1000;
-        rcmap->uni = malloc(rmap_s * sizeof(uint32_t));
+        rcmap->uni = calloc(rmap_s, sizeof(uint32_t));
         FT_Select_Charmap(face, FT_ENCODING_UNICODE);
         FT_UInt gindex = 0;
         FT_ULong charcode = FT_Get_First_Char(face, &gindex);
         while (gindex != 0) {
             if (gindex >= rmap_s) {
+                int old_rmap_s = rmap_s;
                 rmap_s += 1000;
                 uint32_t *tmp = realloc(rcmap->uni, sizeof(uint32_t) * rmap_s);
+                for (int i = old_rmap_s; i < rmap_s; i++)
+                    tmp[i] = 0;
                 // free(rcmap->uni);
                 rcmap->uni = tmp;
             }
