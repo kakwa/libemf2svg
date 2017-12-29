@@ -1190,6 +1190,8 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
     *out_len = 0;
     cmap_collection rcmap;
     rcmap.uni = NULL;
+    if (font_name == NULL)
+        return 1;
     gen_reverse_map(font_name, weight, italic, &rcmap);
     map_table = rcmap.uni;
     max_index = rcmap.size;
