@@ -7,7 +7,11 @@ set(emf2svg_VERSION_MAJOR 1)
 set(emf2svg_VERSION_MINOR 0)
 set(emf2svg_VERSION_PATCH 3)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+
 find_package(PNG REQUIRED)
+find_package(Freetype REQUIRED)
+find_package(Fontconfig REQUIRED)
 
 set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
@@ -89,6 +93,8 @@ LINK_DIRECTORIES(
 include_directories(
     ./inc/
     ${PNG_INCLUDE_DIRS}
+    ${FREETYPE_INCLUDE_DIRS}
+    ${FONTCONFIG_INCLUDE_DIR}
     /usr/include/ 
     /sw/include/
 )
@@ -131,6 +137,8 @@ target_link_libraries(emf2svg
     ${PNG_LIBRARIES}
     ${EXTERNAL_ICONV}
     ${EXTERNAL_ARGP}
+    ${FREETYPE_LIBRARIES}
+    ${FONTCONFIG_LIBRARIES}
 ) 
 
 
