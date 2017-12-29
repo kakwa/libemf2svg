@@ -98,13 +98,14 @@ int rgndata_safe(PU_RGNDATA rd, int cbRgnData) {
 */
 int bitmapinfo_safe(const char *Bmi, const char *blimit) {
     int ClrUsed;
-    if (IS_MEM_UNSAFE(Bmi, offsetof(U_BITMAPINFO, bmiHeader) +
-                               sizeof(U_BITMAPINFOHEADER),
-                      blimit))
+    if (IS_MEM_UNSAFE(
+            Bmi, offsetof(U_BITMAPINFO, bmiHeader) + sizeof(U_BITMAPINFOHEADER),
+            blimit))
         return (0);
     ClrUsed = get_real_color_count(Bmi + offsetof(U_BITMAPINFO, bmiHeader));
-    if (ClrUsed && IS_MEM_UNSAFE(Bmi, offsetof(U_BITMAPINFO, bmiColors) +
-                                          ClrUsed * sizeof(U_RGBQUAD),
+    if (ClrUsed && IS_MEM_UNSAFE(Bmi,
+                                 offsetof(U_BITMAPINFO, bmiColors) +
+                                     ClrUsed * sizeof(U_RGBQUAD),
                                  blimit))
         return (0);
     return (1);

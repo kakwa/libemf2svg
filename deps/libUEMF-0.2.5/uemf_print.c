@@ -398,14 +398,15 @@ void bitmapinfo_print(const char *Bmi, const char *blimit) {
     int ClrUsed;
     U_RGBQUAD BmiColor;
     printf("BmiHeader: ");
-    IF_MEM_UNSAFE_PRINT_AND_RETURN(Bmi, offsetof(U_BITMAPINFO, bmiHeader) +
-                                            sizeof(U_BITMAPINFOHEADER),
-                                   blimit);
+    IF_MEM_UNSAFE_PRINT_AND_RETURN(
+        Bmi, offsetof(U_BITMAPINFO, bmiHeader) + sizeof(U_BITMAPINFOHEADER),
+        blimit);
     ClrUsed = bitmapinfoheader_print(Bmi + offsetof(U_BITMAPINFO, bmiHeader));
     if (ClrUsed) {
         k = offsetof(U_BITMAPINFO, bmiColors);
-        IF_MEM_UNSAFE_PRINT_AND_RETURN(Bmi, offsetof(U_BITMAPINFO, bmiColors) +
-                                                ClrUsed * sizeof(U_RGBQUAD),
+        IF_MEM_UNSAFE_PRINT_AND_RETURN(Bmi,
+                                       offsetof(U_BITMAPINFO, bmiColors) +
+                                           ClrUsed * sizeof(U_RGBQUAD),
                                        blimit);
         for (i = 0; i < ClrUsed; i++, k += sizeof(U_RGBQUAD)) {
             memcpy(&BmiColor, Bmi + k, sizeof(U_RGBQUAD));
