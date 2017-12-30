@@ -1189,7 +1189,7 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
     *out_len = 0;
     cmap_collection rcmap;
     rcmap.uni = NULL;
-    if (font_name == NULL){
+    if (font_name == NULL) {
         *out = NULL;
         return 1;
     }
@@ -1200,7 +1200,7 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
         return 1;
     }
 
-    if (rcmap.uni && ret){
+    if (rcmap.uni && ret) {
         free(rcmap.uni);
         *out = NULL;
         return 1;
@@ -1392,10 +1392,11 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         break;
     case FONTINDEX:
         returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
-        ret = fontindex_to_utf8((uint16_t *)in, size_in, (char **)&string, size_out,
-                          states->currentDeviceContext.font_family,
-                          states->currentDeviceContext.font_weight,
-                          states->currentDeviceContext.font_italic);
+        ret = fontindex_to_utf8((uint16_t *)in, size_in, (char **)&string,
+                                size_out,
+                                states->currentDeviceContext.font_family,
+                                states->currentDeviceContext.font_weight,
+                                states->currentDeviceContext.font_italic);
         switch (states->currentDeviceContext.font_charset) {
         case U_HEBREW_CHARSET:
         case U_ARABIC_CHARSET:
@@ -1440,7 +1441,8 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         }
         break;
     default:
-        if (checkOutOfEMF(states, (intptr_t)((intptr_t)in + (intptr_t)size_in))) {
+        if (checkOutOfEMF(states,
+                          (intptr_t)((intptr_t)in + (intptr_t)size_in))) {
             string = NULL;
             return;
         }
