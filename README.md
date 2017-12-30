@@ -26,6 +26,8 @@ Dependencies
 
 * libiconv
 * libpng
+* libfontconfig
+* libfreetype
 
 Installing the dependencies on Debian:
 
@@ -39,13 +41,16 @@ $ apt-get install clang
 $ apt-get install cmake
 
 # library deps with their headers
-$ apt-get install libpng-dev libc6-dev
+$ apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev
 ```
 
 Installing the dependencies on OS X:
 ```bash
 $ brew install argp-standalone
 ```
+
+Also note that in some rare cases, to properly handle text fields (ETO_GLYPH_INDEX flag), the ttf font
+used by the documents must be present and indexed (fontconfig) on your system.
 
 Building
 --------
@@ -202,6 +207,7 @@ ChangeLogs
 * add handling of font index encoding
 * add fontconfig dependency
 * add freetype dependency
+* add common variables LIB_INSTALL_DIR, BIN_INSTALL_DIR, INCLUDE_INSTALL_DIR to set install directories
 
 1.0.3:
 
