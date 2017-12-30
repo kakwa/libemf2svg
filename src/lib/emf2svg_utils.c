@@ -1185,18 +1185,24 @@ static int gen_reverse_map(char *font_family, int weight, bool italic,
 static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
                              size_t *out_len, char *font_name, int weight,
                              bool italic) {
-    const uint32_t *map_table = NULL;
-    size_t max_index = 0;
+    int ret;
     *out_len = 0;
     cmap_collection rcmap;
     rcmap.uni = NULL;
-    if (font_name == NULL)
+    if (font_name == NULL){
+        *out = NULL;
         return 1;
-    gen_reverse_map(font_name, weight, italic, &rcmap);
-    map_table = rcmap.uni;
-    max_index = rcmap.size;
+    }
+    ret = gen_reverse_map(font_name, weight, italic, &rcmap);
 
-    if (map_table == NULL) {
+    if (rcmap.uni == NULL) {
+        *out = NULL;
+        return 1;
+    }
+
+    if (rcmap.uni && ret){
+        free(rcmap.uni);
+        *out = NULL;
         return 1;
     }
 
@@ -1209,8 +1215,8 @@ static int fontindex_to_utf8(uint16_t *in, size_t size_in, char **out,
 
     for (int i = 0; i < size_in; i++) {
         uint16_t index = in[i];
-        uint32_t codepoint = map_table[index];
-        if (index < max_index) {
+        uint32_t codepoint = rcmap.uni[index];
+        if (index < rcmap.size) {
             if (codepoint <= 0x7f) {
                 buf[*out_len] = (codepoint & 0x7f);
                 (*out_len)++;
@@ -1276,14 +1282,14 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
     cd = iconv_open("UTF-8", from_enc);
     if (cd == (iconv_t)-1) {
         *out = NULL;
-        return -1;
+        return 1;
     }
 
     inbytesleft = size_in;
     if (inbytesleft == 0) {
         iconv_close(cd);
         *out = NULL;
-        return -1;
+        return 1;
     }
     inbuf = in;
     out_buf_len = inbytesleft;
@@ -1291,7 +1297,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
     if (!*out) {
         iconv_close(cd);
         *out = NULL;
-        return -1;
+        return 1;
     }
     outbytesleft = out_buf_len;
     outbuf = *out;
@@ -1308,7 +1314,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
             free(*out);
             iconv_close(cd);
             *out = NULL;
-            return -1;
+            return 1;
         }
         len = outbuf - *out;
         *out = ptr;
@@ -1325,7 +1331,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
             free(*out);
             iconv_close(cd);
             *out = NULL;
-            return -1;
+            return 1;
         }
         *out = ptr;
     }
@@ -1333,7 +1339,7 @@ static int enc_to_utf8(char *in, size_t size_in, char **out, size_t *out_len,
         free(*out);
         iconv_close(cd);
         *out = NULL;
-        return -1;
+        return 1;
     }
 
     iconv_close(cd);
@@ -1386,7 +1392,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         break;
     case FONTINDEX:
         returnOutOfEmf((intptr_t)in + 2 * (intptr_t)size_in);
-        fontindex_to_utf8((uint16_t *)in, size_in, (char **)&string, size_out,
+        ret = fontindex_to_utf8((uint16_t *)in, size_in, (char **)&string, size_out,
                           states->currentDeviceContext.font_family,
                           states->currentDeviceContext.font_weight,
                           states->currentDeviceContext.font_italic);
@@ -1434,7 +1440,11 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         }
         break;
     default:
-        returnOutOfEmf((intptr_t)in + (intptr_t)size_in);
+        if (checkOutOfEMF(states, (intptr_t)((intptr_t)in + (intptr_t)size_in))) {
+            string = NULL;
+            return;
+        }
+
         string = (uint8_t *)calloc((size_in + 1), 1);
         strncpy((char *)string, in, size_in);
         *size_out = size_in;
