@@ -167,7 +167,9 @@ void U_EMRSETMETARGN_draw(const char *contents, FILE *out,
 }
 void U_EMRSETMITERLIMIT_draw(const char *contents, FILE *out,
                              drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_SUPPORTED;
+    PU_EMRSETMITERLIMIT pEmr = (PU_EMRSETMITERLIMIT)(contents);
+    states->currentDeviceContext.miterLimit = pEmr->eMiterLimit;
     if (states->verbose) {
         U_EMRSETMITERLIMIT_print(contents, states);
     }

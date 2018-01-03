@@ -928,6 +928,10 @@ void stroke_draw(drawingStates *states, FILE *out, bool *filled,
         break;
     case U_PS_JOIN_MITER:
         fprintf(out, " stroke-linejoin=\"miter\" ");
+        if (states->currentDeviceContext.miterLimit)
+            fprintf(out, " stroke-miterlimit=\"%.4f\" ",
+                    states->scaling *
+                        (double)states->currentDeviceContext.miterLimit);
         break;
     default:
         break;
@@ -1627,7 +1631,14 @@ bool transform_set(drawingStates *states, U_XFORM xform, uint32_t iMode) {
     }
 }
 void width_stroke(drawingStates *states, FILE *out, double width) {
-    fprintf(out, "stroke-width=\"%.4f\" ", width * states->scaling);
+    double tmp_w = scaleX(states, width);
+    // minimum size of a line seems to be 1px, even if smaller after resize
+    // keeping this behavior
+    if ((tmp_w / states->scaling) < 1.0) {
+        fprintf(out, "stroke-width=\"1px\" ");
+    } else {
+        fprintf(out, "stroke-width=\"%.4f\" ", tmp_w);
+    }
 }
 
 static char encoding_table[] = {

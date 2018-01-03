@@ -149,6 +149,7 @@ typedef struct emf_device_context {
     uint8_t font_charset;
 
     uint32_t stretchMode;
+    uint32_t miterLimit;
 
     int16_t arcdir;
 
