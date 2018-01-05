@@ -40,5 +40,8 @@ out
 # external build directory
 external-build
 
+coverage
+emf2svg-test
+
 # exceptions
 !tests/resources/filesmasher-master/Makefile

@@ -22,36 +22,30 @@ add_custom_target(tag
 
 
 # set version as a definition
-set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 
 # Options
-option(DEBUG     "compile with debug symbol"    OFF)
+option(GCOV      "compile with gcov support"    OFF)
+option(UNITTEST  "compile unit tests"           OFF)
 option(INDEX     "print record indexes"         OFF)
 option(STATIC    "compile statically"           OFF)
-option(USE_CLANG "build application with clang" OFF)
-option(USE_GCC   "build application with gcc"   OFF)
 option(FORCELE   "force little endian architecture"   OFF)
+
+if(GCOV)
+  SET(UNITTEST ON)
+  SET(CMAKE_BUILD_TYPE "Debug")
+endif(GCOV)
 
 if(INDEX)
     set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -DRECORD_INDEX='true'")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DRECORD_INDEX='true'")
 endif(INDEX)
 
-if(USE_CLANG)
-    set(CMAKE_CXX_COMPILER "clang++")
-    set(CMAKE_CC_COMPILER  "clang"  )
-endif(USE_CLANG)
-
-if(USE_GCC)
-    set(CMAKE_CXX_COMPILER "g++")
-    set(CMAKE_CC_COMPILER  "gcc")
-endif(USE_GCC)
-
-if(DEBUG)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
     set(CMAKE_BUILD_TYPE Debug)
-endif(DEBUG)
+endif()
 
 if(STATIC)
     set(SHARED "")
@@ -141,10 +135,29 @@ target_link_libraries(emf2svg
     ${FONTCONFIG_LIBRARIES}
 ) 
 
-
 target_link_libraries(emf2svg-conv
     emf2svg
 )
+
+if(GCOV)
+  Set(COVERAGE_EXCLUDES '*conv*' '*uemf*' '*upmf*' '*tests*' '*c++*')
+  include(CodeCoverage)
+  setup_target_for_coverage(NAME coverage
+    EXECUTABLE emf2svg-test ./tests/resources/emf*/*
+    DEPENDENCIES emf2svg-test
+    )
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+endif(GCOV)
+
+if(UNITTEST)
+  add_executable(emf2svg-test tests/test.c)
+
+  target_link_libraries(emf2svg-test
+    emf2svg
+  )
+endif(UNITTEST)
+
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
