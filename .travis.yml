@@ -1,9 +1,23 @@
 matrix:
   include:
+    - os: osx
+      compiler: clang
+      env:
+        N=OSX
+        LAST_CMD="./tests/resources/check_correctness.sh  -r -s -n && ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xNn"
     - os: linux
       dist: trusty
-    - os: osx
-      env: OPTS=-n
+      compiler: clang
+      env:
+          N=BASE
+          LAST_CMD="./tests/resources/check_correctness.sh  -r -s && ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN"
+    - os: linux
+      dist: trusty
+      env:
+          N=GCOV
+          CMAKE_ARG="-DGCOV=ON"
+          LAST_CMD="make coverage"
+
 
 sudo: required
 
@@ -13,6 +27,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install argp-standalone; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install valgrind; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libxml2; fi
+  - if [[ "$N" == "GCOV" ]]; then pip install --user cpp-coveralls; fi
 
 addons:
   apt:
@@ -24,9 +39,15 @@ addons:
     - libc6-dev
     - gcc
     - g++
+    - gcc
+    - g++
+    - lcov
+
 
 language: cpp
 
-compiler: clang
 
-script: cmake . -DFORCELE=ON && make && ./tests/resources/check_correctness.sh  -r -s $OPTS && ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN $OPTS
+script: cmake . -DFORCELE=ON $CMAKE_ARG && make && $LAST_CMD 
+
+after_success:
+  - if [[ "$N" == "GCOV" ]];then ~/.local/bin/coveralls -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*tests.*' --gcov-options '\-lp';fi
