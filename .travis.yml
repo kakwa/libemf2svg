@@ -50,4 +50,4 @@ language: cpp
 script: cmake . -DFORCELE=ON $CMAKE_ARG && make && $LAST_CMD 
 
 after_success:
-  - if [[ "$N" == "GCOV" ]];then ~/.local/bin/coveralls -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*tests.*' --gcov-options '\-lp';fi
+  - if [[ "$N" == "GCOV" ]];then ~/.local/bin/coveralls -E '*.CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*tests.*' --gcov-options '\-lp';fi
