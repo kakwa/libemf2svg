@@ -34,20 +34,25 @@ Installing the dependencies on Debian:
 
 ```bash
 # compiler
-$ apt-get install gcc g++ 
+apt-get install gcc g++ 
 # or 
-$ apt-get install clang
+apt-get install clang
 
 # build deps
-$ apt-get install cmake
+apt-get install cmake
 
 # library deps with their headers
-$ apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev
+apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev
 ```
 
 Installing the dependencies on OS X:
 ```bash
 $ brew install argp-standalone
+```
+
+Installing the dependencies on RHEL/CentOS/Fedora:
+```bash
+yum install cmake libpng-devel clang freetype-devel fontconfig-devel
 ```
 
 Also note that in some rare cases, to properly handle text fields (ETO_GLYPH_INDEX flag), the ttf font
