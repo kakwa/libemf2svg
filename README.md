@@ -4,6 +4,7 @@ libemf2svg
 [![Join the chat at https://gitter.im/kakwa/libemf2svg](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kakwa/libemf2svg?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/kakwa/libemf2svg.svg?branch=master)](https://travis-ci.org/kakwa/libemf2svg)
 [![Coverage Status](https://coveralls.io/repos/github/kakwa/libemf2svg/badge.svg?branch=gcov)](https://coveralls.io/github/kakwa/libemf2svg?branch=gcov)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkakwa%2Flibemf2svg.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkakwa%2Flibemf2svg?ref=badge_shield)
 
 MS EMF (Enhanced Metafile) to SVG conversion library.
 
@@ -387,3 +388,7 @@ Contributing
 Contribution are welcomed.
 Nothing special here, it's the usual "fork; commit(s); pull request".
 Only one thing however, run `./goodies/format` (clang-format) before the pull request.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkakwa%2Flibemf2svg.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkakwa%2Flibemf2svg?ref=badge_large)
