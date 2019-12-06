@@ -52,7 +52,7 @@ $ brew install argp-standalone
 
 Installing the dependencies on RHEL/CentOS/Fedora:
 ```bash
-yum install cmake libpng-devel clang freetype-devel fontconfig-devel
+yum install cmake libpng-devel freetype-devel fontconfig-devel gcc-c++ gcc
 ```
 
 Also note that in some rare cases, to properly handle text fields (ETO_GLYPH_INDEX flag), the ttf font
