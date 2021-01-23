@@ -135,9 +135,21 @@ target_link_libraries(emf2svg
     ${FONTCONFIG_LIBRARIES}
 ) 
 
+if(CYGWIN)
+  target_link_libraries(emf2svg
+    iconv
+  )
+endif(CYGWIN)
+
 target_link_libraries(emf2svg-conv
     emf2svg
 )
+
+if(CYGWIN)
+  target_link_libraries(emf2svg-conv
+    argp
+  )
+endif(CYGWIN)
 
 if(GCOV)
   Set(COVERAGE_EXCLUDES '*conv*' '*uemf*' '*upmf*' '*tests*' '*c++*')
