@@ -39,10 +39,10 @@ apt-get install gcc g++
 apt-get install clang
 
 # build deps
-apt-get install cmake
+apt-get install cmake pkg-config
 
 # library deps with their headers
-apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev
+apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev zlib1g-dev
 ```
 
 Installing the dependencies on OS X:
