@@ -509,10 +509,18 @@ double scaleX(drawingStates *states, double x) {
         scalingX = states->pxPerMm / 1440 * mmPerInch * 1;
         break;
     case U_MM_ISOTROPIC:
-        scalingX = states->viewPortExX / states->windowExX;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingX = states->viewPortExX / states->windowExX;
+        } else {
+            scalingX = 1.0;
+        }
         break;
     case U_MM_ANISOTROPIC:
-        scalingX = states->viewPortExX / states->windowExX;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingX = states->viewPortExX / states->windowExX;
+        } else {
+            scalingX = 1.0;
+        }
         break;
     default:
         scalingX = 1.0;
@@ -550,10 +558,18 @@ double scaleY(drawingStates *states, double y) {
         scalingY = states->pxPerMm / 1440 * mmPerInch * 1;
         break;
     case U_MM_ISOTROPIC:
-        scalingY = states->viewPortExX / states->windowExX;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingY = states->viewPortExX / states->windowExX;
+        } else {
+            scalingY = 1.0;
+        }
         break;
     case U_MM_ANISOTROPIC:
-        scalingY = states->viewPortExY / states->windowExY;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingY = states->viewPortExY / states->windowExY;
+        } else {
+            scalingY = 1.0;
+        }
         break;
     default:
         scalingY = 1.0;
@@ -602,7 +618,11 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
         scalingY = states->pxPerMm / 1440 * mmPerInch * -1;
         break;
     case U_MM_ISOTROPIC:
-        scalingX = states->viewPortExX / states->windowExX;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingX = states->viewPortExX / states->windowExX;
+        } else {
+            scalingX = 1.0;
+        }
         scalingY = scalingX;
         windowOrgX = states->windowOrgX;
         windowOrgY = states->windowOrgY;
@@ -610,8 +630,13 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
         viewPortOrgY = states->viewPortOrgY;
         break;
     case U_MM_ANISOTROPIC:
-        scalingX = states->viewPortExX / states->windowExX;
-        scalingY = states->viewPortExY / states->windowExY;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingX = states->viewPortExX / states->windowExX;
+            scalingY = states->viewPortExY / states->windowExY;
+        } else {
+            scalingX = 1.0;
+            scalingY = 1.0;
+        }
         windowOrgX = states->windowOrgX;
         windowOrgY = states->windowOrgY;
         viewPortOrgX = states->viewPortOrgX;
