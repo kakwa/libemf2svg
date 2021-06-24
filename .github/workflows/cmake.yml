@@ -37,7 +37,7 @@ jobs:
       # Build your program with the given configuration
       run: cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-      - name: Test
+    - name: Test
       working-directory: ${{github.workspace}}
       # Execute tests defined by the CMake configuration.  
       run: ./tests/resources/check_correctness.sh  -r -s && ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
