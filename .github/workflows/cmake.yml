@@ -38,7 +38,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: export CFLAGS="$CFLAGS -I/usr/local/include/" &&  export LDFLAGS="$LDFLAGS -L/usr/local/lib/ -largp" && cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}
