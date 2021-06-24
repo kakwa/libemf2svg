@@ -89,6 +89,7 @@ include_directories(
     ${PNG_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
     ${FONTCONFIG_INCLUDE_DIR}
+    /usr/local/include/ 
     /usr/include/ 
     /sw/include/
 )
