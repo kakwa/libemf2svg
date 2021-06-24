@@ -23,9 +23,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Install packages
+    - name: Install packages Ububntu
       if: ${{matrix.os == 'ubuntu-latest'}}
       run: sudo apt-get install libxml2-utils valgrind
+
+    - name: Install packages MacOS
+      if: ${{matrix.os == 'macos-latest'}}
+      run: sudo brew install libxml2 valgrind
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
