@@ -29,7 +29,7 @@ jobs:
 
     - name: Install packages MacOS
       if: ${{matrix.os == 'macos-latest'}}
-      run: brew install argp-standalone &&  brew link argp-standalone && brew tap LouisBrunner/valgrind && brew install --HEAD LouisBrunner/valgrind/valgrind
+      run: brew install argp-standalone && brew tap LouisBrunner/valgrind && brew install --HEAD LouisBrunner/valgrind/valgrind
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -38,7 +38,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
+      run: export CFLAGS="$CFLAGS -I/usr/local/include/" &&  export LDFLAGS="$LDFLAGS -L/usr/local/lib/ -largp" && cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}
