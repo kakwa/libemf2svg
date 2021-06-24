@@ -2,7 +2,7 @@ libemf2svg
 ==========
 
 [![Join the chat at https://gitter.im/kakwa/libemf2svg](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kakwa/libemf2svg?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/kakwa/libemf2svg.svg?branch=master)](https://travis-ci.org/kakwa/libemf2svg)
+![Build status](https://github.com/maxirmx/libemf2svg/actions/workflows/Build.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/kakwa/libemf2svg/badge.svg?branch=gcov)](https://coveralls.io/github/kakwa/libemf2svg?branch=gcov)
 
 MS EMF (Enhanced Metafile) to SVG conversion library.

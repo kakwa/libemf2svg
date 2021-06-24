@@ -663,6 +663,8 @@ int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
 
     drawingStates *states = (drawingStates *)calloc(1, sizeof(drawingStates));
     states->verbose = options->verbose;
+    states->viewPortExSet = false;
+    states->windowExSet = false;
     states->emfplus = options->emfplus;
     states->imgWidth = options->imgWidth;
     states->imgHeight = options->imgHeight;
