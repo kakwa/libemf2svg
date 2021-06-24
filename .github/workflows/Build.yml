@@ -29,8 +29,8 @@ jobs:
 
     - name: Install packages MacOS
       if: ${{matrix.os == 'macos-latest'}}
-      # run: brew install argp-standalone && brew tap LouisBrunner/valgrind && brew install --HEAD LouisBrunner/valgrind/valgrind && brew install coreutils
-      run: brew install argp-standalone 
+      run: brew install argp-standalone && brew tap LouisBrunner/valgrind && brew install --HEAD LouisBrunner/valgrind/valgrind && brew install coreutils
+      ### NO tests for Mac OS ###  run: brew install argp-standalone 
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -43,6 +43,6 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}
-      if: ${{matrix.os == 'ubuntu-latest'}}
+      ### NO tests for Mac OS ### if: ${{matrix.os == 'ubuntu-latest'}}
       run: ./tests/resources/check_correctness.sh  -r -s && ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
       
