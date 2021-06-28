@@ -635,7 +635,7 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
             scalingY = states->viewPortExY / states->windowExY;
         } else {
             scalingX = 1.0;
-            scalingY = 1.0;
+            scalingY = -1.0;
         }
         windowOrgX = states->windowOrgX;
         windowOrgY = states->windowOrgY;

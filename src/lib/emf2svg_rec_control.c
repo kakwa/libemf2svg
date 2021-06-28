@@ -73,16 +73,24 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     } else if (states->imgWidth != 0) {
         states->imgHeight = states->imgWidth / ratioXY;
     } else {
+//        states->imgWidth =
+//            (double)abs(pEmr->rclBounds.right - pEmr->rclBounds.left);
+//        states->imgHeight =
+//            (double)abs(pEmr->rclBounds.bottom - pEmr->rclBounds.top);
         states->imgWidth =
-            (double)abs(pEmr->rclBounds.right - pEmr->rclBounds.left);
+            (double)abs(pEmr->rclBounds.right) + (double)abs(pEmr->rclBounds.left);
         states->imgHeight =
-            (double)abs(pEmr->rclBounds.bottom - pEmr->rclBounds.top);
+            (double)abs(pEmr->rclBounds.bottom) + (double)abs(pEmr->rclBounds.top);
     }
 
     // set scaling for original resolution
     // states->scaling = 1;
-    states->scaling = states->imgWidth /
-                      (double)abs(pEmr->rclBounds.right - pEmr->rclBounds.left);
+//    states->scaling = states->imgWidth /
+//                      (double)abs(pEmr->rclBounds.right - pEmr->rclBounds.left);
+
+        states->scaling = states->imgWidth /
+                      ((double)abs(pEmr->rclBounds.right) + (double)abs(pEmr->rclBounds.left));
+
 
     // remember reference point of the output DC
     states->RefX = (double)pEmr->rclBounds.left;
@@ -104,11 +112,17 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
         }
         fprintf(out, "width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
                 states->imgHeight);
+//        fprintf(out, ">\n", states->imgWidth,
+//                states->imgHeight);
     }
 
+    // Enterprise Architect
     fprintf(out, "<%sg transform=\"translate(%.4f, %.4f)\">\n",
-            states->nameSpaceString, -1.0 * states->RefX * states->scaling,
-            -1.0 * states->RefY * states->scaling);
+        states->nameSpaceString, states->RefX * states->scaling,
+        ((double)pEmr->rclBounds.bottom) * states->scaling);
+//    fprintf(out, "<%sg transform=\"translate(%.4f, %.4f)\">\n",
+//            states->nameSpaceString, -1.0 * states->RefX * states->scaling,
+//            -1.0 * states->RefY * states->scaling);
 }
 
 #ifdef __cplusplus
