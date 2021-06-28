@@ -480,6 +480,15 @@ void U_EMRRECTANGLE_draw(const char *contents, FILE *out,
     POINT_D dim;
     dim.x = RB.x - LT.x;
     dim.y = RB.y - LT.y;
+
+// Enterprise Architect
+
+    if (dim.y < 0) {
+        dim.y = -dim.y;
+        LT.y -= dim.y;
+    }
+
+// ----------------
     fprintf(out,
             "<%srect x=\"%.4f\" y=\"%.4f\" width=\"%.4f\" height=\"%.4f\" ",
             states->nameSpaceString, LT.x, LT.y, dim.x, dim.y);
