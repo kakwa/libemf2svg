@@ -51,3 +51,21 @@ jobs:
     - name: Test EA files
       working-directory: ${{github.workspace}}
       run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/
+      
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install packages
+      run: sudo apt-get install libxml2-utils valgrind lcov
+
+    - name: Install coveralls
+      run: sudo pip install cpp-coveralls
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}} -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON
+
+    - name: Build
+      run: make coverage
