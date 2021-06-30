@@ -106,13 +106,13 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
         fprintf(out, "xmlns=\"http://www.w3.org/2000/svg\" ");
         fprintf(out, "xmlns:xlink=\"http://www.w3.org/1999/xlink\" ");
         if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)) {
-            fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ",
+            fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\"",
                     states->nameSpace);
         }
 
         if (states->fixEALayout) {
             fprintf(out, ">\n");
-            fprintf(out, "<%sg transform=\"translate(0.0000, 0.0000)\">\n",
+            fprintf(out, " <%sg transform=\"translate(0.0000, 0.0000)\">\n",
                     states->nameSpaceString);
         } else {
             fprintf(out, "width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
