@@ -9,14 +9,14 @@ env:
   BUILD_TYPE: Debug
 
 jobs:
-  build:
+  coverage:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     
     - name: Install packages
-      run: sudo apt-get install libxml2-utils valgrind
+      run: sudo apt-get install libxml2-utils valgrind lcov
 
     - name: Install coveralls
       run: sudo pip install cpp-coveralls
