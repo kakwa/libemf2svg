@@ -62,7 +62,7 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
 
 
 // We assume that that it is the indication of Enterprise Architect output
-    if (pEmr->rclBounds.top < pEmr->rclBounds.bottom) {
+    if (pEmr->rclBounds.top*pEmr->rclBounds.bottom < 0) {
         states->fixEALayout = true;
     }
 
@@ -93,7 +93,7 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
 
     // remember reference point of the output DC
     states->RefX = (double)pEmr->rclBounds.left;
-    states->RefY = (double)(pEmr->rclBounds.top>pEmr->rclBounds.bottom ? pEmr->rclBounds.top : pEmr->rclBounds.bottom);
+    states->RefY = (double)pEmr->rclBounds.top;
 
     states->pxPerMm =
         (double)pEmr->szlDevice.cx / (double)pEmr->szlMillimeters.cx;
@@ -104,7 +104,7 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
             "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n");
         fprintf(out, "<%ssvg version=\"1.1\" ", states->nameSpaceString);
         fprintf(out, "xmlns=\"http://www.w3.org/2000/svg\" ");
-        fprintf(out, "xmlns:xlink=\"http://www.w3.org/1999/xlink\" ");
+        fprintf(out, "xmlns:xlink=\"http://www.w3.org/1999/xlink\"");
         if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)) {
             fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\"",
                     states->nameSpace);
@@ -112,10 +112,10 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
 
         if (states->fixEALayout) {
             fprintf(out, ">\n");
-            fprintf(out, " <%sg transform=\"translate(0.0000, 0.0000)\">\n",
+            fprintf(out, "<%sg transform=\"translate(0.0000, 0.0000)\">\n",
                     states->nameSpaceString);
         } else {
-            fprintf(out, "width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
+            fprintf(out, " width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
                 states->imgHeight);
             fprintf(out, "<%sg transform=\"translate(%.4f, %.4f)\">\n",
                 states->nameSpaceString, -1.0 * states->RefX * states->scaling,
