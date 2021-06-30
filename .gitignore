@@ -39,7 +39,7 @@ out
 
 # VS files
 .vs
-CMakeSettings.json
+
 
 # external build directory
 external-build
