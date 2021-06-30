@@ -60,6 +60,14 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     double ratioXY = (double)(pEmr->rclBounds.right - pEmr->rclBounds.left) /
                      (double)(pEmr->rclBounds.bottom - pEmr->rclBounds.top);
 
+
+// We assume that that it is the indication of Enterprise Architect output:
+// top and bottom points are on the different sides of the X axis
+// this is actually a weak assumption but nothing better came to our minds (
+    if (pEmr->rclBounds.top*pEmr->rclBounds.bottom < 0) {
+        states->fixEALayout = true;
+    }
+
     if ((states->imgHeight != 0) && (states->imgWidth != 0)) {
         double tmpWidth = states->imgHeight * ratioXY;
         double tmpHeight = states->imgWidth / ratioXY;
@@ -84,6 +92,7 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     states->scaling = states->imgWidth /
                       (double)abs(pEmr->rclBounds.right - pEmr->rclBounds.left);
 
+
     // remember reference point of the output DC
     states->RefX = (double)pEmr->rclBounds.left;
     states->RefY = (double)pEmr->rclBounds.top;
@@ -97,18 +106,24 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
             "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n");
         fprintf(out, "<%ssvg version=\"1.1\" ", states->nameSpaceString);
         fprintf(out, "xmlns=\"http://www.w3.org/2000/svg\" ");
-        fprintf(out, "xmlns:xlink=\"http://www.w3.org/1999/xlink\" ");
+        fprintf(out, "xmlns:xlink=\"http://www.w3.org/1999/xlink\"");
         if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)) {
-            fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ",
+            fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\"",
                     states->nameSpace);
         }
-        fprintf(out, "width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
-                states->imgHeight);
-    }
 
-    fprintf(out, "<%sg transform=\"translate(%.4f, %.4f)\">\n",
-            states->nameSpaceString, -1.0 * states->RefX * states->scaling,
-            -1.0 * states->RefY * states->scaling);
+        if (states->fixEALayout) {
+            fprintf(out, ">\n");
+            fprintf(out, "<%sg transform=\"translate(0.0000, 0.0000)\">\n",
+                    states->nameSpaceString);
+        } else {
+            fprintf(out, " width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
+                states->imgHeight);
+            fprintf(out, "<%sg transform=\"translate(%.4f, %.4f)\">\n",
+                states->nameSpaceString, -1.0 * states->RefX * states->scaling,
+                -1.0 * states->RefY * states->scaling);
+        }
+    }
 }
 
 #ifdef __cplusplus
