@@ -3,8 +3,6 @@ name: Build
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -37,7 +35,6 @@ jobs:
       run: cmake -B ${{github.workspace}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      # Build your program with the given configuration
       run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
 
     - name: Test well formed files
@@ -69,3 +66,6 @@ jobs:
 
     - name: Build
       run: make coverage
+
+    - name: Report
+      run: coveralls -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
