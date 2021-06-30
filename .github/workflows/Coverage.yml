@@ -1,0 +1,29 @@
+name: Coverage
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install packages
+      run: sudo apt-get install libxml2-utils valgrind
+
+    - name: Install coveralls
+      run: sudo pip install cpp-coveralls
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DGCOV=ON
+
+    - name: Build
+      run: make coverage
+
