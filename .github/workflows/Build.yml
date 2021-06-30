@@ -48,6 +48,6 @@ jobs:
       working-directory: ${{github.workspace}}
       run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
 
-    - name: Test SA files
+    - name: Test EA files
       working-directory: ${{github.workspace}}
-      run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-sa/
+      run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/

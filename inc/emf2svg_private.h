@@ -295,6 +295,8 @@ typedef struct {
     double windowExY;
     // true if windows extentent has been set, false otherwise
     bool windowExSet;
+    // true if we are fixing Enterprise Architect layout problems
+    bool fixEALayout;
     double pxPerMm;
     uint16_t MapMode;
     // Text orientation
