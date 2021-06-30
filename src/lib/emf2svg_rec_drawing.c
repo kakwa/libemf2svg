@@ -481,14 +481,11 @@ void U_EMRRECTANGLE_draw(const char *contents, FILE *out,
     dim.x = RB.x - LT.x;
     dim.y = RB.y - LT.y;
 
-// Enterprise Architect
-
-    if (dim.y < 0) {
+    if (states->fixEALayout && dim.y < 0) {
         dim.y = -dim.y;
         LT.y -= dim.y;
     }
 
-// ----------------
     fprintf(out,
             "<%srect x=\"%.4f\" y=\"%.4f\" width=\"%.4f\" height=\"%.4f\" ",
             states->nameSpaceString, LT.x, LT.y, dim.x, dim.y);
@@ -518,6 +515,12 @@ void U_EMRROUNDRECT_draw(const char *contents, FILE *out,
     POINT_D round;
     dim.x = RB.x - LT.x;
     dim.y = RB.y - LT.y;
+
+    if (states->fixEALayout && dim.y < 0) {
+        dim.y = -dim.y;
+        LT.y -= dim.y;
+    }
+
     fprintf(out,
             "<%srect x=\"%.4f\" y=\"%.4f\" width=\"%.4f\" height=\"%.4f\" ",
             states->nameSpaceString, LT.x, LT.y, dim.x, dim.y);
