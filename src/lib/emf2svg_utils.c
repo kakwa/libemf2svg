@@ -635,7 +635,8 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
             scalingY = states->viewPortExY / states->windowExY;
         } else {
             scalingX = 1.0;
-            scalingY = (states->fixEALayout ? -1.0 : 1.0);
+            // If fixBrokenYTransform is true, we have to flip the Y axis.
+            scalingY = (states->fixBrokenYTransform ? -1.0 : 1.0);
         }
         windowOrgX = states->windowOrgX;
         windowOrgY = states->windowOrgY;
