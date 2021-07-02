@@ -71,3 +71,4 @@ jobs:
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov:  /home/runner/work/libemf2svg/libemf2svg/coverage.info.cleaned
