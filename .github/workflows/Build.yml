@@ -67,5 +67,7 @@ jobs:
     - name: Build
       run: make coverage
 
-    - name: Report
-      run: coveralls -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
