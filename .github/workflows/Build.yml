@@ -67,8 +67,11 @@ jobs:
     - name: Build
       run: make coverage
 
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov:  /home/runner/work/libemf2svg/libemf2svg/coverage.info.cleaned
+#    - name: Coveralls
+#      uses: coverallsapp/github-action@master
+#      with:
+#        github-token: ${{ secrets.GITHUB_TOKEN }}
+#        path-to-lcov:  /home/runner/work/libemf2svg/libemf2svg/coverage.info.cleaned
+        
+    - name: Report
+      run: coveralls -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
