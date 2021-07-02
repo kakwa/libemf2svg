@@ -67,9 +67,10 @@ jobs:
     - name: Build
       run: make coverage
 
-#    - name: Report
+    - name: Report
 # shall be:
 #     run: coveralls -t ${{ secrets.COVERALLS_REPO_TOKEN }} -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
 # when coveralls token is added to repo secrets
 # for now we will rely on unafe YML file to read token
+      run: coveralls -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
  
