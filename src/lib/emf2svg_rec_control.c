@@ -60,7 +60,10 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     double ratioXY = (double)(pEmr->rclBounds.right - pEmr->rclBounds.left) /
                      (double)(pEmr->rclBounds.bottom - pEmr->rclBounds.top);
 
-
+    // Condition: top and bottom points are at different sides of the X axis.
+    // We assume this condition indicates that this image was generated with
+    // a broken transformation (possibly on Wine).
+    // While this may be a weak assumption, nothing better came to mind.
     if (pEmr->rclBounds.top*pEmr->rclBounds.bottom < 0) {
         states->fixBrokenYTransform = true;
     }
