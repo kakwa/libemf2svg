@@ -74,4 +74,4 @@ jobs:
 #        path-to-lcov:  /home/runner/work/libemf2svg/libemf2svg/coverage.info.cleaned
         
     - name: Report
-      run: coveralls -t IyLdp9gHIhQX9g1BC0rNZzeamaayd9GFl -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
+      run: coveralls -t ${{ secrets.COVERALLS_REPO_TOKEN }} -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
