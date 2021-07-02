@@ -207,6 +207,11 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.X.X:
+
+* add support for EMF images without an initial viewport setup
+* add handling of EMF images with wrong transformation applied (Wine-generated)
+
 1.1.0:
 
 * add handling of font index encoding
