@@ -481,7 +481,8 @@ void U_EMRRECTANGLE_draw(const char *contents, FILE *out,
     dim.x = RB.x - LT.x;
     dim.y = RB.y - LT.y;
 
-    if (states->fixEALayout && dim.y < 0) {
+    // If fixBrokenYTransform is true, we have to flip points on the Y axis.
+    if (states->fixBrokenYTransform && dim.y < 0) {
         dim.y = -dim.y;
         LT.y -= dim.y;
     }
@@ -516,7 +517,8 @@ void U_EMRROUNDRECT_draw(const char *contents, FILE *out,
     dim.x = RB.x - LT.x;
     dim.y = RB.y - LT.y;
 
-    if (states->fixEALayout && dim.y < 0) {
+    // If fixBrokenYTransform is true, we have to flip points on the Y axis.
+    if (states->fixBrokenYTransform && dim.y < 0) {
         dim.y = -dim.y;
         LT.y -= dim.y;
     }
