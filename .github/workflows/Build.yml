@@ -68,4 +68,5 @@ jobs:
       run: make coverage
 
     - name: Report
-      run: coveralls -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
+      run: coveralls -t ${{ secrets.COVERALLS_REPO_TOKEN }} -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
+

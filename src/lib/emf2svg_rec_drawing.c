@@ -513,7 +513,6 @@ void U_EMRROUNDRECT_draw(const char *contents, FILE *out,
     POINT_D RB = point_cal(states, (double)pEmr->rclBox.right,
                            (double)pEmr->rclBox.bottom);
     POINT_D dim;
-    POINT_D round;
     dim.x = RB.x - LT.x;
     dim.y = RB.y - LT.y;
 
@@ -526,9 +525,7 @@ void U_EMRROUNDRECT_draw(const char *contents, FILE *out,
     fprintf(out,
             "<%srect x=\"%.4f\" y=\"%.4f\" width=\"%.4f\" height=\"%.4f\" ",
             states->nameSpaceString, LT.x, LT.y, dim.x, dim.y);
-    round = point_cal(states, (double)pEmr->szlCorner.cx,
-                      (double)pEmr->szlCorner.cy);
-    fprintf(out, "rx=\"%.4f\" ry=\"%.4f\" ", round.x, round.y);
+    fprintf(out, "rx=\"%.4f\" ry=\"%.4f\" ", scaleX(states, (double)pEmr->szlCorner.cx), scaleX(states, (double)pEmr->szlCorner.cy));
     bool filled = false;
     bool stroked = false;
     fill_draw(states, out, &filled, &stroked);
