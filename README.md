@@ -1,8 +1,8 @@
 libemf2svg
 ==========
 
-![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/Build.yml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/maxirmx/libemf2svg/badge.svg?branch=master)](https://coveralls.io/github/maxirmx/libemf2svg?branch=master)
+![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/build.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/metanorma/libemf2svg/badge.svg?branch=master)](https://coveralls.io/github/metanorma/libemf2svg?branch=master)
 
 MS EMF (Enhanced Metafile) to SVG conversion library.
 
@@ -11,7 +11,7 @@ Motivation
 
 By themselves, EMF/EMF+ files are rare in the wild. However, they are frequently embedded inside other MS file formats.
 
-This project was started to properly convert Visio stencils (.VSS) to svg and be able to reuse public stencils 
+This project was started to properly convert Visio stencils (.VSS) to svg and be able to reuse public stencils
 in other environments than MS Visio (see [libvisio2svg](https://github.com/kakwa/libvisio2svg)).
 
 However this project could be use beyond its original motivations to handle emf blobs in any MS formats.
@@ -33,8 +33,8 @@ Installing the dependencies on Debian:
 
 ```bash
 # compiler
-apt-get install gcc g++ 
-# or 
+apt-get install gcc g++
+# or
 apt-get install clang
 
 # build deps
@@ -64,7 +64,7 @@ Commands to build this project:
 
 ```bash
 
-# options: 
+# options:
 # * [-DUSE_CLANG=on]: use clang instead of gcc
 # * [-DSTATIC=on]: build static library
 # * [-DDEBUG=on]: compile with debugging symbols
@@ -244,16 +244,16 @@ ChangeLogs
      char *svg_out = NULL;
 +    /* svg output length */
 +    size_t svg_out_len;
- 
+
      /*************************** options settings **************************/
- 
+
 @@ -44,7 +46,7 @@ int main(int argc, char *argv[]){
- 
+
      /***************************** conversion ******************************/
- 
+
 -    int ret = emf2svg(emf_content, emf_size, &svg_out, options);
 +    int ret = emf2svg(emf_content, emf_size, &svg_out, &svg_out_len, options);
- 
+
      /***********************************************************************/
 ```
 * general cleanup of the project (remove external files not needed)
@@ -326,14 +326,14 @@ Using American Fuzzy Lop:
 ```bash
 # remove big files from test pool
 $ mkdir ./tmp
-$ find tests/resources/emf -size +1M -name "*.emf" -exec mv {} ./tmp \; 
+$ find tests/resources/emf -size +1M -name "*.emf" -exec mv {} ./tmp \;
 
 # compile with afl compiler
 $ cmake -DCMAKE_CXX_COMPILER=afl-clang++ -DCMAKE_C_COMPILER=afl-clang .
 $ make
 
 # run afl (see man for more advanced usage)
-$ afl-fuzz -i tests/resources/emf -o out/ -t 10000 -- ./emf2svg-conv -i '@@' -o out/ 
+$ afl-fuzz -i tests/resources/emf -o out/ -t 10000 -- ./emf2svg-conv -i '@@' -o out/
 
 # restore the files
 mv ./tmp/* tests/resources/emf
@@ -342,7 +342,7 @@ mv ./tmp/* tests/resources/emf
 * Check correctness and memory leaks (xmllint and valgrind needed):
 
 ```bash
-# options: -n to disable valgrind tests, -v for verbose output 
+# options: -n to disable valgrind tests, -v for verbose output
 # see -h for complete list of options
 $ ./tests/resources/check_correctness.sh #[-n] [-v]
 
