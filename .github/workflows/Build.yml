@@ -2,7 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
+  pull_request:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -20,14 +22,19 @@ jobs:
         os: [macos-latest, ubuntu-latest]
     steps:
     - uses: actions/checkout@v2
-    
+
     - name: Install packages Ubuntu
       if: ${{matrix.os == 'ubuntu-latest'}}
       run: sudo apt-get install libxml2-utils valgrind
 
     - name: Install packages MacOS
       if: ${{matrix.os == 'macos-latest'}}
-      run: brew install argp-standalone && brew tap LouisBrunner/valgrind && brew install --HEAD LouisBrunner/valgrind/valgrind && brew install coreutils
+      run: |
+        brew install argp-standalone
+        brew install coreutils
+        brew install lcov
+        brew tap LouisBrunner/valgrind
+        brew install --HEAD LouisBrunner/valgrind/valgrind
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -39,8 +46,8 @@ jobs:
 
     - name: Test well formed files
       working-directory: ${{github.workspace}}
-      run: ./tests/resources/check_correctness.sh  -r -s 
-      
+      run: ./tests/resources/check_correctness.sh -r -s
+
     - name: Test corrupted files
       working-directory: ${{github.workspace}}
       run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
@@ -48,13 +55,13 @@ jobs:
     - name: Test EA files
       working-directory: ${{github.workspace}}
       run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/
-      
+
   coverage:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-    
+
     - name: Install packages
       run: sudo apt-get install libxml2-utils valgrind lcov
 
@@ -69,3 +76,9 @@ jobs:
 
     - name: Report
       run: coveralls -E '.*CMakeFiles.*' -E '.*conv.*' -E '.*uemf.*' -E '.*upmf.*' -E '.*goodies.*' -E '.*tests.*' --gcov-options '\-lp'
+
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
