@@ -393,9 +393,9 @@ In EMF coordinates are specified using an origin (`[0,0]` point) located at
 the upper-left corner: x-coordinates increase to the right; y-coordinates
 increase from top to bottom.
 
-The SVG coordinate system, on the other hand, uses an origin (`[0,0]` point) at
-the bottom-left corner: x-coordinates increase to the right; y-coordinates
-increase from bottom to top.
+The SVG coordinate system, on the other hand, uses the same origin (`[0,0]` point) at
+the bottom-left corner: x-coordinates increase to the right; but y-coordinates
+increase from top to bottom.
 
 Typically, a simple shift of the y-axis is used to transform from EMF
 coordinates to SVG coordinates.
