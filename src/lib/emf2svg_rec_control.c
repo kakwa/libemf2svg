@@ -62,15 +62,14 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
 
 /* ---
 The Windows EMFs specify the positions using origin ([0,0] point) in the upper-left corner of the window; x-coordinates increase to the right; 
-y-coordinates increase from top to bottom. Default SVG coordinate system uses origin ([0,0] point) in the top left corner of the window with the 
-same behavior of coordinates: x-coordinates increase to the right; y-coordinates increase from top to bottom. Considering the difference 
-described above default transformation from EMF coordinates to SVG coordinates is simple shift by the y-axis.
+y-coordinates increase from bottom to top. Default SVG coordinate system uses the same origin ([0,0] point)  in the upper left corner of the window 
+with the same behavior of x-coordinate and y-coordinates increasing from top to bottom.
 
 Some tools under certain circumstances (possibly on Wine) generate EMF files with malformed coordinates. They have origin ([0,0] point) in the top 
-left corner, x-coordinates increase to the right; y-coordinates increase from top to bottom but additionally y-coordinates are inverted (multiplied by -1) 
-to simulated normal EMF look. Furthermore, this inversion is not real mirroring if complex objects are considered. For example, text boxes have only 
-y-coordinate of its anchor point mirrored but text direction is not changed. Because of its specific layout problem described above cannot be fixed by 
-single svg/css transformation operation. In our patch we implement inversion affected y-coordinates keeping other attributes intact.
+left corner, x-coordinates increase to the right;  y-coordinates are inverted (multiplied by -1) to simulated normal EMF look. Furthermore, this 
+inversion is not real mirroring if complex objects are considered. For example, text boxes have only y-coordinate of its anchor point mirrored 
+but text direction is not changed. Because of its specific layout problem described above cannot be fixed by single svg/css transformation operation. 
+In our patch we implement reverse inversion for affected y-coordinates keeping other attributes intact.
 
 Condition: top and bottom points are at different sides of the X axis.
 We assume this condition indicates that this image was generated with  broken transformation (possibly on Wine) and a fix is required as described above.
