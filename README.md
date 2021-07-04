@@ -1,9 +1,8 @@
 libemf2svg
 ==========
 
-[![Join the chat at https://gitter.im/kakwa/libemf2svg](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kakwa/libemf2svg?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/kakwa/libemf2svg.svg?branch=master)](https://travis-ci.org/kakwa/libemf2svg)
-[![Coverage Status](https://coveralls.io/repos/github/kakwa/libemf2svg/badge.svg?branch=gcov)](https://coveralls.io/github/kakwa/libemf2svg?branch=gcov)
+![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/build.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/metanorma/libemf2svg/badge.svg?branch=master)](https://coveralls.io/github/metanorma/libemf2svg?branch=master)
 
 MS EMF (Enhanced Metafile) to SVG conversion library.
 
@@ -12,7 +11,7 @@ Motivation
 
 By themselves, EMF/EMF+ files are rare in the wild. However, they are frequently embedded inside other MS file formats.
 
-This project was started to properly convert Visio stencils (.VSS) to svg and be able to reuse public stencils 
+This project was started to properly convert Visio stencils (.VSS) to svg and be able to reuse public stencils
 in other environments than MS Visio (see [libvisio2svg](https://github.com/kakwa/libvisio2svg)).
 
 However this project could be use beyond its original motivations to handle emf blobs in any MS formats.
@@ -34,8 +33,8 @@ Installing the dependencies on Debian:
 
 ```bash
 # compiler
-apt-get install gcc g++ 
-# or 
+apt-get install gcc g++
+# or
 apt-get install clang
 
 # build deps
@@ -65,7 +64,7 @@ Commands to build this project:
 
 ```bash
 
-# options: 
+# options:
 # * [-DUSE_CLANG=on]: use clang instead of gcc
 # * [-DSTATIC=on]: build static library
 # * [-DDEBUG=on]: compile with debugging symbols
@@ -208,6 +207,11 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.X.X:
+
+* add support for EMF images without an initial viewport setup
+* add handling of EMF images with wrong transformation applied (Wine-generated)
+
 1.1.0:
 
 * add handling of font index encoding
@@ -240,16 +244,16 @@ ChangeLogs
      char *svg_out = NULL;
 +    /* svg output length */
 +    size_t svg_out_len;
- 
+
      /*************************** options settings **************************/
- 
+
 @@ -44,7 +46,7 @@ int main(int argc, char *argv[]){
- 
+
      /***************************** conversion ******************************/
- 
+
 -    int ret = emf2svg(emf_content, emf_size, &svg_out, options);
 +    int ret = emf2svg(emf_content, emf_size, &svg_out, &svg_out_len, options);
- 
+
      /***********************************************************************/
 ```
 * general cleanup of the project (remove external files not needed)
@@ -322,14 +326,14 @@ Using American Fuzzy Lop:
 ```bash
 # remove big files from test pool
 $ mkdir ./tmp
-$ find tests/resources/emf -size +1M -name "*.emf" -exec mv {} ./tmp \; 
+$ find tests/resources/emf -size +1M -name "*.emf" -exec mv {} ./tmp \;
 
 # compile with afl compiler
 $ cmake -DCMAKE_CXX_COMPILER=afl-clang++ -DCMAKE_C_COMPILER=afl-clang .
 $ make
 
 # run afl (see man for more advanced usage)
-$ afl-fuzz -i tests/resources/emf -o out/ -t 10000 -- ./emf2svg-conv -i '@@' -o out/ 
+$ afl-fuzz -i tests/resources/emf -o out/ -t 10000 -- ./emf2svg-conv -i '@@' -o out/
 
 # restore the files
 mv ./tmp/* tests/resources/emf
@@ -338,7 +342,7 @@ mv ./tmp/* tests/resources/emf
 * Check correctness and memory leaks (xmllint and valgrind needed):
 
 ```bash
-# options: -n to disable valgrind tests, -v for verbose output 
+# options: -n to disable valgrind tests, -v for verbose output
 # see -h for complete list of options
 $ ./tests/resources/check_correctness.sh #[-n] [-v]
 
@@ -380,6 +384,38 @@ To reformat/reindent the code (clang-format):
 ```bash
 $ ./goodies/format
 ```
+
+
+Y-coordinates repair in EMF files
+---------------------------------
+
+In EMF coordinates are specified using an origin (`[0,0]` point) located at
+the upper-left corner: x-coordinates increase to the right; y-coordinates
+increase from top to bottom.
+
+The SVG coordinate system, on the other hand, uses the same origin (`[0,0]`
+point) at the bottom-left corner: x-coordinates increase to the right; but
+y-coordinates increase from top to bottom.
+
+Typically, a simple shift of the y-axis through a single SVG/CSS
+transformation is used to transform from EMF coordinates to SVG coordinates.
+
+However, under certain circumstances some tools (for instance, SparxSystem
+Enterprise Architect in Wine) will generate EMF files with malformed
+coordinates. These images have an origin at the top-left corner with
+y-coordinates increasing from top to bottom, yet these y-coordinates are
+inverted (multiplied by `-1`) to simulate a normal EMF look.
+
+Furthermore, this inversion phenomenon cannot be solved with plain mirroring
+as it occurs to all (complex) objects of the hierarchy. For example, text
+boxes have only their y-coordinate anchor point mirrored, but the text
+direction is set properly.
+
+This specific layout issue cannot be fixed by a single SVG/CSS
+transformation, and therefore the processing code is required to detect and
+invert only the affected y-coordinates, while keeping other attributes
+intact.
+
 
 Contributing
 ------------

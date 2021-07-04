@@ -287,10 +287,16 @@ typedef struct {
     double viewPortOrgY;
     double viewPortExX;
     double viewPortExY;
+    // true if viewport extent has been set, false otherwise
+    bool viewPortExSet;
     double windowOrgX;
     double windowOrgY;
     double windowExX;
     double windowExY;
+    // true if windows extent has been set, false otherwise
+    bool windowExSet;
+    // true if we are fixing layout problems from Wine-generated EMF
+    bool fixBrokenYTransform;
     double pxPerMm;
     uint16_t MapMode;
     // Text orientation

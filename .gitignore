@@ -37,6 +37,10 @@ emf2svg-conv
 # out directory
 out
 
+# VS files
+.vs
+
+
 # external build directory
 external-build
 
