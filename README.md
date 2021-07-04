@@ -393,26 +393,28 @@ In EMF coordinates are specified using an origin (`[0,0]` point) located at
 the upper-left corner: x-coordinates increase to the right; y-coordinates
 increase from top to bottom.
 
-The SVG coordinate system, on the other hand, uses the same origin (`[0,0]` point) at
-the bottom-left corner: x-coordinates increase to the right; but y-coordinates
-increase from top to bottom.
+The SVG coordinate system, on the other hand, uses the same origin (`[0,0]`
+point) at the bottom-left corner: x-coordinates increase to the right; but
+y-coordinates increase from top to bottom.
 
-Typically, a simple shift of the y-axis is used to transform from EMF
-coordinates to SVG coordinates.
+Typically, a simple shift of the y-axis through a single SVG/CSS
+transformation is used to transform from EMF coordinates to SVG coordinates.
 
-However, some tools under certain circumstances (for instance, SparxSystem
-Enterprise Architect in Wine) generate EMF files with malformed coordinates.
-These images have an origin in the top-left corner with y-coordinates
-increasing from top to bottom, yet these y-coordinates are inverted (multiplied
-by `-1`) to simulate a normal EMF look.
+However, under certain circumstances some tools (for instance, SparxSystem
+Enterprise Architect in Wine) will generate EMF files with malformed
+coordinates. These images have an origin at the top-left corner with
+y-coordinates increasing from top to bottom, yet these y-coordinates are
+inverted (multiplied by `-1`) to simulate a normal EMF look.
 
-Furthermore, this inversion phenomenon is not "`real`" mirroring, it occurs to
-all objects of the hierarchy. For example, text boxes have only their
-y-coordinate anchor point mirrored, but the text direction is set properly.
+Furthermore, this inversion phenomenon cannot be solved with plain mirroring
+as it occurs to all (complex) objects of the hierarchy. For example, text
+boxes have only their y-coordinate anchor point mirrored, but the text
+direction is set properly.
 
-This specific layout issue cannot be fixed by single svg/css transformation
-operation, therefore, the processing code detects and inverts only the affected
-y-coordinates, while keeping other attributes intact.
+This specific layout issue cannot be fixed by a single SVG/CSS
+transformation, and therefore the processing code is required to detect and
+invert only the affected y-coordinates, while keeping other attributes
+intact.
 
 
 Contributing
