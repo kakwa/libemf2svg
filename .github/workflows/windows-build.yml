@@ -1,0 +1,39 @@
+name: Windows build
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+
+env:
+  BUILD_TYPE: Release
+  VCPKG_DEFAULT_BINARY_CACHE: ${{github.workspace}}/cache
+
+jobs:
+  Windows-build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Create cache storage
+      run: mkdir ${{env.VCPKG_DEFAULT_BINARY_CACHE}}
+      
+    - uses: actions/cache@v2
+      with:
+        path: ${{env.VCPKG_DEFAULT_BINARY_CACHE}}
+        key: ${{runner.os}}-vcpkg
+     
+    - name: Configure
+      run: >
+        cmake 
+        -B ${{github.workspace}} 
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
+        -DCMAKE_TOOLCHAIN_FILE=${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
+

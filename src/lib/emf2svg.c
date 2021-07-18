@@ -11,9 +11,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef DARWIN
-#include "memstream.c"
-#endif
+#include <fmem.h>
 
 int U_emf_onerec_is_emfp(const char *contents, const char *blimit, int recnum,
                          size_t off, bool *ret) {
@@ -646,7 +644,7 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
     return (size);
 }
 
-int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
+int emf2svg(char *contents, size_t length, char ** fm_out, size_t * fm_out_length,
             generatorOptions *options) {
     size_t off = 0;
     size_t result;
@@ -655,6 +653,10 @@ int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
     PU_ENHMETARECORD pEmr;
     char *blimit;
     FILE *stream;
+    fmem fm;
+    fmem_init(&fm);
+    *fm_out = NULL;
+    *fm_out_length = 0;
 
 #if U_BYTE_SWAP
     // This is a Big Endian machine, EMF data is Little Endian
@@ -690,7 +692,7 @@ int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
     blimit = contents + length;
     int err = 1;
 
-    stream = open_memstream(out, out_length);
+    stream = fmem_open(&fm, "w");
     if (stream == NULL) {
         if (states->verbose) {
             printf("Failed to allocate output stream\n");
@@ -749,7 +751,7 @@ int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
     FLAG_RESET;
     setTransformIdentity(states);
 
-    // continu only if no previous errors
+    // continue only if no previous errors
     if (err == 0) {
         OK = 0;
     } else {
@@ -772,8 +774,7 @@ int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
 
         pEmr = (PU_ENHMETARECORD)(contents + off);
 
-        result =
-            U_emf_onerec_draw(contents, blimit, recnum, off, stream, states);
+        result = U_emf_onerec_draw(contents, blimit, recnum, off, stream, states);
         if (result == (size_t)-1 || states->Error) {
             if (states->verbose) {
                 printf(
@@ -798,8 +799,23 @@ int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
     freeEmfImageLibrary(states);
     free(states);
 
-    fflush(stream);
-    fclose(stream);
+    if (stream) {
+        fflush(stream);
+        void* out;
+        fmem_mem(&fm, &out, fm_out_length); 
+        if (*fm_out_length) {
+            *fm_out = (char*)malloc(*fm_out_length+1);
+        }
+        if (*fm_out) {
+            memcpy((void*)(*fm_out), out, *fm_out_length);
+            (*fm_out)[*fm_out_length] = 0;
+        }
+        else {
+            err = 0;
+        }
+        fclose(stream);
+        fmem_term(&fm);
+    }
 
     return err;
 }

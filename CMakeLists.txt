@@ -1,11 +1,26 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.12)
+include(ExternalProject)
+
+# Comments re MSVC build
+# - We use vcpkg to install MSVC versions of the following GNU libraries 
+#   and their dependencies:
+#   -- libpng
+#   -- freetype
+#   -- fontconfig
+#   -- iconv
+# - vcpkg is configured as git submodule. Some experts consider it is the best prectice 
+#   (though other experts do not)
+# - The list of vcpkg modules is specified at vcpkg.json
+# - With this setup and when called with -DCMAKE_TOOLCHAIN_FILE={project root}/vcpkg/scripts/buildsystems/vcpkg.cmake
+#   CMake automatically runs vcpkg install for all listed packages before the project directive is executed
 
 project (emf2svg)
 
 # Project version (sematic versionning)
 set(emf2svg_VERSION_MAJOR 1)
-set(emf2svg_VERSION_MINOR 1)
+set(emf2svg_VERSION_MINOR 3)
 set(emf2svg_VERSION_PATCH 0)
+set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
@@ -13,17 +28,40 @@ find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(Fontconfig REQUIRED)
 
-set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
+set(DEPS ${CMAKE_CURRENT_SOURCE_DIR}/deps)
+set(EXTERNAL_INCLUDE_DIR ${DEPS}/include)
+set(EXTERNAL_LIB_DIR ${DEPS}/lib)
+
+# Comments re fmem setup
+# The patch fixes https://github.com/Snaipe/fmem/issues/4
+# https://gitlab.kitware.com/cmake/cmake/-/issues/21086
+# Basically, you cannot predict when PATCH_COMMAND is executed so we always roll back
+# the patch that may be applied during the previous build in order to ensure that 
+# the same patch may be applied correctly again
+
+# And finally a small helper for building native Windows and WSL from single source tree
+set(FMEM_NAME fm${EXTERNAL_LIB_DIR_SUFFIX})
+
+ExternalProject_Add(${FMEM_NAME}
+   PREFIX ${DEPS}
+   GIT_REPOSITORY https://github.com/Snaipe/fmem.git
+   GIT_TAG b73b3d8b570c2f79df5a0b071efba392a82ddcd7 
+   PATCH_COMMAND cd ${DEPS}/src/${FMEM_NAME} && git restore CMakeLists.txt && git apply ${DEPS}/fmem.patch/CMakeLists.txt.patch
+   CMAKE_ARGS -DBUILD_TESTING=FALSE -DCMAKE_INSTALL_PREFIX=${DEPS}
+)
+set(EXTERNAL_FMEM "fmem")
+
+
+set(DEPS_UEMF ${DEPS}/libUEMF-0.2.5)
 
 add_custom_target(tag
     COMMAND git tag -a ${emf2svg_VERSION} -m "tagging version ${emf2svg_VERSION}"
     COMMAND git push origin ${emf2svg_VERSION}
 )
 
-
 # set version as a definition
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION=${emf2svg_VERSION}")
 
 # Options
 option(GCOV      "compile with gcov support"    OFF)
@@ -43,7 +81,12 @@ if(INDEX)
 endif(INDEX)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Od -Zi")
+  else(MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
+    set(CMAKE_EXE_LINKER_FLAGS "-INCREMENTAL:NO")
+  endif(MSVC)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
@@ -60,7 +103,7 @@ if(UNIX)
   link_libraries(m)
 endif(UNIX)
 
-IF(NOT FORCELE)
+if(NOT FORCELE)
     include(TestBigEndian)
     TEST_BIG_ENDIAN(BIGENDIAN)
     IF(${BIGENDIAN})
@@ -69,40 +112,71 @@ IF(NOT FORCELE)
 endif(NOT FORCELE)
 
 # Build external dependancies if we are on OSX
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    set(EXTERNAL_ICONV "iconv")
    set(EXTERNAL_ARGP "argp")
    add_definitions(-DDARWIN)
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
-# linking directories
-LINK_DIRECTORIES(
-    ${CMAKE_BINARY_DIR}/
-    /usr/local/lib
-    /usr/lib/
-)
+# Find/build external dependancies if it is Microsoft Visual Studio build
+if(MSVC)
+  find_package(Iconv REQUIRED)
+  set(EXTERNAL_ICONV ${Iconv_LIBRARY})
 
-# headers directories
-include_directories(
-    ./inc/
+  set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
+  ExternalProject_Add(${ARGP_NAME}
+    PREFIX ${DEPS}
+    GIT_REPOSITORY https://github.com/bigcat26/argp-standalone.git
+    GIT_TAG 462cf1a13c30d36e802871a192ad90e3fd3cee98
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEPS}
+  )
+  set(EXTERNAL_ARGP "argp-standalone")
+endif(MSVC)
+
+# headers & library directories
+if(MSVC)
+  include_directories(
+    ./inc
     ${PNG_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
-    ${FONTCONFIG_INCLUDE_DIR}
-    /usr/local/include/ 
-    /usr/include/ 
-    /sw/include/
-)
+    ${FONTCONFIG_INCLUDE_DIRS}
+    ${EXTERNAL_INCLUDE_DIR}
+    ${DEPS_UEMF}
+  )
+  link_directories(
+    ${CMAKE_BINARY_DIR}
+    ${EXTERNAL_LIB_DIR}
+  )
+else(MSVC)
+  include_directories(
+    ./inc
+    ${PNG_INCLUDE_DIRS}
+    ${FREETYPE_INCLUDE_DIRS}
+    ${FONTCONFIG_INCLUDE_DIRS}
+    ${EXTERNAL_INCLUDE_DIR}
+    ${DEPS_UEMF}
+    /usr/local/include 
+    /usr/include 
+    /sw/include
+  )
+  link_directories(
+    ${CMAKE_BINARY_DIR}
+    ${EXTERNAL_LIB_DIR}
+    /usr/local/lib
+    /usr/lib/
+  )
+endif(MSVC)
 
 # Compile the library
 add_library(emf2svg
     ${SHARED}
     src/lib/pmf2svg.c
     src/lib/pmf2svg_print.c
-    src/lib/uemf_utf.c
-    src/lib/uemf_endian.c
-    src/lib/uemf.c
-    src/lib/upmf.c
+    ${DEPS_UEMF}/uemf_utf.c
+    ${DEPS_UEMF}/uemf_endian.c
+    ${DEPS_UEMF}/uemf.c
+    ${DEPS_UEMF}/upmf.c
     src/lib/emf2svg_utils.c
     src/lib/emf2svg_img_utils.c
     src/lib/emf2svg_clip_utils.c
@@ -126,18 +200,25 @@ set_target_properties(emf2svg
     SOVERSION ${emf2svg_VERSION_MAJOR}
 )
 
-# Compile the executable
-add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 target_link_libraries(emf2svg
     ${PNG_LIBRARIES}
     ${EXTERNAL_ICONV}
-    ${EXTERNAL_ARGP}
     ${FREETYPE_LIBRARIES}
     ${FONTCONFIG_LIBRARIES}
+    ${EXTERNAL_FMEM}
 ) 
+
+add_dependencies(emf2svg ${FMEM_NAME})
+if(MSVC)
+  add_dependencies(emf2svg ${ARGP_NAME})
+endif(MSVC)
+
+# Compile the executable
+add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 
 target_link_libraries(emf2svg-conv
     emf2svg
+    ${EXTERNAL_ARGP}
 )
 
 if(GCOV)
@@ -159,9 +240,14 @@ if(UNITTEST)
   )
 endif(UNITTEST)
 
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
+if (MSVC)
+# x64: suppress mostly harmless warnings about 64 to 32 bit conversion (4244, 4267, 4305).
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std:c++14 -W3 -D_CRT_SECURE_NO_WARNINGS -wd4244 -wd4267 -wd4305")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std:c11 -W3 -D_CRT_SECURE_NO_WARNINGS -wd4244 -wd4267 -wd4305")
+else(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11 -Wall")
+endif (MSVC)
 
 if (NOT LIB_INSTALL_DIR)
     set(LIB_INSTALL_DIR lib)

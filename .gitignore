@@ -37,6 +37,9 @@ emf2svg-conv
 # out directory
 out
 
+# test files
+tests/resources/tmp
+
 # VS files
 .vs
 
@@ -49,3 +52,10 @@ emf2svg-test
 
 # exceptions
 !tests/resources/filesmasher-master/Makefile
+
+# external projects
+vcpkg
+deps/tmp
+deps/src
+deps/include
+deps/lib

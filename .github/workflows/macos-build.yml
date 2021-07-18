@@ -1,0 +1,33 @@
+name: MacOS build
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  MacOS-build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install packages MacOS
+      run: |
+        brew install argp-standalone
+        brew install coreutils
+        brew install lcov
+#        brew tap LouisBrunner/valgrind
+#        brew install --HEAD LouisBrunner/valgrind/valgrind
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
+
+
