@@ -22,9 +22,6 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef DARWIN
-#include <memstream.h>
-#endif
 
 #define KNRM "\x1B[0m"
 #define KRED "\x1B[31m"
