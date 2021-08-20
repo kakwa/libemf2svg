@@ -37,3 +37,6 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
 
+    - name: Test
+      run: .\Release\emf2svg-conv.exe --help
+
