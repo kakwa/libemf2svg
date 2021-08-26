@@ -216,11 +216,11 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
-1.X.X (tagged 1.3.0 in the binaries)
+1.3.0: 
 
 * add MSVC Windows native build
 
-1.X.X:
+1.X.X:  (forked to metanorma)
 
 * add support for EMF images without an initial viewport setup
 * add handling of EMF images with wrong transformation applied (Wine-generated)
