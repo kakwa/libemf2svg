@@ -127,9 +127,10 @@ if(MSVC)
   set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
   ExternalProject_Add(${ARGP_NAME}
     PREFIX ${DEPS}
-    GIT_REPOSITORY https://github.com/bigcat26/argp-standalone.git
-    GIT_TAG 462cf1a13c30d36e802871a192ad90e3fd3cee98
+    GIT_REPOSITORY https://github.com/tom42/argp-standalone.git
+    GIT_TAG 238d83d6fb4fbdbb3e0893f51698d8d54696bfb0
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEPS}
+    PATCH_COMMAND cd ${DEPS}/src/${ARGP_NAME} && git restore CMakeLists.txt && git apply ${DEPS}/argp.patch/CMakeLists.txt.patch
   )
   set(EXTERNAL_ARGP "argp-standalone")
 endif(MSVC)

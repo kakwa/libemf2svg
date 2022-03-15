@@ -1,0 +1,19 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cee4a7a..c12e439 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -129,3 +129,14 @@ add_subdirectory(src)
+ if((IS_MAIN_PROJECT OR argp-standalone_BUILD_TESTING) AND BUILD_TESTING)
+   add_subdirectory(test)
+ endif()
++
++include(GNUInstallDirs)
++
++install(TARGETS argp-standalone
++  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
++
++install(FILES
++  ${PROJECT_SOURCE_DIR}/include/argp-standalone/argp.h
++  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
