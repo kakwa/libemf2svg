@@ -49,8 +49,8 @@ jobs:
     - name: Install packages
       run: |
         sudo apt-get update
-        sudo apt-get install libxml2-utils valgrind
-
+        sudo apt-get install libxml2-utils valgrind lcov
+                                                       
     - name: Install coveralls
       run: sudo pip install cpp-coveralls
 
