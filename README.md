@@ -216,6 +216,10 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.3.1: 
+
+* add MSVC 17 (2022) support
+
 1.3.0: 
 
 * add MSVC Windows native build
