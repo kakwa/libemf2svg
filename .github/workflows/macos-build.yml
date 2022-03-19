@@ -2,9 +2,13 @@ name: MacOS build
 
 on:
   push:
-    branches:
-    - master
+    branches: [ master ]
+    paths-ignore:
+      - '.github/workflows/ubuntu-build.yml'
+      - '.github/workflows/ubuntu-aarch64.yml'
+      - '.github/workflows/windows-build.yml'
   pull_request:
+  workflow_dispatch:
 
 env:
   BUILD_TYPE: Release
@@ -16,11 +20,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install packages MacOS
+    - name: Install packages
       run: |
-        brew install argp-standalone
-        brew install coreutils
-        brew install lcov
+        brew install argp-standalone coreutils
+#        brew install lcov
 #        brew tap LouisBrunner/valgrind
 #        brew install --HEAD LouisBrunner/valgrind/valgrind
 

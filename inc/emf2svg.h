@@ -26,7 +26,7 @@ typedef struct {
 
 // convert function
 #ifdef _MSC_VER
-__declspec(dllexport) 
+__declspec(dllexport)
 #endif
 int emf2svg(char *contents, size_t length, char **out, size_t *out_length,
             generatorOptions *options);

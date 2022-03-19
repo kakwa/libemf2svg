@@ -1,0 +1,57 @@
+name: Ubuntu-aarch64 build
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '.github/workflows/ubuntu-build.yml'
+      - '.github/workflows/macos-build.yml'
+      - '.github/workflows/windows-build.yml'
+  pull_request:
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+  VCPKG_DEFAULT_BINARY_CACHE: ${{github.workspace}}/cache
+
+jobs:
+  Ubuntu-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Create cache storage and cache key
+      run: |
+        mkdir ${{env.VCPKG_DEFAULT_BINARY_CACHE}}
+        git submodule status > sm.txt
+
+    - uses: actions/cache@v2
+      with:
+        path: ${{env.VCPKG_DEFAULT_BINARY_CACHE}}
+        key: ${{runner.os}}-vcpkg-${{ hashFiles('sm.txt') }}
+
+    - name: Install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu gperf qemu-user
+
+    - name: Configure CMake
+      run: |
+        cmake -B ${{github.workspace}}                                                              \
+              -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}                                                \
+              -DCMAKE_TOOLCHAIN_FILE=${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake   \
+              -DVCPKG_TARGET_TRIPLET=arm64-linux
+
+    - name: Build
+      run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
+
+    - name: Smoke test
+      run: |
+        qemu-aarch64 -L /usr/aarch64-linux-gnu ${{github.workspace}}/emf2svg-conv --version
+        qemu-aarch64 -L /usr/aarch64-linux-gnu ${{github.workspace}}/emf2svg-conv \
+                     -i ${{github.workspace}}/tests/resources/emf/test-000.emf -o test-000.svg
+        ls | grep test-000.svg
+

@@ -802,7 +802,7 @@ int emf2svg(char *contents, size_t length, char ** fm_out, size_t * fm_out_lengt
     if (stream) {
         fflush(stream);
         void* out;
-        fmem_mem(&fm, &out, fm_out_length); 
+        fmem_mem(&fm, &out, fm_out_length);
         if (*fm_out_length) {
             *fm_out = (char*)malloc(*fm_out_length+1);
         }
