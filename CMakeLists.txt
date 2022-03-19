@@ -2,13 +2,13 @@ cmake_minimum_required (VERSION 3.12)
 include(ExternalProject)
 
 # Comments re MSVC build
-# - We use vcpkg to install MSVC versions of the following GNU libraries 
+# - We use vcpkg to install MSVC versions of the following GNU libraries
 #   and their dependencies:
 #   -- libpng
 #   -- freetype
 #   -- fontconfig
 #   -- iconv
-# - vcpkg is configured as git submodule. Some experts consider it is the best prectice 
+# - vcpkg is configured as git submodule. Some experts consider it is the best prectice
 #   (though other experts do not)
 # - The list of vcpkg modules is specified at vcpkg.json
 # - With this setup and when called with -DCMAKE_TOOLCHAIN_FILE={project root}/vcpkg/scripts/buildsystems/vcpkg.cmake
@@ -16,27 +16,37 @@ include(ExternalProject)
 
 project (emf2svg)
 
-# Project version (sematic versionning)
 set(emf2svg_VERSION_MAJOR 1)
-set(emf2svg_VERSION_MINOR 3)
-set(emf2svg_VERSION_PATCH 1)
+set(emf2svg_VERSION_MINOR 4)
+set(emf2svg_VERSION_PATCH 0)
 set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
+if(VCPKG_TARGET_TRIPLET)
+  set(PLATFORM_TOOLCHAIN ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${VCPKG_TARGET_TRIPLET}.cmake)
+  if(EXISTS ${PLATFORM_TOOLCHAIN})
+    set(PLATFORM_TOOLCHAIN_OPTION -DCMAKE_TOOLCHAIN_FILE=${PLATFORM_TOOLCHAIN})
+    include(${PLATFORM_TOOLCHAIN})
+  endif(EXISTS ${PLATFORM_TOOLCHAIN})
+endif(VCPKG_TARGET_TRIPLET)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+
 
 find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(Fontconfig REQUIRED)
+find_package(LibXml2 REQUIRED)
 
 set(DEPS ${CMAKE_CURRENT_SOURCE_DIR}/deps)
 set(EXTERNAL_INCLUDE_DIR ${DEPS}/include)
 set(EXTERNAL_LIB_DIR ${DEPS}/lib)
+set(PATCHES ${CMAKE_CURRENT_SOURCE_DIR}/patches)
 
 # Comments re fmem setup
 # The patch fixes https://github.com/Snaipe/fmem/issues/4
 # https://gitlab.kitware.com/cmake/cmake/-/issues/21086
 # Basically, you cannot predict when PATCH_COMMAND is executed so we always roll back
-# the patch that may be applied during the previous build in order to ensure that 
+# the patch that may be applied during the previous build in order to ensure that
 # the same patch may be applied correctly again
 
 # And finally a small helper for building native Windows and WSL from single source tree
@@ -44,15 +54,14 @@ set(FMEM_NAME fm${EXTERNAL_LIB_DIR_SUFFIX})
 
 ExternalProject_Add(${FMEM_NAME}
    PREFIX ${DEPS}
-   GIT_REPOSITORY https://github.com/Snaipe/fmem.git
-   GIT_TAG b73b3d8b570c2f79df5a0b071efba392a82ddcd7 
-   PATCH_COMMAND cd ${DEPS}/src/${FMEM_NAME} && git restore CMakeLists.txt && git apply ${DEPS}/fmem.patch/CMakeLists.txt.patch
-   CMAKE_ARGS -DBUILD_TESTING=FALSE -DCMAKE_INSTALL_PREFIX=${DEPS}
+   GIT_REPOSITORY https://github.com/tamatebako/fmem.git
+   GIT_TAG bdce2760f0190253600f11984220fc0a007742c8
+   CMAKE_ARGS -DBUILD_TESTING=FALSE -DCMAKE_INSTALL_PREFIX=${DEPS} ${PLATFORM_TOOLCHAIN_OPTION}
 )
 set(EXTERNAL_FMEM "fmem")
 
 
-set(DEPS_UEMF ${DEPS}/libUEMF-0.2.5)
+set(DEPS_UEMF libUEMF-0.2.5)
 
 add_custom_target(tag
     COMMAND git tag -a ${emf2svg_VERSION} -m "tagging version ${emf2svg_VERSION}"
@@ -113,10 +122,19 @@ endif(NOT FORCELE)
 
 # Build external dependancies if we are on OSX
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-   # Mac OS X specific code
-   set(EXTERNAL_ICONV "iconv")
-   set(EXTERNAL_ARGP "argp")
-   add_definitions(-DDARWIN)
+  execute_process(
+    COMMAND brew --prefix
+      RESULT_VARIABLE BREW_PREFIX_RES
+      OUTPUT_VARIABLE BREW_PREFIX
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+  if(NOT (BREW_PREFIX_RES EQUAL 0))
+      message(FATAL_ERROR "Could not find brew setup")
+  endif()
+  set(BREW_LIB_DIR ${BREW_PREFIX}/lib)
+  set(EXTERNAL_ICONV "iconv")
+  set(EXTERNAL_ARGP "argp")
+  add_definitions(-DDARWIN)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Find/build external dependancies if it is Microsoft Visual Studio build
@@ -130,7 +148,7 @@ if(MSVC)
     GIT_REPOSITORY https://github.com/tom42/argp-standalone.git
     GIT_TAG 238d83d6fb4fbdbb3e0893f51698d8d54696bfb0
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEPS}
-    PATCH_COMMAND cd ${DEPS}/src/${ARGP_NAME} && git restore CMakeLists.txt && git apply ${DEPS}/argp.patch/CMakeLists.txt.patch
+    PATCH_COMMAND cd ${DEPS}/src/${ARGP_NAME} && git restore CMakeLists.txt && git apply ${PATCHES}/argp/CMakeLists.txt.patch
   )
   set(EXTERNAL_ARGP "argp-standalone")
 endif(MSVC)
@@ -157,15 +175,14 @@ else(MSVC)
     ${FONTCONFIG_INCLUDE_DIRS}
     ${EXTERNAL_INCLUDE_DIR}
     ${DEPS_UEMF}
-    /usr/local/include 
-    /usr/include 
+    /usr/local/include
+    /usr/include
     /sw/include
   )
   link_directories(
     ${CMAKE_BINARY_DIR}
     ${EXTERNAL_LIB_DIR}
-    /usr/local/lib
-    /usr/lib/
+    ${BREW_LIB_DIR}
   )
 endif(MSVC)
 
@@ -195,9 +212,9 @@ add_library(emf2svg
     src/lib/emf2svg.c
 )
 
-set_target_properties(emf2svg 
-    PROPERTIES 
-    VERSION ${emf2svg_VERSION} 
+set_target_properties(emf2svg
+    PROPERTIES
+    VERSION ${emf2svg_VERSION}
     SOVERSION ${emf2svg_VERSION_MAJOR}
 )
 
@@ -206,8 +223,9 @@ target_link_libraries(emf2svg
     ${EXTERNAL_ICONV}
     ${FREETYPE_LIBRARIES}
     ${FONTCONFIG_LIBRARIES}
+    ${EXPAT_LIBRARY_RELEASE}
     ${EXTERNAL_FMEM}
-) 
+)
 
 add_dependencies(emf2svg ${FMEM_NAME})
 if(MSVC)

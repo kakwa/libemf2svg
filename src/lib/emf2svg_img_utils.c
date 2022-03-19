@@ -263,7 +263,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
     else {
         out_img.size = 0;
     }
-    
+
     fclose(stream);
     fmem_term(&fm);
     return out_img;

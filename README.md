@@ -79,7 +79,16 @@ Commands to build this project:
 # * [-DDEBUG=on]: compile with debugging symbols
 #
 # CMAKE_INSTALL_PREFIX is optional, default is /usr/local/
+
+# Linux, MacOS
 $ cmake . -DCMAKE_INSTALL_PREFIX=/usr/
+
+# Windows native (MSVC) build
+$ cmake . -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+
+# Linux cross-compilation
+# (the only option tested is arm64 build on ubuntu x64)
+$ cmake . -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=arm64-linux
 
 # compilation
 $ make

@@ -2,12 +2,15 @@ name: Ubuntu build
 
 on:
   push:
-    branches:
-    - master
+    branches: [ master ]
+    paths-ignore:
+      - '.github/workflows/macos-build.yml'
+      - '.github/workflows/ubuntu-aarch64.yml'
+      - '.github/workflows/windows-build.yml'
   pull_request:
+  workflow_dispatch:
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
@@ -17,7 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install packages Ubuntu
+    - name: Install packages
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-utils valgrind
@@ -50,7 +53,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install libxml2-utils valgrind lcov
-                                                       
+
     - name: Install coveralls
       run: sudo pip install cpp-coveralls
 
@@ -72,4 +75,4 @@ jobs:
           -E '.*tests.*' \
           --gcov-options '\-lp'
 
- 
+
