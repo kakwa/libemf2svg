@@ -4,6 +4,8 @@ libemf2svg
 ![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-build.yml/badge.svg)
 ![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/macos-build.yml/badge.svg)
 ![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/windows-build.yml/badge.svg)
+[![Ubuntu-aarch64 build](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml)
+[![Alpine build](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-build.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-build.yml)
 [![Coverage Status](https://coveralls.io/repos/github/metanorma/libemf2svg/badge.svg?branch=master)](https://coveralls.io/github/metanorma/libemf2svg?branch=master)
 
 MS EMF (Enhanced Metafile) to SVG conversion library.
