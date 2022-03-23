@@ -103,6 +103,7 @@ int main(int argc, char *argv[]) {
     arguments.input = NULL;
     arguments.output = NULL;
     arguments.emfplus = 0;
+
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
     if (arguments.version) {

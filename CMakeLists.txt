@@ -18,7 +18,7 @@ include(ExternalProject)
 project (emf2svg)
 
 set(emf2svg_VERSION_MAJOR 1)
-set(emf2svg_VERSION_MINOR 5)
+set(emf2svg_VERSION_MINOR 6)
 set(emf2svg_VERSION_PATCH 0)
 set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
@@ -56,7 +56,11 @@ ExternalProject_Add(${FMEM_NAME}
    PREFIX ${DEPS}
    GIT_REPOSITORY https://github.com/tamatebako/fmem.git
    GIT_TAG bdce2760f0190253600f11984220fc0a007742c8
-   CMAKE_ARGS -DBUILD_TESTING=FALSE -DCMAKE_INSTALL_PREFIX=${DEPS} ${PLATFORM_TOOLCHAIN_OPTION}
+   CMAKE_ARGS -DBUILD_TESTING=FALSE 
+              -DCMAKE_INSTALL_PREFIX=${DEPS} 
+              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+              ${PLATFORM_TOOLCHAIN_OPTION}
+              ${CMAKE_OSX_ARCHITECTURES_OPTION}
 )
 set(EXTERNAL_FMEM "fmem")
 
@@ -78,7 +82,10 @@ option(INDEX     "print record indexes"         OFF)
 option(STATIC    "compile statically"           OFF)
 option(FORCELE   "force little endian architecture"   OFF)
 
-CHECK_FUNCTION_EXISTS(argp_parse HAVE_ARGP_PARSE_FUNCTION)
+CHECK_FUNCTION_EXISTS(argp_parse HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
+
+set(CMAKE_REQUIRED_LIBRARIES argp)
+CHECK_FUNCTION_EXISTS(argp_parse HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
 
 if(GCOV)
   SET(UNITTEST ON)
@@ -144,28 +151,32 @@ if(MSVC)
   set(EXTERNAL_ICONV ${Iconv_LIBRARY})
 endif(MSVC)
 
-if(MSVC)
+if(HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
+  message(STATUS "Using bundled argp")
+elseif(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
+  message(STATUS "Using stand-alone argp")
+  set(EXTERNAL_ARGP "argp")
+else()
+  message(STATUS "Building argp")
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    # https://www.gnu.org/software/gnulib/manual/html_node/argp_005fprogram_005fversion_005fhook.html  
+    set(EXTERNAL_ARGP "-Wl,-force_load,${DEPS}/lib/libargp-standalone.a")
+  else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(EXTERNAL_ARGP "argp-standalone")
+  endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
   set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
   ExternalProject_Add(${ARGP_NAME}
     PREFIX ${DEPS}
     GIT_REPOSITORY https://github.com/tom42/argp-standalone.git
     GIT_TAG 238d83d6fb4fbdbb3e0893f51698d8d54696bfb0
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEPS}
+    CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX=${DEPS}
+                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                ${PLATFORM_TOOLCHAIN_OPTION}
+                ${CMAKE_OSX_ARCHITECTURES_OPTION}
     PATCH_COMMAND cd ${DEPS}/src/${ARGP_NAME} && git restore CMakeLists.txt && git apply ${PATCHES}/argp/CMakeLists.txt.patch
   )
-endif(MSVC)
-
-if(HAVE_ARGP_PARSE_FUNCTION)
-  message(STATUS "Using bundled argp")
-else(HAVE_ARGP_PARSE_FUNCTION)
-  if(MSVC)
-    message(STATUS "Building argp")
-    set(EXTERNAL_ARGP "argp-standalone")
-  else(MSVC)
-    message(STATUS "Using stand-alone argp")
-    set(EXTERNAL_ARGP "argp")
-  endif(MSVC)
-endif(HAVE_ARGP_PARSE_FUNCTION)
+endif(HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
 
 # headers & library directories
 if(MSVC)

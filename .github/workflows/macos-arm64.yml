@@ -1,4 +1,4 @@
-name: Ubuntu-aarch64 build
+name: MacOS-arm64 build
 
 on:
   push:
@@ -6,8 +6,9 @@ on:
     paths-ignore:
       - '.github/workflows/alpine-build.yml'
       - '.github/workflows/ubuntu-build.yml'
-      - '.github/workflows/macos-build.yml'
+      - '.github/workflows/ubuntu-arm64.yml'
       - '.github/workflows/windows-build.yml'
+      - '.github/workflows/macos-build.yml'
   pull_request:
   workflow_dispatch:
 
@@ -16,8 +17,8 @@ env:
   VCPKG_DEFAULT_BINARY_CACHE: ${{github.workspace}}/cache
 
 jobs:
-  Ubuntu-build:
-    runs-on: ubuntu-latest
+  MacOS-build:
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -34,25 +35,12 @@ jobs:
         path: ${{env.VCPKG_DEFAULT_BINARY_CACHE}}
         key: ${{runner.os}}-vcpkg-${{ hashFiles('sm.txt') }}
 
-    - name: Install packages
-      run: |
-        sudo apt-get update
-        sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu gperf qemu-user
-
     - name: Configure CMake
       run: |
         cmake -B ${{github.workspace}}                                                              \
               -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}                                                \
               -DCMAKE_TOOLCHAIN_FILE=${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake   \
-              -DVCPKG_TARGET_TRIPLET=arm64-linux
+              -DVCPKG_TARGET_TRIPLET=arm64-osx
 
     - name: Build
       run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
-
-    - name: Smoke test
-      run: |
-        qemu-aarch64 -L /usr/aarch64-linux-gnu ${{github.workspace}}/emf2svg-conv --version
-        qemu-aarch64 -L /usr/aarch64-linux-gnu ${{github.workspace}}/emf2svg-conv \
-                     -i ${{github.workspace}}/tests/resources/emf/test-000.emf -o test-000.svg
-        ls | grep test-000.svg
-
