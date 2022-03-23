@@ -1,4 +1,5 @@
 cmake_minimum_required (VERSION 3.12)
+include(CheckFunctionExists)
 include(ExternalProject)
 
 # Comments re MSVC build
@@ -31,7 +32,6 @@ endif(VCPKG_TARGET_TRIPLET)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
-
 find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(Fontconfig REQUIRED)
@@ -60,7 +60,6 @@ ExternalProject_Add(${FMEM_NAME}
 )
 set(EXTERNAL_FMEM "fmem")
 
-
 set(DEPS_UEMF libUEMF-0.2.5)
 
 add_custom_target(tag
@@ -78,6 +77,8 @@ option(UNITTEST  "compile unit tests"           OFF)
 option(INDEX     "print record indexes"         OFF)
 option(STATIC    "compile statically"           OFF)
 option(FORCELE   "force little endian architecture"   OFF)
+
+CHECK_FUNCTION_EXISTS(argp_parse HAVE_ARGP_PARSE_FUNCTION)
 
 if(GCOV)
   SET(UNITTEST ON)
@@ -110,6 +111,7 @@ endif(STATIC)
 
 if(UNIX)
   link_libraries(m)
+  add_compile_options(-fPIC)
 endif(UNIX)
 
 if(NOT FORCELE)
@@ -133,15 +135,16 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   endif()
   set(BREW_LIB_DIR ${BREW_PREFIX}/lib)
   set(EXTERNAL_ICONV "iconv")
-  set(EXTERNAL_ARGP "argp")
   add_definitions(-DDARWIN)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
-# Find/build external dependancies if it is Microsoft Visual Studio build
+# Find/build external dependencies if it is Microsoft Visual Studio build
 if(MSVC)
   find_package(Iconv REQUIRED)
   set(EXTERNAL_ICONV ${Iconv_LIBRARY})
+endif(MSVC)
 
+if(MSVC)
   set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
   ExternalProject_Add(${ARGP_NAME}
     PREFIX ${DEPS}
@@ -150,8 +153,19 @@ if(MSVC)
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DEPS}
     PATCH_COMMAND cd ${DEPS}/src/${ARGP_NAME} && git restore CMakeLists.txt && git apply ${PATCHES}/argp/CMakeLists.txt.patch
   )
-  set(EXTERNAL_ARGP "argp-standalone")
 endif(MSVC)
+
+if(HAVE_ARGP_PARSE_FUNCTION)
+  message(STATUS "Using bundled argp")
+else(HAVE_ARGP_PARSE_FUNCTION)
+  if(MSVC)
+    message(STATUS "Building argp")
+    set(EXTERNAL_ARGP "argp-standalone")
+  else(MSVC)
+    message(STATUS "Using stand-alone argp")
+    set(EXTERNAL_ARGP "argp")
+  endif(MSVC)
+endif(HAVE_ARGP_PARSE_FUNCTION)
 
 # headers & library directories
 if(MSVC)
@@ -238,6 +252,12 @@ add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 target_link_libraries(emf2svg-conv
     emf2svg
     ${EXTERNAL_ARGP}
+    ${PNG_LIBRARIES}
+    ${EXTERNAL_ICONV}
+    ${FREETYPE_LIBRARIES}
+    ${FONTCONFIG_LIBRARIES}
+    ${EXPAT_LIBRARY_RELEASE}
+    ${EXTERNAL_FMEM}
 )
 
 if(GCOV)

@@ -1,0 +1,30 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Collect
+      run: |
+        cd ..
+        rm -rf libemf2svg/.git*
+        rm -rf libemf2svg/vcpkg/.git*
+        tar cvzf libemf2svg.tar.gz libemf2svg
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: ${{github.workspace}}/../libemf2svg.tar.gz

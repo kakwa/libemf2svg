@@ -1428,65 +1428,69 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
                                 states->currentDeviceContext.font_family,
                                 states->currentDeviceContext.font_weight,
                                 states->currentDeviceContext.font_italic);
-        switch (states->currentDeviceContext.font_charset) {
-        case U_HEBREW_CHARSET:
-        case U_ARABIC_CHARSET:
-            /* with Utf-8 strings, the strings must always be
-             * stored in logical order, not visual order.
-             * Unicode Bidirectional (bidi) Algorithm does the work
-             * of rendering the text properly.
-             * So we reverse the text to be in logical order.
-             * However, this seems imcomplete,
-             * Right to Left ordering can also be set in
-             * ExtTextOutOptions (EMR_*TEXTOUT* records) and EMR_SETLAYOUT
-             * records, and it's completely ignored here.
-             * FIXME this is probably to simplistic.
-             */
-            reverse_utf8((char *)string, *size_out);
-            break;
-        case U_ANSI_CHARSET:
-        case U_DEFAULT_CHARSET:
-        case U_SYMBOL_CHARSET:
-        case U_SHIFTJIS_CHARSET:
-        case U_HANGUL_CHARSET:
-        case U_GB2312_CHARSET:
-        case U_CHINESEBIG5_CHARSET:
-        case U_GREEK_CHARSET:
-        case U_TURKISH_CHARSET:
-        case U_BALTIC_CHARSET:
-        case U_RUSSIAN_CHARSET:
-        case U_EASTEUROPE_CHARSET:
-        case U_THAI_CHARSET:
-        case U_JOHAB_CHARSET:
-        case U_MAC_CHARSET:
-        case U_OEM_CHARSET:
-        case U_VISCII_CHARSET:
-        case U_TCVN_CHARSET:
-        case U_KOI8_CHARSET:
-        case U_ISO3_CHARSET:
-        case U_ISO4_CHARSET:
-        case U_ISO10_CHARSET:
-        case U_CELTIC_CHARSET:
-        default:
-            break;
+        if (ret==0 && string!=NULL) {
+            switch (states->currentDeviceContext.font_charset) {
+            case U_HEBREW_CHARSET:
+            case U_ARABIC_CHARSET:
+                /* with Utf-8 strings, the strings must always be
+                 * stored in logical order, not visual order.
+                 * Unicode Bidirectional (bidi) Algorithm does the work
+                 * of rendering the text properly.
+                 * So we reverse the text to be in logical order.
+                 * However, this seems imcomplete,
+                 * Right to Left ordering can also be set in
+                 * ExtTextOutOptions (EMR_*TEXTOUT* records) and EMR_SETLAYOUT
+                 * records, and it's completely ignored here.
+                 * FIXME this is probably to simplistic.
+                 */
+                reverse_utf8((char*)string, *size_out);
+                break;
+            case U_ANSI_CHARSET:
+            case U_DEFAULT_CHARSET:
+            case U_SYMBOL_CHARSET:
+            case U_SHIFTJIS_CHARSET:
+            case U_HANGUL_CHARSET:
+            case U_GB2312_CHARSET:
+            case U_CHINESEBIG5_CHARSET:
+            case U_GREEK_CHARSET:
+            case U_TURKISH_CHARSET:
+            case U_BALTIC_CHARSET:
+            case U_RUSSIAN_CHARSET:
+            case U_EASTEUROPE_CHARSET:
+            case U_THAI_CHARSET:
+            case U_JOHAB_CHARSET:
+            case U_MAC_CHARSET:
+            case U_OEM_CHARSET:
+            case U_VISCII_CHARSET:
+            case U_TCVN_CHARSET:
+            case U_KOI8_CHARSET:
+            case U_ISO3_CHARSET:
+            case U_ISO4_CHARSET:
+            case U_ISO10_CHARSET:
+            case U_CELTIC_CHARSET:
+            default:
+                break;
+            }
         }
         break;
     default:
         if (checkOutOfEMF(states,
                           (uintptr_t)((uintptr_t)in + (uintptr_t)size_in))) {
             string = NULL;
-            return;
         }
-
-        string = (uint8_t *)calloc((size_in + 1), 1);
-        strncpy((char *)string, in, size_in);
-        *size_out = size_in;
+        else {
+            string = (uint8_t *)calloc((size_in + 1), 1);
+            strncpy((char *)string, in, size_in);
+            *size_out = size_in;
+        }
+        break;
     }
+
     if (ret != 0)
         string = NULL;
 
     if (string == NULL) {
-        return;
+            return;
     }
 
     int i = 0;
