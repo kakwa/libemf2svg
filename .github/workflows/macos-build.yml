@@ -4,6 +4,7 @@ on:
   push:
     branches: [ master ]
     paths-ignore:
+      - '.github/workflows/alpine-build.yml'
       - '.github/workflows/ubuntu-build.yml'
       - '.github/workflows/ubuntu-aarch64.yml'
       - '.github/workflows/windows-build.yml'

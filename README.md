@@ -32,8 +32,8 @@ Dependencies
 * libpng
 * libfontconfig
 * libfreetype
-* fmem (https://github.com/Snaipe/fmem) -- a cross-platform library for opening memory-backed libc streams
-* argp-standalone (https://github.com/bigcat26/argp-standalone) -- a standalone version of the argp argument parsing functions from glibc, Windows only
+* fmem (https://github.com/tamatebako/fmem) -- a cross-platform library for opening memory-backed libc streams
+* argp-standalone (https://github.com/tom42/argp-standalone) -- a standalone version of the argp argument parsing functions from glibc, Windows only
 
 fmem and argp-standalone libraries are integrated as CMake external projects.  No additional installation or handling is required.
 
@@ -52,14 +52,20 @@ apt-get install cmake pkg-config
 apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev zlib1g-dev
 ```
 
-Installing the dependencies on OS X:
+Installing the dependencies on macOS:
 ```bash
-$ brew install argp-standalone
+$ brew install argp-standalone cmake libpng freetype fontconfig gcc
 ```
 
 Installing the dependencies on RHEL/CentOS/Fedora:
 ```bash
 yum install cmake libpng-devel freetype-devel fontconfig-devel gcc-c++ gcc
+```
+
+Installing the dependencies on Alpine Linux:
+```bash
+apk --no-cache --upgrade add build-base clang cmake libxml2-dev \
+  libxml2-utils libpng-dev freetype-dev fontconfig-dev git argp-standalone
 ```
 
 Installing the dependencies on Windows for MSVC native builds
@@ -227,11 +233,19 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
-1.3.1: 
+1.5.0:
+
+* add alpine linux support
+
+1.4.0:
+
+* add aarch64 debian linux support
+
+1.3.0:
 
 * add MSVC 17 (2022) support
 
-1.3.0: 
+1.3.0:
 
 * add MSVC Windows native build
 
