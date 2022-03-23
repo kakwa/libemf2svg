@@ -241,7 +241,7 @@ ChangeLogs
 
 * add aarch64 debian linux support
 
-1.3.0:
+1.3.1:
 
 * add MSVC 17 (2022) support
 
