@@ -1,4 +1,4 @@
-# CMake Toolchain file for crosscompiling on ARM.
+# CMake Toolchain file for crosscompiling on arm64(aks aarch64) linux.
 # Assumed:
 # sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu
 

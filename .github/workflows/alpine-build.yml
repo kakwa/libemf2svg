@@ -5,8 +5,9 @@ on:
     branches: [ master ]
     paths-ignore:
       - '.github/workflows/macos-build.yml'
+      - '.github/workflows/macos-arm64.yml'
       - '.github/workflows/ubuntu-build.yml'
-      - '.github/workflows/ubuntu-aarch64.yml'
+      - '.github/workflows/ubuntu-arm64.yml'
       - '.github/workflows/windows-build.yml'
   pull_request:
   workflow_dispatch:

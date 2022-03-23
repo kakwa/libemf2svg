@@ -4,8 +4,11 @@ libemf2svg
 ![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-build.yml/badge.svg)
 ![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/macos-build.yml/badge.svg)
 ![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/windows-build.yml/badge.svg)
-[![Ubuntu-aarch64 build](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml)
 [![Alpine build](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-build.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-build.yml)
+
+[![Ubuntu-arm64 build](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-arm64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-arm64.yml)
+[![MacOS-arm64 build](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml)
+
 [![Coverage Status](https://coveralls.io/repos/github/metanorma/libemf2svg/badge.svg?branch=master)](https://coveralls.io/github/metanorma/libemf2svg?branch=master)
 
 MS EMF (Enhanced Metafile) to SVG conversion library.
@@ -233,13 +236,17 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.6.0:
+
+* add arm64 MacOS support (cross-compilation only, no tests)
+
 1.5.0:
 
-* add alpine linux support
+* add Alpine Linux support
 
 1.4.0:
 
-* add aarch64 debian linux support
+* add arm64 Debian Linux support (cross-compilation only, no tests)
 
 1.3.1:
 

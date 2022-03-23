@@ -6,8 +6,9 @@ on:
     paths-ignore:
       - '.github/workflows/alpine-build.yml'
       - '.github/workflows/ubuntu-build.yml'
-      - '.github/workflows/ubuntu-aarch64.yml'
+      - '.github/workflows/ubuntu-arm64.yml'
       - '.github/workflows/windows-build.yml'
+      - '.github/workflows/macos-arm64.yml'
   pull_request:
   workflow_dispatch:
 
@@ -33,5 +34,3 @@ jobs:
 
     - name: Build
       run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
-
-
