@@ -14,12 +14,11 @@ on:
 env:
   BUILD_TYPE: Release
   VCPKG_FORCE_SYSTEM_BINARIES: 1
-  VCPKG_DEFAULT_BINARY_CACHE: /home/cache
   CC: gcc
   CXX: g++
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     container:
       image: alpine:latest
@@ -27,8 +26,8 @@ jobs:
     steps:
     - name: Install packages
       run: |
-        apk --no-cache --upgrade add build-base cmake git valgrind argp-standalone    \
-          gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkgconfig \
+        apk --no-cache --upgrade add build-base cmake git valgrind tar argp-standalone \
+          gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkgconfig  \
           libxml2-utils font-noto-hebrew font-noto-arabic
 
 # vcpkg prerequisites (and VCPKG_FORCE_SYSTEM_BINARIES: 1)
@@ -41,6 +40,12 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Configure cache
+      run: |
+        echo 'VCPKG_DEFAULT_BINARY_CACHE<<EOF' >> $GITHUB_ENV
+        echo "$(pwd)/cache" >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+
     - name: Create cache storage and cache key
       run: |
         mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
@@ -50,7 +55,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
+        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}-2
 
     - name: Configure CMake
       run: |
@@ -68,3 +73,59 @@ jobs:
 
     - name: Test EA files
       run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/
+
+  build-for-ruby:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+
+    steps:
+    - name: Install packages
+      run: |
+        apk --no-cache --upgrade add build-base cmake git valgrind tar bash            \
+          gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkgconfig  
+
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Configure cache
+      run: |
+        echo 'VCPKG_DEFAULT_BINARY_CACHE<<EOF' >> $GITHUB_ENV
+        echo "$(pwd)/cache" >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+
+    - name: Create cache storage and cache key
+      run: |
+        mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        git submodule status > sm.txt
+
+    - name: Process cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}-2
+
+    - name: Configure CMake
+      run: |
+        cmake -B . -DCMAKE_BUILD_TYPE=Release         \
+                   -DVCPKG_TARGET_TRIPLET=x64-linux   \
+                   -DLONLY=ON                         \
+                   -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      run: |
+        cmake --build . --config ${{env.BUILD_TYPE}}
+
+    - name: Checkout shell test framework
+      uses: actions/checkout@v3
+      with:
+        repository: kward/shunit2
+        path: tests/shunit2
+        fetch-depth: 1
+
+    - name: Run additional tests
+      run:  |
+        ls -l libemf2svg*
+        ldd libemf2svg.so
+#      tests/resources/lcheck.sh
