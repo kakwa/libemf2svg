@@ -7,7 +7,8 @@ on:
       - '.github/workflows/macos-arm64.yml'
       - '.github/workflows/ubuntu-x86_64.yml'
       - '.github/workflows/ubuntu-aarch64.yml'
-      - '.github/workflows/windows-build.yml'
+      - '.github/workflows/windows-x86_64.yml'
+      - '.github/workflows/msys-x86_64.yml'
   pull_request:
   workflow_dispatch:
 
@@ -33,8 +34,8 @@ jobs:
 # vcpkg prerequisites (and VCPKG_FORCE_SYSTEM_BINARIES: 1)
 #  gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkg-config
 # testing prerequisites
-#  libxml2-utils 
-# [ tests/resources/emf/test-183.emf ] -- font-noto-hebrew font-noto-arabic 
+#  libxml2-utils
+# [ tests/resources/emf/test-183.emf ] -- font-noto-hebrew font-noto-arabic
 
     - name: Checkout
       uses: actions/checkout@v3
@@ -56,7 +57,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}-2
+        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
 
     - name: Configure CMake
       run: |
@@ -82,8 +83,8 @@ jobs:
     steps:
     - name: Install packages
       run: |
-        apk --no-cache --upgrade add build-base cmake git valgrind tar bash            \
-          gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkgconfig  
+        apk --no-cache --upgrade add build-base cmake git tar bash   \
+          gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkgconfig
 
     - name: Checkout
       uses: actions/checkout@v3
@@ -105,7 +106,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}-2
+        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
 
     - name: Configure CMake
       run: |

@@ -28,12 +28,10 @@
 set -o errexit -o pipefail -o noclobber -o nounset
 
 # Checks referenced shared libraries
-# $1 - an array of expected refs to shared libraries
-# $2 - an array of actual refs to shared libraries
 check_shared_libs() {
     expected_size="${#expected[@]}"
     actual_size="${#actual[@]}"
-    assertEquals "The number of references to shared libraries does not meet our expectations" "$expected_size" "$actual_size"
+    assertTrue "The number of references to shared libraries does not meet our expectations" "[ $expected_size -ge $actual_size ]"
 
     for exp in "${expected[@]}"; do
         for i in "${!actual[@]}"; do
@@ -67,11 +65,15 @@ test_linkage() {
         readarray -t actual < <(otool -L "$probe.dylib")
         assertEquals "readarray -t actual < <(otool -L $probe.dylib) failed" 0 "${PIPESTATUS[0]}"
         check_shared_libs "${expected[@]}"
+    elif [[ "$OSTYPE" == "msys"* ]]; then
+        expected=("ntdll.dll" "KERNEL32.DLL" "KERNELBASE.dll" "msvcrt.dll" "libgcc_s_seh-1.dll" "libwinpthread-1.dll" "ucrtbase.dll")
+        readarray -t actual < <(ldd "$probe.dll")
+        assertEquals "readarray -t actual < <(ldd "$probe.dll") failed" 0 "${PIPESTATUS[0]}"
+        check_shared_libs
     else
         echo "... unknown - $OSTYPE ... skipping"
     fi
 }
-
 # ......................................................................
 # main
 DIR0="$( cd "$( dirname "$0" )" && pwd )"

@@ -18,7 +18,7 @@ STOPONERROR="no"
 
 help(){
     cat <<EOF
-usage: `basename $0` [-h] [-v] [-e <emf dir>] [-s] [-n] 
+usage: `basename $0` [-h] [-v] [-e <emf dir>] [-s] [-n]
 
 Script checking memleaks, segfault and svg correctness of emf2svg-conv
 
@@ -39,7 +39,7 @@ EOF
 while getopts ":hnNxrvse:" opt; do
   case $opt in
 
-    h) 
+    h)
         help
         ;;
     n)

@@ -7,7 +7,8 @@ on:
       - '.github/workflows/macos-x86_64.yml'
       - '.github/workflows/macos-arm64.yml'
       - '.github/workflows/ubuntu-aarch64.yml'
-      - '.github/workflows/windows-build.yml'
+      - '.github/workflows/msys-x86_64.yml'
+      - '.github/workflows/windows-x86_64.yml'
   pull_request:
   workflow_dispatch:
 

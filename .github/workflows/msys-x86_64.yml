@@ -1,0 +1,138 @@
+name: MSys-x86_64
+
+on:
+  push:
+    paths-ignore:
+      - '.github/workflows/alpine-x86_64.yml'
+      - '.github/workflows/macos-x86_64.yml'
+      - '.github/workflows/macos-arm64.yml'
+      - '.github/workflows/ubuntu-aarch64.yml'
+      - '.github/workflows/ubuntu-x86_64.yml'
+      - '.github/workflows/windows-x86_64.yml'
+  pull_request:
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+  MAKEFLAGS: -j4
+
+jobs:
+  build-and-smoke-test:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - name: Setup msys
+      uses: msys2/setup-msys2@v2
+      with:
+        path-type: minimal
+        msystem: mingw64
+        install: git flex bison gettext-devel
+        pacboy: gperf:p cmake:p python3:p ninja:p curl:p pkgconf:p gcc:p
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Configure cache
+      run: |
+        echo 'VCPKG_DEFAULT_BINARY_CACHE<<EOF' >> $GITHUB_ENV
+        echo "$(pwd)/cache" >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+        echo 'CI_CACHE<<EOF' >> $GITHUB_ENV
+        echo "$(pwd -W)/cache" >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+
+    - name: Create cache storage and cache key
+      run: |
+        mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        git submodule status > sm.txt
+
+    - name: Process cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.CI_CACHE }}
+        key: ${{ github.workflow }}-mingw64-vcpkg-${{ hashFiles('sm.txt') }}
+
+    - name: Configure
+      run: |
+        cmake -B .  -DCMAKE_BUILD_TYPE=Release              \
+                    -DVCPKG_TARGET_TRIPLET=x64-mingw-static \
+                    -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      run: cmake --build . --config ${{env.BUILD_TYPE}}
+
+    - name: Smoke test
+      run: |
+        ./emf2svg-conv.exe --version
+        ./emf2svg-conv.exe -i tests/resources/emf/test-000.emf -o test-000.svg
+        ls | grep test-000.svg
+
+  build-for-ruby:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sys:
+          - mingw64
+          - ucrt64
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - name: Setup msys
+      uses: msys2/setup-msys2@v2
+      with:
+        path-type: minimal
+        msystem: ${{ matrix.sys }}
+        install: git flex bison gettext-devel
+        pacboy: gperf:p cmake:p python3:p ninja:p curl:p pkgconf:p gcc:p
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Configure cache
+      run: |
+        echo 'VCPKG_DEFAULT_BINARY_CACHE<<EOF' >> $GITHUB_ENV
+        echo "$(pwd)/cache" >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+        echo 'CI_CACHE<<EOF' >> $GITHUB_ENV
+        echo "$(pwd -W)/cache" >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+
+    - name: Create cache storage and cache key
+      run: |
+        mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        git submodule status > sm.txt
+
+    - name: Process cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.CI_CACHE }}
+        key: ${{ github.workflow }}-${{ matrix.sys }}-vcpkg-${{ hashFiles('sm.txt') }}
+
+    - name: Configure
+      run: |
+        cmake -B .  -DCMAKE_BUILD_TYPE=Release              \
+                    -DVCPKG_TARGET_TRIPLET=x64-mingw-static \
+                    -DLONLY=ON                              \
+                    -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      run: cmake --build . --config ${{env.BUILD_TYPE}}
+
+    - name: Checkout shell test framework
+      uses: actions/checkout@v3
+      with:
+        repository: kward/shunit2
+        path: tests/shunit2
+        fetch-depth: 1
+
+    - name: Run additional tests
+      run: tests/resources/lcheck.sh

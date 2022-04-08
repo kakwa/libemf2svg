@@ -1,13 +1,8 @@
 libemf2svg
 ==========
+[![Ubuntu-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-x86_64.yml) [![Ubuntu-aarch64](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml) [![Alpine-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-x86_64.yml)
 
-![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-build.yml/badge.svg)
-![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/macos-build.yml/badge.svg)
-![Build status](https://github.com/metanorma/libemf2svg/actions/workflows/windows-build.yml/badge.svg)
-[![Alpine build](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-build.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-build.yml)
-
-[![Ubuntu-arm64 build](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-arm64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-arm64.yml)
-[![MacOS-arm64 build](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml)
+[![MacOS-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/macos-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/macos-x86_64.yml) [![MacOS-arm64](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml) [![Windows-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/windows-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/windows-x86_64.yml) [![MSys-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/msys-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/msys-x86_64.yml)
 
 [![Coverage Status](https://coveralls.io/repos/github/metanorma/libemf2svg/badge.svg?branch=master)](https://coveralls.io/github/metanorma/libemf2svg?branch=master)
 
@@ -65,12 +60,6 @@ Installing the dependencies on RHEL/CentOS/Fedora:
 yum install cmake libpng-devel freetype-devel fontconfig-devel gcc-c++ gcc
 ```
 
-Installing the dependencies on Alpine Linux:
-```bash
-apk --no-cache --upgrade add build-base clang cmake libxml2-dev \
-  libxml2-utils libpng-dev freetype-dev fontconfig-dev git argp-standalone
-```
-
 Installing the dependencies on Windows for MSVC native builds
 Dependencies are installed by vcpkg package manager. Installation is implemented as a step of CMake configuration procedure.
 
@@ -97,9 +86,15 @@ $ cmake . -DCMAKE_INSTALL_PREFIX=/usr/
 # Windows native (MSVC) build
 $ cmake . -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
-# Linux cross-compilation
-# (the only option tested is arm64 build on ubuntu x64)
-$ cmake . -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=arm64-linux
+# Cross-compilation
+# This project employs vcpkg (https://github.com/microsoft/vcpkg) to setup cross-compilation environment
+$ cmake . -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<triplet>
+# The following triplets are tested in CI:
+# * x64-linux   (both for Ubuntu and ALpine Linux)
+# * arm64-linux (Ubuntu)
+# * x64-osx
+# * arm64-osx
+# * x64-mingw-static
 
 # compilation
 $ make
@@ -235,6 +230,10 @@ EMF+ RECORDS:
 
 ChangeLogs
 ----------
+
+1.7.0:
+
+* refactor build scripts to facilitate better portability and ruby integration 
 
 1.6.0:
 
