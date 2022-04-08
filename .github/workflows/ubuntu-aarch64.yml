@@ -7,7 +7,8 @@ on:
       - '.github/workflows/ubuntu-x86_64.yml'
       - '.github/workflows/macos-x86_64.yml'
       - '.github/workflows/macos-arm64.yml'
-      - '.github/workflows/windows-build.yml'
+      - '.github/workflows/msys-x86_64.yml'
+      - '.github/workflows/windows-x86_64.yml'
   pull_request:
   workflow_dispatch:
 
@@ -16,7 +17,7 @@ env:
   VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/cache
 
 jobs:
-  build:
+  build-and-smoke-test:
     runs-on: ubuntu-latest
 
     steps:

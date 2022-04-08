@@ -1,4 +1,4 @@
-name: Windows-build
+name: Windows-x86_64
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - '.github/workflows/macos-arm64.yml'
       - '.github/workflows/ubuntu-aarch64.yml'
       - '.github/workflows/ubuntu-x86_64.yml'
+      - '.github/workflows/msys-x86_64.yml'
   pull_request:
   workflow_dispatch:
 
@@ -16,7 +17,7 @@ env:
   VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/cache
 
 jobs:
-  build:
+  build-and-smoke-test:
     runs-on: windows-latest
 
     steps:
@@ -45,3 +46,9 @@ jobs:
 
     - name: Build
       run: cmake --build ${{ github.workspace }} --config ${{env.BUILD_TYPE}}
+
+    - name: Smoke test
+      run: |
+        Release/emf2svg-conv.exe --version
+        Release/emf2svg-conv.exe -i tests/resources/emf/test-000.emf -o test-000.svg
+        dir . | findstr test-000.svg

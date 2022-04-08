@@ -83,8 +83,8 @@ ExternalProject_Add(${FMEM_NAME}
    PREFIX ${DEPS}
    GIT_REPOSITORY https://github.com/tamatebako/fmem.git
    GIT_TAG bdce2760f0190253600f11984220fc0a007742c8
-   CMAKE_ARGS -DBUILD_TESTING=FALSE 
-              -DCMAKE_INSTALL_PREFIX=${DEPS} 
+   CMAKE_ARGS -DBUILD_TESTING=FALSE
+              -DCMAKE_INSTALL_PREFIX=${DEPS}
               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
               ${PLATFORM_TOOLCHAIN_OPTION}
               ${CMAKE_OSX_ARCHITECTURES_OPTION}
@@ -172,7 +172,7 @@ if(NOT LONLY)
   else()
     message(STATUS "Building argp")
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    # https://www.gnu.org/software/gnulib/manual/html_node/argp_005fprogram_005fversion_005fhook.html  
+    # https://www.gnu.org/software/gnulib/manual/html_node/argp_005fprogram_005fversion_005fhook.html
       set(EXTERNAL_ARGP "-Wl,-force_load,${DEPS}/lib/libargp-standalone.a")
     else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
       set(EXTERNAL_ARGP "argp-standalone")
