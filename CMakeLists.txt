@@ -18,12 +18,13 @@ include(ExternalProject)
 project (emf2svg)
 
 set(emf2svg_VERSION_MAJOR 1)
-set(emf2svg_VERSION_MINOR 6)
+set(emf2svg_VERSION_MINOR 7)
 set(emf2svg_VERSION_PATCH 0)
 set(emf2svg_VERSION ${emf2svg_VERSION_MAJOR}.${emf2svg_VERSION_MINOR}.${emf2svg_VERSION_PATCH})
 
 if(VCPKG_TARGET_TRIPLET)
   set(PLATFORM_TOOLCHAIN ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${VCPKG_TARGET_TRIPLET}.cmake)
+  message(STATUS "Configured with platform toolchain = '${PLATFORM_TOOLCHAIN}'")
   if(EXISTS ${PLATFORM_TOOLCHAIN})
     set(PLATFORM_TOOLCHAIN_OPTION -DCMAKE_TOOLCHAIN_FILE=${PLATFORM_TOOLCHAIN})
     include(${PLATFORM_TOOLCHAIN})
@@ -31,6 +32,24 @@ if(VCPKG_TARGET_TRIPLET)
 endif(VCPKG_TARGET_TRIPLET)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+
+
+# Options
+option(LONLY     "build library only"           OFF)
+option(GCOV      "compile with gcov support"    OFF)
+option(UNITTEST  "compile unit tests"           OFF)
+option(INDEX     "print record indexes"         OFF)
+option(STATIC    "compile statically"           OFF)
+option(FORCELE   "force little endian architecture"   OFF)
+
+if(STATIC)
+    set(SHARED "SHARED")
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    set(BUILD_SHARED_LIBRARIES OFF)
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
+else(STATIC)
+    set(SHARED "SHARED")
+endif(STATIC)
 
 find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
@@ -75,17 +94,15 @@ add_custom_target(tag
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION=${emf2svg_VERSION}")
 
-# Options
-option(GCOV      "compile with gcov support"    OFF)
-option(UNITTEST  "compile unit tests"           OFF)
-option(INDEX     "print record indexes"         OFF)
-option(STATIC    "compile statically"           OFF)
-option(FORCELE   "force little endian architecture"   OFF)
-
+message(STATUS "Configuring argp")
+list(APPEND CMAKE_MESSAGE_INDENT "   ")
+message(STATUS "Checking if argp is provided system libraries")
 CHECK_FUNCTION_EXISTS(argp_parse HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
 
+message(STATUS "Looking for standalone argp library")
 set(CMAKE_REQUIRED_LIBRARIES argp)
 CHECK_FUNCTION_EXISTS(argp_parse HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
+list(POP_BACK CMAKE_MESSAGE_INDENT)
 
 if(GCOV)
   SET(UNITTEST ON)
@@ -104,17 +121,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
     set(CMAKE_EXE_LINKER_FLAGS "-INCREMENTAL:NO")
   endif(MSVC)
-    set(CMAKE_BUILD_TYPE Debug)
 endif()
-
-if(STATIC)
-    set(SHARED "")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-    set(BUILD_SHARED_LIBRARIES OFF)
-    set(CMAKE_EXE_LINKER_FLAGS "-static")
-else(STATIC)
-    set(SHARED "SHARED")
-endif(STATIC)
 
 if(UNIX)
   link_libraries(m)
@@ -122,11 +129,11 @@ if(UNIX)
 endif(UNIX)
 
 if(NOT FORCELE)
-    include(TestBigEndian)
-    TEST_BIG_ENDIAN(BIGENDIAN)
-    IF(${BIGENDIAN})
-        add_definitions(-DWORDS_BIGENDIAN)
-    ENDIF(${BIGENDIAN})
+  include(TestBigEndian)
+  TEST_BIG_ENDIAN(BIGENDIAN)
+  IF(${BIGENDIAN})
+      add_definitions(-DWORDS_BIGENDIAN)
+  ENDIF(${BIGENDIAN})
 endif(NOT FORCELE)
 
 # Build external dependancies if we are on OSX
@@ -245,6 +252,7 @@ set_target_properties(emf2svg
 
 target_link_libraries(emf2svg
     ${PNG_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
     ${EXTERNAL_ICONV}
     ${FREETYPE_LIBRARIES}
     ${FONTCONFIG_LIBRARIES}
@@ -253,23 +261,24 @@ target_link_libraries(emf2svg
 )
 
 add_dependencies(emf2svg ${FMEM_NAME})
-if(MSVC)
-  add_dependencies(emf2svg ${ARGP_NAME})
-endif(MSVC)
 
-# Compile the executable
 add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 
 target_link_libraries(emf2svg-conv
-    emf2svg
-    ${EXTERNAL_ARGP}
-    ${PNG_LIBRARIES}
-    ${EXTERNAL_ICONV}
-    ${FREETYPE_LIBRARIES}
-    ${FONTCONFIG_LIBRARIES}
-    ${EXPAT_LIBRARY_RELEASE}
-    ${EXTERNAL_FMEM}
+  emf2svg
+  ${EXTERNAL_ARGP}
+  ${PNG_LIBRARIES}
+  ${LIBXML2_LIBRARIES}
+  ${EXTERNAL_ICONV}
+  ${FREETYPE_LIBRARIES}
+  ${FONTCONFIG_LIBRARIES}
+  ${EXPAT_LIBRARY_RELEASE}
+  ${EXTERNAL_FMEM}
 )
+
+if(ARGP_NAME)
+  add_dependencies(emf2svg-conv ${ARGP_NAME})
+endif(ARGP_NAME)
 
 if(GCOV)
   Set(COVERAGE_EXCLUDES '*conv*' '*uemf*' '*upmf*' '*tests*' '*c++*')
@@ -310,7 +319,6 @@ endif ()
 if (NOT INCLUDE_INSTALL_DIR)
     set(INCLUDE_INSTALL_DIR include)
 endif ()
-
 
 # install binaries and library
 INSTALL(TARGETS emf2svg emf2svg-conv

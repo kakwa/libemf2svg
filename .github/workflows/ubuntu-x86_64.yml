@@ -1,11 +1,10 @@
-name: Ubuntu build
+name: Ubuntu-x86_64
 
 on:
   push:
-    branches: [ master ]
     paths-ignore:
-      - '.github/workflows/alpine-build.yml'
-      - '.github/workflows/macos-build.yml'
+      - '.github/workflows/alpine-x86_64.yml'
+      - '.github/workflows/macos-x86_64.yml'
       - '.github/workflows/macos-arm64.yml'
       - '.github/workflows/ubuntu-arm64.yml'
       - '.github/workflows/windows-build.yml'
@@ -16,11 +15,11 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  Ubuntu-build:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Install packages
       run: |
@@ -28,21 +27,21 @@ jobs:
         sudo apt-get install libxml2-utils valgrind
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{ github.workspace }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
     - name: Build
-      run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{ github.workspace }} --config ${{env.BUILD_TYPE }}
 
     - name: Test well formed files
-      working-directory: ${{github.workspace}}
+      working-directory: ${{ github.workspace }}
       run: ./tests/resources/check_correctness.sh -r -s
 
     - name: Test corrupted files
-      working-directory: ${{github.workspace}}
+      working-directory: ${{ github.workspace }}
       run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
 
     - name: Test EA files
-      working-directory: ${{github.workspace}}
+      working-directory: ${{ github.workspace }}
       run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/
 
   coverage:
@@ -60,7 +59,7 @@ jobs:
       run: sudo pip install cpp-coveralls
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}} -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON
+      run: cmake -B ${{ github.workspace }} -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON
 
     - name: Build
       run: make coverage
