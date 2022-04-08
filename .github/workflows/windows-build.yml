@@ -1,48 +1,45 @@
-name: Windows build
+name: Windows-build
 
 on:
   push:
-    branches: [ master ]
     paths-ignore:
-      - '.github/workflows/alpine-build.yml'
-      - '.github/workflows/macos-build.yml'
+      - '.github/workflows/alpine-x86_64.yml'
+      - '.github/workflows/macos-x86_64.yml'
       - '.github/workflows/macos-arm64.yml'
       - '.github/workflows/ubuntu-arm64.yml'
-      - '.github/workflows/ubuntu-build.yml'
+      - '.github/workflows/ubuntu-x86_64.yml'
   pull_request:
   workflow_dispatch:
 
 env:
   BUILD_TYPE: Release
-  VCPKG_DEFAULT_BINARY_CACHE: ${{github.workspace}}/cache
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/cache
 
 jobs:
-  Windows-build:
+  build:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
 
     - name: Create cache storage and cache key
       run: |
-        mkdir ${{env.VCPKG_DEFAULT_BINARY_CACHE}}
+        mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
         git submodule status > sm.txt
-# Something like " 025e564979cc01d0fbc5c920aa8a36635efb01bb vcpkg (2020.04-3294-g025e56497)"
-# to be used as cache key
 
     - uses: actions/cache@v2
       with:
         path: ${{env.VCPKG_DEFAULT_BINARY_CACHE}}
-        key: ${{runner.os}}-vcpkg-${{ hashFiles('sm.txt') }}
+        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
 
     - name: Configure
       run: >
         cmake
-        -B ${{github.workspace}}
-        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        -DCMAKE_TOOLCHAIN_FILE=${{github.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake
+        -B ${{ github.workspace }}
+        -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+        -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{ github.workspace }} --config ${{env.BUILD_TYPE}}

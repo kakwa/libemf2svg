@@ -1,0 +1,70 @@
+name: Alpine-x86_64
+
+on:
+  push:
+    paths-ignore:
+      - '.github/workflows/macos-x86_64.yml'
+      - '.github/workflows/macos-arm64.yml'
+      - '.github/workflows/ubuntu-x86_64.yml'
+      - '.github/workflows/ubuntu-arm64.yml'
+      - '.github/workflows/windows-build.yml'
+  pull_request:
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+  VCPKG_FORCE_SYSTEM_BINARIES: 1
+  VCPKG_DEFAULT_BINARY_CACHE: /home/cache
+  CC: gcc
+  CXX: g++
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+
+    steps:
+    - name: Install packages
+      run: |
+        apk --no-cache --upgrade add build-base cmake git valgrind argp-standalone    \
+          gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkgconfig \
+          libxml2-utils font-noto-hebrew font-noto-arabic
+
+# vcpkg prerequisites (and VCPKG_FORCE_SYSTEM_BINARIES: 1)
+#  gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkg-config
+# testing prerequisites
+#  libxml2-utils 
+# [ tests/resources/emf/test-183.emf ] -- font-noto-hebrew font-noto-arabic 
+
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Create cache storage and cache key
+      run: |
+        mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        git submodule status > sm.txt
+
+    - name: Process cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
+
+    - name: Configure CMake
+      run: |
+        cmake -B . -DCMAKE_BUILD_TYPE=Release -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      run: |
+        cmake --build . --config ${{env.BUILD_TYPE}}
+
+    - name: Test well formed files
+      run: ./tests/resources/check_correctness.sh -r -s
+
+    - name: Test corrupted files
+      run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
+
+    - name: Test EA files
+      run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/

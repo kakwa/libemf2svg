@@ -56,6 +56,8 @@ emf2svg-test
 
 # external projects
 vcpkg
+vcpkg_installed
+vcpkg-manifest-install.log
 deps/tmp
 deps/src
 deps/include
