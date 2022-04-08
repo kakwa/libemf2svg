@@ -105,7 +105,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION=${emf2svg_VERSION}")
 if(NOT LONLY)
   message(STATUS "Configuring argp")
   list(APPEND CMAKE_MESSAGE_INDENT "   ")
-  message(STATUS "Checking if argp is provided system libraries")
+  message(STATUS "Checking if argp is provided by system libraries")
   CHECK_FUNCTION_EXISTS(argp_parse HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
 
   message(STATUS "Looking for standalone argp library")

@@ -55,7 +55,7 @@ test_linkage() {
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         expected=("linux-vdso.so" "libpthread.so" "libc.so" "libm.so" "ld-linux-x86-64.so")
         readarray -t actual < <(ldd "$probe.so")
-        assertEquals "readarray -t actual < <(ldd $probe.so) failed" 0 "${PIPESTATUS[0]}"
+        assertEquals "readarray -t actual < <(ldd "$probe.so") failed" 0 "${PIPESTATUS[0]}"
         check_shared_libs
     elif [[ "$OSTYPE" == "linux-musl"* ]]; then
         expected=("libc.musl-x86_64.so" "ld-musl-x86_64.so")
@@ -63,9 +63,9 @@ test_linkage() {
         assertEquals "readarray -t actual < <(ldd $probe.so) failed" 0 "${PIPESTATUS[0]}"
         check_shared_libs
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-        expected=("libc++.1.dylib" "libSystem.B.dylib" "wr-bin")
-        readarray -t actual < <(otool -L "$probe.bundle")
-        assertEquals "readarray -t actual < <(otool -L $probe.bundle) failed" 0 "${PIPESTATUS[0]}"
+        expected=("libSystem.B.dylib" "libiconv.2.dylib" "libcharset.1.dylib" "libemf2svg.1.dylib" "libemf2svg.dylib")
+        readarray -t actual < <(otool -L "$probe.dylib")
+        assertEquals "readarray -t actual < <(otool -L $probe.dylib) failed" 0 "${PIPESTATUS[0]}"
         check_shared_libs "${expected[@]}"
     else
         echo "... unknown - $OSTYPE ... skipping"
