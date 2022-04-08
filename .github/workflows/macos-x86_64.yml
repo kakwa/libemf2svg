@@ -5,7 +5,7 @@ on:
     paths-ignore:
       - '.github/workflows/alpine-x86_64.yml'
       - '.github/workflows/ubuntu-x86_64.yml'
-      - '.github/workflows/ubuntu-arm64.yml'
+      - '.github/workflows/ubuntu-aarch64.yml'
       - '.github/workflows/windows-build.yml'
       - '.github/workflows/macos-arm64.yml'
   pull_request:
@@ -21,12 +21,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+#        brew install lcov
     - name: Install packages
       run: |
         brew install argp-standalone coreutils
-#        brew install lcov
-#        brew tap LouisBrunner/valgrind
-#        brew install --HEAD LouisBrunner/valgrind/valgrind
+        brew tap LouisBrunner/valgrind
+        brew install --HEAD LouisBrunner/valgrind/valgrind
 
     - name: Configure CMake
       run: cmake -B ${{ github.workspace }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}

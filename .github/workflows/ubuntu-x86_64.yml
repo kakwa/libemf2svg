@@ -6,7 +6,7 @@ on:
       - '.github/workflows/alpine-x86_64.yml'
       - '.github/workflows/macos-x86_64.yml'
       - '.github/workflows/macos-arm64.yml'
-      - '.github/workflows/ubuntu-arm64.yml'
+      - '.github/workflows/ubuntu-aarch64.yml'
       - '.github/workflows/windows-build.yml'
   pull_request:
   workflow_dispatch:

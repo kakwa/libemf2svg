@@ -58,7 +58,7 @@ test_linkage() {
         assertEquals "readarray -t actual < <(ldd $probe.so) failed" 0 "${PIPESTATUS[0]}"
         check_shared_libs
     elif [[ "$OSTYPE" == "linux-musl"* ]]; then
-        expected=("libgcc_s.so" "libc.musl-x86_64.so" "ld-musl-x86_64.so")
+        expected=("libc.musl-x86_64.so" "ld-musl-x86_64.so")
         readarray -t actual < <(ldd "$probe.so")
         assertEquals "readarray -t actual < <(ldd $probe.so) failed" 0 "${PIPESTATUS[0]}"
         check_shared_libs

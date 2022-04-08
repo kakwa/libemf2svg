@@ -6,7 +6,7 @@ on:
       - '.github/workflows/macos-x86_64.yml'
       - '.github/workflows/macos-arm64.yml'
       - '.github/workflows/ubuntu-x86_64.yml'
-      - '.github/workflows/ubuntu-arm64.yml'
+      - '.github/workflows/ubuntu-aarch64.yml'
       - '.github/workflows/windows-build.yml'
   pull_request:
   workflow_dispatch:
@@ -125,7 +125,4 @@ jobs:
         fetch-depth: 1
 
     - name: Run additional tests
-      run:  |
-        ls -l libemf2svg*
-        ldd libemf2svg.so
-#      tests/resources/lcheck.sh
+      run:  tests/resources/lcheck.sh

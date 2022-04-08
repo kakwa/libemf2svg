@@ -5,7 +5,7 @@ on:
     paths-ignore:
       - '.github/workflows/alpine-x86_64.yml'
       - '.github/workflows/ubuntu-x86_64.yml'
-      - '.github/workflows/ubuntu-arm64.yml'
+      - '.github/workflows/ubuntu-aarch64.yml'
       - '.github/workflows/windows-build.yml'
       - '.github/workflows/macos-x86_64.yml'
   pull_request:
