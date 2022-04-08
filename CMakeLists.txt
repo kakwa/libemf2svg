@@ -2,14 +2,14 @@ cmake_minimum_required (VERSION 3.12)
 include(CheckFunctionExists)
 include(ExternalProject)
 
-# Comments re MSVC build
-# - We use vcpkg to install MSVC versions of the following GNU libraries
+# Comments re vcpkg
+# - We use vcpkg to install the following libraries
 #   and their dependencies:
 #   -- libpng
 #   -- freetype
 #   -- fontconfig
 #   -- iconv
-# - vcpkg is configured as git submodule. Some experts consider it is the best prectice
+# - vcpkg is configured as git submodule. Some experts consider it is the best practice
 #   (though other experts do not)
 # - The list of vcpkg modules is specified at vcpkg.json
 # - With this setup and when called with -DCMAKE_TOOLCHAIN_FILE={project root}/vcpkg/scripts/buildsystems/vcpkg.cmake
@@ -33,8 +33,6 @@ endif(VCPKG_TARGET_TRIPLET)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
-
-# Options
 option(LONLY     "build library only"           OFF)
 option(GCOV      "compile with gcov support"    OFF)
 option(UNITTEST  "compile unit tests"           OFF)
@@ -50,6 +48,16 @@ if(STATIC)
 else(STATIC)
     set(SHARED "SHARED")
 endif(STATIC)
+
+if(GCOV)
+  SET(UNITTEST ON)
+  SET(CMAKE_BUILD_TYPE "Debug")
+endif(GCOV)
+
+if(UNITTEST)
+  SET(LONLY OFF)
+  message(WARNING "LONLY cannot be used with GCOV and/or UNITTEST; ignoring")
+endif(UNITTEST)
 
 find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
@@ -94,20 +102,17 @@ add_custom_target(tag
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION=${emf2svg_VERSION}")
 
-message(STATUS "Configuring argp")
-list(APPEND CMAKE_MESSAGE_INDENT "   ")
-message(STATUS "Checking if argp is provided system libraries")
-CHECK_FUNCTION_EXISTS(argp_parse HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
+if(NOT LONLY)
+  message(STATUS "Configuring argp")
+  list(APPEND CMAKE_MESSAGE_INDENT "   ")
+  message(STATUS "Checking if argp is provided system libraries")
+  CHECK_FUNCTION_EXISTS(argp_parse HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
 
-message(STATUS "Looking for standalone argp library")
-set(CMAKE_REQUIRED_LIBRARIES argp)
-CHECK_FUNCTION_EXISTS(argp_parse HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
-list(POP_BACK CMAKE_MESSAGE_INDENT)
-
-if(GCOV)
-  SET(UNITTEST ON)
-  SET(CMAKE_BUILD_TYPE "Debug")
-endif(GCOV)
+  message(STATUS "Looking for standalone argp library")
+  set(CMAKE_REQUIRED_LIBRARIES argp)
+  CHECK_FUNCTION_EXISTS(argp_parse HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
+  list(POP_BACK CMAKE_MESSAGE_INDENT)
+endif(NOT LONLY)
 
 if(INDEX)
     set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -DRECORD_INDEX='true'")
@@ -158,34 +163,35 @@ if(MSVC)
   set(EXTERNAL_ICONV ${Iconv_LIBRARY})
 endif(MSVC)
 
-if(HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
-  message(STATUS "Using bundled argp")
-elseif(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
-  message(STATUS "Using stand-alone argp")
-  set(EXTERNAL_ARGP "argp")
-else()
-  message(STATUS "Building argp")
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(NOT LONLY)
+  if(HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
+    message(STATUS "Using bundled argp")
+  elseif(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
+    message(STATUS "Using stand-alone argp")
+    set(EXTERNAL_ARGP "argp")
+  else()
+    message(STATUS "Building argp")
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     # https://www.gnu.org/software/gnulib/manual/html_node/argp_005fprogram_005fversion_005fhook.html  
-    set(EXTERNAL_ARGP "-Wl,-force_load,${DEPS}/lib/libargp-standalone.a")
-  else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(EXTERNAL_ARGP "argp-standalone")
-  endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      set(EXTERNAL_ARGP "-Wl,-force_load,${DEPS}/lib/libargp-standalone.a")
+    else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+      set(EXTERNAL_ARGP "argp-standalone")
+    endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
-  set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
-  ExternalProject_Add(${ARGP_NAME}
-    PREFIX ${DEPS}
-    GIT_REPOSITORY https://github.com/tom42/argp-standalone.git
-    GIT_TAG 238d83d6fb4fbdbb3e0893f51698d8d54696bfb0
-    CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX=${DEPS}
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                ${PLATFORM_TOOLCHAIN_OPTION}
-                ${CMAKE_OSX_ARCHITECTURES_OPTION}
-    PATCH_COMMAND cd ${DEPS}/src/${ARGP_NAME} && git restore CMakeLists.txt && git apply ${PATCHES}/argp/CMakeLists.txt.patch
-  )
-endif(HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
+    set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
+    ExternalProject_Add(${ARGP_NAME}
+      PREFIX ${DEPS}
+      GIT_REPOSITORY https://github.com/tom42/argp-standalone.git
+      GIT_TAG 238d83d6fb4fbdbb3e0893f51698d8d54696bfb0
+      CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX=${DEPS}
+                  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                  ${PLATFORM_TOOLCHAIN_OPTION}
+                  ${CMAKE_OSX_ARCHITECTURES_OPTION}
+      PATCH_COMMAND cd ${DEPS}/src/${ARGP_NAME} && git restore CMakeLists.txt && git apply ${PATCHES}/argp/CMakeLists.txt.patch
+    )
+  endif(HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
+endif(NOT LONLY)
 
-# headers & library directories
 if(MSVC)
   include_directories(
     ./inc
@@ -218,55 +224,38 @@ else(MSVC)
   )
 endif(MSVC)
 
-# Compile the library
 add_library(emf2svg
-    ${SHARED}
-    src/lib/pmf2svg.c
-    src/lib/pmf2svg_print.c
-    ${DEPS_UEMF}/uemf_utf.c
-    ${DEPS_UEMF}/uemf_endian.c
-    ${DEPS_UEMF}/uemf.c
-    ${DEPS_UEMF}/upmf.c
-    src/lib/emf2svg_utils.c
-    src/lib/emf2svg_img_utils.c
-    src/lib/emf2svg_clip_utils.c
-    src/lib/emf2svg_rec_control.c
-    src/lib/emf2svg_rec_object_creation.c
-    src/lib/emf2svg_rec_path.c
-    src/lib/emf2svg_rec_clipping.c
-    src/lib/emf2svg_rec_drawing.c
-    src/lib/emf2svg_rec_bitmap.c
-    src/lib/emf2svg_rec_object_manipulation.c
-    src/lib/emf2svg_rec_comment.c
-    src/lib/emf2svg_rec_transform.c
-    src/lib/emf2svg_rec_state_record.c
-    src/lib/emf2svg_print.c
-    src/lib/emf2svg.c
+  ${SHARED}
+  src/lib/pmf2svg.c
+  src/lib/pmf2svg_print.c
+  ${DEPS_UEMF}/uemf_utf.c
+  ${DEPS_UEMF}/uemf_endian.c
+  ${DEPS_UEMF}/uemf.c
+  ${DEPS_UEMF}/upmf.c
+  src/lib/emf2svg_utils.c
+  src/lib/emf2svg_img_utils.c
+  src/lib/emf2svg_clip_utils.c
+  src/lib/emf2svg_rec_control.c
+  src/lib/emf2svg_rec_object_creation.c
+  src/lib/emf2svg_rec_path.c
+  src/lib/emf2svg_rec_clipping.c
+  src/lib/emf2svg_rec_drawing.c
+  src/lib/emf2svg_rec_bitmap.c
+  src/lib/emf2svg_rec_object_manipulation.c
+  src/lib/emf2svg_rec_comment.c
+  src/lib/emf2svg_rec_transform.c
+  src/lib/emf2svg_rec_state_record.c
+  src/lib/emf2svg_print.c
+  src/lib/emf2svg.c
 )
 
 set_target_properties(emf2svg
-    PROPERTIES
-    VERSION ${emf2svg_VERSION}
-    SOVERSION ${emf2svg_VERSION_MAJOR}
+  PROPERTIES
+  VERSION ${emf2svg_VERSION}
+  SOVERSION ${emf2svg_VERSION_MAJOR}
 )
 
 target_link_libraries(emf2svg
-    ${PNG_LIBRARIES}
-    ${LIBXML2_LIBRARIES}
-    ${EXTERNAL_ICONV}
-    ${FREETYPE_LIBRARIES}
-    ${FONTCONFIG_LIBRARIES}
-    ${EXPAT_LIBRARY_RELEASE}
-    ${EXTERNAL_FMEM}
-)
-
-add_dependencies(emf2svg ${FMEM_NAME})
-
-add_executable(emf2svg-conv src/conv/emf2svg.cpp)
-
-target_link_libraries(emf2svg-conv
-  emf2svg
-  ${EXTERNAL_ARGP}
   ${PNG_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${EXTERNAL_ICONV}
@@ -276,28 +265,46 @@ target_link_libraries(emf2svg-conv
   ${EXTERNAL_FMEM}
 )
 
-if(ARGP_NAME)
-  add_dependencies(emf2svg-conv ${ARGP_NAME})
-endif(ARGP_NAME)
+add_dependencies(emf2svg ${FMEM_NAME})
 
-if(GCOV)
-  Set(COVERAGE_EXCLUDES '*conv*' '*uemf*' '*upmf*' '*tests*' '*c++*')
-  include(CodeCoverage)
-  setup_target_for_coverage(NAME coverage
-    EXECUTABLE emf2svg-test ./tests/resources/emf*/*
-    DEPENDENCIES emf2svg-test
-    )
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
-endif(GCOV)
+if(NOT LONLY)
+  add_executable(emf2svg-conv src/conv/emf2svg.cpp)
 
-if(UNITTEST)
-  add_executable(emf2svg-test tests/test.c)
-
-  target_link_libraries(emf2svg-test
+  target_link_libraries(emf2svg-conv
     emf2svg
+    ${EXTERNAL_ARGP}
+    ${PNG_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${EXTERNAL_ICONV}
+    ${FREETYPE_LIBRARIES}
+    ${FONTCONFIG_LIBRARIES}
+    ${EXPAT_LIBRARY_RELEASE}
+    ${EXTERNAL_FMEM}
   )
-endif(UNITTEST)
+
+  if(ARGP_NAME)
+    add_dependencies(emf2svg-conv ${ARGP_NAME})
+  endif(ARGP_NAME)
+
+  if(GCOV)
+    Set(COVERAGE_EXCLUDES '*conv*' '*uemf*' '*upmf*' '*tests*' '*c++*')
+    include(CodeCoverage)
+    setup_target_for_coverage(NAME coverage
+      EXECUTABLE emf2svg-test ./tests/resources/emf*/*
+      DEPENDENCIES emf2svg-test
+    )
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+  endif(GCOV)
+
+  if(UNITTEST)
+    add_executable(emf2svg-test tests/test.c)
+
+    target_link_libraries(emf2svg-test
+      emf2svg
+    )
+  endif(UNITTEST)
+endif(NOT LONLY)
 
 if (MSVC)
 # x64: suppress mostly harmless warnings about 64 to 32 bit conversion (4244, 4267, 4305).
@@ -320,12 +327,15 @@ if (NOT INCLUDE_INSTALL_DIR)
     set(INCLUDE_INSTALL_DIR include)
 endif ()
 
-# install binaries and library
-INSTALL(TARGETS emf2svg emf2svg-conv
+list(APPEND BINTARGETS emf2svg)
+if(NOT LONLY)
+  list(APPEND BINTARGETS emf2svg-conv)
+endif(NOT LONLY)
+
+INSTALL(TARGETS ${BINTARGETS}
   RUNTIME DESTINATION ${BIN_INSTALL_DIR}
   LIBRARY DESTINATION ${LIB_INSTALL_DIR}
   ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
 )
 
-# install header file
 INSTALL(FILES inc/emf2svg.h DESTINATION ${INCLUDE_INSTALL_DIR})

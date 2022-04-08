@@ -13,13 +13,14 @@ on:
 
 env:
   BUILD_TYPE: Release
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/cache
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
     - name: Install packages
       run: |
@@ -46,9 +47,9 @@ jobs:
 
   coverage:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v3
 
     - name: Install packages
       run: |
@@ -75,3 +76,47 @@ jobs:
           -E '.*goodies.*' \
           -E '.*tests.*' \
           --gcov-options '\-lp'
+
+  build-for-ruby:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install gperf
+
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Create cache storage and cache key
+      run: |
+        mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        git submodule status > sm.txt
+
+    - name: Process cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
+
+    - name: Configure CMake
+      run: |
+        cmake -B .  -DCMAKE_BUILD_TYPE=Release          \
+                    -DVCPKG_TARGET_TRIPLET=x64-linux    \
+                    -DLONLY=ON                          \
+                    -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      run: cmake --build . --config ${{env.BUILD_TYPE}}
+
+    - name: Checkout shell test framework
+      uses: actions/checkout@v3
+      with:
+        repository: kward/shunit2
+        path: tests/shunit2
+        fetch-depth: 1
+
+    - name: Run additional tests
+      run:  tests/resources/lcheck.sh
