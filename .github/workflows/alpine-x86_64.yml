@@ -36,7 +36,8 @@ jobs:
 #  libxml2-utils 
 # [ tests/resources/emf/test-183.emf ] -- font-noto-hebrew font-noto-arabic 
 
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -62,8 +63,7 @@ jobs:
         cmake -B . -DCMAKE_BUILD_TYPE=Release -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: |
-        cmake --build . --config ${{env.BUILD_TYPE}}
+      run: cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Test well formed files
       run: ./tests/resources/check_correctness.sh -r -s
@@ -85,7 +85,8 @@ jobs:
         apk --no-cache --upgrade add build-base cmake git valgrind tar bash            \
           gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkgconfig  
 
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -114,8 +115,7 @@ jobs:
                    -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: |
-        cmake --build . --config ${{env.BUILD_TYPE}}
+      run: cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Checkout shell test framework
       uses: actions/checkout@v3
@@ -125,4 +125,4 @@ jobs:
         fetch-depth: 1
 
     - name: Run additional tests
-      run:  tests/resources/lcheck.sh
+      run: tests/resources/lcheck.sh

@@ -1,4 +1,4 @@
-name: MacOS-arm64 build
+name: MacOS-arm64
 
 on:
   push:
@@ -16,30 +16,52 @@ env:
   VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/cache
 
 jobs:
-  build:
+  build-for-ruby:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
       with:
         submodules: recursive
+
+    - name: Setup environment
+      run: |
+        echo 'BREW_HOME<<EOF' >> $GITHUB_ENV
+        brew --prefix >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+
+    - name: Install packages
+      run: brew install bash
 
     - name: Create cache storage and cache key
       run: |
         mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
         git submodule status > sm.txt
 
-    - uses: actions/cache@v2
+    - name: Process cache
+      uses: actions/cache@v2
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
         key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
 
     - name: Configure CMake
       run: |
-        cmake -B ${{ github.workspace }}                                                              \
-              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}                                                \
-              -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake   \
-              -DVCPKG_TARGET_TRIPLET=arm64-osx
+        cmake -B ${{ github.workspace }}                  \
+              -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}    \
+              -DVCPKG_TARGET_TRIPLET=arm64-osx            \
+              -DLONLY=ON                                  \
+              -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       run: cmake --build ${{github.workspace}} --config ${{env.BUILD_TYPE}}
+
+    - name: Checkout shell test framework
+      uses: actions/checkout@v3
+      with:
+        repository: kward/shunit2
+        path: tests/shunit2
+        fetch-depth: 1
+
+    - name: Run additional tests
+      run:  ${{ env.BREW_HOME }}/bin/bash tests/resources/lcheck.sh
