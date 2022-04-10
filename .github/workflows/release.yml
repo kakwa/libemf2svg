@@ -21,10 +21,14 @@ jobs:
         cd ..
         rm -rf libemf2svg/.git*
         rm -rf libemf2svg/vcpkg/.git*
+        rm -rf libemf2svg/tests
         tar cvzf libemf2svg.tar.gz libemf2svg
+        sha256sum libemf2svg.tar.gz > libemf2svg.tar.gz.sha256
 
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: ${{github.workspace}}/../libemf2svg.tar.gz
+        files: |
+          ${{github.workspace}}/../libemf2svg.tar.gz
+          ${{github.workspace}}/../libemf2svg.tar.gz.sha256
