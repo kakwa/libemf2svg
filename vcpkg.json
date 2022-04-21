@@ -1,6 +1,6 @@
 {
   "name": "libemf2svg",
-  "version-string": "1.7.0",
+  "version-string": "1.7.1",
   "dependencies": [
     "libxml2",
     "libpng",

@@ -38,14 +38,10 @@ jobs:
         key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
 
     - name: Configure
-      run: >
-        cmake
-        -B ${{ github.workspace }}
-        -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
-        -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+      run: cmake -B . -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: cmake --build ${{ github.workspace }} --config ${{env.BUILD_TYPE}}
+      run: cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Smoke test
       run: |

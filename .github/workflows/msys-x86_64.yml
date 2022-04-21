@@ -59,17 +59,21 @@ jobs:
 
     - name: Configure
       run: |
-        cmake -B .  -DCMAKE_BUILD_TYPE=Release              \
-                    -DVCPKG_TARGET_TRIPLET=x64-mingw-static \
-                    -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}   \
+                 -DVCPKG_TARGET_TRIPLET=x64-mingw-static    \
+                 -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: cmake --build . --config ${{env.BUILD_TYPE}}
+      run: |
+        cd build
+        cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Smoke test
       run: |
-        ./emf2svg-conv.exe --version
-        ./emf2svg-conv.exe -i tests/resources/emf/test-000.emf -o test-000.svg
+        ./build/emf2svg-conv.exe --version
+        ./build/emf2svg-conv.exe -i tests/resources/emf/test-000.emf -o test-000.svg
         ls | grep test-000.svg
 
   build-for-ruby:
@@ -119,13 +123,17 @@ jobs:
 
     - name: Configure
       run: |
-        cmake -B .  -DCMAKE_BUILD_TYPE=Release              \
-                    -DVCPKG_TARGET_TRIPLET=x64-mingw-static \
-                    -DLONLY=ON                              \
-                    -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+        mkdir build
+        cd build
+        cmake ..  -DCMAKE_BUILD_TYPE=Release              \
+                  -DVCPKG_TARGET_TRIPLET=x64-mingw-static \
+                  -DLONLY=ON                              \
+                  -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: cmake --build . --config ${{env.BUILD_TYPE}}
+      run: |
+        cd build
+        cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Checkout shell test framework
       uses: actions/checkout@v3

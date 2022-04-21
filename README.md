@@ -1,8 +1,8 @@
 libemf2svg
 ==========
-[![Ubuntu-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-x86_64.yml) [![Ubuntu-aarch64](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml) [![Alpine-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-x86_64.yml)
+[![Ubuntu-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-x86_64.yml/badge.svg?branch=master)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-x86_64.yml) [![Ubuntu-aarch64](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml/badge.svg?branch=master)](https://github.com/metanorma/libemf2svg/actions/workflows/ubuntu-aarch64.yml) [![Alpine-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-x86_64.yml/badge.svg?branch=master)](https://github.com/metanorma/libemf2svg/actions/workflows/alpine-x86_64.yml)
 
-[![MacOS-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/macos-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/macos-x86_64.yml) [![MacOS-arm64](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml) [![Windows-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/windows-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/windows-x86_64.yml) [![MSys-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/msys-x86_64.yml/badge.svg)](https://github.com/metanorma/libemf2svg/actions/workflows/msys-x86_64.yml)
+[![MacOS-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/macos-x86_64.yml/badge.svg?branch=master)](https://github.com/metanorma/libemf2svg/actions/workflows/macos-x86_64.yml) [![MacOS-arm64](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml/badge.svg?branch=master)](https://github.com/metanorma/libemf2svg/actions/workflows/macos-arm64.yml) [![Windows-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/windows-x86_64.yml/badge.svg?branch=master)](https://github.com/metanorma/libemf2svg/actions/workflows/windows-x86_64.yml) [![MSys-x86_64](https://github.com/metanorma/libemf2svg/actions/workflows/msys-x86_64.yml/badge.svg?branch=master)](https://github.com/metanorma/libemf2svg/actions/workflows/msys-x86_64.yml)
 
 [![Coverage Status](https://coveralls.io/repos/github/metanorma/libemf2svg/badge.svg?branch=master)](https://coveralls.io/github/metanorma/libemf2svg?branch=master)
 
@@ -231,9 +231,13 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.7.1:
+
+* added width and heigt attributes for svg even when Y-coordinates are repaired
+
 1.7.0:
 
-* refactor build scripts to facilitate better portability and ruby integration 
+* refactor build scripts to facilitate better portability and ruby integration
 
 1.6.0:
 
