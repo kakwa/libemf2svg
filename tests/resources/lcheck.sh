@@ -83,6 +83,6 @@ DIR_ROOT="$( cd "$DIR1" && pwd )"
 DIR_TESTS="$( cd "$DIR0/.." && pwd)"
 
 echo "Running libemf2svg linkage tests"
-probe="$DIR_ROOT/libemf2svg"
+probe="$DIR_ROOT/build/libemf2svg"
 # shellcheck source=/dev/null
 . "$DIR_TESTS"/shunit2/shunit2

@@ -29,10 +29,15 @@ jobs:
         sudo apt-get install libxml2-utils valgrind
 
     - name: Configure CMake
-      run: cmake -B ${{ github.workspace }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
     - name: Build
-      run: cmake --build ${{ github.workspace }} --config ${{env.BUILD_TYPE }}
+      run: |
+        cd build
+        cmake --build . --config ${{env.BUILD_TYPE }}
 
     - name: Test well formed files
       working-directory: ${{ github.workspace }}
@@ -61,10 +66,15 @@ jobs:
       run: sudo pip install cpp-coveralls
 
     - name: Configure CMake
-      run: cmake -B ${{ github.workspace }} -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON
 
     - name: Build
-      run: make coverage
+      run: |
+        cd build
+        cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Report
       run: |
@@ -104,13 +114,17 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cmake -B .  -DCMAKE_BUILD_TYPE=Release          \
-                    -DVCPKG_TARGET_TRIPLET=x64-linux    \
-                    -DLONLY=ON                          \
-                    -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release          \
+                 -DVCPKG_TARGET_TRIPLET=x64-linux    \
+                 -DLONLY=ON                          \
+                 -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: cmake --build . --config ${{env.BUILD_TYPE}}
+      run: |
+        cd build
+        cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Checkout shell test framework
       uses: actions/checkout@v3

@@ -51,6 +51,7 @@ jobs:
     - name: Create cache storage and cache key
       run: |
         mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        git config --global --add safe.directory $(pwd)
         git submodule status > sm.txt
 
     - name: Process cache
@@ -61,10 +62,14 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cmake -B . -DCMAKE_BUILD_TYPE=Release -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: cmake --build . --config ${{env.BUILD_TYPE}}
+      run: |
+        cd build
+        cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Test well formed files
       run: ./tests/resources/check_correctness.sh -r -s
@@ -100,6 +105,7 @@ jobs:
     - name: Create cache storage and cache key
       run: |
         mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        git config --global --add safe.directory /__w/libemf2svg/libemf2svg
         git submodule status > sm.txt
 
     - name: Process cache
@@ -110,13 +116,17 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cmake -B . -DCMAKE_BUILD_TYPE=Release         \
-                   -DVCPKG_TARGET_TRIPLET=x64-linux   \
-                   -DLONLY=ON                         \
-                   -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release         \
+                 -DVCPKG_TARGET_TRIPLET=x64-linux   \
+                 -DLONLY=ON                         \
+                 -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: cmake --build . --config ${{env.BUILD_TYPE}}
+      run: |
+        cd build
+        cmake --build . --config ${{env.BUILD_TYPE}}
 
     - name: Checkout shell test framework
       uses: actions/checkout@v3

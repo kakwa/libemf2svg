@@ -23,7 +23,7 @@ jobs:
         rm -rf libemf2svg/vcpkg/.git*
         rm -rf libemf2svg/tests
         tar cvzf libemf2svg.tar.gz libemf2svg
-        sha256sum libemf2svg.tar.gz > libemf2svg.tar.gz.sha256
+        sha256sum -b libemf2svg.tar.gz > libemf2svg.tar.gz.sha256
 
     - name: Release
       uses: softprops/action-gh-release@v1

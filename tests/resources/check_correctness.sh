@@ -89,7 +89,7 @@ cd $ABSPATH
 . ./colors.sh
 rm -rf $OUTDIR
 mkdir -p $OUTDIR
-CMD="`$RL -f ../../emf2svg-conv`"
+CMD="`$RL -f ../../build/emf2svg-conv`"
 OUTDIR=`$RL -f $OUTDIR`
 DTD=`$RL -f ./svg11-flat.dtd`
 for emf in `find $EMFDIR -type f -name "*.emf" |sort`
