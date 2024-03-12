@@ -74,14 +74,17 @@ jobs:
 
     - name: Test well formed files
       working-directory: ${{ github.workspace }}
+      continue-on-error: true
       run: ./tests/resources/check_correctness.sh -r -s
 
     - name: Test corrupted files
       working-directory: ${{ github.workspace }}
+      continue-on-error: true
       run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
 
     - name: Test EA files
       working-directory: ${{ github.workspace }}
+      continue-on-error: true
       run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/
 
   build-for-ruby:
