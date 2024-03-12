@@ -66,7 +66,8 @@ test_linkage() {
         assertEquals "readarray -t actual < <(otool -L $probe.dylib) failed" 0 "${PIPESTATUS[0]}"
         check_shared_libs "${expected[@]}"
     elif [[ "$OSTYPE" == "msys"* ]]; then
-        expected=("ntdll.dll" "KERNEL32.DLL" "KERNELBASE.dll" "msvcrt.dll" "libgcc_s_seh-1.dll" "libwinpthread-1.dll" "ucrtbase.dll")
+        expected=("ntdll.dll" "KERNEL32.DLL" "KERNELBASE.dll" "msvcrt.dll" "libgcc_s_seh-1.dll" "libwinpthread-1.dll" "ucrtbase.dll"
+                  "advapi32.dll" "sechost.dll" "bcrypt.dll" "RPCRT4.dll" "CRYPTBASE.DLL" "bcryptPrimitives.dll")
         readarray -t actual < <(ldd "$probe.dll")
         assertEquals "readarray -t actual < <(ldd "$probe.dll") failed" 0 "${PIPESTATUS[0]}"
         check_shared_libs
