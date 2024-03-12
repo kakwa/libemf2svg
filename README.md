@@ -77,6 +77,7 @@ Commands to build this project:
 # * [-DUSE_CLANG=on]: use clang instead of gcc
 # * [-DSTATIC=on]: build static library
 # * [-DDEBUG=on]: compile with debugging symbols
+# * [-DLONLY=on]: build the library only, no demo/test apps
 #
 # CMAKE_INSTALL_PREFIX is optional, default is /usr/local/
 
@@ -84,11 +85,11 @@ Commands to build this project:
 $ cmake . -DCMAKE_INSTALL_PREFIX=/usr/
 
 # Windows native (MSVC) build
-$ cmake . -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+$ cmake . -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 # Cross-compilation
 # This project employs vcpkg (https://github.com/microsoft/vcpkg) to setup cross-compilation environment
-$ cmake . -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<triplet>
+$ cmake . -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<triplet>
 # The following triplets are tested in CI:
 # * x64-linux   (both for Ubuntu and ALpine Linux)
 # * arm64-linux (Ubuntu)
@@ -102,6 +103,9 @@ $ make
 # installation
 $ make install
 ```
+
+Please note that you cannot use relative pathes when CMAKE_TOOLCHAIN_FILE is specified at cmake command line. You may need to replace
+```$(pwd)``` with a reference that is appropriate for your environment.
 
 Command line tool
 -----------------
@@ -230,6 +234,10 @@ EMF+ RECORDS:
 
 ChangeLogs
 ----------
+
+1.7.2:
+
+* vcpkg and GHA scripts update
 
 1.7.1:
 
