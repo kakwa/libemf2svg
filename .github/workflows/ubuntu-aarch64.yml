@@ -2,6 +2,7 @@ name: Ubuntu-aarch64
 
 on:
   push:
+    branches: [ master ]
     paths-ignore:
       - '.github/workflows/alpine-x86_64.yml'
       - '.github/workflows/ubuntu-x86_64.yml'

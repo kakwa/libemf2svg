@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install packages
       run: |
@@ -30,14 +30,11 @@ jobs:
 
     - name: Configure CMake
       run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
     - name: Build
       run: |
-        cd build
-        cmake --build . --config ${{env.BUILD_TYPE }}
+        cmake --build build --config ${{env.BUILD_TYPE }}
 
     - name: Test well formed files
       working-directory: ${{ github.workspace }}
@@ -55,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install packages
       run: |
@@ -67,17 +64,16 @@ jobs:
 
     - name: Configure CMake
       run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON
+        cmake -B build -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON
 
     - name: Build
       run: |
         cd build
-        cmake --build . --config ${{env.BUILD_TYPE}}
+        cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Report
       run: |
+        cd build
         coveralls \
           -t ${{ secrets.COVERALLS_REPO_TOKEN }} \
           -E '.*CMakeFiles.*' \
@@ -124,7 +120,7 @@ jobs:
         cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Checkout shell test framework
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: kward/shunit2
         path: tests/shunit2

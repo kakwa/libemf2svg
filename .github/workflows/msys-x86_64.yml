@@ -33,7 +33,7 @@ jobs:
         pacboy: gperf:p cmake:p python3:p ninja:p curl:p pkgconf:p gcc:p
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -52,23 +52,20 @@ jobs:
         git submodule status > sm.txt
 
     - name: Process cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ${{ env.CI_CACHE }}
         key: ${{ github.workflow }}-mingw64-vcpkg-${{ hashFiles('sm.txt') }}
 
     - name: Configure
       run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}   \
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}   \
                  -DVCPKG_TARGET_TRIPLET=x64-mingw-static    \
                  -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       run: |
-        cd build
-        cmake --build . --config ${{env.BUILD_TYPE}}
+        cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Smoke test
       run: |
@@ -97,7 +94,7 @@ jobs:
         pacboy: gperf:p cmake:p python3:p ninja:p curl:p pkgconf:p gcc:p
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -116,27 +113,24 @@ jobs:
         git submodule status > sm.txt
 
     - name: Process cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ${{ env.CI_CACHE }}
         key: ${{ github.workflow }}-${{ matrix.sys }}-vcpkg-${{ hashFiles('sm.txt') }}
 
     - name: Configure
       run: |
-        mkdir build
-        cd build
-        cmake ..  -DCMAKE_BUILD_TYPE=Release              \
+        cmake -B build  -DCMAKE_BUILD_TYPE=Release              \
                   -DVCPKG_TARGET_TRIPLET=x64-mingw-static \
                   -DLONLY=ON                              \
                   -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       run: |
-        cd build
-        cmake --build . --config ${{env.BUILD_TYPE}}
+        cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Checkout shell test framework
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: kward/shunit2
         path: tests/shunit2
