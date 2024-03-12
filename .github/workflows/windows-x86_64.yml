@@ -2,6 +2,7 @@ name: Windows-x86_64
 
 on:
   push:
+    branches: [ master ]
     paths-ignore:
       - '.github/workflows/alpine-x86_64.yml'
       - '.github/workflows/macos-x86_64.yml'
