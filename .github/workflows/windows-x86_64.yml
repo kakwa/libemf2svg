@@ -22,7 +22,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -32,19 +32,19 @@ jobs:
         git submodule status > sm.txt
 
     - name: Process cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ${{env.VCPKG_DEFAULT_BINARY_CACHE}}
         key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
 
     - name: Configure
-      run: cmake -B . -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
-      run: cmake --build . --config ${{env.BUILD_TYPE}}
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Smoke test
       run: |
-        Release/emf2svg-conv.exe --version
-        Release/emf2svg-conv.exe -i tests/resources/emf/test-000.emf -o test-000.svg
+        build/${{env.BUILD_TYPE}}/emf2svg-conv.exe --version
+        build/${{env.BUILD_TYPE}}/emf2svg-conv.exe -i tests/resources/emf/test-000.emf -o test-000.svg
         dir . | findstr test-000.svg
