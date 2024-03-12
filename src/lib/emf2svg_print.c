@@ -42,7 +42,7 @@ extern "C" {
   */
 
 void fill_print(drawingStates *states) {
-    switch (states->currentDeviceContext.fill_mode) {
+    switch (states->currentDeviceContext.fill_polymode) {
     case (U_ALTERNATE):
         verbose_printf("   Fill Rule:      U_ALTERNATE\n");
         break;
