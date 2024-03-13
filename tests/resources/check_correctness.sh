@@ -18,7 +18,7 @@ STOPONERROR="no"
 
 help(){
     cat <<EOF
-usage: `basename $0` [-h] [-v] [-e <emf dir>] [-s] [-n] 
+usage: `basename $0` [-h] [-v] [-e <emf dir>] [-s] [-n]
 
 Script checking memleaks, segfault and svg correctness of emf2svg-conv
 
@@ -39,7 +39,7 @@ EOF
 while getopts ":hnNxrvse:" opt; do
   case $opt in
 
-    h) 
+    h)
         help
         ;;
     n)
@@ -89,7 +89,7 @@ cd $ABSPATH
 . ./colors.sh
 rm -rf $OUTDIR
 mkdir -p $OUTDIR
-CMD="`$RL -f ../../emf2svg-conv`"
+CMD="`$RL -f ../../build/emf2svg-conv`"
 OUTDIR=`$RL -f $OUTDIR`
 DTD=`$RL -f ./svg11-flat.dtd`
 for emf in `find $EMFDIR -type f -name "*.emf" |sort`

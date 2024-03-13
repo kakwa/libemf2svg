@@ -228,6 +228,7 @@ void U_EMRSETVIEWPORTEXTEX_draw(const char *contents, FILE *out,
 
     states->viewPortExX = (double)pEmr->szlExtent.cx;
     states->viewPortExY = (double)pEmr->szlExtent.cy;
+    states->viewPortExSet = true;
 }
 void U_EMRSETVIEWPORTORGEX_draw(const char *contents, FILE *out,
                                 drawingStates *states) {
@@ -249,6 +250,7 @@ void U_EMRSETWINDOWEXTEX_draw(const char *contents, FILE *out,
     PU_EMRSETWINDOWEXTEX pEmr = (PU_EMRSETVIEWPORTEXTEX)(contents);
     states->windowExX = (double)pEmr->szlExtent.cx;
     states->windowExY = (double)pEmr->szlExtent.cy;
+    states->windowExSet = true;
 }
 void U_EMRSETWINDOWORGEX_draw(const char *contents, FILE *out,
                               drawingStates *states) {

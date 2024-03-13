@@ -13,7 +13,7 @@ burn_in_hell(){
     while [ $counter1 -lt $MAX ]
     do
         tmp_emf=`mktemp -p ../out/`
-        cp emf/`ls emf |shuf -n 1` ${tmp_emf} 
+        cp emf/`ls emf |shuf -n 1` ${tmp_emf}
         counter2=0
         while [ $counter2 -lt $MAX ]
         do
