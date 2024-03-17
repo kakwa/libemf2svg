@@ -235,6 +235,10 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.7.3:
+
+* Fixed incorrect handling of polygon fill modes
+
 1.7.2:
 
 * vcpkg and GHA scripts update
