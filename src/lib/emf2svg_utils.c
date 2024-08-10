@@ -1127,7 +1127,7 @@ static int cmap_rev(const char *fpath, cmap_collection *rcmap) {
         while (gindex != 0) {
             if (gindex >= rmap_s) {
                 int old_rmap_s = rmap_s;
-                rmap_s += 1000;
+                rmap_s = gindex + 1000;
                 uint32_t *tmp = realloc(rcmap->uni, sizeof(uint32_t) * rmap_s);
                 for (int i = old_rmap_s; i < rmap_s; i++)
                     tmp[i] = 0;
