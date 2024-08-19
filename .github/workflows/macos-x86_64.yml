@@ -52,7 +52,7 @@ env:
 
 jobs:
   build-and-test:
-    runs-on: macos-latest
+    runs-on: macos-12 # workaround for https://github.com/LouisBrunner/valgrind-macos/issues/56
 
     steps:
     - name: Checkout
