@@ -81,8 +81,8 @@ set(FMEM_NAME fm${EXTERNAL_LIB_DIR_SUFFIX})
 
 ExternalProject_Add(${FMEM_NAME}
    PREFIX ${DEPS}
-   GIT_REPOSITORY https://github.com/tamatebako/fmem.git
-   GIT_TAG bdce2760f0190253600f11984220fc0a007742c8
+   GIT_REPOSITORY https://github.com/Kreijstal/fmem
+   GIT_TAG 5f79fef3606be5dac54d62c7d0e2123363afabd7
    CMAKE_ARGS -DBUILD_TESTING=FALSE
               -DCMAKE_INSTALL_PREFIX=${DEPS}
               -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
