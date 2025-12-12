@@ -54,8 +54,8 @@ jobs:
       with:
         path: cache
         key: ${{ github.workflow }}-vcpkg-${{ hashFiles('.git/modules/*/HEAD') }}
-    - run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
-    - run: cmake --build build --config ${{ env.BUILD_TYPE }}
+    - run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+    - run: ninja -C build
     - run: ./tests/resources/check_correctness.sh -r -s
     - run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
     - run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/
