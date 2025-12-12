@@ -9,7 +9,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fmem.h>
+#include <internal-fmem.h>
 #include <png.h>
 
 RGBAPixel *pixel_at(RGBABitmap *bitmap, int x, int y) {

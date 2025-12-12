@@ -11,7 +11,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fmem.h>
+#include <internal-fmem.h>
 
 int U_emf_onerec_is_emfp(const char *contents, const char *blimit, int recnum,
                          size_t off, bool *ret) {
