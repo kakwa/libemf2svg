@@ -305,7 +305,7 @@ if(NOT LONLY)
   endif(ARGP_NAME)
 
   if(GCOV)
-    Set(COVERAGE_EXCLUDES '*conv*' '*uemf*' '*upmf*' '*tests*' '*c++*')
+    Set(COVERAGE_EXCLUDES '*conv*' '*uemf*' '*upmf*' '*libUEMF-*' '*tests*' '*c++*')
     include(CodeCoverage)
     setup_target_for_coverage(NAME coverage
       EXECUTABLE emf2svg-test ./tests/resources/emf*/*
