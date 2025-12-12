@@ -107,8 +107,8 @@ if(WIN32)
   set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
   ExternalProject_Add(${ARGP_NAME}
      PREFIX ${DEPS}
-     GIT_REPOSITORY https://github.com/tom42/argp-standalone.git
-     GIT_TAG v1.0.3
+     GIT_REPOSITORY https://github.com/artgins/argp-standalone.git
+     GIT_TAG v1.1.5
      CMAKE_ARGS -DBUILD_TESTING=FALSE
                 -DCMAKE_INSTALL_PREFIX=${DEPS}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
