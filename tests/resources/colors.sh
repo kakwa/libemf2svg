@@ -1,5 +1,5 @@
 RCol='\33[0m'    # Text Reset
- 
+
 # Regular        Bold              Underline         High Intensity
 Bla='\33[0;30m'; BBla='\33[1;30m'; UBla='\33[4;30m'; IBla='\33[0;90m';
 Red='\33[0;31m'; BRed='\33[1;31m'; URed='\33[4;31m'; IRed='\33[0;91m';

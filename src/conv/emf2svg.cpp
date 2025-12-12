@@ -26,7 +26,10 @@
 
 using namespace std;
 
-const char *argp_program_version = E2S_VERSION;
+#define __STRINGIFY__(V) __STR__(V)
+#define __STR__(V) #V
+
+const char *argp_program_version = __STRINGIFY__(E2S_VERSION);
 
 const char *argp_program_bug_address =
     "https://github.com/kakwa/libemf2svg/issues";
@@ -100,34 +103,52 @@ int main(int argc, char *argv[]) {
     arguments.input = NULL;
     arguments.output = NULL;
     arguments.emfplus = 0;
+
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
     if (arguments.version) {
-        std::cout << "emf2svg version: " << E2S_VERSION << "\n";
+        std::cout << "emf2svg version: "
+                  << __STRINGIFY__(E2S_VERSION)
+                  << std::endl;
         return 0;
     }
 
     if (arguments.input == NULL) {
         std::cerr << "[ERROR] "
-                  << "Missing --input=FILE argument\n";
+                  << "Missing --input=FILE argument"
+                  << std::endl;
         return 1;
     }
 
     if (arguments.output == NULL) {
         std::cerr << "[ERROR] "
-                  << "Missing --output=FILE argument\n";
+                  << "Missing --output=FILE argument"
+                  << std::endl;
         return 1;
     }
 
-    std::ifstream in(arguments.input);
+    std::ifstream in(arguments.input, ios::binary);
     if (!in.is_open()) {
         std::cerr << "[ERROR] "
                   << "Impossible to open input file '" << arguments.input
-                  << "'\n";
+                  << std::endl;
         return 1;
     }
-    std::string contents((std::istreambuf_iterator<char>(in)),
-                         std::istreambuf_iterator<char>());
+
+    in.seekg(0, std::ios::end);
+    size_t size = in.tellg();
+    char* contents = new char[size];
+    if (!contents) {
+        std::cerr << "[ERROR] Cannot allocate input buffer" << std::endl;
+        in.close();
+        return 1;
+    }
+    in.seekg(0, std::ios::beg);
+    in.read(contents, size);
+    in.close();
+
+ //   std::string contents((std::istreambuf_iterator<char>(in)),
+ //                        std::istreambuf_iterator<char>());
 
     char *svg_out = NULL;
     size_t svg_len;
@@ -139,25 +160,25 @@ int main(int argc, char *argv[]) {
     options->svgDelimiter = true;
     options->imgWidth = arguments.width;
     options->imgHeight = arguments.height;
-    int ret = emf2svg((char *)contents.c_str(), contents.size(), &svg_out,
-                      &svg_len, options);
+    int ret = emf2svg(contents, size, &svg_out, &svg_len, options);
     if (ret != 0) {
         std::ofstream out(arguments.output);
         if (!out.is_open()) {
             std::cerr << "[ERROR] "
-                      << "Impossible to open output file '" << arguments.output
-                      << "'\n";
+                << "Impossible to open output file '" << arguments.output
+                << std::endl;
+            delete[] contents;
+            free(svg_out);
+            free(options);
             return 1;
         }
         out << std::string(svg_out);
         out.close();
     }
+    delete[] contents;
     free(svg_out);
     free(options);
 
-    in.close();
-    if (ret == 0)
-        return 1;
-    return 0;
+    return (ret==0)?1:0;
 }
 /* vim:set shiftwidth=2 softtabstop=2 expandtab: */

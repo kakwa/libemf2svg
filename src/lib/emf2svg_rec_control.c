@@ -60,6 +60,45 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     double ratioXY = (double)(pEmr->rclBounds.right - pEmr->rclBounds.left) /
                      (double)(pEmr->rclBounds.bottom - pEmr->rclBounds.top);
 
+    /**
+    In EMF coordinates are specified using an origin (`[0,0]` point) located at
+    the upper-left corner: x-coordinates increase to the right; y-coordinates
+    increase from top to bottom.
+
+    The SVG coordinate system, on the other hand, uses the same origin (`[0,0]`
+    point) at the bottom-left corner: x-coordinates increase to the right; but
+    y-coordinates increase from top to bottom.
+
+    Typically, a simple shift of the y-axis through a single SVG/CSS
+    transformation is used to transform from EMF coordinates to SVG coordinates.
+
+    However, under certain circumstances some tools (for instance, SparxSystem
+    Enterprise Architect in Wine) will generate EMF files with malformed
+    coordinates. These images have an origin at the top-left corner with
+    y-coordinates increasing from top to bottom, yet these y-coordinates are
+    inverted (multiplied by `-1`) to simulate a normal EMF look.
+
+    Furthermore, this inversion phenomenon cannot be solved with plain mirroring
+    as it occurs to all (complex) objects of the hierarchy. For example, text
+    boxes have only their y-coordinate anchor point mirrored, but the text
+    direction is set properly.
+
+    This specific layout issue cannot be fixed by a single SVG/CSS
+    transformation, and therefore the processing code is required to detect and
+    invert only the affected y-coordinates, while keeping other attributes
+    intact.
+
+    Condition: top and bottom points are at different sides of the X axis. We
+    assume this condition indicates that this image was generated with  broken
+    transformation (possibly on Wine) and a fix is required as described above.
+
+    While this may be a weak assumption, nothing better came to mind.
+    **/
+
+    if (pEmr->rclBounds.top*pEmr->rclBounds.bottom < 0) {
+        states->fixBrokenYTransform = true;
+    }
+
     if ((states->imgHeight != 0) && (states->imgWidth != 0)) {
         double tmpWidth = states->imgHeight * ratioXY;
         double tmpHeight = states->imgWidth / ratioXY;
@@ -84,6 +123,7 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
     states->scaling = states->imgWidth /
                       (double)abs(pEmr->rclBounds.right - pEmr->rclBounds.left);
 
+
     // remember reference point of the output DC
     states->RefX = (double)pEmr->rclBounds.left;
     states->RefY = (double)pEmr->rclBounds.top;
@@ -97,18 +137,26 @@ void U_EMRHEADER_draw(const char *contents, FILE *out, drawingStates *states) {
             "<?xml version=\"1.0\"  encoding=\"UTF-8\" standalone=\"no\"?>\n");
         fprintf(out, "<%ssvg version=\"1.1\" ", states->nameSpaceString);
         fprintf(out, "xmlns=\"http://www.w3.org/2000/svg\" ");
-        fprintf(out, "xmlns:xlink=\"http://www.w3.org/1999/xlink\" ");
+        fprintf(out, "xmlns:xlink=\"http://www.w3.org/1999/xlink\"");
         if ((states->nameSpace != NULL) && (strlen(states->nameSpace) != 0)) {
-            fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\" ",
+            fprintf(out, "xmlns:%s=\"http://www.w3.org/2000/svg\"",
                     states->nameSpace);
         }
-        fprintf(out, "width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
+    // https://www.w3.org/TR/SVG2/coords.html
+        if (states->fixBrokenYTransform) {
+            fprintf(out, " width=\"%.4f\" height=\"%.4f\">\n",
+                states->imgWidth + 1,
+                states->imgHeight + 1);
+            fprintf(out, "<%sg transform=\"translate(0.0000, 0.00 00)\">\n",
+                    states->nameSpaceString);
+        } else {
+            fprintf(out, " width=\"%.4f\" height=\"%.4f\">\n", states->imgWidth,
                 states->imgHeight);
+            fprintf(out, "<%sg transform=\"translate(%.4f, %.4f)\">\n",
+                states->nameSpaceString, -1.0 * states->RefX * states->scaling,
+                -1.0 * states->RefY * states->scaling);
+        }
     }
-
-    fprintf(out, "<%sg transform=\"translate(%.4f, %.4f)\">\n",
-            states->nameSpaceString, -1.0 * states->RefX * states->scaling,
-            -1.0 * states->RefY * states->scaling);
 }
 
 #ifdef __cplusplus

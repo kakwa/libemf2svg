@@ -11,7 +11,6 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <iconv.h>
 #include <errno.h>
 #include <ft2build.h>
@@ -32,12 +31,14 @@ void U_swap4(void *ul, unsigned int count);
   points.
   \param rect U_RECTL object
   */
+#ifndef _MSC_VER
 double _dsign(double v) {
     if (v >= 0)
         return 1;
     else
         return -1;
 }
+#endif
 
 void arc_circle_draw(const char *contents, FILE *out, drawingStates *states) {
     PU_EMRANGLEARC pEmr = (PU_EMRANGLEARC)(contents);
@@ -147,7 +148,7 @@ void basic_stroke(drawingStates *states, FILE *out) {
     color_stroke(states, out);
     width_stroke(states, out, states->currentDeviceContext.stroke_width);
 }
-bool checkOutOfEMF(drawingStates *states, intptr_t address) {
+bool checkOutOfEMF(drawingStates *states, uintptr_t address) {
     if (address > states->endAddress) {
         states->Error = true;
         return true;
@@ -509,10 +510,18 @@ double scaleX(drawingStates *states, double x) {
         scalingX = states->pxPerMm / 1440 * mmPerInch * 1;
         break;
     case U_MM_ISOTROPIC:
-        scalingX = states->viewPortExX / states->windowExX;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingX = states->viewPortExX / states->windowExX;
+        } else {
+            scalingX = 1.0;
+        }
         break;
     case U_MM_ANISOTROPIC:
-        scalingX = states->viewPortExX / states->windowExX;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingX = states->viewPortExX / states->windowExX;
+        } else {
+            scalingX = 1.0;
+        }
         break;
     default:
         scalingX = 1.0;
@@ -550,10 +559,18 @@ double scaleY(drawingStates *states, double y) {
         scalingY = states->pxPerMm / 1440 * mmPerInch * 1;
         break;
     case U_MM_ISOTROPIC:
-        scalingY = states->viewPortExX / states->windowExX;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingY = states->viewPortExX / states->windowExX;
+        } else {
+            scalingY = 1.0;
+        }
         break;
     case U_MM_ANISOTROPIC:
-        scalingY = states->viewPortExY / states->windowExY;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingY = states->viewPortExY / states->windowExY;
+        } else {
+            scalingY = 1.0;
+        }
         break;
     default:
         scalingY = 1.0;
@@ -602,7 +619,11 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
         scalingY = states->pxPerMm / 1440 * mmPerInch * -1;
         break;
     case U_MM_ISOTROPIC:
-        scalingX = states->viewPortExX / states->windowExX;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingX = states->viewPortExX / states->windowExX;
+        } else {
+            scalingX = 1.0;
+        }
         scalingY = scalingX;
         windowOrgX = states->windowOrgX;
         windowOrgY = states->windowOrgY;
@@ -610,8 +631,14 @@ POINT_D point_cal(drawingStates *states, double x, double y) {
         viewPortOrgY = states->viewPortOrgY;
         break;
     case U_MM_ANISOTROPIC:
-        scalingX = states->viewPortExX / states->windowExX;
-        scalingY = states->viewPortExY / states->windowExY;
+        if (states->windowExSet && states->viewPortExSet) {
+            scalingX = states->viewPortExX / states->windowExX;
+            scalingY = states->viewPortExY / states->windowExY;
+        } else {
+            scalingX = 1.0;
+            // If fixBrokenYTransform is true, we have to flip the Y axis.
+            scalingY = (states->fixBrokenYTransform ? -1.0 : 1.0);
+        }
         windowOrgX = states->windowOrgX;
         windowOrgY = states->windowOrgY;
         viewPortOrgX = states->viewPortOrgX;
@@ -1119,17 +1146,17 @@ static int cmap_rev(const char *fpath, cmap_collection *rcmap) {
         // printf("font %s | name %s | style %s\n", fpath, face->family_name,
         // face->style_name);
         // printf("%d\n", face->num_charmaps);
-        int rmap_s = 1000;
+        FT_UInt rmap_s = 1000;
         rcmap->uni = calloc(rmap_s, sizeof(uint32_t));
         FT_Select_Charmap(face, FT_ENCODING_UNICODE);
         FT_UInt gindex = 0;
         FT_ULong charcode = FT_Get_First_Char(face, &gindex);
         while (gindex != 0) {
             if (gindex >= rmap_s) {
-                int old_rmap_s = rmap_s;
+                FT_UInt old_rmap_s = rmap_s;
                 rmap_s += 1000;
                 uint32_t *tmp = realloc(rcmap->uni, sizeof(uint32_t) * rmap_s);
-                for (int i = old_rmap_s; i < rmap_s; i++)
+                for (FT_UInt i = old_rmap_s; i < rmap_s; i++)
                     tmp[i] = 0;
                 // free(rcmap->uni);
                 rcmap->uni = tmp;
@@ -1401,65 +1428,69 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
                                 states->currentDeviceContext.font_family,
                                 states->currentDeviceContext.font_weight,
                                 states->currentDeviceContext.font_italic);
-        switch (states->currentDeviceContext.font_charset) {
-        case U_HEBREW_CHARSET:
-        case U_ARABIC_CHARSET:
-            /* with Utf-8 strings, the strings must always be
-             * stored in logical order, not visual order.
-             * Unicode Bidirectional (bidi) Algorithm does the work
-             * of rendering the text properly.
-             * So we reverse the text to be in logical order.
-             * However, this seems imcomplete,
-             * Right to Left ordering can also be set in
-             * ExtTextOutOptions (EMR_*TEXTOUT* records) and EMR_SETLAYOUT
-             * records, and it's completely ignored here.
-             * FIXME this is probably to simplistic.
-             */
-            reverse_utf8((char *)string, *size_out);
-            break;
-        case U_ANSI_CHARSET:
-        case U_DEFAULT_CHARSET:
-        case U_SYMBOL_CHARSET:
-        case U_SHIFTJIS_CHARSET:
-        case U_HANGUL_CHARSET:
-        case U_GB2312_CHARSET:
-        case U_CHINESEBIG5_CHARSET:
-        case U_GREEK_CHARSET:
-        case U_TURKISH_CHARSET:
-        case U_BALTIC_CHARSET:
-        case U_RUSSIAN_CHARSET:
-        case U_EASTEUROPE_CHARSET:
-        case U_THAI_CHARSET:
-        case U_JOHAB_CHARSET:
-        case U_MAC_CHARSET:
-        case U_OEM_CHARSET:
-        case U_VISCII_CHARSET:
-        case U_TCVN_CHARSET:
-        case U_KOI8_CHARSET:
-        case U_ISO3_CHARSET:
-        case U_ISO4_CHARSET:
-        case U_ISO10_CHARSET:
-        case U_CELTIC_CHARSET:
-        default:
-            break;
+        if (ret==0 && string!=NULL) {
+            switch (states->currentDeviceContext.font_charset) {
+            case U_HEBREW_CHARSET:
+            case U_ARABIC_CHARSET:
+                /* with Utf-8 strings, the strings must always be
+                 * stored in logical order, not visual order.
+                 * Unicode Bidirectional (bidi) Algorithm does the work
+                 * of rendering the text properly.
+                 * So we reverse the text to be in logical order.
+                 * However, this seems imcomplete,
+                 * Right to Left ordering can also be set in
+                 * ExtTextOutOptions (EMR_*TEXTOUT* records) and EMR_SETLAYOUT
+                 * records, and it's completely ignored here.
+                 * FIXME this is probably to simplistic.
+                 */
+                reverse_utf8((char*)string, *size_out);
+                break;
+            case U_ANSI_CHARSET:
+            case U_DEFAULT_CHARSET:
+            case U_SYMBOL_CHARSET:
+            case U_SHIFTJIS_CHARSET:
+            case U_HANGUL_CHARSET:
+            case U_GB2312_CHARSET:
+            case U_CHINESEBIG5_CHARSET:
+            case U_GREEK_CHARSET:
+            case U_TURKISH_CHARSET:
+            case U_BALTIC_CHARSET:
+            case U_RUSSIAN_CHARSET:
+            case U_EASTEUROPE_CHARSET:
+            case U_THAI_CHARSET:
+            case U_JOHAB_CHARSET:
+            case U_MAC_CHARSET:
+            case U_OEM_CHARSET:
+            case U_VISCII_CHARSET:
+            case U_TCVN_CHARSET:
+            case U_KOI8_CHARSET:
+            case U_ISO3_CHARSET:
+            case U_ISO4_CHARSET:
+            case U_ISO10_CHARSET:
+            case U_CELTIC_CHARSET:
+            default:
+                break;
+            }
         }
         break;
     default:
         if (checkOutOfEMF(states,
-                          (intptr_t)((intptr_t)in + (intptr_t)size_in))) {
+                          (uintptr_t)((uintptr_t)in + (uintptr_t)size_in))) {
             string = NULL;
-            return;
         }
-
-        string = (uint8_t *)calloc((size_in + 1), 1);
-        strncpy((char *)string, in, size_in);
-        *size_out = size_in;
+        else {
+            string = (uint8_t *)calloc((size_in + 1), 1);
+            strncpy((char *)string, in, size_in);
+            *size_out = size_in;
+        }
+        break;
     }
+
     if (ret != 0)
         string = NULL;
 
     if (string == NULL) {
-        return;
+            return;
     }
 
     int i = 0;

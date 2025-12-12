@@ -10,7 +10,7 @@
   and so not usable.
   If something goes wrong a NULL pointer is returned and recsize is set to 0.
 
-  Compile with "U_VALGRIND" defined defined to enable code which lets valgrind
+  Compile with "U_VALGRIND" defined to enable code which lets valgrind
   check each record for
   uninitialized data.
 
