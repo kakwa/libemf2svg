@@ -1,6 +1,6 @@
 # Copyright (c) 2021-2024 [Ribose Inc](https://www.ribose.com).
 # All rights reserved.
-# This file is a part of tamatebako
+# This file is a part of libemf2svg
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -22,63 +22,47 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#
-# The purpose of this workflow is to check that build procedures work correctly
-# in specific environment. Due to this reason there is no caching. It is done by
-# intention. All caching is in upstream projects.
 
-name: Windows-x86_64
+name: emf2svg - MSys-x86_64
 
 on:
   push:
     branches: [ master ]
-    paths-ignore:
-      - '.github/workflows/alpine-x86_64.yml'
-      - '.github/workflows/macos-x86_64.yml'
-      - '.github/workflows/macos-arm64.yml'
-      - '.github/workflows/ubuntu-aarch64.yml'
-      - '.github/workflows/ubuntu-x86_64.yml'
-      - '.github/workflows/msys-x86_64.yml'
   pull_request:
   workflow_dispatch:
 
 concurrency:
-  group: '${{ github.workflow }}-${{ github.job }}-${{ github.head_ref || github.ref_name }}'
+  group: '${{ github.workflow }}-${{ github.head_ref || github.ref_name }}'
   cancel-in-progress: true
 
 env:
   BUILD_TYPE: Release
-  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/cache
 
 jobs:
-  build-and-smoke-test:
+  smoke-test:
     runs-on: windows-latest
-
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    - uses: msys2/setup-msys2@v2
+      with:
+        path-type: inherit
+        msystem: mingw64
+        install: git flex bison gettext-devel
+        pacboy: gperf:p cmake:p python3:p ninja:p curl:p pkgconf:p gcc:p
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
-
-    - name: Create cache storage and cache key
-      run: |
-        mkdir ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        git submodule status > sm.txt
-
-    - name: Process cache
-      uses: actions/cache@v4
+    - run: mkdir -p cache && echo "VCPKG_DEFAULT_BINARY_CACHE=$(pwd)/cache" >> $GITHUB_ENV
+    - uses: actions/cache@v4
       with:
-        path: ${{env.VCPKG_DEFAULT_BINARY_CACHE}}
-        key: ${{ github.workflow }}-vcpkg-${{ hashFiles('sm.txt') }}
+        path: cache
+        key: ${{ github.workflow }}-mingw64-vcpkg-${{ hashFiles('.git/modules/*/HEAD') }}
+    - run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
+    - run: cmake --build build --config ${{ env.BUILD_TYPE }}
+    - run: |
+        ./build/emf2svg-conv.exe --version
+        ./build/emf2svg-conv.exe -i tests/resources/emf/test-000.emf -o test-000.svg
+        ls | grep test-000.svg
 
-    - name: Configure
-      run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
-
-    - name: Build
-      run: cmake --build build --config ${{env.BUILD_TYPE}}
-
-    - name: Smoke test
-      run: |
-        build/${{env.BUILD_TYPE}}/emf2svg-conv.exe --version
-        build/${{env.BUILD_TYPE}}/emf2svg-conv.exe -i tests/resources/emf/test-000.emf -o test-000.svg
-        dir . | findstr test-000.svg
