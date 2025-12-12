@@ -49,7 +49,7 @@ jobs:
       with:
         path-type: inherit
         msystem: mingw64
-        install: git flex bison gettext-devel ninja mingw-w64-x86_64-argp-standalone
+        install: git flex bison gettext-devel ninja
     - uses: actions/checkout@v4
       with:
         submodules: recursive

@@ -92,6 +92,29 @@ ExternalProject_Add(${FMEM_NAME}
 )
 set(EXTERNAL_FMEM "fmem")
 
+# Build argp-standalone as external project on Windows
+# argp is not available natively on Windows, so we build it from source
+if(WIN32)
+  set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
+  ExternalProject_Add(${ARGP_NAME}
+     PREFIX ${DEPS}
+     GIT_REPOSITORY https://github.com/tom42/argp-standalone.git
+     GIT_TAG v1.0.3
+     CMAKE_ARGS -DBUILD_TESTING=FALSE
+                -DCMAKE_INSTALL_PREFIX=${DEPS}
+                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+                ${PLATFORM_TOOLCHAIN_OPTION}
+  )
+  set(ARGP_ROOT_DIR ${DEPS})
+  set(ARGP_INCLUDE_DIR ${DEPS}/include)
+  if(MSVC)
+    set(ARGP_LIBRARY ${DEPS}/lib/argp-standalone.lib)
+  else()
+    set(ARGP_LIBRARY ${DEPS}/lib/libargp-standalone.a)
+  endif()
+endif(WIN32)
+
 set(DEPS_UEMF libUEMF-0.2.5)
 
 add_custom_target(tag
@@ -107,12 +130,22 @@ set(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION OFF)
 if(NOT LONLY)
   message(STATUS "Configuring argp")
   list(APPEND CMAKE_MESSAGE_INDENT "   ")
-  include(Findargp)
-  if(ARGP_FOUND)
+  if(WIN32)
+    # On Windows, we build argp-standalone as an external project
+    set(ARGP_FOUND TRUE)
     set(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION ON)
-    set(EXTERNAL_ARGP "${ARGP_LIBRARIES}")
+    set(EXTERNAL_ARGP "${ARGP_LIBRARY}")
+    set(ARGP_INCLUDE_DIRS "${ARGP_INCLUDE_DIR}")
+    message(STATUS "   Using argp-standalone external project")
   else()
-    message(FATAL_ERROR "Could not find argp library; please install the system argp headers/libs.")
+    # On Unix systems, try to find system argp
+    include(Findargp)
+    if(ARGP_FOUND)
+      set(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION ON)
+      set(EXTERNAL_ARGP "${ARGP_LIBRARIES}")
+    else()
+      message(FATAL_ERROR "Could not find argp library; please install the system argp headers/libs.")
+    endif()
   endif()
   list(POP_BACK CMAKE_MESSAGE_INDENT)
 endif(NOT LONLY)
@@ -175,6 +208,9 @@ if(MSVC)
     ${EXTERNAL_INCLUDE_DIR}
     ${DEPS_UEMF}
   )
+  if(ARGP_INCLUDE_DIRS)
+    include_directories(${ARGP_INCLUDE_DIRS})
+  endif()
   link_directories(
     ${CMAKE_BINARY_DIR}
     ${EXTERNAL_LIB_DIR}
