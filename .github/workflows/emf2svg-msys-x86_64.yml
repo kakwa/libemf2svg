@@ -49,8 +49,7 @@ jobs:
       with:
         path-type: inherit
         msystem: mingw64
-        install: git flex bison gettext-devel
-        pacboy: gperf:p cmake:p python3:p ninja:p curl:p pkgconf:p gcc:p
+        install: git flex bison gettext-devel ninja mingw-w64-x86_64-argp-standalone
     - uses: actions/checkout@v4
       with:
         submodules: recursive

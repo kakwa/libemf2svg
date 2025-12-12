@@ -103,27 +103,17 @@ add_custom_target(tag
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION=${emf2svg_VERSION}")
 
-set(HAVE_BUNDLED_ARGP_PARSE_FUNCTION OFF)
 set(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION OFF)
 if(NOT LONLY)
   message(STATUS "Configuring argp")
   list(APPEND CMAKE_MESSAGE_INDENT "   ")
-  message(STATUS "Checking if argp is provided by system libraries")
-
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    include(Findargp)
-    if(ARGP_FOUND)
-      set(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION ON)
-      set(EXTERNAL_ARGP "argp")
-      set(ARGP_INCLUDE_DIRS "${ARGP_INCLUDE_DIR}")
-    endif()
+  include(Findargp)
+  if(ARGP_FOUND)
+    set(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION ON)
+    set(EXTERNAL_ARGP "${ARGP_LIBRARIES}")
   else()
-    CHECK_FUNCTION_EXISTS(argp_parse HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
-    message(STATUS "Looking for standalone argp library")
-    set(CMAKE_REQUIRED_LIBRARIES argp)
-    CHECK_FUNCTION_EXISTS(argp_parse HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
+    message(FATAL_ERROR "Could not find argp library; please install the system argp headers/libs.")
   endif()
-
   list(POP_BACK CMAKE_MESSAGE_INDENT)
 endif(NOT LONLY)
 
@@ -175,37 +165,6 @@ if(MSVC)
   find_package(Iconv REQUIRED)
   set(EXTERNAL_ICONV ${Iconv_LIBRARY})
 endif(MSVC)
-
-if(NOT LONLY)
-  if(HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
-    message(STATUS "Using bundled argp")
-  elseif(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
-    message(STATUS "Using stand-alone argp")
-    if(NOT EXTERNAL_ARGP)
-      set(EXTERNAL_ARGP "argp-standalone")
-    endif()
-  else()
-    message(STATUS "Building argp")
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    # https://www.gnu.org/software/gnulib/manual/html_node/argp_005fprogram_005fversion_005fhook.html
-      set(EXTERNAL_ARGP "-Wl,-force_load,${DEPS}/lib/libargp-standalone.a")
-    else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-      set(EXTERNAL_ARGP "argp-standalone")
-    endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-    set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
-    ExternalProject_Add(${ARGP_NAME}
-      PREFIX ${DEPS}
-      GIT_REPOSITORY https://github.com/tom42/argp-standalone.git
-      GIT_TAG 238d83d6fb4fbdbb3e0893f51698d8d54696bfb0
-      CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX=${DEPS}
-                  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                  ${PLATFORM_TOOLCHAIN_OPTION}
-                  ${CMAKE_OSX_ARCHITECTURES_OPTION}
-      PATCH_COMMAND cd ${DEPS}/src/${ARGP_NAME} && git restore CMakeLists.txt && git apply ${PATCHES}/argp/CMakeLists.txt.patch
-    )
-  endif(HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
-endif(NOT LONLY)
 
 if(MSVC)
   include_directories(
