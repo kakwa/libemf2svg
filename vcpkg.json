@@ -1,0 +1,11 @@
+{
+  "name": "libemf2svg",
+  "version-string": "1.7.3",
+  "dependencies": [
+    "libxml2",
+    "libpng",
+    "libiconv",
+    "freetype",
+    "fontconfig"
+  ]
+}

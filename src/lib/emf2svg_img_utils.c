@@ -9,11 +9,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef DARWIN
-#include <memstream.h>
-#endif
-
+#include <fmem.h>
 #include <png.h>
 
 RGBAPixel *pixel_at(RGBABitmap *bitmap, int x, int y) {
@@ -40,8 +36,12 @@ float get_pixel_size(uint32_t colortype) {
 }
 
 /* Attempts to save PNG to file; returns 0 on success, non-zero on error. */
-int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
-    FILE *fp = open_memstream(out, size);
+int rgb2png(RGBABitmap *bitmap, char ** fm_out, size_t * fm_out_length) {
+    fmem fm;
+    fmem_init(&fm);
+    *fm_out = NULL;
+    *fm_out_length = 0;
+    FILE* fp = fmem_open(&fm, "w");
     if (fp == NULL) {
         return -1;
     }
@@ -52,9 +52,6 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
     // png_uint_32 bytes_per_row;
     png_byte **row_pointers = NULL;
     bool alpha_channel_empty = true;
-
-    if (fp == NULL)
-        return -1;
 
     /* Initialize the write struct. */
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -138,16 +135,26 @@ int rgb2png(RGBABitmap *bitmap, char **out, size_t *size) {
     /* Finish writing. */
     png_destroy_write_struct(&png_ptr, &info_ptr);
     fflush(fp);
+    void* out;
+    fmem_mem(&fm, &out, fm_out_length);
+    if (*fm_out_length) {
+        *fm_out = (char*)malloc(*fm_out_length+1);
+    }
+    if (*fm_out) {
+        memcpy((void*)(*fm_out), out, *fm_out_length);
+        (*fm_out)[*fm_out_length] = 0;
+    }
     fclose(fp);
-    return 0;
+    fmem_term(&fm);
+    return (*fm_out)?0:-1;
 }
 
 // uncompress RLE8 to get bitmap (section 3.1.6.2 [MS-WMF].pdf)
 RGBBitmap rle8ToRGB8(RGBBitmap img) {
     FILE *stream;
     bool decode = true;
-    char *out;
-    size_t size;
+    fmem fm;
+    fmem_init(&fm);
 
     RGBBitmap out_img;
     out_img.size = 0;
@@ -166,8 +173,9 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
         return out_img;
     }
 
-    stream = open_memstream(&out, &size);
+    stream = fmem_open(&fm, "w");
     if (stream == NULL) {
+        fmem_term(&fm);
         return out_img;
     }
 
@@ -176,7 +184,6 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
         // check against potential overflow
         if ((bm + 2) > end || x > MAX_BMP_WIDTH || y > MAX_BMP_HEIGHT) {
             fclose(stream);
-            free(out);
             return out_img;
         };
         switch (bm[0]) {
@@ -198,7 +205,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
                 // offset handling, pad with (off.x + off.y * width) zeros
                 if ((bm + 3) > end) {
                     fclose(stream);
-                    free(out);
+                    fmem_term(&fm);
                     return out_img;
                 };
                 for (int i = 0; i < (bm[2] + img.width * bm[3]); i++)
@@ -215,7 +222,7 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
                 bm_next = bm + 1 + ((bm[1] + 1) / 2) * 2;
                 if (bm_next > end) {
                     fclose(stream);
-                    free(out);
+                    fmem_term(&fm);
                     return out_img;
                 };
                 for (int i = 2; i < bm[1] + 2; i++)
@@ -238,15 +245,27 @@ RGBBitmap rle8ToRGB8(RGBBitmap img) {
         }
     }
     // pad the rest of the bitmap
-    for (int i = 0; i < (((int)img.width - x) + (int)img.width * y); i++)
+    for (size_t i = 0; i < ((img.width - x) + img.width * y); i++)
         fputc(0x00, stream);
 
     fflush(stream);
+    void* out;
+    fmem_mem(&fm, &out, &out_img.size);
+    if (out_img.size) {
+        out_img.pixels = (RGBPixel*)malloc(out_img.size+1);
+    }
+    if (out_img.pixels) {
+        memcpy((void*)out_img.pixels, out, out_img.size);
+        ((char*)(out_img.pixels))[out_img.size] = 0;
+        out_img.width = img.width;
+        out_img.height = img.height;
+    }
+    else {
+        out_img.size = 0;
+    }
+
     fclose(stream);
-    out_img.pixels = (RGBPixel *)out;
-    out_img.size = size;
-    out_img.width = img.width;
-    out_img.height = img.height;
+    fmem_term(&fm);
     return out_img;
 }
 
@@ -293,8 +312,8 @@ int e2s_get_DIB_params(PU_BITMAPINFO Bmi, const U_RGBQUAD **ct, uint32_t *numCt,
 RGBBitmap rle4ToRGB(RGBBitmap img) {
     FILE *stream;
     bool decode = true;
-    char *out;
-    size_t size;
+    fmem fm;
+    fmem_init(&fm);
 
     RGBBitmap out_img;
     out_img.size = 0;
@@ -313,7 +332,7 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
         return out_img;
     }
 
-    stream = open_memstream(&out, &size);
+    stream = fmem_open(&fm, "w");
     if (stream == NULL) {
         return out_img;
     }
@@ -335,7 +354,6 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
         // check against potential overflow
         if ((bm + 2) > end || x > MAX_BMP_WIDTH || y > MAX_BMP_HEIGHT) {
             fclose(stream);
-            free(out);
             return out_img;
         };
         switch (bm[0]) {
@@ -363,7 +381,6 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
                 // offset handling, pad with (off.x + off.y * width) zeros
                 if ((bm + 3) > end) {
                     fclose(stream);
-                    free(out);
                     return out_img;
                 };
 
@@ -392,7 +409,6 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
                 bm_next = bm + (bm[1] / 2) + 2;
                 if (bm_next > end) {
                     fclose(stream);
-                    free(out);
                     return out_img;
                 };
                 for (int i = 2; i < (bm[1] / 2) + 2; i++) {
@@ -450,15 +466,27 @@ RGBBitmap rle4ToRGB(RGBBitmap img) {
         fputc(upper | 0x00, stream);
     }
     // end of line, pad the rest of the line with zeros
-    for (int i = 0; i < (((int)img.width - x + (int)img.width * y) / 2); i++)
+    for (size_t i = 0; i < ((img.width - x + img.width * y) / 2); i++)
         fputc(0x00, stream);
 
     fflush(stream);
+    void* out;
+    fmem_mem(&fm, &out, &out_img.size);
+    if (out_img.size) {
+        out_img.pixels = (RGBPixel*)malloc(out_img.size+1);
+    }
+    if (out_img.pixels) {
+        memcpy((void*)out_img.pixels, out, out_img.size);
+        ((char*)(out_img.pixels))[out_img.size] = 0;
+        out_img.width = img.width;
+        out_img.height = img.height;
+    }
+    else {
+        out_img.size = 0;
+    }
+
     fclose(stream);
-    out_img.pixels = (RGBPixel *)out;
-    out_img.size = size;
-    out_img.width = img.width;
-    out_img.height = img.height;
+    fmem_term(&fm);
     return out_img;
 }
 

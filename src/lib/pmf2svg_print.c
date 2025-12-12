@@ -3431,8 +3431,8 @@ int U_PMR_OBJECT_print(const char *contents, const char *blimit,
         verbose_printf(" ContinueB:%c", (ntype ? 'Y' : 'N'));
         if (ntype) {
             if (checkOutOfEMF(states,
-                              (intptr_t)((intptr_t)Data +
-                                         (intptr_t)Header.DataSize - 4)) ||
+                              (uintptr_t)((uintptr_t)Data +
+                                         (uintptr_t)Header.DataSize - 4)) ||
                 ((int64_t)Header.DataSize - 4) < 0) {
                 status = 0;
                 verbose_printf("   corrupt record\n");
@@ -3445,7 +3445,7 @@ int U_PMR_OBJECT_print(const char *contents, const char *blimit,
             }
         } else {
             if (checkOutOfEMF(states,
-                              (intptr_t)Data + (intptr_t)Header.DataSize)) {
+                              (uintptr_t)Data + (uintptr_t)Header.DataSize)) {
                 status = 0;
                 verbose_printf("   corrupt record\n");
             } else {
