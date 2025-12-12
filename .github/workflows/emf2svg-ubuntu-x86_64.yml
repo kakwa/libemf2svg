@@ -54,19 +54,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - run: sudo apt-get update && sudo apt-get install -y libxml2-utils valgrind lcov && pip install cpp-coveralls
-    - run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON
-    - run: cmake --build build --config Debug
-    - run: |
-        cd build
-        coveralls \
-          -t ${{ secrets.COVERALLS_REPO_TOKEN }} \
-          -E '.*CMakeFiles.*' \
-          -E '.*conv.*' \
-          -E '.*uemf.*' \
-          -E '.*upmf.*' \
-          -E '.*goodies.*' \
-          -E '.*tests.*' \
-          --gcov-options '\-lp'
-      if: ${{ secrets.COVERALLS_REPO_TOKEN }}
+    - run: sudo apt update && sudo apt-get install -y libxml2-utils valgrind lcov libpng-dev libfreetype-dev libfontconfig-dev
+    - run: cmake -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON .
+    - run: make
+    - run: make coverage
+    - name: Generate Coverage Report
+      run: lcov --directory . --capture --output-file coverage.info
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      with:
+        files: ${{github.workspace}}/coverage.info
 
