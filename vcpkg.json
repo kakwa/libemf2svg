@@ -6,6 +6,7 @@
     "libpng",
     "libiconv",
     "freetype",
-    "fontconfig"
+    "fontconfig",
+    "argparse"
   ]
 }
