@@ -103,15 +103,27 @@ add_custom_target(tag
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DE2S_VERSION='\"${emf2svg_VERSION}\"'")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE2S_VERSION=${emf2svg_VERSION}")
 
+set(HAVE_BUNDLED_ARGP_PARSE_FUNCTION OFF)
+set(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION OFF)
 if(NOT LONLY)
   message(STATUS "Configuring argp")
   list(APPEND CMAKE_MESSAGE_INDENT "   ")
   message(STATUS "Checking if argp is provided by system libraries")
-  CHECK_FUNCTION_EXISTS(argp_parse HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
 
-  message(STATUS "Looking for standalone argp library")
-  set(CMAKE_REQUIRED_LIBRARIES argp)
-  CHECK_FUNCTION_EXISTS(argp_parse HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    include(Findargp)
+    if(ARGP_FOUND)
+      set(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION ON)
+      set(EXTERNAL_ARGP "argp")
+      set(ARGP_INCLUDE_DIRS "${ARGP_INCLUDE_DIR}")
+    endif()
+  else()
+    CHECK_FUNCTION_EXISTS(argp_parse HAVE_BUNDLED_ARGP_PARSE_FUNCTION)
+    message(STATUS "Looking for standalone argp library")
+    set(CMAKE_REQUIRED_LIBRARIES argp)
+    CHECK_FUNCTION_EXISTS(argp_parse HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
+  endif()
+
   list(POP_BACK CMAKE_MESSAGE_INDENT)
 endif(NOT LONLY)
 
@@ -169,7 +181,9 @@ if(NOT LONLY)
     message(STATUS "Using bundled argp")
   elseif(HAVE_EXTERNAL_ARGP_PARSE_FUNCTION)
     message(STATUS "Using stand-alone argp")
-    set(EXTERNAL_ARGP "argp")
+    if(NOT EXTERNAL_ARGP)
+      set(EXTERNAL_ARGP "argp-standalone")
+    endif()
   else()
     message(STATUS "Building argp")
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -218,6 +232,9 @@ else(MSVC)
     /usr/include
     /sw/include
   )
+  if(ARGP_INCLUDE_DIRS)
+    include_directories(${ARGP_INCLUDE_DIRS})
+  endif()
   link_directories(
     ${CMAKE_BINARY_DIR}
     ${EXTERNAL_LIB_DIR}
