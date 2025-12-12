@@ -1,12 +1,12 @@
 libemf2svg
 ==========
-[![Ubuntu-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/ubuntu-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/ubuntu-x86_64.yml)
-[![Ubuntu-aarch64](https://github.com/kakwa/libemf2svg/actions/workflows/ubuntu-aarch64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/ubuntu-aarch64.yml)
-[![Alpine-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/alpine-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/alpine-x86_64.yml)
-[![MacOS-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/macos-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/macos-x86_64.yml)
-[![MacOS-arm64](https://github.com/kakwa/libemf2svg/actions/workflows/macos-arm64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/macos-arm64.yml)
-[![Windows-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/windows-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/windows-x86_64.yml)
-[![MSys-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/msys-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/msys-x86_64.yml)
+[![emf2svg - Ubuntu-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-ubuntu-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-ubuntu-x86_64.yml)
+[![emf2svg - Ubuntu-aarch64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-ubuntu-aarch64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-ubuntu-aarch64.yml)
+[![emf2svg - Alpine-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-alpine-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-alpine-x86_64.yml)
+[![emf2svg - MacOS-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-x86_64.yml)
+[![emf2svg - MacOS-arm64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-arm64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-arm64.yml)
+[![emf2svg - Windows-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-windows-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-windows-x86_64.yml)
+[![emf2svg - MSys-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-msys-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-msys-x86_64.yml)
 
 MS EMF (Enhanced Metafile) to SVG conversion library.
 
