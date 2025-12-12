@@ -7,6 +7,7 @@ libemf2svg
 [![emf2svg - MacOS-arm64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-arm64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-arm64.yml)
 [![emf2svg - Windows-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-windows-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-windows-x86_64.yml)
 [![emf2svg - MSys-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-msys-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-msys-x86_64.yml)
+[![codecov](https://codecov.io/gh/kakwa/libemf2svg/branch/master/graph/badge.svg?token=TZVBb0a0xK)](https://codecov.io/gh/kakwa/libemf2svg)
 
 MS EMF (Enhanced Metafile) to SVG conversion library.
 
