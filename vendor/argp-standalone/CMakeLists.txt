@@ -181,6 +181,13 @@ endif()
 ##############################################
 install(FILES ${HDRS} DESTINATION ${INC_DEST_DIR})
 
+# Also install as argp.h for compatibility with code expecting standard argp.h
+install(
+    FILES include/argp-standalone/argp-standalone.h
+    DESTINATION ${INC_DEST_DIR}
+    RENAME argp.h
+)
+
 install(
     TARGETS ${PROJECT_NAME}
     PERMISSIONS
