@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - run: sudo apt-get update && sudo apt-get install -y libxml2-utils valgrind
+    - run: sudo apt update && sudo apt-get install -y libxml2-utils valgrind libpng-dev libfreetype-dev libfontconfig-dev
     - run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
     - run: cmake --build build --config ${{ env.BUILD_TYPE }}
     - run: ./tests/resources/check_correctness.sh -r -s
@@ -72,7 +72,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: sudo apt update && sudo apt-get install -y libxml2-utils valgrind lcov libpng-dev libfreetype-dev libfontconfig-dev
-    - run: cmake -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON .
+    - run: cmake -DCMAKE_BUILD_TYPE=Debug -DGCOV=ON  -DUSE_SYSTEM_LIBUEMF=ON .
     - run: make
     - run: make coverage
     - name: Generate Coverage Report
