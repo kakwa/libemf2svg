@@ -2,9 +2,14 @@
 
 cd `dirname $0`/../
 
-clang-format -style="{BasedOnStyle: llvm, IndentWidth: 4, AllowShortFunctionsOnASingleLine: None, SortIncludes: false, KeepEmptyLinesAtTheStartOfBlocks: false}" -i \
-    `find ./deps ./src/ ./inc/ -type f -name "*.cpp" -o \
-                        -type f -name "*.c" -o \
-                        -type f -name "*.h" -o \
-                        -type f -name "*.hpp"|grep -v font_map`
+# format code
+find ./ -type f \( -name "*.cpp" -o -name "*.c" -o -name "*.h" -o -name "*.hpp" \) \
+    ! -path "./CMakeFiles/*" ! -path './external/*' ! -path "./vendor/*"\
+    ! -path './build/*' ! -path "*_deps/*" ! -path "./vcpkg/*" \
+    -exec clang-format
+    -style="{BasedOnStyle: llvm, IndentWidth: 4, AllowShortFunctionsOnASingleLine: None, SortIncludes: false, KeepEmptyLinesAtTheStartOfBlocks: false, ColumnLimit: 120}"
+    -i {} \;
 
+
+# Format CMake
+cmake-format -i CMakeLists.txt cmake/*
