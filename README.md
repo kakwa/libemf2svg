@@ -3,7 +3,6 @@ libemf2svg
 [![emf2svg - Ubuntu-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-ubuntu-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-ubuntu-x86_64.yml)
 [![emf2svg - Ubuntu-aarch64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-ubuntu-aarch64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-ubuntu-aarch64.yml)
 [![emf2svg - Alpine-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-alpine-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-alpine-x86_64.yml)
-[![emf2svg - MacOS-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-x86_64.yml)
 [![emf2svg - MacOS-arm64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-arm64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-arm64.yml)
 [![emf2svg - Windows-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-windows-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-windows-x86_64.yml)
 [![codecov](https://codecov.io/gh/kakwa/libemf2svg/branch/master/graph/badge.svg?token=TZVBb0a0xK)](https://codecov.io/gh/kakwa/libemf2svg)
@@ -96,9 +95,8 @@ $ cmake . -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
 # This project can employs vcpkg (https://github.com/microsoft/vcpkg) to setup cross-compilation environment
 $ cmake . -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<triplet>
 # The following triplets are tested in CI:
-# * x64-linux   (both for Ubuntu and ALpine Linux)
+# * x64-linux   (both for Ubuntu and Alpine Linux)
 # * arm64-linux (Ubuntu)
-# * x64-osx
 # * arm64-osx
 # * x64-windows-static
 
