@@ -14,12 +14,12 @@ few additional functions are provided for assembling the EMF in memory, debuggin
 converting the EMF file to/from Little Endian representation. (EMF files' internal
 data representation is always Little Endian.)
 
-This code has been tested on 32 bit Ubuntu (LE), 32 bit Mingw, 64 bit Mageia, and 64
+This code has been tested on 32 bit Ubuntu (LE), 32 bit Mingw, 64 bit CentOS, and 64
 bit Solaris (BE).
 
 libUEMF is released under the GPL 2 license, read the file 'COPYING' for more information
 
-Version 0.2.5, released Jan 03,   2017.
+Version 0.2.8, released May 13,   2020.
 
 To report bugs or provide feedback send email to David Mathog, mathog@caltech.edu.
 
@@ -52,6 +52,9 @@ by searching the web for: "[MS-EMFPLUS]: Enhanced Metafile Format Plus Extension
 Files:
 
 README            This file.
+
+CMakeLists.txt    Build instructions for cmake on linux.  Not tested on OS X or 
+                  Windows.
 
 COPYING           GPL V2 license file.
 
@@ -177,44 +180,20 @@ emf-print.h.example
 --------------------------------------------------------------------------------------------
 How to Build:
 
-In Linux/Unix like environments (omit -g  flag for production versions): 
- 
-  Build and install a shared library (example, details may vary) and then build and link
-  the example programs to the shared library:
-    export CFLAGS="-std=c99 -pedantic -Wall -fPIC -g -c"
-    gcc $CFLAGS uemf.c
-    gcc $CFLAGS uemf_print.c
-    gcc $CFLAGS uemf_endian.c
-    gcc $CFLAGS uemf_safe.c
-    gcc $CFLAGS uemf_utf.c
-    gcc $CFLAGS uwmf.c
-    gcc $CFLAGS uwmf_print.c
-    gcc $CFLAGS uwmf_endian.c
-    gcc $CFLAGS upmf.c
-    gcc $CFLAGS upmf_print.c
-    unset CFLAGS
-    gcc -shared -Wl,-soname,libuemf.so.0 \
-      -o libuemf.so.0.0.3 uemf.o uemf_utf.o uemf_safe.o uemf_print.o uemf_endian.o uwmf.o uwmf_print.o uwmf_endian.o upmf.o upmf_print.o  -lc
-    ln -s libuemf.so.0.0.3 libuemf.so.0
-    ln -s libuemf.so.0 libuemf.so
-    /bin/cp -f libuemf.so* /usr/local/lib
-    ldconfig
-    export CFLAGS="-std=c99 -pedantic -Wall -g"
-    export CLIBS="-luemf -lm"
-    gcc $CFLAGS -o cutemf            cutemf.c            $CLIBS
-    gcc $CFLAGS -o pmfdual2single    pmfdual2single.c    $CLIBS
-    gcc $CFLAGS -o reademf           reademf.c           $CLIBS
-    gcc $CFLAGS -o readwmf           readwmf.c           $CLIBS
-    gcc $CFLAGS -o testbed_emf       testbed_emf.c       $CLIBS 
-    gcc $CFLAGS -o testbed_emf       testbed_wmf.c       $CLIBS 
-    gcc $CFLAGS -o test_mapmodes_emf test_mapmodes_emf.c $CLIBS
+In Linux/Unix like environments build and install a shared library and the test and tool
+programs:
+   cd <TOP_DIRECTORY>
+   #modify the destination in CMakeLists.txt if /usr/local is not acceptable
+   mkdir build
+   cd build
+   make
+   make install
+   cd ..
+   ./testit.sh
+   rm -rf build
 
-  For simple development work just build the example programs statically.  Set these
-  two variables up first:
-
-  (linux)
-     export CFLAGS="-std=c99 -pedantic -Wall -g"
-     export CLIBS=-lm
+   For simple development work use testbuild.sh to make debug versions without the shared
+   library.
 
   (Sparc)[ Solaris 8 and 9 are Big Endian, and to work around some minor incompatibilities with more recent systems,
    assuming gcc is installed in /opt/csw and PATH is set correctly to use it]
@@ -223,11 +202,10 @@ In Linux/Unix like environments (omit -g  flag for production versions):
 
   (win32) [This uses _wfopen() instead of fopen(), with filename translation from UTF-8 to 
    UTF-16LE.  This will allow file opens to utilize unicode names.  If WIN32 is omitted on Windows 
-   file names must be all ASCII.  This works in mingw.]
+   file names must be all ASCII.  This works in mingw.] Then compile with:
+
     export CLIBS="-lm -liconv"
     export CFLAGS="-DWIN32 -std=c99 -pedantic -Wall -g"
-
-   Then compile with:
 
     gcc $CFLAGS -o cutemf            cutemf.c            uemf.c uemf_endian.c uemf_utf.c        $CLIBS
     gcc $CFLAGS -o pmfdual2single    pmfdual2single.c    uemf.c uemf_endian.c uemf_utf.c upmf.c $CLIBS
@@ -377,12 +355,24 @@ History
   (Note, version numbers in files represent the libUEMF release where it was last modified, so not
   all files will show the same version numbers in each release.)
 
+0.2.8 2020-05-13
+  Fixed warnings from newer compilers.
+  Fixed truncation of one string in testbed outputs files,
+    from 32 to 31 bytes (seen on CentOS 8 with gcc 8.3.1 
+    but not CentOS 7 with gcc 4.8.5)
+0.2.7 2019-10-10
+  Added CMakeLists.txt for linux.
+  Added cmake instructions in README.
+  Fixed typo in README build instructions.
+  Error checking added to testit.sh.
+  Increased max records in cutemf from 10K to 10M.
+0.2.6 2019-03-21
+  Fixed typo in upmf.c discovered by David Binderman.
 0.2.5 2017-01-03
   Fixed a misplaced paren in uemf.h (thanks to Tavmjong Bah for noticing it)
   Added more U_SIZE_* definitions in uemf.h for "cores" of record types with final
     variable length arrays, such as U_SIZE_EMRNAMEDESCAPE 
   Removed redundant U_SIZE_BITMAPINFOHEADER definition from uwmf.h
-  
 0.2.4 2016-01-26
   Record EXTSELECTCLIPRGN is supposed to be valid when the RgnDataSize is 0 if the RegionMode
      is "COPY".  Modified safe and print routines so that they would handle this situation.
