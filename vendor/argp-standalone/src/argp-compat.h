@@ -10,6 +10,7 @@
 #if defined(_WIN32)
 /* Spell Windows.h all lowercase for MinGW on case sensitive systems. */
 #include <windows.h>
+#include <BaseTsd.h>
 #endif
 #include <stddef.h>
 
@@ -23,6 +24,13 @@ typedef SSIZE_T ssize_t;
 #else
 #error No replacement for ssize_t is available for the target platform
 #endif
+#endif
+
+/* Ensure ssize_t is defined on Windows even if config check didn't run */
+#if defined(_WIN32) && !defined(_SSIZE_T_DEFINED) && !defined(_SSIZE_T_)
+#define _SSIZE_T_DEFINED
+#define _SSIZE_T_
+typedef SSIZE_T ssize_t;
 #endif
 
 #if defined(_WIN32)
@@ -54,6 +62,19 @@ const char* argp_compat_strchrnul(const char* s, int c);
 #if defined(HAVE_STRNDUP) && !HAVE_STRNDUP
 char* argp_compat_strndup(const char* s, size_t n);
 #define strndup argp_compat_strndup
+#endif
+
+/* Unlocked I/O functions compatibility for Windows */
+#if defined(_WIN32)
+#if defined(HAVE_DECL_PUTC_UNLOCKED) && !HAVE_DECL_PUTC_UNLOCKED
+#define putc_unlocked putc
+#endif
+#if defined(HAVE_DECL_FPUTS_UNLOCKED) && !HAVE_DECL_FPUTS_UNLOCKED
+#define fputs_unlocked fputs
+#endif
+#if defined(HAVE_DECL_FWRITE_UNLOCKED) && !HAVE_DECL_FWRITE_UNLOCKED
+#define fwrite_unlocked fwrite
+#endif
 #endif
 
 #endif

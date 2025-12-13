@@ -161,6 +161,12 @@ set(
 ##############################################
 add_library(${PROJECT_NAME} ${SRCS} ${HDRS})
 
+# Add build directory to include path for config.h
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+# Define HAVE_CONFIG_H so that source files will include config.h
+target_compile_definitions(${PROJECT_NAME} PRIVATE HAVE_CONFIG_H)
+
 target_link_options(${PROJECT_NAME} PUBLIC LINKER:-Map=${PROJECT_NAME}.map)
 
 ################################################################################
