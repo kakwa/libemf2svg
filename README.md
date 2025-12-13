@@ -50,7 +50,7 @@ apt-get install clang
 apt-get install cmake pkg-config
 
 # library deps with their headers
-apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev zlib1g-dev
+apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev zlib1g-dev libuemf-dev
 ```
 
 Installing the dependencies on macOS:
@@ -86,6 +86,9 @@ Commands to build this project:
 
 # Linux, MacOS
 $ cmake . -DCMAKE_INSTALL_PREFIX=/usr/
+
+# Linux, using system libuemf
+$ cmake . -DCMAKE_INSTALL_PREFIX=/usr/ -DUSE_SYSTEM_LIBUEMF=ON
 
 # Windows native (MSVC) build
 $ cmake . -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
