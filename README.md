@@ -6,7 +6,6 @@ libemf2svg
 [![emf2svg - MacOS-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-x86_64.yml)
 [![emf2svg - MacOS-arm64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-arm64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-macos-arm64.yml)
 [![emf2svg - Windows-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-windows-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-windows-x86_64.yml)
-[![emf2svg - MSys-x86_64](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-msys-x86_64.yml/badge.svg?branch=master)](https://github.com/kakwa/libemf2svg/actions/workflows/emf2svg-msys-x86_64.yml)
 [![codecov](https://codecov.io/gh/kakwa/libemf2svg/branch/master/graph/badge.svg?token=TZVBb0a0xK)](https://codecov.io/gh/kakwa/libemf2svg)
 
 MS EMF (Enhanced Metafile) to SVG conversion library.
@@ -75,7 +74,6 @@ Building
 Commands to build this project:
 
 ```bash
-
 # options:
 # * [-DUSE_CLANG=on]: use clang instead of gcc
 # * [-DSTATIC=on]: build static library
@@ -91,17 +89,18 @@ $ cmake . -DCMAKE_INSTALL_PREFIX=/usr/
 $ cmake . -DCMAKE_INSTALL_PREFIX=/usr/ -DUSE_SYSTEM_LIBUEMF=ON
 
 # Windows native (MSVC) build
+$ git submodule update --init
 $ cmake . -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 # Cross-compilation
-# This project employs vcpkg (https://github.com/microsoft/vcpkg) to setup cross-compilation environment
+# This project can employs vcpkg (https://github.com/microsoft/vcpkg) to setup cross-compilation environment
 $ cmake . -DCMAKE_TOOLCHAIN_FILE=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<triplet>
 # The following triplets are tested in CI:
 # * x64-linux   (both for Ubuntu and ALpine Linux)
 # * arm64-linux (Ubuntu)
 # * x64-osx
 # * arm64-osx
-# * x64-mingw-static
+# * x64-windows-static
 
 # compilation
 $ make
