@@ -89,8 +89,7 @@ else()
 
   ExternalProject_Add(${FMEM_NAME}
      PREFIX ${DEPS}
-     GIT_REPOSITORY https://github.com/Kreijstal/fmem
-     GIT_TAG 5f79fef3606be5dac54d62c7d0e2123363afabd7
+     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/fmem
      CMAKE_ARGS -DBUILD_TESTING=FALSE
                 -DCMAKE_INSTALL_PREFIX=${DEPS}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -101,14 +100,13 @@ else()
   set(EXTERNAL_FMEM "fmem")
 endif()
 
-# Build argp-standalone as external project on Windows
+# Build argp-standalone from vendor folder on Windows
 # argp is not available natively on Windows, so we build it from source
 if(WIN32)
   set(ARGP_NAME argp${EXTERNAL_LIB_DIR_SUFFIX})
   ExternalProject_Add(${ARGP_NAME}
      PREFIX ${DEPS}
-     GIT_REPOSITORY https://github.com/artgins/argp-standalone.git
-     GIT_TAG v1.1.5
+     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/argp-standalone
      CMAKE_ARGS -DBUILD_TESTING=FALSE
                 -DCMAKE_INSTALL_PREFIX=${DEPS}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
