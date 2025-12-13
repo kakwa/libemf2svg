@@ -1125,7 +1125,7 @@ static int get_fontpath(char *font_family, int weight, int italic,
     return 0;
 }
 
-// genrate the reverse cmap from the ttf file
+// generate the reverse cmap from the ttf file
 static int cmap_rev(const char *fpath, cmap_collection *rcmap) {
     FT_Library library;
 
@@ -1154,7 +1154,7 @@ static int cmap_rev(const char *fpath, cmap_collection *rcmap) {
         while (gindex != 0) {
             if (gindex >= rmap_s) {
                 FT_UInt old_rmap_s = rmap_s;
-                rmap_s += 1000;
+                rmap_s = gindex + 1000;
                 uint32_t *tmp = realloc(rcmap->uni, sizeof(uint32_t) * rmap_s);
                 for (FT_UInt i = old_rmap_s; i < rmap_s; i++)
                     tmp[i] = 0;
