@@ -39,6 +39,7 @@ option(UNITTEST  "compile unit tests"           OFF)
 option(INDEX     "print record indexes"         OFF)
 option(STATIC    "compile statically"           OFF)
 option(FORCELE   "force little endian architecture"   OFF)
+option(USE_SYSTEM_LIBUEMF "use system libuemf library instead of vendored" OFF)
 
 if(STATIC)
     set(SHARED "SHARED")
@@ -123,6 +124,24 @@ if(WIN32)
 endif(WIN32)
 
 set(DEPS_UEMF ${CMAKE_CURRENT_SOURCE_DIR}/vendor/libuemf)
+
+# Configure libuemf (system or vendored)
+message(STATUS "Configuring libuemf")
+list(APPEND CMAKE_MESSAGE_INDENT "   ")
+if(USE_SYSTEM_LIBUEMF)
+  find_package(uemf QUIET)
+  if(UEMF_FOUND)
+    message(STATUS "Using system libuemf library")
+    set(USE_VENDORED_UEMF OFF)
+  else()
+    message(STATUS "System libuemf not found, falling back to vendored version")
+    set(USE_VENDORED_UEMF ON)
+  endif()
+else()
+  message(STATUS "Using vendored libuemf (USE_SYSTEM_LIBUEMF=OFF)")
+  set(USE_VENDORED_UEMF ON)
+endif()
+list(POP_BACK CMAKE_MESSAGE_INDENT)
 
 add_custom_target(tag
     COMMAND git tag -a ${emf2svg_VERSION} -m "tagging version ${emf2svg_VERSION}"
@@ -213,8 +232,12 @@ if(MSVC)
     ${FREETYPE_INCLUDE_DIRS}
     ${FONTCONFIG_INCLUDE_DIRS}
     ${EXTERNAL_INCLUDE_DIR}
-    ${DEPS_UEMF}
   )
+  if(USE_VENDORED_UEMF)
+    include_directories(${DEPS_UEMF})
+  else()
+    include_directories(${UEMF_INCLUDE_DIRS})
+  endif()
   if(ARGP_INCLUDE_DIRS)
     include_directories(${ARGP_INCLUDE_DIRS})
   endif()
@@ -229,11 +252,15 @@ else(MSVC)
     ${FREETYPE_INCLUDE_DIRS}
     ${FONTCONFIG_INCLUDE_DIRS}
     ${EXTERNAL_INCLUDE_DIR}
-    ${DEPS_UEMF}
     /usr/local/include
     /usr/include
     /sw/include
   )
+  if(USE_VENDORED_UEMF)
+    include_directories(${DEPS_UEMF})
+  else()
+    include_directories(${UEMF_INCLUDE_DIRS})
+  endif()
   if(ARGP_INCLUDE_DIRS)
     include_directories(${ARGP_INCLUDE_DIRS})
   endif()
@@ -244,14 +271,23 @@ else(MSVC)
   )
 endif(MSVC)
 
+# Conditionally add vendored libuemf sources
+if(USE_VENDORED_UEMF)
+  set(UEMF_SOURCES
+    ${DEPS_UEMF}/uemf_utf.c
+    ${DEPS_UEMF}/uemf_endian.c
+    ${DEPS_UEMF}/uemf.c
+    ${DEPS_UEMF}/upmf.c
+  )
+else()
+  set(UEMF_SOURCES "")
+endif()
+
 add_library(emf2svg
   ${SHARED}
   src/lib/pmf2svg.c
   src/lib/pmf2svg_print.c
-  ${DEPS_UEMF}/uemf_utf.c
-  ${DEPS_UEMF}/uemf_endian.c
-  ${DEPS_UEMF}/uemf.c
-  ${DEPS_UEMF}/upmf.c
+  ${UEMF_SOURCES}
   src/lib/emf2svg_utils.c
   src/lib/emf2svg_img_utils.c
   src/lib/emf2svg_clip_utils.c
@@ -284,6 +320,11 @@ target_link_libraries(emf2svg
   ${EXPAT_LIBRARY_RELEASE}
   ${EXTERNAL_FMEM}
 )
+
+# Link against system libuemf if using it
+if(NOT USE_VENDORED_UEMF)
+  target_link_libraries(emf2svg ${UEMF_LIBRARIES})
+endif()
 
 if(FMEM_NAME)
   add_dependencies(emf2svg ${FMEM_NAME})

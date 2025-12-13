@@ -50,6 +50,23 @@ jobs:
     - run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
     - run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/
 
+  build-and-test-system-libuemf:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies including system libuemf
+      run: sudo apt update && sudo apt-get install -y libxml2-utils valgrind libpng-dev libfreetype-dev libfontconfig-dev libuemf0 libuemf-dev
+    - name: Configure with system libuemf
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DUSE_SYSTEM_LIBUEMF=ON
+    - name: Build
+      run: cmake --build build --config ${{ env.BUILD_TYPE }}
+    - name: Test correctness
+      run: ./tests/resources/check_correctness.sh -r -s
+    - name: Test corrupted files
+      run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
+    - name: Test EA files
+      run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/
+
   coverage:
     runs-on: ubuntu-latest
     steps:
