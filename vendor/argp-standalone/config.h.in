@@ -1,0 +1,39 @@
+/*
+ * SPDX-FileCopyrightText: 2020 Thomas Mathys
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ * argp-standalone: standalone version of glibc's argp functions.
+ */
+
+/* Headers */
+#cmakedefine01 HAVE_MEMPCPY_H
+#cmakedefine01 HAVE_STRCASE_H
+#cmakedefine01 HAVE_STRCHRNUL_H
+#cmakedefine01 HAVE_STRNDUP_H
+#cmakedefine01 HAVE_SYSEXITS_H
+#cmakedefine01 HAVE_UNISTD_H
+
+/* Unlocked variants of stdio functions */
+#cmakedefine01 HAVE_DECL_PUTC_UNLOCKED
+#cmakedefine01 HAVE_DECL_FPUTS_UNLOCKED
+#cmakedefine01 HAVE_DECL_FWRITE_UNLOCKED
+
+/* strerror_r and strerror */
+#cmakedefine01 HAVE_STRERROR_R
+#cmakedefine01 HAVE_DECL_STRERROR_R
+#cmakedefine01 HAVE_DECL_STRERROR
+
+/* Miscellaneous functions */
+#cmakedefine01 HAVE_ASPRINTF
+#cmakedefine01 HAVE_MEMPCPY
+#cmakedefine01 HAVE_RANDOM
+#cmakedefine01 HAVE_SLEEP
+#cmakedefine01 HAVE_STRCASECMP
+#cmakedefine01 HAVE_STRCHRNUL
+#cmakedefine01 HAVE_STRNDUP
+
+/* Variables */
+#cmakedefine01 HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME
+#cmakedefine01 HAVE_DECL_PROGRAM_INVOCATION_NAME
+
+/* Types */
+#cmakedefine01 HAVE_SSIZE_T
