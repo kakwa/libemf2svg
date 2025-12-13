@@ -350,11 +350,18 @@ if(NOT LONLY)
   endif(ARGP_NAME)
 
   if(GCOV)
-    Set(COVERAGE_EXCLUDES '*conv*' '*uemf*' '*upmf*' '*libUEMF*' '*tests*' '*c++*')
+    Set(COVERAGE_EXCLUDES vendor tests)
     include(CodeCoverage)
-    setup_target_for_coverage(NAME coverage
-      EXECUTABLE emf2svg-test ./tests/resources/emf*/*
+    # Expand glob pattern for test files
+    file(GLOB_RECURSE EMF_TEST_FILES
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/emf/*.emf"
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/resources/emf-ea/*.emf"
+    )
+    setup_target_for_coverage_lcov(NAME coverage
+      EXECUTABLE emf2svg-test
+      EXECUTABLE_ARGS ${EMF_TEST_FILES}
       DEPENDENCIES emf2svg-test
+      LCOV_ARGS --ignore-errors unused
     )
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")

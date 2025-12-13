@@ -62,3 +62,5 @@ deps/tmp
 deps/src
 deps/include
 deps/lib
+
+coverage.*
