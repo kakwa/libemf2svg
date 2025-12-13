@@ -47,7 +47,6 @@ char *alloca ();
 #endif
 
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #if defined(HAVE_UNISTD_H) && HAVE_UNISTD_H
 # include <unistd.h>

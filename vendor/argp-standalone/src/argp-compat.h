@@ -64,17 +64,6 @@ char* argp_compat_strndup(const char* s, size_t n);
 #define strndup argp_compat_strndup
 #endif
 
-/* Unlocked I/O functions compatibility for Windows */
-#if defined(_WIN32)
-#if defined(HAVE_DECL_PUTC_UNLOCKED) && !HAVE_DECL_PUTC_UNLOCKED
-#define putc_unlocked putc
-#endif
-#if defined(HAVE_DECL_FPUTS_UNLOCKED) && !HAVE_DECL_FPUTS_UNLOCKED
-#define fputs_unlocked fputs
-#endif
-#if defined(HAVE_DECL_FWRITE_UNLOCKED) && !HAVE_DECL_FWRITE_UNLOCKED
-#define fwrite_unlocked fwrite
-#endif
-#endif
+/* Note: Unlocked I/O functions are handled by argp-namefrob.h */
 
 #endif
