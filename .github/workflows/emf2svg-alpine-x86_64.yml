@@ -44,7 +44,7 @@ jobs:
       BUILD_TYPE: Release
       VCPKG_FORCE_SYSTEM_BINARIES: 1
     steps:
-    - run: apk --no-cache add build-base cmake git valgrind argp-standalone gcompat gperf flex bison gettext-dev python3 ninja zip unzip curl pkgconfig libxml2-utils font-noto-hebrew font-noto-arabic
+    - run: apk --no-cache add build-base cmake git valgrind argp-standalone gcompat clang gperf flex bison gettext-dev python3 ninja zip unzip curl pkgconfig libxml2-utils font-noto-hebrew font-noto-arabic libpng freetype fontconfig libuuid autoconf autoconf-archive automake libtool
     - uses: actions/checkout@v4
       with:
         submodules: recursive

@@ -43,10 +43,9 @@ jobs:
     runs-on: ubuntu-24.04-arm
     steps:
     - uses: actions/checkout@v4
-    - run: sudo apt-get update && sudo apt-get install -y libxml2-utils valgrind
+    - run: sudo apt update && sudo apt-get install -y libxml2-utils valgrind libpng-dev libfreetype-dev libfontconfig-dev
     - run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
     - run: cmake --build build --config ${{ env.BUILD_TYPE }}
     - run: ./tests/resources/check_correctness.sh -r -s
     - run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-corrupted/ -xN
     - run: ./tests/resources/check_correctness.sh -r -s -e tests/resources/emf-ea/
-
