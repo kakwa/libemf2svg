@@ -122,7 +122,7 @@ if(WIN32)
   endif()
 endif(WIN32)
 
-set(DEPS_UEMF libUEMF-0.2.5)
+set(DEPS_UEMF ${CMAKE_CURRENT_SOURCE_DIR}/vendor/libuemf)
 
 add_custom_target(tag
     COMMAND git tag -a ${emf2svg_VERSION} -m "tagging version ${emf2svg_VERSION}"
