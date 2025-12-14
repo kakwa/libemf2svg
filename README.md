@@ -238,6 +238,13 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+1.8.0:
+
+* Fix crash/memory allocation in reverse font encoding (thanks to XJTUxuyun)
+* Import modifications from metanorma/clarical
+* General CI janitoring (github actions, cmake tweaks, etc)
+* Rework cmake dependency management, with now optional bundling of libuemf (new cmake `-DUSE_SYSTEM_LIBUEMF=ON` flag), fem and argp
+
 1.7.3 (thanks to metanorma):
 
 * Fixed incorrect handling of polygon fill modes
