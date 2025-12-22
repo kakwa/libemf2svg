@@ -205,16 +205,6 @@ endif(NOT FORCELE)
 
 # Build external dependancies if we are on OSX
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  execute_process(
-    COMMAND brew --prefix
-      RESULT_VARIABLE BREW_PREFIX_RES
-      OUTPUT_VARIABLE BREW_PREFIX
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-  if(NOT (BREW_PREFIX_RES EQUAL 0))
-      message(FATAL_ERROR "Could not find brew setup")
-  endif()
-  set(BREW_LIB_DIR ${BREW_PREFIX}/lib)
   set(EXTERNAL_ICONV "iconv")
   add_definitions(-DDARWIN)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -267,7 +257,6 @@ else(MSVC)
   link_directories(
     ${CMAKE_BINARY_DIR}
     ${EXTERNAL_LIB_DIR}
-    ${BREW_LIB_DIR}
   )
 endif(MSVC)
 
