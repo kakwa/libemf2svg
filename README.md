@@ -238,6 +238,11 @@ EMF+ RECORDS:
 ChangeLogs
 ----------
 
+
+1.8.1:
+
+* Remove brew call to set lib dir prefix
+
 1.8.0:
 
 * Fix crash/memory allocation in reverse font encoding (thanks to XJTUxuyun)
