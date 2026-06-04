@@ -122,6 +122,23 @@ do
             ret=1
         fi
     fi
+    # Content-preservation guard: EMF+ dual-mode arbitration (-p) suppresses the
+    # duplicate GDI fallback, but must never collapse a substantial drawing to
+    # near-nothing (that means the EMF+ layer did not reproduce what it muted).
+    # Skipped for the corrupted corpus (IGNORECONVERR), where tiny output is ok.
+    if [ "$IGNORECONVERR" != "yes" ]
+    then
+        NPSVG="${SVG}.nop"
+        $CMD $RESIZE_OPTS -i "$EMF" -o "${NPSVG}" >/dev/null 2>&1
+        psz=`wc -c < "${SVG}" 2>/dev/null || echo 0`
+        npsz=`wc -c < "${NPSVG}" 2>/dev/null || echo 0`
+        if [ "$npsz" -gt 2000 ] && [ "$psz" -lt $((npsz / 10)) ]
+        then
+            printf "[${BYel}ERROR${RCol}] -p output collapsed vs no-p (${psz} vs ${npsz} bytes): $EMF\n"
+            ret=1
+        fi
+        rm -f "${NPSVG}"
+    fi
     verbose_print "\n#####################################################\n"
     [ "${STOPONERROR}" = "yes" ] && [ $ret -eq 1 ] && exit 1
 done

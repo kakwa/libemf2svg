@@ -6,8 +6,8 @@ cd `dirname $0`/../
 find ./ -type f \( -name "*.cpp" -o -name "*.c" -o -name "*.h" -o -name "*.hpp" \) \
     ! -path "./CMakeFiles/*" ! -path './external/*' ! -path "./vendor/*"\
     ! -path './build/*' ! -path "*_deps/*" ! -path "./vcpkg/*" \
-    -exec clang-format
-    -style="{BasedOnStyle: llvm, IndentWidth: 4, AllowShortFunctionsOnASingleLine: None, SortIncludes: false, KeepEmptyLinesAtTheStartOfBlocks: false, ColumnLimit: 120}"
+    -exec clang-format \
+    -style="{BasedOnStyle: llvm, IndentWidth: 4, AllowShortFunctionsOnASingleLine: None, SortIncludes: false, KeepEmptyLinesAtTheStartOfBlocks: false, ColumnLimit: 80}" \
     -i {} \;
 
 

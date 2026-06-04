@@ -229,15 +229,38 @@ EMF+ RECORDS:
 
 |   Status  | Count | Percent |
 |:---------:|:-----:|:-------:|
-| Supported |    0  | [   0%] |
-| Partial   |    0  | [   0%] |
+| Supported |    1  | [   1%] |
+| Partial   |   10  | [  11%] |
 | Unused    |    0  | [   0%] |
-| Ignored   |   85  | [ 100%] |
+| Ignored   |   74  | [  87%] |
 | Total     |   85  |         |
+
+EMF+ (GDI+) records are rendered when the `-p` flag (or `options->emfplus`)
+is enabled, currently covering fills and strokes: `FillRects`, `FillPath`,
+`FillPolygon`, `DrawPath`, `DrawRects` and `DrawLines`, with solid-color and
+linear-gradient brushes, pen strokes, the EMF+ world transform and the object
+table. For dual EMF/EMF+ documents the redundant opaque GDI shadow fallback is
+suppressed so drop shadows render as soft semi-transparency rather than dark
+rectangles. Not yet handled: EMF+ text (`DrawString`), images
+(`DrawImage`/`DrawImagePoints`), hatch/texture/path-gradient brushes and
+clipping; the GDI fallback still renders that content.
 
 ChangeLogs
 ----------
 
+
+Unreleased:
+
+* Render EMF+ (GDI+) fills and strokes when `-p` is set: `FillRects`,
+  `FillPath`, `FillPolygon`, `DrawPath`, `DrawRects`, `DrawLines`, with
+  solid-color and linear-gradient brushes, pen strokes, world transform and an
+  EMF+ object table
+* Suppress the duplicate opaque GDI shadow fallback in dual EMF/EMF+ documents
+  so drop shadows render as soft semi-transparency (fixes the dark rectangles
+  in Enterprise Architect exports; see issue #12)
+* Harden the EMF+ parsing paths against malformed input (bounds/overflow guards,
+  dangling-pointer and non-finite-coordinate handling), with new regression
+  fixtures and an EMF+ rendering test (`tests/resources/check_emfplus.sh`)
 
 1.8.1:
 

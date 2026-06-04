@@ -371,6 +371,14 @@ void freeObjectTable(drawingStates *states) {
         freeObject(states, i);
     }
 }
+void freePmfObjectTable(drawingStates *states) {
+    for (int i = 0; i < 64; i++) {
+        free(states->pmfObjectTable[i].data);
+        states->pmfObjectTable[i].data = NULL;
+        states->pmfObjectTable[i].size = 0;
+        states->pmfObjectTable[i].type = 0;
+    }
+}
 void freePathStack(pathStack *stack) {
     while (stack != NULL) {
         // free(stack->pathStruct);
@@ -1428,7 +1436,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
                                 states->currentDeviceContext.font_family,
                                 states->currentDeviceContext.font_weight,
                                 states->currentDeviceContext.font_italic);
-        if (ret==0 && string!=NULL) {
+        if (ret == 0 && string != NULL) {
             switch (states->currentDeviceContext.font_charset) {
             case U_HEBREW_CHARSET:
             case U_ARABIC_CHARSET:
@@ -1443,7 +1451,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
                  * records, and it's completely ignored here.
                  * FIXME this is probably to simplistic.
                  */
-                reverse_utf8((char*)string, *size_out);
+                reverse_utf8((char *)string, *size_out);
                 break;
             case U_ANSI_CHARSET:
             case U_DEFAULT_CHARSET:
@@ -1477,8 +1485,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         if (checkOutOfEMF(states,
                           (uintptr_t)((uintptr_t)in + (uintptr_t)size_in))) {
             string = NULL;
-        }
-        else {
+        } else {
             string = (uint8_t *)calloc((size_in + 1), 1);
             strncpy((char *)string, in, size_in);
             *size_out = size_in;
@@ -1490,7 +1497,7 @@ void text_convert(char *in, size_t size_in, char **out, size_t *size_out,
         string = NULL;
 
     if (string == NULL) {
-            return;
+        return;
     }
 
     int i = 0;

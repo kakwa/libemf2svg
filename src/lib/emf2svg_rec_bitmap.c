@@ -64,6 +64,13 @@ void U_EMRBITBLT_draw(const char *contents, FILE *out, drawingStates *states) {
         char style[256];
         if (pEmr->dwRop == U_NOOP)
             return;
+        /* Dual-mode arbitration: a source-less BITBLT is a brush-fill the EMF+
+           layer reproduces (EA bakes drop shadows this way); suppress it as a
+           duplicate fallback while EMF+ is rendering and we are not in a GetDC
+           window. A BITBLT carrying real bitmap data (cbBitsSrc != 0) is left
+           alone since the EMF+ image handlers are not implemented. */
+        if (states->gdiMute)
+            return;
         if (states->currentDeviceContext.fill_mode == U_BS_MONOPATTERN) {
             sprintf(style, "fill:url(#img-%d-ref);",
                     states->currentDeviceContext.fill_idx);
@@ -418,16 +425,18 @@ emfImageLibrary *image_library_writer(const char *contents, FILE *out,
             e2s_get_DIB_params((PU_BITMAPINFO)BmiSrc, (const U_RGBQUAD **)&ct,
                                &numCt, &width, &height, &colortype, &invert);
             if (width > 0 && height > 0) {
-                fprintf(out, "<%sdefs><%simage id=\"img-%d\" x=\"0\" y=\"0\" "
-                             "width=\"%d\" height=\"%d\" ",
+                fprintf(out,
+                        "<%sdefs><%simage id=\"img-%d\" x=\"0\" y=\"0\" "
+                        "width=\"%d\" height=\"%d\" ",
                         states->nameSpaceString, states->nameSpaceString,
                         image->id, width, height);
                 dib_img_writer(contents, out, states, BmiSrc, BmpSrc, size,
                                true);
                 fprintf(out, " preserveAspectRatio=\"none\" />");
-                fprintf(out, "<%spattern id=\"img-%d-ref\" x=\"0\" y=\"0\" "
-                             "width=\"%d\" height=\"%d\" "
-                             "patternUnits=\"userSpaceOnUse\" >\n",
+                fprintf(out,
+                        "<%spattern id=\"img-%d-ref\" x=\"0\" y=\"0\" "
+                        "width=\"%d\" height=\"%d\" "
+                        "patternUnits=\"userSpaceOnUse\" >\n",
                         states->nameSpaceString, image->id, width, height);
                 fprintf(out,
                         "<%suse id=\"img-%d-ign\" xlink:href=\"#img-%d\" />",

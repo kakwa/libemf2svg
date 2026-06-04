@@ -847,7 +847,7 @@ int U_PMF_NODETYPE_print(int Type, FILE *out, drawingStates *states) {
   */
 int U_PMF_BRUSH_print(const char *contents, const char *blimit, FILE *out,
                       drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     uint32_t Version, Type;
     const char *Data;
     int status = U_PMF_BRUSH_get(contents, &Version, &Type, &Data, blimit);
@@ -1025,7 +1025,7 @@ int U_PMF_IMAGEATTRIBUTES_print(const char *contents, const char *blimit,
   */
 int U_PMF_PATH_print(const char *contents, const char *blimit, FILE *out,
                      drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     unsigned int i, pos;
     uint32_t Version, Count;
     uint16_t Flags;
@@ -1072,7 +1072,7 @@ int U_PMF_PATH_print(const char *contents, const char *blimit, FILE *out,
   */
 int U_PMF_PEN_print(const char *contents, const char *blimit, FILE *out,
                     drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     uint32_t Version, Type;
     const char *PenData;
     const char *Brush;
@@ -1933,7 +1933,7 @@ int U_PMF_PATHPOINTTYPERLE_print(const char *contents, const char *blimit,
   */
 int U_PMF_PENDATA_print(const char *contents, const char *blimit, FILE *out,
                         drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     uint32_t Flags, Unit;
     U_FLOAT Width;
     const char *Data;
@@ -3073,7 +3073,7 @@ int U_PMR_DRAWIMAGEPOINTS_print(const char *contents, FILE *out,
   */
 int U_PMR_DRAWLINES_print(const char *contents, FILE *out,
                           drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     uint32_t PenIdx;
     int ctype, dtype, RelAbs;
     uint32_t Elements;
@@ -3097,7 +3097,7 @@ int U_PMR_DRAWLINES_print(const char *contents, FILE *out,
   */
 int U_PMR_DRAWPATH_print(const char *contents, FILE *out,
                          drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     uint32_t PathIdx, PenIdx;
     int status = U_PMR_DRAWPATH_get(contents, NULL, &PathIdx, &PenIdx);
     if (status) {
@@ -3139,7 +3139,7 @@ int U_PMR_DRAWPIE_print(const char *contents, FILE *out,
   */
 int U_PMR_DRAWRECTS_print(const char *contents, FILE *out,
                           drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     uint32_t PenID;
     int ctype;
     uint32_t Elements;
@@ -3256,7 +3256,7 @@ int U_PMR_FILLELLIPSE_print(const char *contents, FILE *out,
   */
 int U_PMR_FILLPATH_print(const char *contents, FILE *out,
                          drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     int btype;
     uint32_t PathID, BrushID;
     int status = U_PMR_FILLPATH_get(contents, NULL, &PathID, &btype, &BrushID);
@@ -3300,7 +3300,7 @@ int U_PMR_FILLPIE_print(const char *contents, FILE *out,
   */
 int U_PMR_FILLPOLYGON_print(const char *contents, FILE *out,
                             drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     int btype, ctype, RelAbs;
     uint32_t BrushID, Elements;
     U_PMF_POINTF *Points;
@@ -3326,7 +3326,7 @@ int U_PMR_FILLPOLYGON_print(const char *contents, FILE *out,
   */
 int U_PMR_FILLRECTS_print(const char *contents, FILE *out,
                           drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_PARTIAL;
     int btype, ctype;
     uint32_t BrushID, Elements;
     U_PMF_RECTF *Rects;
@@ -3432,7 +3432,7 @@ int U_PMR_OBJECT_print(const char *contents, const char *blimit,
         if (ntype) {
             if (checkOutOfEMF(states,
                               (uintptr_t)((uintptr_t)Data +
-                                         (uintptr_t)Header.DataSize - 4)) ||
+                                          (uintptr_t)Header.DataSize - 4)) ||
                 ((int64_t)Header.DataSize - 4) < 0) {
                 status = 0;
                 verbose_printf("   corrupt record\n");
@@ -3998,7 +3998,7 @@ int U_PMR_SETPAGETRANSFORM_print(const char *contents, FILE *out,
   */
 int U_PMR_SETWORLDTRANSFORM_print(const char *contents, FILE *out,
                                   drawingStates *states) {
-    FLAG_IGNORED;
+    FLAG_SUPPORTED;
     U_PMF_TRANSFORMMATRIX Matrix;
     int status = U_PMR_SETWORLDTRANSFORM_get(contents, NULL, &Matrix);
     if (status) {

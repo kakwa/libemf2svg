@@ -31,7 +31,7 @@ extern "C" {
 #define FLAG_RESET verbose_printf("%s", KNRM);
 
 #define returnOutOfEmf(a)                                                      \
-    if (checkOutOfEMF(states, (uintptr_t)(a))) {                                \
+    if (checkOutOfEMF(states, (uintptr_t)(a))) {                               \
         return;                                                                \
     }
 #define returnOutOfOTIndex(a)                                                  \
@@ -237,6 +237,16 @@ typedef struct imageLibrary {
     struct imageLibrary *next;
 } emfImageLibrary;
 
+// EMF+ object table entry (object IDs are 0..63, see [MS-EMFPLUS] 3.1.2)
+typedef struct {
+    // U_OT_* object type, 0 (U_OT_Invalid) when the slot is empty
+    int type;
+    // object data size in bytes
+    uint32_t size;
+    // malloc'ed copy of the (possibly re-assembled) object data
+    char *data;
+} pmfGraphObject;
+
 // structure recording drawing states
 typedef struct {
     // unique ID (simple increment)
@@ -306,6 +316,29 @@ typedef struct {
     // current cursor position
     double cur_x;
     double cur_y;
+    // EMF+ world transform (EMF+ SetWorldTransform record), maps EMF+
+    // world coordinates to device coordinates:
+    // x' = m11 * x + m21 * y + dx ; y' = m12 * x + m22 * y + dy
+    bool pmfTransformSet;
+    double pmfM11;
+    double pmfM12;
+    double pmfM21;
+    double pmfM22;
+    double pmfDx;
+    double pmfDy;
+    // running id for generated EMF+ <linearGradient> defs (unique per file)
+    uint32_t pmfGradId;
+    // EMF+/GDI dual-mode arbitration (see [MS-EMFPLUS] 3.1.4.2):
+    // emfPlusDrew is set true only once an EMF+ record has actually emitted SVG
+    // (not merely been seen). gdiPlay is true inside a GetDC window (GDI drawn
+    // there is intended output, not fallback). gdiMute = emfPlusDrew &&
+    // !gdiPlay tells U_EMRBITBLT_draw to drop the source-less brush-fill that
+    // EA bakes its drop shadows with (a duplicate of the EMF+ rendering).
+    bool emfPlusDrew;
+    bool gdiPlay;
+    bool gdiMute;
+    // EMF+ object table (object IDs are 0..63, see [MS-EMFPLUS] 3.1.2)
+    pmfGraphObject pmfObjectTable[64];
     // general emf structure
     // used to associate records together
     // for example, associate path and pathfill/pathstroke/clipping
@@ -392,6 +425,7 @@ void arc_draw(const char *contents, FILE *out, drawingStates *states, int type);
 void newPathStruct(drawingStates *states);
 void setTransformIdentity(drawingStates *states);
 void freeObjectTable(drawingStates *states);
+void freePmfObjectTable(drawingStates *states);
 void freePathStack(pathStack *stack);
 void freeDeviceContext(EMF_DEVICE_CONTEXT *dc);
 POINT_D point_cal(drawingStates *states, double x, double y);

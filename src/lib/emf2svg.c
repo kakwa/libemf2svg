@@ -286,6 +286,18 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
         contents + size - 1 < contents)
         return (-1);
 
+    /* Dual-mode arbitration ([MS-EMFPLUS] 3.1.4.2): once the EMF+ layer has
+       actually drawn (emfPlusDrew) and we are not inside a GetDC window, the
+       source-less GDI brush-fill that EA bakes its drop shadows with is a
+       duplicate of the EMF+ rendering; U_EMRBITBLT_draw consults gdiMute and
+       suppresses exactly that case. Suppression is deliberately limited to
+       those shadow blits: general GDI vector drawing is NOT muted, because the
+       EMF+ layer does not always reproduce it (a dual file may carry its whole
+       picture in GDI with only a sparse EMF+ layer), and muting it would erase
+       primary content. With no rendered EMF+, gdiMute stays false and output
+       is byte-identical to a pure-GDI conversion. */
+    states->gdiMute = (states->emfPlusDrew && !states->gdiPlay);
+
     switch (lpEMFR->iType) {
     case U_EMR_HEADER:
         U_EMRHEADER_draw(contents, out, states);
@@ -644,7 +656,7 @@ int U_emf_onerec_draw(const char *contents, const char *blimit, int recnum,
     return (size);
 }
 
-int emf2svg(char *contents, size_t length, char ** fm_out, size_t * fm_out_length,
+int emf2svg(char *contents, size_t length, char **fm_out, size_t *fm_out_length,
             generatorOptions *options) {
     size_t off = 0;
     size_t result;
@@ -774,7 +786,8 @@ int emf2svg(char *contents, size_t length, char ** fm_out, size_t * fm_out_lengt
 
         pEmr = (PU_ENHMETARECORD)(contents + off);
 
-        result = U_emf_onerec_draw(contents, blimit, recnum, off, stream, states);
+        result =
+            U_emf_onerec_draw(contents, blimit, recnum, off, stream, states);
         if (result == (size_t)-1 || states->Error) {
             if (states->verbose) {
                 printf(
@@ -791,6 +804,7 @@ int emf2svg(char *contents, size_t length, char ** fm_out, size_t * fm_out_lengt
     } // end of while
     FLAG_RESET;
     freeObjectTable(states);
+    freePmfObjectTable(states);
     freePathStack(states->emfStructure.pathStack);
     free_path(&(states->currentPath));
     free(states->objectTable);
@@ -801,16 +815,15 @@ int emf2svg(char *contents, size_t length, char ** fm_out, size_t * fm_out_lengt
 
     if (stream) {
         fflush(stream);
-        void* out;
+        void *out;
         fmem_mem(&fm, &out, fm_out_length);
         if (*fm_out_length) {
-            *fm_out = (char*)malloc(*fm_out_length+1);
+            *fm_out = (char *)malloc(*fm_out_length + 1);
         }
         if (*fm_out) {
-            memcpy((void*)(*fm_out), out, *fm_out_length);
+            memcpy((void *)(*fm_out), out, *fm_out_length);
             (*fm_out)[*fm_out_length] = 0;
-        }
-        else {
+        } else {
             err = 0;
         }
         fclose(stream);

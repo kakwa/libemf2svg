@@ -29,12 +29,341 @@ extern "C" {
 
 #include "emf2svg_private.h"
 #include "pmf2svg.h"
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //! \cond
 
 #define UNUSED(x)                                                              \
     (void)(x) //! Please ignore - Doxygen simply insisted on including this
+
+/*
+   this function is not visible in the API.  Map an EMF+ world coordinate to
+   an SVG coordinate: apply the EMF+ world transform, which yields device
+   coordinates, then the global scaling ratio.  The GDI logical mapping
+   (point_cal: map mode, window/viewport) must NOT be applied here - EMF+
+   has its own transform stack and its device space is the EMF device space.
+   */
+static POINT_D pmf_point_cal(drawingStates *states, double x, double y) {
+    POINT_D ret;
+    double devX, devY;
+    if (states->pmfTransformSet) {
+        devX = states->pmfM11 * x + states->pmfM21 * y + states->pmfDx;
+        devY = states->pmfM12 * x + states->pmfM22 * y + states->pmfDy;
+    } else {
+        devX = x;
+        devY = y;
+    }
+    ret.x = devX * states->scaling;
+    ret.y = devY * states->scaling;
+    return ret;
+}
+
+/*
+   this function is not visible in the API.  Build SVG fill attributes from an
+   EMF+ U_PMF_ARGB color (0xAARRGGBB), translating the alpha channel to
+   fill-opacity, into the caller buffer (>= 64 bytes).
+   */
+static void pmf_color_attr(uint32_t argb, char *buf) {
+    uint8_t alpha = (argb >> 24) & 0xFF;
+    if (alpha != 0xFF) {
+        sprintf(buf, "fill=\"#%02x%02x%02x\" fill-opacity=\"%.4f\"",
+                (argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF,
+                alpha / 255.0);
+    } else {
+        sprintf(buf, "fill=\"#%02x%02x%02x\"", (argb >> 16) & 0xFF,
+                (argb >> 8) & 0xFF, argb & 0xFF);
+    }
+}
+
+/*
+   this function is not visible in the API.  Emit one SVG gradient <stop> from
+   an EMF+ U_PMF_ARGB color.
+   */
+static void pmf_grad_stop(drawingStates *states, U_PMF_ARGB c, double offset,
+                          FILE *out) {
+    fprintf(out, "<%sstop offset=\"%.4f\" style=\"stop-color:#%02x%02x%02x",
+            states->nameSpaceString, offset, c.Red, c.Green, c.Blue);
+    if (c.Alpha != 0xFF)
+        fprintf(out, ";stop-opacity:%.4f", c.Alpha / 255.0);
+    fprintf(out, "\" />");
+}
+
+/*
+   this function is not visible in the API.  Resolve the fill for an EMF+
+   Fill* record into the caller buffer `buf` (>= 64 bytes), emitting any
+   required <defs> to `out` first.  When `btype` is set BrushID is itself an
+   inline U_PMF_ARGB; otherwise BrushID indexes the EMF+ object table.
+   Supported brushes: inline color, SolidColor object, LinearGradient object.
+   Returns 1 when a fill was produced, 0 when nothing should be drawn.
+   */
+static int pmf_resolve_fill(drawingStates *states, int btype, uint32_t BrushID,
+                            FILE *out, char *buf) {
+    uint32_t Version, Type;
+    const char *Data;
+    pmfGraphObject *brush;
+    const char *blimit;
+
+    if (btype) { /* BrushID is an inline ARGB color */
+        pmf_color_attr(BrushID, buf);
+        return (1);
+    }
+    if (BrushID > 63)
+        return (0);
+    brush = &(states->pmfObjectTable[BrushID]);
+    if ((brush->type != U_OT_Brush) || (brush->data == NULL))
+        return (0);
+    blimit = brush->data + brush->size;
+    if (!U_PMF_BRUSH_get(brush->data, &Version, &Type, &Data, blimit))
+        return (0);
+
+    if (Type == U_BT_SolidColor) {
+        uint8_t b, g, r, a;
+        if (!U_PMF_ARGB_get(Data, &b, &g, &r, &a, blimit))
+            return (0);
+        pmf_color_attr(((uint32_t)a << 24) | ((uint32_t)r << 16) |
+                           ((uint32_t)g << 8) | (uint32_t)b,
+                       buf);
+        return (1);
+    }
+    if (Type == U_BT_LinearGradient) {
+        U_PMF_LINEARGRADIENTBRUSHDATA Lgbd;
+        const char *Optdata;
+        uint32_t id;
+        POINT_D p1, p2;
+        if (!U_PMF_LINEARGRADIENTBRUSHDATA_get(Data, &Lgbd, &Optdata, blimit))
+            return (0);
+        p1 = pmf_point_cal(states, Lgbd.RectF.X, Lgbd.RectF.Y);
+        p2 = pmf_point_cal(states, Lgbd.RectF.X + Lgbd.RectF.Width,
+                           Lgbd.RectF.Y + Lgbd.RectF.Height);
+        /* a non-finite RectF would emit x1="nan" etc., which is invalid SVG
+           that DTD (CDATA attributes) does not catch; draw nothing instead */
+        if (!isfinite(p1.x) || !isfinite(p1.y) || !isfinite(p2.x) ||
+            !isfinite(p2.y))
+            return (0);
+        id = states->pmfGradId++;
+        fprintf(out,
+                "<%sdefs><%slinearGradient id=\"pmf-grad-%u\" "
+                "gradientUnits=\"userSpaceOnUse\" "
+                "x1=\"%.4f\" y1=\"%.4f\" x2=\"%.4f\" y2=\"%.4f\">",
+                states->nameSpaceString, states->nameSpaceString, id, p1.x,
+                p1.y, p2.x, p2.y);
+        pmf_grad_stop(states, Lgbd.StartColor, 0.0, out);
+        pmf_grad_stop(states, Lgbd.EndColor, 1.0, out);
+        fprintf(out, "</%slinearGradient></%sdefs>", states->nameSpaceString,
+                states->nameSpaceString);
+        sprintf(buf, "fill=\"url(#pmf-grad-%u)\"", id);
+        return (1);
+    }
+    /* Hatch / Texture / PathGradient not handled yet */
+    return (0);
+}
+
+/*
+   this function is not visible in the API.  Resolve the stroke for an EMF+
+   Draw* record from a Pen in the EMF+ object table into the caller buffer
+   `buf` (>= 64 bytes): stroke color (from the pen's embedded SolidColor
+   brush, defaulting to black), optional stroke-opacity, and stroke-width
+   (pen width in EMF+ world units scaled to device).  Returns 1 on success.
+   */
+static int pmf_resolve_stroke(drawingStates *states, uint32_t PenID,
+                              char *buf) {
+    uint32_t Version, Type, Flags = 0, Unit = 0, bVersion, bType, penFlags;
+    U_FLOAT Width = 1.0;
+    const char *PenData, *Brush, *bData, *optData, *blimit;
+    const unsigned char *fp;
+    pmfGraphObject *pen;
+    uint8_t b = 0, g = 0, r = 0, a = 0xFF; /* default opaque black */
+    double sw, mag = 1.0;
+    int n;
+
+    if (PenID > 63)
+        return (0);
+    pen = &(states->pmfObjectTable[PenID]);
+    /* require Version(4)+Type(4)+PenData Flags(4) so the PenData Flags read
+       below stays inside the exact-sized object copy */
+    if ((pen->type != U_OT_Pen) || (pen->data == NULL) || (pen->size < 12))
+        return (0);
+    blimit = pen->data + pen->size;
+    /* PenData begins after Version(4)+Type(4); read its Flags directly (LE,
+       in bounds since size >= 12) */
+    PenData = pen->data + 8;
+    fp = (const unsigned char *)PenData;
+    penFlags = (uint32_t)fp[0] | ((uint32_t)fp[1] << 8) |
+               ((uint32_t)fp[2] << 16) | ((uint32_t)fp[3] << 24);
+    /* width (U_PMF_PENDATA_get bounds-checks Flags/Unit/Width) */
+    (void)U_PMF_PENDATA_get(PenData, &Flags, &Unit, &Width, &optData, blimit);
+    /* The embedded brush sits after the optional pen data, whose length the
+       vendored U_PMF_PEN_get / U_PMF_LEN_PENDATA walk WITHOUT bounds-checking
+       the variable-length fields (dashed/compound line data, custom caps);
+       a truncated pen declaring one would over-read the object copy. Resolve
+       the brush color only when none of those flags are set; otherwise keep
+       the default black (these pens still get the correct width). */
+    if (!(penFlags & (U_PD_DLData | U_PD_CLData | U_PD_CustomStartCap |
+                      U_PD_CustomEndCap)) &&
+        U_PMF_PEN_get(pen->data, &Version, &Type, &PenData, &Brush, blimit) &&
+        (Brush >= pen->data) && (Brush + 8 <= blimit) &&
+        U_PMF_BRUSH_get(Brush, &bVersion, &bType, &bData, blimit) &&
+        (bType == U_BT_SolidColor)) {
+        (void)U_PMF_ARGB_get(bData, &b, &g, &r, &a, blimit);
+    }
+    /* a world-unit pen width magnifies with the world transform, exactly like
+       the geometry (pmf_point_cal); device-unit widths do not */
+    if (states->pmfTransformSet && (Unit == U_UT_World)) {
+        double det =
+            states->pmfM11 * states->pmfM22 - states->pmfM12 * states->pmfM21;
+        mag = sqrt(fabs(det));
+    }
+    sw = (Width > 0.0 ? (double)Width : 1.0) * mag * states->scaling;
+    if (!isfinite(sw) || sw < 0.0)
+        sw = states->scaling;
+    n = sprintf(buf, "stroke=\"#%02x%02x%02x\"", r, g, b);
+    if (a != 0xFF)
+        n += sprintf(buf + n, " stroke-opacity=\"%.4f\"", a / 255.0);
+    sprintf(buf + n, " stroke-width=\"%.4f\"", sw);
+    return (1);
+}
+
+/*
+   this function is not visible in the API.  Validate that the full declared
+   extent of the current EMF+ record lies inside the EMF buffer, BEFORE any
+   U_PMR_*_get parses record data (those getters trust the declared size).
+   Returns 0 when the record is safe to parse, non zero otherwise.
+
+   The bound is computed by subtraction rather than by adding the attacker
+   controlled Size to the record pointer, which would wrap on 32 bit builds.
+   checkOutOfEMF() is intentionally NOT used here: it latches states->Error,
+   which would abort the whole conversion and discard all output on a single
+   truncated EMF+ sub-record - the rest of the (valid) file must still render.
+   */
+static int pmf_record_unsafe(drawingStates *states, const char *contents,
+                             U_PMF_CMN_HDR *hdr) {
+    const char *cursor = contents;
+    if (!U_PMF_CMN_HDR_get(&cursor, hdr))
+        return (1);
+    if ((uintptr_t)contents > states->endAddress)
+        return (1);
+    if ((uint64_t)hdr->Size > states->endAddress - (uintptr_t)contents)
+        return (1);
+    return (0);
+}
+
+/*
+   this function is not visible in the API.  Build an SVG path "d" attribute
+   from an EMF+ PATH object (raw object data, EMF+ file byte order).
+   Coordinates are mapped through pmf_point_cal.  On success returns a
+   malloc'ed string and sets *winding to the path fill mode; returns NULL
+   when the path cannot be converted (unsupported encoding, malformed type
+   stream, out of range coordinates).
+   */
+static char *pmf_path_build(drawingStates *states, const char *data,
+                            uint32_t size, int *winding) {
+    uint32_t Version, Count;
+    uint16_t Flags;
+    const char *Points;
+    const char *Types;
+    const char *blimit = data + size;
+    POINT_D *pts;
+    char *d;
+    size_t pos;
+    uint32_t i;
+    int bez;
+
+    if (!U_PMF_PATH_get(data, &Version, &Count, &Flags, &Points, &Types,
+                        blimit))
+        return (NULL);
+    if (Count == 0)
+        return (NULL);
+    /* RLE-compressed point types and relative points are not handled yet */
+    if (Flags & (U_PPF_R | U_PPF_P))
+        return (NULL);
+    if ((Types + Count) > blimit)
+        return (NULL);
+
+    /* read and transform the points */
+    pts = (POINT_D *)malloc(Count * sizeof(POINT_D));
+    if (pts == NULL)
+        return (NULL);
+    for (i = 0; i < Count; i++) {
+        U_FLOAT x = 0.0, y = 0.0;
+        int ok = (Flags & U_PPF_C) ? U_PMF_POINT_get(&Points, &x, &y, blimit)
+                                   : U_PMF_POINTF_get(&Points, &x, &y, blimit);
+        if (!ok) {
+            free(pts);
+            return (NULL);
+        }
+        pts[i] = pmf_point_cal(states, x, y);
+        /* keep %.4f output length bounded */
+        if (!isfinite(pts[i].x) || !isfinite(pts[i].y) ||
+            (fabs(pts[i].x) > 1e9) || (fabs(pts[i].y) > 1e9)) {
+            free(pts);
+            return (NULL);
+        }
+    }
+
+    /* validate the point type stream: only Start/Line/Bezier types,
+       Bezier points coming in complete triples */
+    bez = 0;
+    for (i = 0; i < Count; i++) {
+        switch (((uint8_t)Types[i]) & U_PPT_MASK) {
+        case U_PPT_Start:
+            if ((i != 0) && (bez % 3))
+                goto invalid;
+            break;
+        case U_PPT_Line:
+            if (bez % 3)
+                goto invalid;
+            break;
+        case U_PPT_Bezier:
+            if (i == 0)
+                goto invalid;
+            bez++;
+            break;
+        default:
+            goto invalid;
+        }
+    }
+    if (bez % 3)
+        goto invalid;
+
+    /* worst case per point: "C " + "-123456789.1234,-123456789.1234 " + "Z "
+       which stays under 48 bytes */
+    d = (char *)malloc((size_t)Count * 48 + 16);
+    if (d == NULL)
+        goto invalid;
+    pos = 0;
+    bez = 0;
+    for (i = 0; i < Count; i++) {
+        uint8_t t = (uint8_t)Types[i];
+        switch (t & U_PPT_MASK) {
+        case U_PPT_Start:
+            pos += sprintf(d + pos, "M %.4f,%.4f ", pts[i].x, pts[i].y);
+            break;
+        case U_PPT_Line:
+            pos += sprintf(d + pos, "L %.4f,%.4f ", pts[i].x, pts[i].y);
+            break;
+        case U_PPT_Bezier:
+            if ((bez % 3) == 0)
+                pos += sprintf(d + pos, "C ");
+            pos += sprintf(d + pos, "%.4f,%.4f ", pts[i].x, pts[i].y);
+            bez++;
+            break;
+        }
+        if (t & U_PTP_CloseSubpath)
+            pos += sprintf(d + pos, "Z ");
+    }
+    if (pos > 0)
+        d[pos - 1] = '\0'; /* trim the trailing space */
+    free(pts);
+    *winding = (Flags & U_PPF_F) ? 1 : 0;
+    return (d);
+
+invalid:
+    free(pts);
+    return (NULL);
+}
 
 /*
    this function is not visible in the API.  Print "data" for one of the many
@@ -108,6 +437,12 @@ int U_pmf_onerec_draw(const char *contents, const char *blimit, int recnum,
                                                  leaving the indexable part */
     if (type < U_PMR_MIN || type > U_PMR_MAX)
         return (-1); /* unknown EMF+ record type */
+    /* Dual-mode arbitration (see U_emf_onerec_draw): GetDC opens a window in
+       which the following GDI records are intended output; any other EMF+
+       record closes it. The GDI fallback is muted only once the EMF+ layer has
+       actually drawn something (states->emfPlusDrew, set by the draw handlers
+       below), never on mere record presence. */
+    states->gdiPlay = (type == U_PMR_GETDC);
     status =
         U_PMF_CMN_HDR_draw(Header, recnum, off, out, states); /* EMF+ part */
 
@@ -1502,6 +1837,53 @@ int U_PMR_DRAWIMAGEPOINTS_draw(const char *contents, FILE *out,
 int U_PMR_DRAWLINES_draw(const char *contents, FILE *out,
                          drawingStates *states) {
     int status = 1;
+    int ctype, dtype, RelAbs, ok;
+    uint32_t i, PenID, Elements, count, maxpts, psize;
+    U_PMF_POINTF *Points = NULL;
+    U_PMF_CMN_HDR hdr;
+    char stroke[128];
+    if (states->inPath)
+        return (status);
+    if (pmf_record_unsafe(states, contents, &hdr))
+        return (status);
+    if (!U_PMR_DRAWLINES_get(contents, &hdr, &PenID, &ctype, &dtype, &RelAbs,
+                             &Elements, &Points))
+        return (status);
+    /* relative points are variable-length; not handled yet */
+    if (RelAbs) {
+        free(Points);
+        return (status);
+    }
+    /* U_PMF_VARPOINTS_get NULLs *Points on failure, so a non-NULL pointer is a
+       valid owned buffer. Bound the count by what fits the record so a bogus
+       Elements cannot emit garbage points past the real data (points start at
+       header 12 + Elements 4 = 16). */
+    if ((Points != NULL) && pmf_resolve_stroke(states, PenID, stroke)) {
+        psize = ctype ? sizeof(U_PMF_POINT) : sizeof(U_PMF_POINTF);
+        maxpts = (hdr.Size > 16) ? (uint32_t)((hdr.Size - 16) / psize) : 0;
+        count = (Elements < maxpts) ? Elements : maxpts;
+        /* a single non-finite point would emit "nan" and break the path, so
+           require the whole polyline to be finite before emitting anything */
+        ok = (count >= 2);
+        for (i = 0; ok && i < count; i++) {
+            POINT_D p = pmf_point_cal(states, Points[i].X, Points[i].Y);
+            if (!isfinite(p.x) || !isfinite(p.y))
+                ok = 0;
+        }
+        if (ok) {
+            states->emfPlusDrew = true;
+            fprintf(out, "<!-- EMF+ DrawLines --><%spath d=\"",
+                    states->nameSpaceString);
+            for (i = 0; i < count; i++) {
+                POINT_D p = pmf_point_cal(states, Points[i].X, Points[i].Y);
+                fprintf(out, "%c %.4f,%.4f ", i ? 'L' : 'M', p.x, p.y);
+            }
+            if (dtype)
+                fprintf(out, "Z");
+            fprintf(out, "\" fill=\"none\" %s />\n", stroke);
+        }
+    }
+    free(Points);
     return (status);
 }
 
@@ -1514,6 +1896,35 @@ int U_PMR_DRAWLINES_draw(const char *contents, FILE *out,
 int U_PMR_DRAWPATH_draw(const char *contents, FILE *out,
                         drawingStates *states) {
     int status = 1;
+    int winding = 0;
+    uint32_t PathID, PenID;
+    U_PMF_CMN_HDR hdr;
+    pmfGraphObject *po;
+    char *d;
+    char stroke[128];
+    /* a GDI path may be open (BEGINPATH..ENDPATH streams an unterminated
+       "<path d=\"" attribute); emitting our own element now would corrupt it */
+    if (states->inPath)
+        return (status);
+    if (pmf_record_unsafe(states, contents, &hdr))
+        return (status);
+    if (!U_PMR_DRAWPATH_get(contents, NULL, &PathID, &PenID))
+        return (status);
+    if (PathID > 63)
+        return (status);
+    po = &(states->pmfObjectTable[PathID]);
+    if ((po->type != U_OT_Path) || (po->data == NULL))
+        return (status);
+    d = pmf_path_build(states, po->data, po->size, &winding);
+    if (d == NULL)
+        return (status);
+    if (pmf_resolve_stroke(states, PenID, stroke)) {
+        states->emfPlusDrew = true;
+        fprintf(out,
+                "<!-- EMF+ DrawPath --><%spath d=\"%s\" fill=\"none\" %s />\n",
+                states->nameSpaceString, d, stroke);
+    }
+    free(d);
     return (status);
 }
 
@@ -1538,6 +1949,47 @@ int U_PMR_DRAWPIE_draw(const char *contents, FILE *out, drawingStates *states) {
 int U_PMR_DRAWRECTS_draw(const char *contents, const char *blimit, FILE *out,
                          drawingStates *states) {
     int status = 1;
+    int ctype;
+    uint32_t i, PenID, Elements;
+    uint64_t avail;
+    bool getterFreed;
+    U_PMF_RECTF *Rects = NULL;
+    U_PMF_CMN_HDR hdr;
+    char stroke[128];
+    UNUSED(blimit);
+    if (states->inPath)
+        return (status);
+    if (pmf_record_unsafe(states, contents, &hdr))
+        return (status);
+    if (!U_PMR_DRAWRECTS_get(contents, &hdr, &PenID, &ctype, &Elements, &Rects))
+        return (status);
+    /* same dangling-Rects hazard as FillRects (U_PMF_VARRECTS_get frees but
+       does not NULL on overflow); rects start after header 12 + Elements 4 */
+    avail = (hdr.Size > 16) ? (hdr.Size - 16) : 0;
+    getterFreed = ((uint64_t)Elements * sizeof(U_PMF_RECT)) > avail;
+    if (!getterFreed && Rects != NULL &&
+        pmf_resolve_stroke(states, PenID, stroke)) {
+        for (i = 0; i < Elements; i++) {
+            U_PMF_RECTF *r = Rects + i;
+            if (!isfinite(r->X) || !isfinite(r->Y) || !(r->Width >= 0.0) ||
+                !(r->Height >= 0.0))
+                continue;
+            states->emfPlusDrew = true;
+            POINT_D ul = pmf_point_cal(states, r->X, r->Y);
+            POINT_D ur = pmf_point_cal(states, r->X + r->Width, r->Y);
+            POINT_D lr =
+                pmf_point_cal(states, r->X + r->Width, r->Y + r->Height);
+            POINT_D ll = pmf_point_cal(states, r->X, r->Y + r->Height);
+            fprintf(out, "<!-- EMF+ DrawRects --><%spath d=\"",
+                    states->nameSpaceString);
+            fprintf(out,
+                    "M %.4f,%.4f L %.4f,%.4f L %.4f,%.4f L %.4f,%.4f Z\" "
+                    "fill=\"none\" %s />\n",
+                    ul.x, ul.y, ur.x, ur.y, lr.x, lr.y, ll.x, ll.y, stroke);
+        }
+    }
+    if (!getterFreed)
+        free(Rects);
     return (status);
 }
 
@@ -1587,6 +2039,38 @@ int U_PMR_FILLELLIPSE_draw(const char *contents, FILE *out,
 int U_PMR_FILLPATH_draw(const char *contents, FILE *out,
                         drawingStates *states) {
     int status = 1;
+    int btype, winding = 0;
+    uint32_t PathID, BrushID;
+    U_PMF_CMN_HDR hdr;
+    pmfGraphObject *po;
+    char *d;
+    char fill[128];
+    /* a GDI path may be open (BEGINPATH..ENDPATH streams an unterminated
+       "<path d=\"" attribute); emitting our own element now would corrupt it */
+    if (states->inPath)
+        return (status);
+    if (pmf_record_unsafe(states, contents, &hdr))
+        return (status);
+    if (!U_PMR_FILLPATH_get(contents, NULL, &PathID, &btype, &BrushID))
+        return (status);
+    if (PathID > 63)
+        return (status);
+    po = &(states->pmfObjectTable[PathID]);
+    if ((po->type != U_OT_Path) || (po->data == NULL))
+        return (status);
+    d = pmf_path_build(states, po->data, po->size, &winding);
+    if (d == NULL)
+        return (status);
+    /* resolve fill (emits any <defs> first); skip the element if unresolved */
+    if (pmf_resolve_fill(states, btype, BrushID, out, fill)) {
+        states->emfPlusDrew = true;
+        /* GDI+ default fill rule is alternate (even-odd) */
+        fprintf(
+            out,
+            "<!-- EMF+ FillPath --><%spath d=\"%s\" fill-rule=\"%s\" %s />\n",
+            states->nameSpaceString, d, winding ? "nonzero" : "evenodd", fill);
+    }
+    free(d);
     return (status);
 }
 
@@ -1610,6 +2094,50 @@ int U_PMR_FILLPIE_draw(const char *contents, FILE *out, drawingStates *states) {
 int U_PMR_FILLPOLYGON_draw(const char *contents, FILE *out,
                            drawingStates *states) {
     int status = 1;
+    int btype, ctype, RelAbs, ok;
+    uint32_t i, BrushID, Elements, count, maxpts, psize;
+    U_PMF_POINTF *Points = NULL;
+    U_PMF_CMN_HDR hdr;
+    char fill[128];
+    if (states->inPath)
+        return (status);
+    if (pmf_record_unsafe(states, contents, &hdr))
+        return (status);
+    if (!U_PMR_FILLPOLYGON_get(contents, &hdr, &btype, &ctype, &RelAbs,
+                               &BrushID, &Elements, &Points))
+        return (status);
+    /* relative points are variable-length; not handled yet */
+    if (RelAbs) {
+        free(Points);
+        return (status);
+    }
+    /* U_PMF_VARPOINTS_get NULLs *Points on failure; bound the count by what the
+       record holds (points start at header 12 + BrushID 4 + Elements 4 = 20) */
+    if (Points != NULL) {
+        psize = ctype ? sizeof(U_PMF_POINT) : sizeof(U_PMF_POINTF);
+        maxpts = (hdr.Size > 20) ? (uint32_t)((hdr.Size - 20) / psize) : 0;
+        count = (Elements < maxpts) ? Elements : maxpts;
+        /* a polygon needs >= 3 points and all must be finite (a non-finite
+           coordinate would emit "nan", which DTD validation cannot catch);
+           validate before resolving the fill so no orphan <defs> is emitted */
+        ok = (count >= 3);
+        for (i = 0; ok && i < count; i++) {
+            POINT_D p = pmf_point_cal(states, Points[i].X, Points[i].Y);
+            if (!isfinite(p.x) || !isfinite(p.y))
+                ok = 0;
+        }
+        if (ok && pmf_resolve_fill(states, btype, BrushID, out, fill)) {
+            states->emfPlusDrew = true;
+            fprintf(out, "<!-- EMF+ FillPolygon --><%spath d=\"",
+                    states->nameSpaceString);
+            for (i = 0; i < count; i++) {
+                POINT_D p = pmf_point_cal(states, Points[i].X, Points[i].Y);
+                fprintf(out, "%c %.4f,%.4f ", i ? 'L' : 'M', p.x, p.y);
+            }
+            fprintf(out, "Z\" %s />\n", fill);
+        }
+    }
+    free(Points);
     return (status);
 }
 
@@ -1623,6 +2151,57 @@ int U_PMR_FILLPOLYGON_draw(const char *contents, FILE *out,
 int U_PMR_FILLRECTS_draw(const char *contents, const char *blimit, FILE *out,
                          drawingStates *states) {
     int status = 1;
+    int btype, ctype;
+    uint32_t i, BrushID, Elements;
+    uint64_t avail;
+    bool getterFreed;
+    U_PMF_RECTF *Rects = NULL;
+    U_PMF_CMN_HDR hdr;
+    char fill[128];
+    UNUSED(blimit);
+    /* a GDI path may be open (BEGINPATH..ENDPATH streams an unterminated
+       "<path d=\"" attribute); emitting our own element now would corrupt it */
+    if (states->inPath)
+        return (status);
+    if (pmf_record_unsafe(states, contents, &hdr))
+        return (status);
+    if (!U_PMR_FILLRECTS_get(contents, &hdr, &btype, &ctype, &BrushID,
+                             &Elements, &Rects))
+        return (status);
+    /* The vendored U_PMF_VARRECTS_get leaves *Rects pointing at an already
+       freed buffer (non NULL) when the declared element count does not fit
+       the record, and U_PMR_FILLRECTS_get does not propagate that failure.
+       Recompute its bound (it keeps Rects only when Elements rects of the
+       on-disk size fit after the 20 byte preamble: header 12 + BrushID 4 +
+       Elements 4, and it always validates against sizeof(U_PMF_RECT)). When
+       the buffer was freed we must neither read nor free it again. */
+    avail = (hdr.Size > 20) ? (hdr.Size - 20) : 0;
+    getterFreed = ((uint64_t)Elements * sizeof(U_PMF_RECT)) > avail;
+    /* resolve fill once (emits any <defs>); the same fill applies to every
+       rect in the record */
+    if (!getterFreed && Rects != NULL &&
+        pmf_resolve_fill(states, btype, BrushID, out, fill)) {
+        for (i = 0; i < Elements; i++) {
+            U_PMF_RECTF *r = Rects + i;
+            if (!isfinite(r->X) || !isfinite(r->Y) || !(r->Width >= 0.0) ||
+                !(r->Height >= 0.0))
+                continue;
+            states->emfPlusDrew = true;
+            POINT_D ul = pmf_point_cal(states, r->X, r->Y);
+            POINT_D ur = pmf_point_cal(states, r->X + r->Width, r->Y);
+            POINT_D lr =
+                pmf_point_cal(states, r->X + r->Width, r->Y + r->Height);
+            POINT_D ll = pmf_point_cal(states, r->X, r->Y + r->Height);
+            fprintf(out, "<!-- EMF+ FillRects --><%spath d=\"",
+                    states->nameSpaceString);
+            fprintf(
+                out,
+                "M %.4f,%.4f L %.4f,%.4f L %.4f,%.4f L %.4f,%.4f Z\" %s />\n",
+                ul.x, ul.y, ur.x, ur.y, lr.x, lr.y, ll.x, ll.y, fill);
+        }
+    }
+    if (!getterFreed)
+        free(Rects);
     return (status);
 }
 
@@ -1692,7 +2271,7 @@ int U_PMR_OBJECT_draw(const char *contents, const char *blimit,
         if (ntype) {
             if (checkOutOfEMF(states,
                               (uintptr_t)((uintptr_t)Data +
-                                         (uintptr_t)Header.DataSize - 4)) ||
+                                          (uintptr_t)Header.DataSize - 4)) ||
                 ((int64_t)Header.DataSize - 4) < 0) {
                 status = 0;
             } else {
@@ -1716,6 +2295,22 @@ int U_PMR_OBJECT_draw(const char *contents, const char *blimit,
         ttype = otype;
     }
     if (status) {
+        /* store the completed object in the EMF+ object table so that
+           subsequent records can reference it by object ID */
+        if ((ObjCont->Id >= 0) && (ObjCont->Id < 64) && (ObjCont->used > 0) &&
+            (ObjCont->accum != NULL)) {
+            pmfGraphObject *slot = &(states->pmfObjectTable[ObjCont->Id]);
+            free(slot->data);
+            slot->data = malloc(ObjCont->used);
+            if (slot->data != NULL) {
+                memcpy(slot->data, ObjCont->accum, ObjCont->used);
+                slot->size = ObjCont->used;
+                slot->type = ttype;
+            } else {
+                slot->size = 0;
+                slot->type = 0;
+            }
+        }
         switch (ttype) {
         case U_OT_Brush:
             (void)U_PMF_BRUSH_draw(ObjCont->accum, out, states);
@@ -2026,6 +2621,23 @@ int U_PMR_SETPAGETRANSFORM_draw(const char *contents, FILE *out,
 int U_PMR_SETWORLDTRANSFORM_draw(const char *contents, FILE *out,
                                  drawingStates *states) {
     int status = 1;
+    U_PMF_CMN_HDR hdr;
+    U_PMF_TRANSFORMMATRIX Matrix;
+    UNUSED(out);
+    if (pmf_record_unsafe(states, contents, &hdr))
+        return (status);
+    /* header (12) + 6 floats (24) */
+    if (hdr.Size < 36)
+        return (status);
+    if (!U_PMR_SETWORLDTRANSFORM_get(contents, NULL, &Matrix))
+        return (status);
+    states->pmfM11 = Matrix.m11;
+    states->pmfM12 = Matrix.m12;
+    states->pmfM21 = Matrix.m21;
+    states->pmfM22 = Matrix.m22;
+    states->pmfDx = Matrix.dX;
+    states->pmfDy = Matrix.dY;
+    states->pmfTransformSet = true;
     return (status);
 }
 
