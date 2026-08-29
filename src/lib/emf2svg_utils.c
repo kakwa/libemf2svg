@@ -271,7 +271,6 @@ void endFormDraw(drawingStates *states, FILE *out) {
         bool stroked = false;
         stroke_draw(states, out, &filled, &stroked);
         fill_draw(states, out, &filled, &stroked);
-        clipset_draw(states, out);
         if (!filled)
             fprintf(out, "fill=\"none\" ");
         if (!stroked)

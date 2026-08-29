@@ -19,6 +19,7 @@
 #include "emf2svg.h"
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <string.h>
 // needs to be at the end #define in argp.h messing with other includes
@@ -135,20 +136,22 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    in.seekg(0, std::ios::end);
-    size_t size = in.tellg();
-    char* contents = new char[size];
-    if (!contents) {
-        std::cerr << "[ERROR] Cannot allocate input buffer" << std::endl;
-        in.close();
-        return 1;
-    }
-    in.seekg(0, std::ios::beg);
-    in.read(contents, size);
+    // Read the whole stream sequentially instead of seeking to the end to
+    // learn its size: seeking only works on regular files, so the seek-based
+    // variant made "-i /dev/stdin" unusable whenever stdin was a pipe
+    // (tellg() returns -1, which wraps around to a huge size_t and makes the
+    // allocation below throw).
+    std::string data((std::istreambuf_iterator<char>(in)),
+                     std::istreambuf_iterator<char>());
     in.close();
 
- //   std::string contents((std::istreambuf_iterator<char>(in)),
- //                        std::istreambuf_iterator<char>());
+    size_t size = data.size();
+    char *contents = new char[size ? size : 1];
+    if (!contents) {
+        std::cerr << "[ERROR] Cannot allocate input buffer" << std::endl;
+        return 1;
+    }
+    memcpy(contents, data.data(), size);
 
     char *svg_out = NULL;
     size_t svg_len;
