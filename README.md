@@ -31,6 +31,7 @@ Dependencies
 * libpng
 * libfontconfig
 * libfreetype
+* libxml2
 * fmem (https://github.com/tamatebako/fmem) -- a cross-platform library for opening memory-backed libc streams
 * argp-standalone (https://github.com/tom42/argp-standalone) -- a standalone version of the argp argument parsing functions from glibc, Windows only
 
@@ -48,17 +49,17 @@ apt-get install clang
 apt-get install cmake pkg-config
 
 # library deps with their headers
-apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev zlib1g-dev libuemf-dev
+apt-get install libpng-dev libc6-dev libfontconfig1-dev libfreetype6-dev libxml2-dev zlib1g-dev libuemf-dev
 ```
 
 Installing the dependencies on macOS:
 ```bash
-$ brew install argp-standalone cmake libpng freetype fontconfig gcc
+$ brew install argp-standalone cmake libpng freetype fontconfig libxml2 gcc
 ```
 
 Installing the dependencies on RHEL/CentOS/Fedora:
 ```bash
-yum install cmake libpng-devel freetype-devel fontconfig-devel gcc-c++ gcc
+yum install cmake libpng-devel freetype-devel fontconfig-devel libxml2-devel gcc-c++ gcc
 ```
 
 Installing the dependencies on Windows for MSVC native builds
